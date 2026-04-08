@@ -56,11 +56,11 @@ export async function POST(req: Request) {
     );
   }
 
-  const bad = items.find(
-    (item: typeof items[number]) =>
-      !item.product.isActive || !item.product.store.isActive,
+  const badItem = items.find(
+    (cartItem: typeof items[number]) =>
+      !cartItem.product.isActive || !cartItem.product.store.isActive,
   );
-  if (bad) {
+  if (badItem) {
     return NextResponse.json(
       { ok: false, error: "Hay productos no disponibles en tu carrito." },
       { status: 400 },
@@ -68,7 +68,7 @@ export async function POST(req: Request) {
   }
 
   const storeId = items[0]!.product.storeId;
-  if (items.some((item: typeof items[number]) => item.product.storeId !== storeId)) {
+  if (items.some((cartItem: typeof items[number]) => cartItem.product.storeId !== storeId)) {
     return NextResponse.json(
       { ok: false, error: "El carrito solo puede contener productos de una tienda." },
       { status: 400 },
@@ -77,8 +77,8 @@ export async function POST(req: Request) {
 
   const currency = items[0]!.product.currency;
   const subtotalCents = items.reduce(
-    (sum: number, item: typeof items[number]) =>
-      sum + item.quantity * item.product.priceCents,
+    (sum: number, cartItem: typeof items[number]) =>
+      sum + cartItem.quantity * cartItem.product.priceCents,
     0,
   );
 
@@ -94,11 +94,11 @@ export async function POST(req: Request) {
       subtotalCents,
       currency,
       items: {
-        create: items.map((item: typeof items[number]) => ({
-          productId: item.product.id,
-          name: item.product.name,
-          priceCents: item.product.priceCents,
-          quantity: item.quantity,
+        create: items.map((cartItem: typeof items[number]) => ({
+          productId: cartItem.product.id,
+          name: cartItem.product.name,
+          priceCents: cartItem.product.priceCents,
+          quantity: cartItem.quantity,
         })),
       },
     },
@@ -109,4 +109,3 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ ok: true, orderId: order.id });
 }
-
