@@ -11,11 +11,12 @@ function createPrismaClient() {
     throw new Error("DATABASE_URL environment variable is not set");
   }
 
-  const pool = new pg.Pool({ 
+  const client = new pg.Client({ 
     connectionString,
     ssl: { rejectUnauthorized: false }
   });
-  const adapter = new PrismaPg(pool);
+  
+  const adapter = new PrismaPg(client);
   
   return new PrismaClient({ adapter });
 }
