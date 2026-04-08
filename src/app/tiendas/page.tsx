@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { prisma } from "@/server/prisma";
 
+export const dynamic = "force-dynamic";
+
 export default async function TiendasPage() {
   const stores = await prisma.store.findMany({
     where: { isActive: true },

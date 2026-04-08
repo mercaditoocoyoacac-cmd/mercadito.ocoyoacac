@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { prisma } from "@/server/prisma";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const storeCount = await prisma.store.count({ where: { isActive: true } });
   const productCount = await prisma.product.count({ where: { isActive: true } });
