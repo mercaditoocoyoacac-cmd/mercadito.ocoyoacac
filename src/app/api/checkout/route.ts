@@ -56,7 +56,10 @@ export async function POST(req: Request) {
     );
   }
 
-  const bad = items.find((i) => !i.product.isActive || !i.product.store.isActive);
+  const bad = items.find(
+    (item: typeof items[number]) =>
+      !item.product.isActive || !item.product.store.isActive,
+  );
   if (bad) {
     return NextResponse.json(
       { ok: false, error: "Hay productos no disponibles en tu carrito." },
@@ -65,7 +68,7 @@ export async function POST(req: Request) {
   }
 
   const storeId = items[0]!.product.storeId;
-  if (items.some((i) => i.product.storeId !== storeId)) {
+  if (items.some((item: typeof items[number]) => item.product.storeId !== storeId)) {
     return NextResponse.json(
       { ok: false, error: "El carrito solo puede contener productos de una tienda." },
       { status: 400 },
@@ -74,7 +77,8 @@ export async function POST(req: Request) {
 
   const currency = items[0]!.product.currency;
   const subtotalCents = items.reduce(
-    (sum, i) => sum + i.quantity * i.product.priceCents,
+    (sum: number, item: typeof items[number]) =>
+      sum + item.quantity * item.product.priceCents,
     0,
   );
 
@@ -90,11 +94,11 @@ export async function POST(req: Request) {
       subtotalCents,
       currency,
       items: {
-        create: items.map((i) => ({
-          productId: i.product.id,
-          name: i.product.name,
-          priceCents: i.product.priceCents,
-          quantity: i.quantity,
+        create: items.map((item: typeof items[number]) => ({
+          productId: item.product.id,
+          name: item.product.name,
+          priceCents: item.product.priceCents,
+          quantity: item.quantity,
         })),
       },
     },
