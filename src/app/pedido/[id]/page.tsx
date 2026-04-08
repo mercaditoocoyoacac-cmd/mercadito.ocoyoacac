@@ -98,15 +98,15 @@ export default async function PedidoPage({
             </tr>
           </thead>
           <tbody>
-            {order.items.map((i) => (
+            {order.items.map((item: typeof order.items[number]) => (
               <tr
-                key={i.id}
+                key={item.id}
                 className="border-t border-[var(--border)]"
               >
-                <td className="px-4 py-3">{i.name}</td>
-                <td className="px-4 py-3">{i.quantity}</td>
+                <td className="px-4 py-3">{item.name}</td>
+                <td className="px-4 py-3">{item.quantity}</td>
                 <td className="px-4 py-3 font-medium">
-                  {formatMoney(i.priceCents * i.quantity, order.currency)}
+                  {formatMoney(item.priceCents * item.quantity, order.currency)}
                 </td>
               </tr>
             ))}
