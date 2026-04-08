@@ -171,13 +171,13 @@ export default async function VendorDashboard() {
             </div>
           ) : (
             <div className="divide-y divide-[var(--border)]">
-              {products.map((p) => (
-                <div key={p.id} className="flex items-center gap-4 px-5 py-3">
-                  {p.imageUrl ? (
+              {products.map((product: typeof products[number]) => (
+                <div key={product.id} className="flex items-center gap-4 px-5 py-3">
+                  {product.imageUrl ? (
                     <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md border border-[var(--border)]">
                       <img
-                        src={p.imageUrl}
-                        alt={p.name}
+                        src={product.imageUrl}
+                        alt={product.name}
                         className="h-full w-full object-cover"
                       />
                     </div>
@@ -187,13 +187,13 @@ export default async function VendorDashboard() {
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium">{p.name}</div>
+                    <div className="truncate text-sm font-medium">{product.name}</div>
                     <div className="text-xs text-[color:var(--muted)]">
-                      {formatMoney(p.priceCents, p.currency)}
+                      {formatMoney(product.priceCents, product.currency)}
                     </div>
                   </div>
-                  <div className={`text-xs ${p.isActive ? "text-green-600" : "text-[var(--muted)]"}`}>
-                    {p.isActive ? "Activo" : "Inactivo"}
+                  <div className={`text-xs ${product.isActive ? "text-green-600" : "text-[var(--muted)]"}`}>
+                    {product.isActive ? "Activo" : "Inactivo"}
                   </div>
                 </div>
               ))}
@@ -214,31 +214,31 @@ export default async function VendorDashboard() {
             </div>
           ) : (
             <div className="divide-y divide-[var(--border)]">
-              {orders.map((o) => (
-                <div key={o.id} className="flex items-center justify-between px-5 py-3">
+              {orders.map((order: typeof orders[number]) => (
+                <div key={order.id} className="flex items-center justify-between px-5 py-3">
                   <div>
                     <div className="text-sm font-medium">
-                      #{o.id.slice(-6).toUpperCase()}
+                      #{order.id.slice(-6).toUpperCase()}
                     </div>
                     <div className="text-xs text-[color:var(--muted)]">
-                      {new Date(o.createdAt).toLocaleDateString("es-MX")}
+                      {new Date(order.createdAt).toLocaleDateString("es-MX")}
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="text-sm font-medium">
-                      {formatMoney(o.subtotalCents, "MXN")}
+                      {formatMoney(order.subtotalCents, "MXN")}
                     </div>
                     <div className={`text-xs ${
-                      o.status === "PENDING" ? "text-yellow-600" :
-                      o.status === "COMPLETED" ? "text-green-600" :
-                      o.status === "CANCELLED" ? "text-red-600" :
+                      order.status === "PENDING" ? "text-yellow-600" :
+                      order.status === "COMPLETED" ? "text-green-600" :
+                      order.status === "CANCELLED" ? "text-red-600" :
                       "text-blue-600"
                     }`}>
-                      {o.status === "PENDING" ? "Pendiente" :
-                       o.status === "CONFIRMED" ? "Confirmado" :
-                       o.status === "READY" ? "Listo" :
-                       o.status === "OUT_FOR_DELIVERY" ? "En camino" :
-                       o.status === "COMPLETED" ? "Completado" :
+                      {order.status === "PENDING" ? "Pendiente" :
+                       order.status === "CONFIRMED" ? "Confirmado" :
+                       order.status === "READY" ? "Listo" :
+                       order.status === "OUT_FOR_DELIVERY" ? "En camino" :
+                       order.status === "COMPLETED" ? "Completado" :
                        "Cancelado"}
                     </div>
                   </div>

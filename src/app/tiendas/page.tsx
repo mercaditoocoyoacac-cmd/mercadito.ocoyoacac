@@ -55,32 +55,32 @@ export default async function TiendasPage() {
         </div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {stores.map((s) => (
+          {stores.map((store: typeof stores[number]) => (
             <Link
-              key={s.id}
-              href={`/tienda/${s.slug}`}
+              key={store.id}
+              href={`/tienda/${store.slug}`}
               className="group rounded-2xl border border-[var(--border)] bg-white overflow-hidden shadow-sm transition-all hover:shadow-lg hover:-translate-y-1"
             >
               <div className="aspect-video bg-gradient-to-br from-[var(--accent-soft)] to-[var(--accent)] p-6 flex items-center justify-center">
-                {s.imageUrl ? (
+                {store.imageUrl ? (
                   <img
-                    src={s.imageUrl}
-                    alt={s.name}
+                    src={store.imageUrl}
+                    alt={store.name}
                     className="h-full w-full object-cover rounded-xl"
                   />
                 ) : (
                   <div className="h-20 w-20 rounded-full bg-white/50 flex items-center justify-center text-3xl font-bold text-[var(--accent)]">
-                    {s.name.charAt(0).toUpperCase()}
+                    {store.name.charAt(0).toUpperCase()}
                   </div>
                 )}
               </div>
               <div className="p-5">
                 <h3 className="text-lg font-semibold group-hover:text-[var(--accent)] transition-colors">
-                  {s.name}
+                  {store.name}
                 </h3>
-                {s.description ? (
+                {store.description ? (
                   <p className="mt-2 text-sm text-[color:var(--muted)] line-clamp-2">
-                    {s.description}
+                    {store.description}
                   </p>
                 ) : null}
                 <div className="mt-4 flex items-center justify-between">
@@ -88,15 +88,15 @@ export default async function TiendasPage() {
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
-                    {s.products.length} productos
+                    {store.products.length} productos
                   </div>
-                  {s.address ? (
+                  {store.address ? (
                     <div className="flex items-center gap-1 text-xs text-[color:var(--muted)]">
                       <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
-                      {s.address}
+                      {store.address}
                     </div>
                   ) : null}
                 </div>

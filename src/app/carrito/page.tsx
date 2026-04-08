@@ -32,7 +32,7 @@ export default function CarritoPage() {
   const subtotal = useMemo(
     () =>
       (items ?? []).reduce(
-        (sum, i) => sum + i.quantity * i.product.priceCents,
+        (sum, item) => sum + item.quantity * item.product.priceCents,
         0,
       ),
     [items],
@@ -124,15 +124,15 @@ export default function CarritoPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {(items ?? []).map((i) => (
+                  {(items ?? []).map((item) => (
                     <tr
-                      key={i.product.id}
+                      key={item.product.id}
                       className="border-t border-[var(--border)]"
                     >
                       <td className="px-4 py-3">
-                        <div className="font-medium">{i.product.name}</div>
+                        <div className="font-medium">{item.product.name}</div>
                         <div className="text-xs text-[color:var(--muted)]">
-                          {formatMoney(i.product.priceCents, i.product.currency)}
+                          {formatMoney(item.product.priceCents, item.product.currency)}
                         </div>
                       </td>
                       <td className="px-4 py-3">
@@ -141,12 +141,12 @@ export default function CarritoPage() {
                             type="button"
                             className="h-8 w-8 rounded-md border border-[var(--border)] hover:bg-[var(--accent-soft)]"
                             onClick={async () => {
-                              const next = Math.max(0, i.quantity - 1);
+                              const next = Math.max(0, item.quantity - 1);
                               await fetch("/api/cart/items", {
                                 method: "PUT",
                                 headers: { "content-type": "application/json" },
                                 body: JSON.stringify({
-                                  productId: i.product.id,
+                                  productId: item.product.id,
                                   quantity: next,
                                 }),
                               });
@@ -155,17 +155,17 @@ export default function CarritoPage() {
                           >
                             -
                           </button>
-                          <div className="w-6 text-center">{i.quantity}</div>
+                          <div className="w-6 text-center">{item.quantity}</div>
                           <button
                             type="button"
                             className="h-8 w-8 rounded-md border border-[var(--border)] hover:bg-[var(--accent-soft)]"
                             onClick={async () => {
-                              const next = Math.min(99, i.quantity + 1);
+                              const next = Math.min(99, item.quantity + 1);
                               await fetch("/api/cart/items", {
                                 method: "PUT",
                                 headers: { "content-type": "application/json" },
                                 body: JSON.stringify({
-                                  productId: i.product.id,
+                                  productId: item.product.id,
                                   quantity: next,
                                 }),
                               });
@@ -178,8 +178,8 @@ export default function CarritoPage() {
                       </td>
                       <td className="px-4 py-3 font-medium">
                         {formatMoney(
-                          i.quantity * i.product.priceCents,
-                          i.product.currency,
+                          item.quantity * item.product.priceCents,
+                          item.product.currency,
                         )}
                       </td>
                     </tr>
@@ -305,4 +305,3 @@ export default function CarritoPage() {
     </main>
   );
 }
-

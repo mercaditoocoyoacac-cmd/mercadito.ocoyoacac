@@ -89,33 +89,33 @@ export default async function VendorProductosPage() {
               </tr>
             </thead>
             <tbody>
-              {products.map((p) => (
-                <tr key={p.id} className="border-t border-[var(--border)]">
+              {products.map((product: typeof products[number]) => (
+                <tr key={product.id} className="border-t border-[var(--border)]">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      {p.imageUrl && (
+                      {product.imageUrl && (
                         <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md border border-[var(--border)]">
                           <img
-                            src={p.imageUrl}
-                            alt={p.name}
+                            src={product.imageUrl}
+                            alt={product.name}
                             className="h-full w-full object-cover"
                           />
                         </div>
                       )}
-                      <span className={!p.imageUrl ? "ml-10" : ""}>
-                        {p.name}
+                      <span className={!product.imageUrl ? "ml-10" : ""}>
+                        {product.name}
                       </span>
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    {formatMoney(p.priceCents, p.currency)}
+                    {formatMoney(product.priceCents, product.currency)}
                   </td>
                   <td className="px-4 py-3">
-                    {p.isActive ? "Activo" : "Inactivo"}
+                    {product.isActive ? "Activo" : "Inactivo"}
                   </td>
                   <td className="px-4 py-3">
                     <Link
-                      href={`/vendor/productos/${p.id}`}
+                      href={`/vendor/productos/${product.id}`}
                       className="text-[color:var(--accent)] hover:underline"
                     >
                       Editar

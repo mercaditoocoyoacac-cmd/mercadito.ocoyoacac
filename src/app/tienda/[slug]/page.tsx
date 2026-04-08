@@ -85,27 +85,27 @@ export default async function StorefrontPage({
         </div>
       ) : (
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {products.map((p) => (
+          {products.map((product: typeof products[number]) => (
             <div
-              key={p.id}
+              key={product.id}
               className="rounded-xl border border-[var(--border)] overflow-hidden bg-white"
             >
-              {p.imageUrl && (
+              {product.imageUrl && (
                 <div className="h-36 overflow-hidden bg-[var(--accent-soft)]">
                   <img
-                    src={p.imageUrl}
-                    alt={p.name}
+                    src={product.imageUrl}
+                    alt={product.name}
                     className="h-full w-full object-cover"
                   />
                 </div>
               )}
               <div className="p-3">
-                <div className="text-sm font-semibold truncate">{p.name}</div>
+                <div className="text-sm font-semibold truncate">{product.name}</div>
                 <div className="text-sm font-semibold text-[var(--accent)]">
-                  {formatMoney(p.priceCents, p.currency)}
+                  {formatMoney(product.priceCents, product.currency)}
                 </div>
                 <div className="mt-2">
-                  <AddToCartButton productId={p.id} />
+                  <AddToCartButton productId={product.id} />
                 </div>
               </div>
             </div>
