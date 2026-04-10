@@ -197,6 +197,12 @@ export function NavBar() {
                 >
                   Registrarse
                 </Link>
+                <Link
+                  href="/delivery/login"
+                  className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium text-[color:var(--muted)] transition-colors hover:bg-gray-100 hover:text-gray-900"
+                >
+                  Repartidor
+                </Link>
               </div>
             )}
           </div>
@@ -336,6 +342,13 @@ export function NavBar() {
                     className="rounded-lg bg-[var(--accent)] px-4 py-3 text-sm font-medium text-center text-white"
                   >
                     Crear cuenta
+                  </Link>
+                  <Link
+                    href="/delivery/login"
+                    onClick={() => setMenuOpen(false)}
+                    className="rounded-lg border border-[var(--border)] px-4 py-3 text-sm font-medium text-center text-[color:var(--muted)]"
+                  >
+                    Soy repartidor
                   </Link>
                 </>
               )}
