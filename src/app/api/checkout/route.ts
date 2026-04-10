@@ -81,6 +81,8 @@ export async function POST(req: Request) {
       sum + cartItem.quantity * cartItem.product.priceCents,
     0,
   );
+  const deliveryCents = 0;
+  const totalCents = subtotalCents + deliveryCents;
 
   const order = await prisma.order.create({
     data: {
@@ -92,6 +94,8 @@ export async function POST(req: Request) {
       customerAddress: parsed.data.customerAddress?.trim() || null,
       notes: parsed.data.notes?.trim() || null,
       subtotalCents,
+      deliveryCents,
+      totalCents,
       currency,
       items: {
         create: items.map((cartItem: typeof items[number]) => ({

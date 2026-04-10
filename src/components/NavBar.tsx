@@ -54,6 +54,22 @@ export function NavBar() {
               Carrito
             </Link>
             
+            {data?.user && !isVendor && (
+              <Link
+                href="/mis-pedidos"
+                className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
+                  isActive("/mis-pedidos")
+                    ? "bg-[var(--accent-soft)] text-[var(--accent)]"
+                    : "text-[color:var(--muted)] hover:bg-gray-100 hover:text-gray-900"
+                }`}
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                Mis pedidos
+              </Link>
+            )}
+            
             {isVendor ? (
               <div className="relative">
                 <button
@@ -208,6 +224,18 @@ export function NavBar() {
               >
                 Carrito
               </Link>
+              
+              {data?.user && !isVendor && (
+                <Link
+                  href="/mis-pedidos"
+                  onClick={() => setMenuOpen(false)}
+                  className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${
+                    isActive("/mis-pedidos") ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                  }`}
+                >
+                  Mis pedidos
+                </Link>
+              )}
               
               {isVendor ? (
                 <>
