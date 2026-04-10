@@ -57,10 +57,6 @@ export default async function VendorDashboard() {
     store.subscription.status === "ACTIVE" && 
     new Date(store.subscription.endDate) > new Date();
 
-  const subscriptionActive = store.subscription && 
-    store.subscription.status === "ACTIVE" && 
-    new Date(store.subscription.endDate) > new Date();
-
   const products = await prisma.product.findMany({
     where: { storeId: store.id },
     select: {
