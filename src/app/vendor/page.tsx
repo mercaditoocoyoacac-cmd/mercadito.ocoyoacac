@@ -16,22 +16,6 @@ export default async function VendorDashboard() {
   const store = await prisma.store.findFirst({
     where: { ownerId: userId },
     include: { subscription: true },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      description: true,
-      phone: true,
-      address: true,
-      imageUrl: true,
-      isPublished: true,
-      subscription: {
-        select: {
-          status: true,
-          endDate: true,
-        },
-      },
-    },
   });
 
   if (!store) {
@@ -68,6 +52,10 @@ export default async function VendorDashboard() {
       </div>
     );
   }
+
+  const subscriptionActive = store.subscription && 
+    store.subscription.status === "ACTIVE" && 
+    new Date(store.subscription.endDate) > new Date();
 
   const subscriptionActive = store.subscription && 
     store.subscription.status === "ACTIVE" && 
