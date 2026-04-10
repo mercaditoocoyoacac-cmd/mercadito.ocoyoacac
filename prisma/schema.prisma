@@ -43,16 +43,33 @@ model Store {
   address     String?
   imageUrl    String?
   isActive    Boolean  @default(true)
+  isPublished Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   ownerId String
   owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 
-  products Product[]
-  orders   Order[]
+  products     Product[]
+  orders       Order[]
+  subscription Subscription?
 
   @@index([ownerId])
+}
+
+model Subscription {
+  id            String             @id @default(cuid())
+  status        SubscriptionStatus @default(EXPIRED)
+  startDate     DateTime           @default(now())
+  endDate       DateTime
+  monthlyPriceCents Int            @default(15000)
+  paymentMethod String?
+  paymentReference String?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  storeId String @unique
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
 }
 
 model Product {
@@ -102,6 +119,12 @@ enum OrderStatus {
 enum FulfillmentType {
   PICKUP
   DELIVERY
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
 }
 
 model Order {

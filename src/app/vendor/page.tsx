@@ -15,6 +15,7 @@ export default async function VendorDashboard() {
 
   const store = await prisma.store.findFirst({
     where: { ownerId: userId },
+    include: { subscription: true },
     select: {
       id: true,
       name: true,
@@ -23,6 +24,13 @@ export default async function VendorDashboard() {
       phone: true,
       address: true,
       imageUrl: true,
+      isPublished: true,
+      subscription: {
+        select: {
+          status: true,
+          endDate: true,
+        },
+      },
     },
   });
 
@@ -60,6 +68,10 @@ export default async function VendorDashboard() {
       </div>
     );
   }
+
+  const subscriptionActive = store.subscription && 
+    store.subscription.status === "ACTIVE" && 
+    new Date(store.subscription.endDate) > new Date();
 
   const products = await prisma.product.findMany({
     where: { storeId: store.id },
@@ -106,6 +118,23 @@ export default async function VendorDashboard() {
 
   return (
     <div className="space-y-6">
+      {!subscriptionActive && (
+        <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <svg className="h-5 w-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <div>
+                <div className="font-medium text-yellow-800">Membresía inactiva</div>
+                <div className="text-sm text-yellow-700">
+                  Tu tienda no está visible para los clientes. Contacta al administrador para activar tu membresía.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">

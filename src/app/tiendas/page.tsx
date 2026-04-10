@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 export default async function TiendasPage() {
   const stores = await prisma.store.findMany({
-    where: { isActive: true },
+    where: { isActive: true, isPublished: true },
     orderBy: { createdAt: "desc" },
     select: { 
       id: true, 
