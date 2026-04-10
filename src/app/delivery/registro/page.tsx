@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
 
-export default function DeliveryLoginPage() {
+export default function DeliveryRegistroPage() {
   const router = useRouter();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -15,9 +16,9 @@ export default function DeliveryLoginPage() {
   return (
     <main className="mx-auto w-full max-w-md flex-1 px-4 py-10">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">Portal de Repartidores</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Registro de Repartidor</h1>
         <p className="mt-2 text-sm text-[color:var(--muted)]">
-          Accede para ver y entregar pedidos.
+          Únete al equipo de repartidores de Mercadito Ocoyoacac.
         </p>
       </div>
 
@@ -27,20 +28,48 @@ export default function DeliveryLoginPage() {
           e.preventDefault();
           setLoading(true);
           setError(null);
-          const res = await signIn("credentials", {
+          const res = await fetch("/api/register", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              name: name.trim() || undefined,
+              email,
+              password,
+              role: "DELIVERY",
+            }),
+          });
+          const data = (await res.json().catch(() => null)) as
+            | { ok: true; user: { id: string; email: string } }
+            | { ok: false; error?: string }
+            | null;
+          if (!res.ok || !data?.ok) {
+            setLoading(false);
+            const msg = data && "error" in data ? data.error : "No se pudo registrar.";
+            setError(msg ?? "No se pudo registrar.");
+            return;
+          }
+
+          const login = await signIn("credentials", {
             email,
             password,
             redirect: false,
             callbackUrl: "/delivery",
           });
           setLoading(false);
-          if (!res || res.error) {
-            setError("Correo o contraseña incorrectos.");
-            return;
-          }
-          router.push(res.url ?? "/delivery");
+          router.push(login?.url ?? "/delivery");
         }}
       >
+        <label className="block">
+          <div className="text-sm font-medium">Nombre</div>
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+            placeholder="Tu nombre completo"
+          />
+        </label>
+
         <label className="block">
           <div className="text-sm font-medium">Correo</div>
           <input
@@ -61,7 +90,7 @@ export default function DeliveryLoginPage() {
             type="password"
             required
             className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-            placeholder="********"
+            placeholder="Mínimo 8 caracteres"
           />
         </label>
 
@@ -76,14 +105,14 @@ export default function DeliveryLoginPage() {
           disabled={loading}
           className="w-full rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
         >
-          {loading ? "Entrando..." : "Entrar"}
+          {loading ? "Registrando..." : "Registrarse"}
         </button>
       </form>
 
       <div className="mt-6 text-sm text-[color:var(--muted)]">
-        ¿No tienes cuenta?{" "}
-        <Link className="underline" href="/delivery/registro">
-          Regístrate como repartidor
+        ¿Ya tienes cuenta?{" "}
+        <Link className="underline" href="/delivery/login">
+          Inicia sesión
         </Link>
       </div>
     </main>
