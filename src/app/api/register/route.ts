@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     const parsed = RegisterSchema.safeParse(json);
     if (!parsed.success) {
       return NextResponse.json(
-        { ok: false, error: "Datos inválidos: " + parsed.error.errors.map(e => e.message).join(", ") },
+        { ok: false, error: "Datos inválidos: " + parsed.error.issues.map(e => e.message).join(", ") },
         { status: 400 },
       );
     }
