@@ -12,7 +12,7 @@ const RegisterSchema = z.object({
     "La contraseña debe contener: mayúscula, minúscula, número y carácter especial"
   ),
   name: z.string().min(2).max(80).optional(),
-  role: z.enum(["CUSTOMER", "VENDOR", "DELIVERY"]).optional(),
+  role: z.enum(["CUSTOMER", "VENDOR", "DELIVERY", "ADMIN"]).optional(),
   adminKey: z.string().optional(),
 });
 
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
       );
     }
 
-    let userRole = role ?? "CUSTOMER";
+    let userRole: "CUSTOMER" | "VENDOR" | "DELIVERY" | "ADMIN" = role ?? "CUSTOMER";
 
     if (adminKey !== ADMIN_SECRET_KEY) {
       return NextResponse.json(
