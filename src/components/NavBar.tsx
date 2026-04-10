@@ -14,6 +14,7 @@ export function NavBar() {
 
   const isActive = (path: string) => pathname === path;
   const isVendor = role === "VENDOR" || role === "ADMIN";
+  const isDelivery = role === "DELIVERY";
 
   return (
     <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-white/95 backdrop-blur-md">
@@ -150,6 +151,20 @@ export function NavBar() {
                   </div>
                 )}
               </div>
+            ) : isDelivery ? (
+              <Link
+                href="/delivery"
+                className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
+                  pathname.startsWith("/delivery")
+                    ? "bg-[var(--accent)] text-white"
+                    : "bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-white"
+                }`}
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+                </svg>
+                Repartidor
+              </Link>
             ) : null}
           </nav>
 
@@ -276,6 +291,19 @@ export function NavBar() {
                     + Nuevo Producto
                   </Link>
                 </>
+              ) : isDelivery ? (
+                <Link
+                  href="/delivery"
+                  onClick={() => setMenuOpen(false)}
+                  className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${
+                    pathname.startsWith("/delivery") ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                  }`}
+                >
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+                  </svg>
+                  Panel Repartidor
+                </Link>
               ) : null}
               
               <div className="my-2 border-t border-[var(--border)]"></div>

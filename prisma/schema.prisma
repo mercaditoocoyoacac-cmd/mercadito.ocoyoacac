@@ -14,6 +14,7 @@ datasource db {
 enum Role {
   CUSTOMER
   VENDOR
+  DELIVERY
   ADMIN
 }
 
@@ -27,7 +28,8 @@ model User {
   updatedAt    DateTime @updatedAt
 
   stores        Store[]
-  orders        Order[]
+  orders        Order[]       @relation("OrderCustomer")
+  deliveries    Order[]       @relation("OrderDelivery")
   cartItems     CartItem[]
   sessions      Session[]
 }
@@ -118,14 +120,18 @@ model Order {
   updatedAt       DateTime        @updatedAt
 
   userId  String
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User    @relation("OrderCustomer", fields: [userId], references: [id], onDelete: Cascade)
   storeId String
   store   Store   @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  deliveryUserId String?
+  deliveryUser   User?   @relation("OrderDelivery", fields: [deliveryUserId], references: [id])
 
   items OrderItem[]
 
   @@index([userId])
   @@index([storeId])
+  @@index([deliveryUserId])
 }
 
 model OrderItem {
