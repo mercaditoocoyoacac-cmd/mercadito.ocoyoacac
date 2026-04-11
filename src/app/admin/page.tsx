@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
@@ -197,6 +198,57 @@ export default async function AdminDashboard() {
             ))}
           </div>
         )}
+      </div>
+
+      <div className="mt-8 grid gap-4 sm:grid-cols-3">
+        <Link
+          href="/admin/membresias"
+          className="rounded-xl border border-[var(--border)] p-5 hover:bg-[var(--accent-soft)] transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-[var(--accent-soft)] flex items-center justify-center">
+              <svg className="h-5 w-5 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <div>
+              <div className="font-semibold">Membresías</div>
+              <div className="text-xs text-[color:var(--muted)]">Gestionar tiendas</div>
+            </div>
+          </div>
+        </Link>
+        <Link
+          href="/admin/usuarios"
+          className="rounded-xl border border-[var(--border)] p-5 hover:bg-[var(--accent-soft)] transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-[var(--accent-soft)] flex items-center justify-center">
+              <svg className="h-5 w-5 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            </div>
+            <div>
+              <div className="font-semibold">Usuarios</div>
+              <div className="text-xs text-[color:var(--muted)]">Clientes y vendedores</div>
+            </div>
+          </div>
+        </Link>
+        <Link
+          href="/admin/pedidos"
+          className="rounded-xl border border-[var(--border)] p-5 hover:bg-[var(--accent-soft)] transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-[var(--accent-soft)] flex items-center justify-center">
+              <svg className="h-5 w-5 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+            </div>
+            <div>
+              <div className="font-semibold">Pedidos</div>
+              <div className="text-xs text-[color:var(--muted)]">Todos los pedidos</div>
+            </div>
+          </div>
+        </Link>
       </div>
     </main>
   );
