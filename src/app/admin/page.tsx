@@ -11,10 +11,15 @@ function formatMoney(cents: number, currency: string) {
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboard() {
-  const session = await getSession();
+  let session;
+  try {
+    session = await getSession();
+  } catch (e) {
+    console.error("Session error:", e);
+  }
 
   if (!session?.user?.id || session.user.role !== "ADMIN") {
-    redirect("/");
+    redirect("/admin/login");
   }
 
   const [

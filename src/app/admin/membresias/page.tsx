@@ -13,7 +13,7 @@ export default async function AdminSubscriptionsPage() {
 
   const stores = await prisma.store.findMany({
     include: {
-      owner: { select: { email: true, name: true } },
+      owner: { select: { id: true, email: true, name: true, isActive: true } },
       subscription: true,
     },
     orderBy: { createdAt: "desc" },
@@ -135,6 +135,31 @@ export default async function AdminSubscriptionsPage() {
                         Renovar membresía
                       </button>
                     </form>
+                    {store.owner.isActive ? (
+                      <form action={async () => {
+                        "use server";
+                        await prisma.user.update({
+                          where: { id: store.owner.id },
+                          data: { isActive: false },
+                        });
+                      }}>
+                        <button className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700">
+                          Suspender vendedor
+                        </button>
+                      </form>
+                    ) : (
+                      <form action={async () => {
+                        "use server";
+                        await prisma.user.update({
+                          where: { id: store.owner.id },
+                          data: { isActive: true },
+                        });
+                      }}>
+                        <button className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700">
+                          Activar vendedor
+                        </button>
+                      </form>
+                    )}
                   </div>
                 </div>
               );

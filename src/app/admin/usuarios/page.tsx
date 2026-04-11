@@ -17,6 +17,7 @@ export default async function AdminUsersPage() {
       email: true,
       name: true,
       role: true,
+      isActive: true,
       createdAt: true,
       stores: { select: { id: true, name: true, isPublished: true } },
       orders: { select: { id: true } },
@@ -105,6 +106,40 @@ export default async function AdminUsersPage() {
                     )}
                   </div>
                 </div>
+                {user.role !== "ADMIN" && (
+                  <div className="mt-3 flex gap-2">
+                    {user.isActive ? (
+                      <form action={async () => {
+                        "use server";
+                        await prisma.user.update({
+                          where: { id: user.id },
+                          data: { isActive: false },
+                        });
+                      }}>
+                        <button className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700">
+                          Suspender usuario
+                        </button>
+                      </form>
+                    ) : (
+                      <form action={async () => {
+                        "use server";
+                        await prisma.user.update({
+                          where: { id: user.id },
+                          data: { isActive: true },
+                        });
+                      }}>
+                        <button className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700">
+                          Activar usuario
+                        </button>
+                      </form>
+                    )}
+                  </div>
+                )}
+                {!user.isActive && (
+                  <div className="mt-2 text-xs text-red-600 font-medium">
+                    ⚠ Usuario suspended
+                  </div>
+                )}
               </div>
             ))}
           </div>
