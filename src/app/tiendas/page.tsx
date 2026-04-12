@@ -114,10 +114,10 @@ export default async function TiendasPage() {
           Llega a más clientes creando tu tienda gratis en Mercadito.
         </p>
         <Link
-          href="/vendor/registro"
+          href="/vendor/upgrade"
           className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[var(--accent)] px-6 py-2.5 text-sm font-semibold text-white transition-transform hover:scale-105 hover:bg-[var(--accent-hover)]"
         >
-          Crear tienda gratis
+          Crear tienda
         </Link>
       </div>
     </main>

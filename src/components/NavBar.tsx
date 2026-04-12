@@ -438,11 +438,18 @@ export function NavBar() {
               
               <div className="my-2 border-t border-[var(--border)]"></div>
               
-              {data?.user ? (
+{data?.user && !isVendor && (
                 <>
-                  <div className="px-4 py-2 text-xs text-[color:var(--muted)]">
+                  <div className="text-xs text-[color:var(--muted)]">
                     {data.user.email}
                   </div>
+                  <Link
+                    href="/vendor/upgrade"
+                    onClick={() => setMenuOpen(false)}
+                    className="rounded-lg px-4 py-3 text-sm font-medium text-[var(--accent)]"
+                  >
+                    Convertirme en vendedor
+                  </Link>
                   <button
                     type="button"
                     onClick={() => { setMenuOpen(false); signOut({ callbackUrl: "/" }); }}
@@ -450,30 +457,6 @@ export function NavBar() {
                   >
                     Cerrar sesión
                   </button>
-                </>
-              ) : (
-                <>
-                  <Link
-                    href="/login"
-                    onClick={() => setMenuOpen(false)}
-                    className="rounded-lg px-4 py-3 text-sm font-medium text-[color:var(--muted)]"
-                  >
-                    Iniciar sesión
-                  </Link>
-                  <Link
-                    href="/registro"
-                    onClick={() => setMenuOpen(false)}
-                    className="rounded-lg bg-[var(--accent)] px-4 py-3 text-sm font-medium text-center text-white"
-                  >
-                    Crear cuenta
-                  </Link>
-                  <Link
-                    href="/delivery/login"
-                    onClick={() => setMenuOpen(false)}
-                    className="rounded-lg border border-[var(--border)] px-4 py-3 text-sm font-medium text-center text-[color:var(--muted)]"
-                  >
-                    Soy repartidor
-                  </Link>
                 </>
               )}
             </nav>
