@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 
@@ -89,6 +90,7 @@ export default async function AdminSubscriptionsPage() {
                           where: { id: store.id },
                           data: { isPublished: true },
                         });
+                        revalidatePath("/admin/membresias");
                       }}>
                         <button className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700">
                           Activar tienda
@@ -102,6 +104,7 @@ export default async function AdminSubscriptionsPage() {
                           where: { id: store.id },
                           data: { isPublished: false },
                         });
+                        revalidatePath("/admin/membresias");
                       }}>
                         <button className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700">
                           Desactivar tienda
@@ -130,6 +133,7 @@ export default async function AdminSubscriptionsPage() {
                         where: { id: store.id },
                         data: { isPublished: true },
                       });
+                      revalidatePath("/admin/membresias");
                     }}>
                       <button className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700">
                         Renovar membresía
@@ -142,6 +146,7 @@ export default async function AdminSubscriptionsPage() {
                           where: { id: store.owner.id },
                           data: { isActive: false },
                         });
+                        revalidatePath("/admin/membresias");
                       }}>
                         <button className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700">
                           Suspender vendedor
@@ -154,6 +159,7 @@ export default async function AdminSubscriptionsPage() {
                           where: { id: store.owner.id },
                           data: { isActive: true },
                         });
+                        revalidatePath("/admin/membresias");
                       }}>
                         <button className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700">
                           Activar vendedor
@@ -166,6 +172,7 @@ export default async function AdminSubscriptionsPage() {
                         where: { id: store.id },
                         data: { acceptsMercadoPago: !store.acceptsMercadoPago },
                       });
+                      revalidatePath("/admin/membresias");
                     }}>
                       <button className={`rounded-lg px-3 py-1.5 text-xs font-medium ${
                         store.acceptsMercadoPago
