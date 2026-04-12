@@ -160,6 +160,21 @@ export default async function AdminSubscriptionsPage() {
                         </button>
                       </form>
                     )}
+                    <form action={async () => {
+                      "use server";
+                      await prisma.store.update({
+                        where: { id: store.id },
+                        data: { acceptsMercadoPago: !store.acceptsMercadoPago },
+                      });
+                    }}>
+                      <button className={`rounded-lg px-3 py-1.5 text-xs font-medium ${
+                        store.acceptsMercadoPago
+                          ? "bg-yellow-500 text-white hover:bg-yellow-600"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                      }`}>
+                        {store.acceptsMercadoPago ? "MercadoPago ✓" : "MercadoPago ✗"}
+                      </button>
+                    </form>
                   </div>
                 </div>
               );

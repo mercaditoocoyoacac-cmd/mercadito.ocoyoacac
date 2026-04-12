@@ -45,6 +45,7 @@ model Store {
   imageUrl    String?
   isActive    Boolean  @default(true)
   isPublished Boolean  @default(false)
+  acceptsMercadoPago Boolean @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
