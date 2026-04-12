@@ -114,6 +114,7 @@ export async function POST(req: Request) {
   await prisma.cartItem.deleteMany({ where: { userId: auth.userId } });
 
   let paymentUrl: string | undefined;
+  let storeName = "Unknown";
 
   if (parsed.data.paymentMethod === "ONLINE") {
     const store = await prisma.store.findUnique({
@@ -121,7 +122,7 @@ export async function POST(req: Request) {
       select: { mercadoPagoAccessToken: true, name: true, acceptsMercadoPago: true },
     });
 
-    const storeName = store?.name || "Unknown";
+    storeName = store?.name || "Unknown";
     console.log("MP payment check - Store:", storeName, "hasToken:", !!store?.mercadoPagoAccessToken, "acceptsMP:", store?.acceptsMercadoPago);
 
     if (store?.mercadoPagoAccessToken) {
