@@ -47,6 +47,10 @@ model Store {
   isActive    Boolean  @default(true)
   isPublished Boolean  @default(false)
   acceptsMercadoPago Boolean @default(false)
+  mercadoPagoAccessToken String?
+  mercadoPagoRefreshToken String?
+  mercadoPagoPublicKey String?
+  mercadoPagoAccountId String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
