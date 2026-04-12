@@ -153,11 +153,15 @@ export async function POST(req: Request) {
         });
 
         const mpData = await mpResponse.json();
-        console.log("MP response:", mpResponse.status, JSON.stringify(mpData).substring(0, 500));
+        console.log("MP response status:", mpResponse.status, "init_point:", !!mpData.init_point, "error:", mpData.error);
+        
         if (mpData.init_point) {
           paymentUrl = mpData.init_point;
+          console.log("Got payment URL:", paymentUrl.substring(0, 50) + "...");
         } else if (mpData.error) {
-          console.error("MP API error:", mpData.error);
+          console.error("MP API error:", JSON.stringify(mpData.error));
+        } else {
+          console.error("MP no init_point, response:", mpData);
         }
       } catch (e) {
         console.error("MP fetch error:", e);
