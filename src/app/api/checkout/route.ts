@@ -113,5 +113,67 @@ export async function POST(req: Request) {
 
   await prisma.cartItem.deleteMany({ where: { userId: auth.userId } });
 
-  return NextResponse.json({ ok: true, orderId: order.id });
+  let paymentUrl: string | undefined;
+
+  if (parsed.data.paymentMethod === "ONLINE") {
+    const store = await prisma.store.findUnique({
+      where: { id: storeId },
+      select: { mercadoPagoAccessToken: true, name: true },
+    });
+
+    const storeName = store?.name || "Unknown";
+    if (store?.mercadoPagoAccessToken) {
+      const accessToken = Buffer.from(store.mercadoPagoAccessToken, "hex").toString("utf8");
+      console.log("Store:", storeName, "Token exists, calling MP API");
+
+      try {
+        const mpResponse = await fetch("https://api.mercadopago.com/checkout/preferences", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            items: items.map((item: typeof items[number]) => ({
+              title: item.product.name,
+              quantity: item.quantity,
+              unit_price: item.product.priceCents / 100,
+              currency_id: "MXN",
+            })),
+            back_urls: {
+              success: `${process.env.NEXTAUTH_URL}/pedido/${order.id}`,
+              failure: `${process.env.NEXTAUTH_URL}/carrito`,
+              pending: `${process.env.NEXTAUTH_URL}/pedido/${order.id}`,
+            },
+            external_reference: order.id,
+          }),
+        });
+
+        const mpData = await mpResponse.json();
+        console.log("MP response:", mpResponse.status, JSON.stringify(mpData).substring(0, 500));
+        if (mpData.init_point) {
+          paymentUrl = mpData.init_point;
+        } else if (mpData.error) {
+          console.error("MP API error:", mpData.error);
+        }
+      } catch (e) {
+        console.error("MP fetch error:", e);
+      }
+    } else {
+      console.log("No mercadoPagoAccessToken for store:", storeName);
+    }
+  }
+
+  const response: { ok: boolean; orderId: string; paymentUrl?: string; error?: string } = {
+    ok: true,
+    orderId: order.id,
+  };
+
+  if (parsed.data.paymentMethod === "ONLINE" && !paymentUrl) {
+    response.error = "El pago con tarjeta no está disponible. El pedido fue creado para pago contraentrega.";
+  } else if (paymentUrl) {
+    response.paymentUrl = paymentUrl;
+  }
+
+  return NextResponse.json(response);
 }

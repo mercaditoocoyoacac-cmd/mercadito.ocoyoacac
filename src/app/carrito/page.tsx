@@ -323,7 +323,7 @@ body: JSON.stringify({
                         }),
                     });
                     const data = (await res.json().catch(() => null)) as
-                      | { ok: true; orderId: string }
+                      | { ok: true; orderId: string; paymentUrl?: string }
                       | { ok: false; error?: string }
                       | null;
                     setCheckoutLoading(false);
@@ -335,7 +335,11 @@ body: JSON.stringify({
                       setError(msg ?? "No se pudo crear el pedido.");
                       return;
                     }
-                    router.push(`/pedido/${data.orderId}`);
+                    if (data.paymentUrl) {
+                      window.location.href = data.paymentUrl;
+                    } else {
+                      router.push(`/pedido/${data.orderId}`);
+                    }
                   }}
                   className="w-full rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
                 >
