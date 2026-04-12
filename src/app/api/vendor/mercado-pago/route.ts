@@ -32,6 +32,7 @@ export async function GET() {
     select: {
       id: true,
       acceptsMercadoPago: true,
+      mercadoPagoStatus: true,
       mercadoPagoAccountId: true,
     },
   });
@@ -43,6 +44,7 @@ export async function GET() {
   return NextResponse.json({
     ok: true,
     acceptsMercadoPago: store.acceptsMercadoPago,
+    status: store.mercadoPagoStatus,
     hasCredentials: !!store.mercadoPagoAccountId,
   });
 }
@@ -77,7 +79,7 @@ export async function POST(req: Request) {
   await prisma.store.update({
     where: { id: store.id },
     data: {
-      acceptsMercadoPago: true,
+      mercadoPagoStatus: "PENDING",
       mercadoPagoAccessToken: encryptedToken,
       mercadoPagoPublicKey: encryptedPublicKey,
       mercadoPagoAccountId: parsed.data.accountId || null,

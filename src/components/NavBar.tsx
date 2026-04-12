@@ -475,15 +475,24 @@ export function NavBar() {
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
                       pathname === "/admin/pedidos" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
-                  >
+>
                     Pedidos
+                  </Link>
+                  <Link
+                    href="/admin/mercado-pago"
+                    onClick={() => setMenuOpen(false)}
+                    className={`rounded-lg px-4 py-3 text-sm font-medium ${
+                      pathname === "/admin/mercado-pago" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                    }`}
+                  >
+                    MercadoPago
                   </Link>
                 </>
               ) : null}
               
               <div className="my-2 border-t border-[var(--border)]"></div>
               
-{data?.user && !isVendor && (
+              {data?.user && !isVendor && (
                 <>
                   <div className="text-xs text-[color:var(--muted)]">
                     {data.user.email}
