@@ -52,6 +52,7 @@ export default async function VendorPedidosPage() {
       totalCents: true,
       currency: true,
       createdAt: true,
+      deliveryUserId: true,
       user: { select: { email: true } },
     },
     orderBy: { createdAt: "desc" },
@@ -204,23 +205,31 @@ export default async function VendorPedidosPage() {
                         Marcar listo
                       </button>
                     </form>
-                  )}
+)}
                   {order.status === "READY" &&
-                    order.fulfillmentType === "DELIVERY" && (
+                    order.fulfillmentType === "DELIVERY" &&
+                    order.deliveryUserId && (
                       <form
                         action={async () => {
                           "use server";
                           await prisma.order.update({
                             where: { id: order.id },
-data: { status: "OUT_FOR_DELIVERY" },
-                        });
-                        revalidatePath("/vendor/pedidos");
-                      }}
+                            data: { status: "OUT_FOR_DELIVERY" },
+                          });
+                          revalidatePath("/vendor/pedidos");
+                        }}
                       >
                         <button className="rounded-lg bg-orange-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-orange-700">
                           Enviar
                         </button>
                       </form>
+                    )}
+                  {order.status === "READY" &&
+                    order.fulfillmentType === "DELIVERY" &&
+                    !order.deliveryUserId && (
+                      <div className="rounded-lg bg-gray-100 px-3 py-1.5 text-xs text-gray-500">
+                        Esperando repartidor
+                      </div>
                     )}
                   {order.status === "OUT_FOR_DELIVERY" && (
                     <form

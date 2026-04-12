@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 
@@ -120,6 +121,7 @@ export default async function DeliveryDashboard() {
                       where: { id: order.id },
                       data: { status: "COMPLETED" },
                     });
+                    revalidatePath("/delivery");
                   }}>
                     <button className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700">
                       Marcar entregado
@@ -208,9 +210,10 @@ export default async function DeliveryDashboard() {
                           where: { id: order.id },
                           data: {
                             deliveryUserId: session.user.id,
-                            status: "OUT_FOR_DELIVERY",
+                            status: "READY",
                           },
                         });
+                        revalidatePath("/delivery");
                       }
                     }}>
                       <button className="rounded-lg bg-[var(--accent)] px-3 py-1.5 text-sm font-medium text-white hover:bg-[var(--accent-hover)]">
