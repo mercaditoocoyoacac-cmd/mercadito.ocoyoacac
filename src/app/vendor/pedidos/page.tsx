@@ -181,6 +181,7 @@ export default async function VendorPedidosPage() {
                           where: { id: order.id },
                           data: { status: "CONFIRMED" },
                         });
+                        revalidatePath("/vendor/pedidos");
                       }}
                     >
                       <button className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700">
@@ -196,6 +197,7 @@ export default async function VendorPedidosPage() {
                           where: { id: order.id },
                           data: { status: "READY" },
                         });
+                        revalidatePath("/vendor/pedidos");
                       }}
                     >
                       <button className="rounded-lg bg-yellow-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-yellow-700">
@@ -210,9 +212,10 @@ export default async function VendorPedidosPage() {
                           "use server";
                           await prisma.order.update({
                             where: { id: order.id },
-                            data: { status: "OUT_FOR_DELIVERY" },
-                          });
-                        }}
+data: { status: "OUT_FOR_DELIVERY" },
+                        });
+                        revalidatePath("/vendor/pedidos");
+                      }}
                       >
                         <button className="rounded-lg bg-orange-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-orange-700">
                           Enviar
@@ -227,6 +230,7 @@ export default async function VendorPedidosPage() {
                           where: { id: order.id },
                           data: { status: "COMPLETED" },
                         });
+                        revalidatePath("/vendor/pedidos");
                       }}
                     >
                       <button className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700">
@@ -241,9 +245,10 @@ export default async function VendorPedidosPage() {
                           "use server";
                           await prisma.order.update({
                             where: { id: order.id },
-                            data: { status: "CANCELLED" },
-                          });
-                        }}
+data: { status: "CANCELLED" },
+                        });
+                        revalidatePath("/vendor/pedidos");
+                      }}
                       >
                         <button className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700">
                           Cancelar

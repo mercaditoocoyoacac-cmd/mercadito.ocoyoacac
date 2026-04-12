@@ -88,7 +88,7 @@ export default async function AdminSubscriptionsPage() {
                         "use server";
                         await prisma.store.update({
                           where: { id: store.id },
-                          data: { isPublished: true },
+data: { isPublished: true },
                         });
                         revalidatePath("/admin/membresias");
                       }}>
