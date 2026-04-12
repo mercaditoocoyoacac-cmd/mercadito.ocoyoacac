@@ -231,9 +231,9 @@ export function NavBar() {
                         <div className="font-medium">Usuarios</div>
                         <div className="text-xs text-[color:var(--muted)]">Clientes, vendedores, repartidores</div>
                       </div>
-                    </Link>
+</Link>
                     <Link
-                      href="/admin/pedidos"
+                      href="/vendor/pedidos"
                       onClick={() => setVendorMenuOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50"
                     >
@@ -242,9 +242,9 @@ export function NavBar() {
                       </svg>
                       <div>
                         <div className="font-medium">Pedidos</div>
-                        <div className="text-xs text-[color:var(--muted)]">Todos los pedidos</div>
-</div>
-                    </div>
+                        <div className="text-xs text-[color:var(--muted)]">Gestionar pedidos</div>
+                      </div>
+                    </Link>
                     <Link
                       href="/vendor/pedidos"
                       onClick={() => setVendorMenuOpen(false)}
@@ -272,8 +272,6 @@ export function NavBar() {
                       </div>
                     </Link>
                   </div>
-                )}
-              </div>
                 )}
               </div>
             ) : null}
