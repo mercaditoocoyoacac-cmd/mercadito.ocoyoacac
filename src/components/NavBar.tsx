@@ -252,6 +252,14 @@ export function NavBar() {
           </nav>
 
           <div className="hidden md:flex items-center gap-3">
+            {data?.user && !isVendor && role !== "ADMIN" && (
+              <Link
+                href="/vendor/upgrade"
+                className="rounded-lg border border-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent)] transition-colors hover:bg-[var(--accent-soft)]"
+              >
+                Vender
+              </Link>
+            )}
             {data?.user ? (
               <div className="flex items-center gap-3">
                 <div className="text-right">
