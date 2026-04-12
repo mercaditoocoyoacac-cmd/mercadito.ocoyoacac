@@ -166,15 +166,19 @@ export async function POST(req: Request) {
     }
   }
 
-  const response: { ok: boolean; orderId: string; paymentUrl?: string; error?: string } = {
+  const response: { ok: boolean; orderId: string; paymentUrl?: string; error?: string; debug?: string } = {
     ok: true,
     orderId: order.id,
   };
 
-  if (parsed.data.paymentMethod === "ONLINE" && !paymentUrl) {
-    response.error = "El pago con tarjeta no está disponible. El pedido fue creado para pago contraentrega.";
-  } else if (paymentUrl) {
-    response.paymentUrl = paymentUrl;
+  if (parsed.data.paymentMethod === "ONLINE") {
+    if (paymentUrl) {
+      response.paymentUrl = paymentUrl;
+      response.debug = "MP payment URL generated successfully";
+    } else {
+      response.debug = "MP payment failed - paymentUrl empty. Store: " + storeName;
+      response.error = "El pago con tarjeta no está disponible. Usa pago contraentrega.";
+    }
   }
 
   return NextResponse.json(response);

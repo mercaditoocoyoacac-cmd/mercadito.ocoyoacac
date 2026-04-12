@@ -323,10 +323,11 @@ body: JSON.stringify({
                         }),
                     });
                     const data = (await res.json().catch(() => null)) as
-                      | { ok: true; orderId: string; paymentUrl?: string }
+                      | { ok: true; orderId: string; paymentUrl?: string; error?: string; debug?: string }
                       | { ok: false; error?: string }
                       | null;
                     setCheckoutLoading(false);
+                    console.log("Checkout response:", data);
                     if (!res.ok || !data?.ok) {
                       const msg =
                         data && "error" in data
@@ -334,6 +335,9 @@ body: JSON.stringify({
                           : "No se pudo crear el pedido.";
                       setError(msg ?? "No se pudo crear el pedido.");
                       return;
+                    }
+                    if (data?.error) {
+                      alert("Error: " + data.error + (data.debug ? " (" + data.debug + ")" : ""));
                     }
                     if (data.paymentUrl) {
                       window.location.href = data.paymentUrl;
