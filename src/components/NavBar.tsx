@@ -338,15 +338,26 @@ export function NavBar() {
               </Link>
               
               {data?.user && !isVendor && (
-                <Link
-                  href="/mis-pedidos"
-                  onClick={() => setMenuOpen(false)}
-                  className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${
-                    isActive("/mis-pedidos") ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
-                  }`}
-                >
-                  Mis pedidos
-                </Link>
+                <>
+                  <Link
+                    href="/mis-pedidos"
+                    onClick={() => setMenuOpen(false)}
+                    className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${
+                      isActive("/mis-pedidos") ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                    }`}
+                  >
+                    Mis pedidos
+                  </Link>
+                  <Link
+                    href="/perfil/dispositivos"
+                    onClick={() => setMenuOpen(false)}
+                    className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${
+                      isActive("/perfil/dispositivos") ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                    }`}
+                  >
+                    Dispositivos
+                  </Link>
+                </>
               )}
               
               {isVendor ? (

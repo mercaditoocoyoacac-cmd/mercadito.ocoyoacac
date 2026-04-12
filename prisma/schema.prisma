@@ -33,6 +33,7 @@ model User {
   deliveries    Order[]       @relation("OrderDelivery")
   cartItems     CartItem[]
   sessions      Session[]
+  devices      DeviceAuthorization[]
 }
 
 model Store {
@@ -72,6 +73,22 @@ model Subscription {
 
   storeId String @unique
   store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+}
+
+model DeviceAuthorization {
+  id          String   @id @default(cuid())
+  deviceId    String
+  userAgent   String?
+  ipAddress  String?
+  isApproved Boolean  @default(false)
+  lastSeen   DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, deviceId])
+  @@index([userId])
 }
 
 model Product {
