@@ -42,6 +42,7 @@ export default function CarritoPage() {
   const [fulfillmentType, setFulfillmentType] = useState<"PICKUP" | "DELIVERY">(
     "PICKUP",
   );
+  const [paymentMethod, setPaymentMethod] = useState<"CASH" | "ONLINE">("CASH");
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
@@ -270,6 +271,39 @@ export default function CarritoPage() {
                   </div>
                 )}
 
+                {acceptsMercadoPago && (
+                  <label className="block">
+                    <div className="text-sm font-medium">Método de pago</div>
+                    <div className="mt-2 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="CASH"
+                          id="paymentCash"
+                          defaultChecked
+                          className="h-4 w-4"
+                        />
+                        <label htmlFor="paymentCash" className="text-sm">
+                          Contraentrega / al recoger
+                        </label>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="ONLINE"
+                          id="paymentOnline"
+                          className="h-4 w-4"
+                        />
+                        <label htmlFor="paymentOnline" className="text-sm">
+                          Pagar con tarjeta (MercadoPago)
+                        </label>
+                      </div>
+                    </div>
+                  </label>
+                )}
+
                 <button
                   type="button"
                   disabled={checkoutLoading}
@@ -279,13 +313,14 @@ export default function CarritoPage() {
                     const res = await fetch("/api/checkout", {
                       method: "POST",
                       headers: { "content-type": "application/json" },
-                      body: JSON.stringify({
-                        fulfillmentType,
-                        customerName,
-                        customerPhone,
-                        customerAddress: customerAddress || undefined,
-                        notes: notes || undefined,
-                      }),
+body: JSON.stringify({
+                          fulfillmentType,
+                          paymentMethod,
+                          customerName,
+                          customerPhone,
+                          customerAddress: customerAddress || undefined,
+                          notes: notes || undefined,
+                        }),
                     });
                     const data = (await res.json().catch(() => null)) as
                       | { ok: true; orderId: string }

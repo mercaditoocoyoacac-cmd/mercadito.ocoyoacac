@@ -155,6 +155,7 @@ model Order {
   id              String          @id @default(cuid())
   status          OrderStatus     @default(PENDING)
   fulfillmentType FulfillmentType
+  paymentMethod   String          @default("CASH")
   customerName    String
   customerPhone   String
   customerAddress String?

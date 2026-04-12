@@ -5,6 +5,7 @@ import { requireUser } from "@/server/requireUser";
 
 const CheckoutSchema = z.object({
   fulfillmentType: z.enum(["PICKUP", "DELIVERY"]),
+  paymentMethod: z.enum(["CASH", "ONLINE"]).default("CASH"),
   customerName: z.string().min(2).max(80),
   customerPhone: z.string().min(6).max(30),
   customerAddress: z.string().max(140).optional(),
@@ -89,6 +90,7 @@ export async function POST(req: Request) {
       userId: auth.userId,
       storeId,
       fulfillmentType: parsed.data.fulfillmentType,
+      paymentMethod: parsed.data.paymentMethod,
       customerName: parsed.data.customerName.trim(),
       customerPhone: parsed.data.customerPhone.trim(),
       customerAddress: parsed.data.customerAddress?.trim() || null,
