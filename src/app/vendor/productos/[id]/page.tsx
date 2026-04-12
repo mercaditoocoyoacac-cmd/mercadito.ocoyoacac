@@ -27,6 +27,7 @@ export default function EditarProductoPage() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (loadingProduct && !product) {
@@ -122,6 +123,23 @@ export default function EditarProductoPage() {
       return;
     }
 
+    router.push("/vendor/productos");
+  }
+
+  async function handleDelete(e: React.FormEvent) {
+    e.preventDefault();
+    if (!confirm("¿Estás seguro de eliminar este producto?")) return;
+    
+    setDeleting(true);
+    const res = await fetch(`/api/vendor/products/${productId}`, {
+      method: "DELETE",
+    });
+    const data = (await res.json()) as { ok: true } | { ok: false; error?: string };
+    if (!res.ok || !data.ok) {
+      setDeleting(false);
+      setError("No se pudo eliminar.");
+      return;
+    }
     router.push("/vendor/productos");
   }
 
@@ -221,6 +239,17 @@ export default function EditarProductoPage() {
             className="flex-1 rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
           >
             {saving ? "Guardando..." : "Guardar"}
+          </button>
+        </div>
+
+        <div className="mt-4 pt-4 border-t border-[var(--border)]">
+          <button
+            type="button"
+            disabled={deleting}
+            onClick={handleDelete}
+            className="w-full rounded-md border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-500/20 disabled:opacity-60"
+          >
+            {deleting ? "Eliminando..." : "Eliminar producto"}
           </button>
         </div>
       </form>
