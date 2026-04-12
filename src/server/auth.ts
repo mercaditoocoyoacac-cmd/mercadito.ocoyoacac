@@ -43,7 +43,17 @@ export const authOptions: NextAuthOptions = {
           where: { userId: user.id, deviceId },
         });
 
-        if (!device?.isApproved) {
+        if (!device) {
+          await prisma.deviceAuthorization.create({
+            data: {
+              userId: user.id,
+              deviceId,
+              userAgent,
+              ipAddress: ip,
+              isApproved: true,
+            },
+          });
+        } else if (!device.isApproved) {
           return {
             id: user.id,
             email: user.email,
@@ -51,12 +61,12 @@ export const authOptions: NextAuthOptions = {
             role: user.role,
             needsDeviceApproval: true,
           };
+        } else {
+          await prisma.deviceAuthorization.update({
+            where: { id: device.id },
+            data: { lastSeen: new Date() },
+          });
         }
-
-        await prisma.deviceAuthorization.update({
-          where: { id: device.id },
-          data: { lastSeen: new Date() },
-        });
 
         return {
           id: user.id,
