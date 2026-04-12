@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { headers } from "next/headers";
 import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
 import { revalidatePath } from "next/cache";
@@ -11,8 +12,9 @@ function getDeviceId(userAgent: string, ip: string): string {
 export async function GET() {
   const auth = await requireUser();
   if (!auth.ok) return auth.res;
-  const userAgent = headers().get("user-agent") || "unknown";
-  const ip = headers().get("x-forwarded-for")?.split(",")[0] || "unknown";
+  const headersList = headers();
+  const userAgent = headersList.get("user-agent") || "unknown";
+  const ip = headersList.get("x-forwarded-for")?.split(",")[0] || "unknown";
 
   const devices = await prisma.deviceAuthorization.findMany({
     where: { userId: auth.userId },
@@ -25,6 +27,7 @@ export async function GET() {
 export async function POST(req: Request) {
   const auth = await requireUser();
   if (!auth.ok) return auth.res;
+  const headersList = headers();
 
   const json = await req.json().catch(() => null);
   const { deviceId, action } = json || {};
@@ -46,8 +49,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  const userAgent = headers().get("user-agent") || "unknown";
-  const ip = headers().get("x-forwarded-for")?.split(",")[0] || "unknown";
+  const userAgent = headersList.get("user-agent") || "unknown";
+  const ip = headersList.get("x-forwarded-for")?.split(",")[0] || "unknown";
   const deviceIdHash = getDeviceId(userAgent, ip);
 
   const existing = await prisma.deviceAuthorization.findFirst({
