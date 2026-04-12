@@ -336,8 +336,9 @@ body: JSON.stringify({
                       setError(msg ?? "No se pudo crear el pedido.");
                       return;
                     }
+                    alert("Debug: " + (data.debug || "no debug info"));
                     if (data?.error) {
-                      alert("Error: " + data.error + (data.debug ? " (" + data.debug + ")" : ""));
+                      alert("Error: " + data.error);
                     }
                     if (data.paymentUrl) {
                       window.location.href = data.paymentUrl;
