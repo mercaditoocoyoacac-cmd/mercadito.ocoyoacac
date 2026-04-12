@@ -118,10 +118,12 @@ export async function POST(req: Request) {
   if (parsed.data.paymentMethod === "ONLINE") {
     const store = await prisma.store.findUnique({
       where: { id: storeId },
-      select: { mercadoPagoAccessToken: true, name: true },
+      select: { mercadoPagoAccessToken: true, name: true, acceptsMercadoPago: true },
     });
 
     const storeName = store?.name || "Unknown";
+    console.log("MP payment check - Store:", storeName, "hasToken:", !!store?.mercadoPagoAccessToken, "acceptsMP:", store?.acceptsMercadoPago);
+
     if (store?.mercadoPagoAccessToken) {
       const accessToken = Buffer.from(store.mercadoPagoAccessToken, "hex").toString("utf8");
       console.log("Store:", storeName, "Token exists, calling MP API");
