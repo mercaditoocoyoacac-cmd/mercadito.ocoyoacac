@@ -170,6 +170,8 @@ export default async function VendorDashboard() {
           <div className="text-xs text-[color:var(--muted)] mt-1">
             {store.acceptsMercadoPago ? "✓ Configurado" : "Configure MercadoPago"}
           </div>
+        </Link>
+        <Link
           href="/vendor/mi-tienda"
           className="rounded-xl border border-dashed border-[var(--border)] p-5 text-center hover:bg-[var(--accent-soft)]"
         >
