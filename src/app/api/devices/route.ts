@@ -12,7 +12,7 @@ function getDeviceId(userAgent: string, ip: string): string {
 export async function GET() {
   const auth = await requireUser();
   if (!auth.ok) return auth.res;
-  const headersList = headers();
+  const headersList = await headers();
   const userAgent = headersList.get("user-agent") || "unknown";
   const ip = headersList.get("x-forwarded-for")?.split(",")[0] || "unknown";
 
@@ -27,7 +27,7 @@ export async function GET() {
 export async function POST(req: Request) {
   const auth = await requireUser();
   if (!auth.ok) return auth.res;
-  const headersList = headers();
+  const headersList = await headers();
 
   const json = await req.json().catch(() => null);
   const { deviceId, action } = json || {};
