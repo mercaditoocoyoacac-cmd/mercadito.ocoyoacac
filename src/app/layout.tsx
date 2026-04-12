@@ -18,6 +18,9 @@ export const metadata: Metadata = {
   title: "Mercadito Ocoyoacac",
   description:
     "Marketplace multi-vendedor para negocios locales en Ocoyoacac, Edomex.",
+  icons: {
+    icon: "/Logo MO.png",
+  },
 };
 
 export default function RootLayout({
