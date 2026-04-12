@@ -11,7 +11,7 @@ type CartItem = {
     name: string;
     priceCents: number;
     currency: string;
-    store: { id: string; name: string; slug: string };
+    store: { id: string; name: string; slug: string; acceptsMercadoPago: boolean };
   };
 };
 
@@ -28,6 +28,7 @@ export default function CarritoPage() {
   const [loading, setLoading] = useState(true);
 
   const store = items?.[0]?.product.store;
+  const acceptsMercadoPago = store?.acceptsMercadoPago ?? false;
   const currency = items?.[0]?.product.currency ?? "MXN";
   const subtotal = useMemo(
     () =>
@@ -258,6 +259,17 @@ export default function CarritoPage() {
                   />
                 </label>
 
+                {acceptsMercadoPago && (
+                  <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-3">
+                    <div className="flex items-center gap-2">
+                      <svg className="h-5 w-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                      </svg>
+                      <span className="text-sm font-medium text-yellow-800">Esta tienda acepta pagos en línea</span>
+                    </div>
+                  </div>
+                )}
+
                 <button
                   type="button"
                   disabled={checkoutLoading}
@@ -295,7 +307,9 @@ export default function CarritoPage() {
                   {checkoutLoading ? "Creando pedido..." : "Confirmar pedido"}
                 </button>
                 <div className="text-xs text-[color:var(--muted)]">
-                  Pago contraentrega / al recoger (MVP).
+                  {acceptsMercadoPago 
+                    ? "Pago seguro con tarjeta al confirmar" 
+                    : "Pago contraentrega / al recoger"}
                 </div>
               </div>
             </div>

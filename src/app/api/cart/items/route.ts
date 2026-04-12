@@ -29,7 +29,7 @@ export async function GET() {
           name: true,
           priceCents: true,
           currency: true,
-          store: { select: { id: true, name: true, slug: true } },
+          store: { select: { id: true, name: true, slug: true, acceptsMercadoPago: true } },
         },
       },
     },
