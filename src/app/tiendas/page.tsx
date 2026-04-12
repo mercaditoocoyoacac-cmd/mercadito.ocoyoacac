@@ -1,25 +1,45 @@
 import Link from "next/link";
 import { prisma } from "@/server/prisma";
+import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
-export default async function TiendasPage() {
-  const stores = await prisma.store.findMany({
-    where: { isActive: true, isPublished: true },
-    orderBy: { createdAt: "desc" },
-    select: { 
-      id: true, 
-      name: true, 
-      slug: true, 
-      description: true, 
-      address: true,
-      imageUrl: true,
-      products: {
-        where: { isActive: true },
-        select: { id: true }
-      }
-    },
-  });
+const STORES_PER_PAGE = 12;
+
+export default async function TiendasPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const params = await searchParams;
+  const page = parseInt(params?.page || "1");
+  const skip = (page - 1) * STORES_PER_PAGE;
+
+  const [stores, total] = await Promise.all([
+    prisma.store.findMany({
+      where: { isActive: true, isPublished: true },
+      orderBy: { createdAt: "desc" },
+      take: STORES_PER_PAGE,
+      skip,
+      select: { 
+        id: true, 
+        name: true, 
+        slug: true, 
+        description: true, 
+        address: true,
+        imageUrl: true,
+        products: {
+          where: { isActive: true },
+          select: { id: true }
+        }
+      },
+    }),
+    prisma.store.count({
+      where: { isActive: true, isPublished: true },
+    }),
+  ]);
+
+  const totalPages = Math.ceil(total / STORES_PER_PAGE);
 
   return (
     <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
@@ -105,6 +125,30 @@ export default async function TiendasPage() {
               </div>
             </Link>
           ))}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="mt-8 flex justify-center gap-2">
+          {page > 1 && (
+            <Link
+              href={`/tiendas?page=${page - 1}`}
+              className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm hover:bg-gray-100"
+            >
+              Anterior
+            </Link>
+          )}
+          <span className="px-4 py-2 text-sm text-[color:var(--muted)]">
+            {page} / {totalPages}
+          </span>
+          {page < totalPages && (
+            <Link
+              href={`/tiendas?page=${page + 1}`}
+              className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm hover:bg-gray-100"
+            >
+              Siguiente
+            </Link>
+          )}
         </div>
       )}
 
