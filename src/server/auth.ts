@@ -10,7 +10,7 @@ function getDeviceId(userAgent: string, ip: string): string {
 }
 
 export const authOptions: NextAuthOptions = {
-  session: { strategy: "jwt" },
+  session: { strategy: "jwt", maxAge: 15 * 60 },
   pages: {
     signIn: "/login",
   },
