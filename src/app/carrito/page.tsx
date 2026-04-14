@@ -281,7 +281,8 @@ export default function CarritoPage() {
                           name="paymentMethod"
                           value="CASH"
                           id="paymentCash"
-                          defaultChecked
+                          checked={paymentMethod === "CASH"}
+                          onChange={() => setPaymentMethod("CASH")}
                           className="h-4 w-4"
                         />
                         <label htmlFor="paymentCash" className="text-sm">
@@ -294,6 +295,8 @@ export default function CarritoPage() {
                           name="paymentMethod"
                           value="ONLINE"
                           id="paymentOnline"
+                          checked={paymentMethod === "ONLINE"}
+                          onChange={() => setPaymentMethod("ONLINE")}
                           className="h-4 w-4"
                         />
                         <label htmlFor="paymentOnline" className="text-sm">
@@ -308,6 +311,7 @@ export default function CarritoPage() {
                   type="button"
                   disabled={checkoutLoading}
                   onClick={async () => {
+                    alert("Sending paymentMethod: " + paymentMethod);
                     setCheckoutLoading(true);
                     setError(null);
 const rawRes = await fetch("/api/checkout", {
