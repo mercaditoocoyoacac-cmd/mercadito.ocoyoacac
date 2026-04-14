@@ -115,6 +115,8 @@ export async function POST(req: Request) {
 
   let paymentUrl: string | undefined;
   let storeName = "Unknown";
+  let hasToken = false;
+  let acceptsMP = false;
 
   if (parsed.data.paymentMethod === "ONLINE") {
     const store = await prisma.store.findUnique({
@@ -123,7 +125,9 @@ export async function POST(req: Request) {
     });
 
     storeName = store?.name || "Unknown";
-    console.log("MP payment check - Store:", storeName, "hasToken:", !!store?.mercadoPagoAccessToken, "acceptsMP:", store?.acceptsMercadoPago);
+    hasToken = !!store?.mercadoPagoAccessToken;
+    acceptsMP = store?.acceptsMercadoPago || false;
+    console.log("MP payment check - Store:", storeName, "hasToken:", hasToken, "acceptsMP:", acceptsMP);
 
     if (store?.mercadoPagoAccessToken) {
       const accessToken = Buffer.from(store.mercadoPagoAccessToken, "hex").toString("utf8");
@@ -153,7 +157,13 @@ export async function POST(req: Request) {
         });
 
         const mpData = await mpResponse.json();
-        console.log("MP response status:", mpResponse.status, "init_point:", !!mpData.init_point, "error:", mpData.error);
+        const mpLogs = {
+          status: mpResponse.status,
+          hasInitPoint: !!mpData.init_point,
+          error: mpData.error,
+          response: mpResponse.status >= 400 ? mpData.message || mpData.error : "OK"
+        };
+        console.log("MP response:", JSON.stringify(mpLogs));
         
         if (mpData.init_point) {
           paymentUrl = mpData.init_point;
@@ -175,7 +185,7 @@ export async function POST(req: Request) {
     ok: true,
     orderId: order.id,
     debug: parsed.data.paymentMethod === "ONLINE" 
-      ? (paymentUrl ? "MP OK" : "MP failed - no paymentUrl")
+      ? (paymentUrl ? "MP OK: " + paymentUrl.substring(0, 30) : "MP failed - token:" + hasToken + ", accepted:" + acceptsMP)
       : "Payment method: " + parsed.data.paymentMethod,
   };
 
