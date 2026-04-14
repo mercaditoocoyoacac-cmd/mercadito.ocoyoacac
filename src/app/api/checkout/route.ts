@@ -174,14 +174,15 @@ export async function POST(req: Request) {
   const response: { ok: boolean; orderId: string; paymentUrl?: string; error?: string; debug?: string } = {
     ok: true,
     orderId: order.id,
+    debug: parsed.data.paymentMethod === "ONLINE" 
+      ? (paymentUrl ? "MP OK" : "MP failed - no paymentUrl")
+      : "Payment method: " + parsed.data.paymentMethod,
   };
 
   if (parsed.data.paymentMethod === "ONLINE") {
     if (paymentUrl) {
       response.paymentUrl = paymentUrl;
-      response.debug = "MP payment URL generated successfully";
     } else {
-      response.debug = "MP payment failed - paymentUrl empty. Store: " + storeName;
       response.error = "El pago con tarjeta no está disponible. Usa pago contraentrega.";
     }
   }

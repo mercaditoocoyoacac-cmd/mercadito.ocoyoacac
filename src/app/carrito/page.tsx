@@ -328,6 +328,10 @@ body: JSON.stringify({
                       | null;
                     setCheckoutLoading(false);
                     console.log("Checkout response:", data);
+                    console.log("Debug value:", data?.debug);
+                    console.log("paymentUrl value:", data?.paymentUrl);
+                    console.log("error value:", data?.error);
+                    setCheckoutLoading(false);
                     if (!res.ok || !data?.ok) {
                       const msg =
                         data && "error" in data
@@ -336,11 +340,12 @@ body: JSON.stringify({
                       setError(msg ?? "No se pudo crear el pedido.");
                       return;
                     }
-                    alert("Debug: " + (data.debug || "no debug info"));
+                    if (data?.debug) alert("Debug: " + data.debug);
                     if (data?.error) {
                       alert("Error: " + data.error);
                     }
                     if (data.paymentUrl) {
+                      alert("Redirecting to payment: " + data.paymentUrl.substring(0, 50));
                       window.location.href = data.paymentUrl;
                     } else {
                       router.push(`/pedido/${data.orderId}`);
