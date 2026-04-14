@@ -310,19 +310,21 @@ export default function CarritoPage() {
                   onClick={async () => {
                     setCheckoutLoading(true);
                     setError(null);
-                    const res = await fetch("/api/checkout", {
+const rawRes = await fetch("/api/checkout", {
                       method: "POST",
                       headers: { "content-type": "application/json" },
-body: JSON.stringify({
-                          fulfillmentType,
-                          paymentMethod,
-                          customerName,
-                          customerPhone,
-                          customerAddress: customerAddress || undefined,
-                          notes: notes || undefined,
-                        }),
+                      body: JSON.stringify({
+                        fulfillmentType,
+                        paymentMethod,
+                        customerName,
+                        customerPhone,
+                        customerAddress: customerAddress || undefined,
+                        notes: notes || undefined,
+                      }),
                     });
-                    const data = (await res.json().catch(() => null)) as
+                    const rawText = await rawRes.text();
+                    alert("Raw response: " + rawText);
+                    const data = JSON.parse(rawText) as
                       | { ok: true; orderId: string; paymentUrl?: string; error?: string; debug?: string }
                       | { ok: false; error?: string }
                       | null;
@@ -331,8 +333,7 @@ body: JSON.stringify({
                     console.log("Debug value:", data?.debug);
                     console.log("paymentUrl value:", data?.paymentUrl);
                     console.log("error value:", data?.error);
-                    setCheckoutLoading(false);
-                    if (!res.ok || !data?.ok) {
+                    if (!rawRes.ok || !data?.ok) {
                       const msg =
                         data && "error" in data
                           ? data.error
