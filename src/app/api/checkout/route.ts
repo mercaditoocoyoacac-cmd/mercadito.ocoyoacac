@@ -113,10 +113,7 @@ export async function POST(req: Request) {
 
   await prisma.cartItem.deleteMany({ where: { userId: auth.userId } });
 
-  let paymentUrl: string | undefined;
-  let storeName = "Unknown";
-  let hasToken = false;
-  let acceptsMP = false;
+let paymentUrl: string | undefined;
 
   if (parsed.data.paymentMethod === "ONLINE") {
     const store = await prisma.store.findUnique({
@@ -127,62 +124,50 @@ export async function POST(req: Request) {
     storeName = store?.name || "Unknown";
     hasToken = !!store?.mercadoPagoAccessToken;
     acceptsMP = store?.acceptsMercadoPago || false;
-    console.log("MP payment check - Store:", storeName, "hasToken:", hasToken, "acceptsMP:", acceptsMP);
 
     if (store?.mercadoPagoAccessToken) {
       const accessToken = Buffer.from(store.mercadoPagoAccessToken, "hex").toString("utf8");
-      console.log("Store:", storeName, "Token exists, calling MP API");
 
-      let mpStatus = 0;
-        let mpResponseData: any = null;
-        
-        try {
-          const mpResponse = await fetch("https://api.mercadopago.com/checkout/preferences", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${accessToken}`,
+      try {
+        const mpResponse = await fetch("https://api.mercadopago.com/checkout/preferences", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            items: items.map((item: typeof items[number]) => ({
+              title: item.product.name,
+              quantity: item.quantity,
+              unit_price: item.product.priceCents / 100,
+              currency_id: "MXN",
+            })),
+            back_urls: {
+              success: `${process.env.NEXTAUTH_URL}/pedido/${order.id}`,
+              failure: `${process.env.NEXTAUTH_URL}/carrito`,
+              pending: `${process.env.NEXTAUTH_URL}/pedido/${order.id}`,
             },
-            body: JSON.stringify({
-              items: items.map((item: typeof items[number]) => ({
-                title: item.product.name,
-                quantity: item.quantity,
-                unit_price: item.product.priceCents / 100,
-                currency_id: "MXN",
-              })),
-              back_urls: {
-                success: `${process.env.NEXTAUTH_URL}/pedido/${order.id}`,
-                failure: `${process.env.NEXTAUTH_URL}/carrito`,
-                pending: `${process.env.NEXTAUTH_URL}/pedido/${order.id}`,
-              },
-              external_reference: order.id,
-            }),
-          });
+            external_reference: order.id,
+          }),
+        });
 
-          mpStatus = mpResponse.status;
-          mpResponseData = await mpResponse.json();
-          console.log("MP response:", JSON.stringify({status: mpStatus, data: mpResponseData}));
-          
-          if (mpResponseData.init_point) {
-            paymentUrl = mpResponseData.init_point;
-            console.log("Got payment URL:", (paymentUrl || "").substring(0, 50) + "...");
-} else {
-          console.error("MP response:", JSON.stringify(mpResponseData));
+        const mpData = await mpResponse.json();
+        
+        if (mpData.init_point) {
+          paymentUrl = mpData.init_point;
+        } else if (mpData.error) {
+          const errorMsg = mpData.error?.message || mpData.message || "Error desconocido";
+          console.error("MercadoPago error:", errorMsg);
         }
       } catch (e) {
         console.error("MP fetch error:", e);
       }
-    } else {
-      console.log("No mercadoPagoAccessToken for store:", storeName);
     }
   }
 
-  const response: { ok: boolean; orderId: string; paymentUrl?: string; error?: string; debug?: string; mpDebug?: any } = {
+  const response: { ok: boolean; orderId: string; paymentUrl?: string; error?: string } = {
     ok: true,
     orderId: order.id,
-    debug: parsed.data.paymentMethod === "ONLINE" 
-      ? (paymentUrl ? "MP OK: " + paymentUrl.substring(0, 30) : "MP failed - token:" + hasToken + ", accepted:" + acceptsMP + ", check logs")
-      : "Payment method: " + parsed.data.paymentMethod,
   };
 
   if (parsed.data.paymentMethod === "ONLINE") {
@@ -192,8 +177,6 @@ export async function POST(req: Request) {
       response.error = "El pago con tarjeta no está disponible. Usa pago contraentrega.";
     }
   }
-
-  response.mpDebug = { hasToken, acceptsMP };
 
   return NextResponse.json(response);
 }

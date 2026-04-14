@@ -311,10 +311,9 @@ export default function CarritoPage() {
                   type="button"
                   disabled={checkoutLoading}
                   onClick={async () => {
-                    alert("Sending paymentMethod: " + paymentMethod);
                     setCheckoutLoading(true);
                     setError(null);
-const rawRes = await fetch("/api/checkout", {
+                    const res = await fetch("/api/checkout", {
                       method: "POST",
                       headers: { "content-type": "application/json" },
                       body: JSON.stringify({
@@ -326,21 +325,12 @@ const rawRes = await fetch("/api/checkout", {
                         notes: notes || undefined,
                       }),
                     });
-                    const rawText = await rawRes.text();
-                    alert("Raw response: " + rawText);
-                    const data = JSON.parse(rawText) as
-                      | { ok: true; orderId: string; paymentUrl?: string; error?: string; debug?: string }
+                    const data = (await res.json().catch(() => null)) as
+                      | { ok: true; orderId: string; paymentUrl?: string; error?: string }
                       | { ok: false; error?: string }
                       | null;
-                    const successData = data?.ok ? data as { ok: true; orderId: string; paymentUrl?: string; error?: string; debug?: string } : null;
                     setCheckoutLoading(false);
-                    console.log("Checkout response:", data);
-                    if (successData) {
-                      console.log("Debug value:", successData.debug);
-                      console.log("paymentUrl value:", successData.paymentUrl);
-                      console.log("error value:", successData.error);
-                    }
-                    if (!rawRes.ok || !data?.ok) {
+                    if (!res.ok || !data?.ok) {
                       const msg =
                         data && "error" in data
                           ? data.error
@@ -348,13 +338,11 @@ const rawRes = await fetch("/api/checkout", {
                       setError(msg ?? "No se pudo crear el pedido.");
                       return;
                     }
-                    if (successData?.debug) alert("Debug: " + successData.debug);
-                    if (successData?.error) {
-                      alert("Error: " + successData.error);
+                    if (data.error) {
+                      setError(data.error);
                     }
-                    if (successData?.paymentUrl) {
-                      alert("Redirecting to payment: " + successData.paymentUrl.substring(0, 50));
-                      window.location.href = successData.paymentUrl;
+                    if (data.paymentUrl) {
+                      window.location.href = data.paymentUrl;
                     } else {
                       router.push(`/pedido/${data.orderId}`);
                     }
