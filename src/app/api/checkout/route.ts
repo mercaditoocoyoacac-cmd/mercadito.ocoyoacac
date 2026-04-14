@@ -166,14 +166,12 @@ export async function POST(req: Request) {
           if (mpResponseData.init_point) {
             paymentUrl = mpResponseData.init_point;
             console.log("Got payment URL:", (paymentUrl || "").substring(0, 50) + "...");
-          } else {
-            console.error("MP response:", JSON.stringify(mpResponseData));
-          }
-        } catch (e) {
-          console.error("MP fetch error:", e);
+} else {
+          console.error("MP response:", JSON.stringify(mpResponseData));
         }
-        
-        response.mpDebug = { status: mpStatus, hasInitPoint: !!mpResponseData?.init_point, data: mpResponseData };
+      } catch (e) {
+        console.error("MP fetch error:", e);
+      }
     } else {
       console.log("No mercadoPagoAccessToken for store:", storeName);
     }
@@ -194,6 +192,8 @@ export async function POST(req: Request) {
       response.error = "El pago con tarjeta no está disponible. Usa pago contraentrega.";
     }
   }
+
+  response.mpDebug = { hasToken, acceptsMP };
 
   return NextResponse.json(response);
 }
