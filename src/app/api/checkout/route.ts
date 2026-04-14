@@ -133,47 +133,53 @@ export async function POST(req: Request) {
       const accessToken = Buffer.from(store.mercadoPagoAccessToken, "hex").toString("utf8");
       console.log("Store:", storeName, "Token exists, calling MP API");
 
-      try {
-        const mpResponse = await fetch("https://api.mercadopago.com/checkout/preferences", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify({
-            items: items.map((item: typeof items[number]) => ({
-              title: item.product.name,
-              quantity: item.quantity,
-              unit_price: item.product.priceCents / 100,
-              currency_id: "MXN",
-            })),
-            back_urls: {
-              success: `${process.env.NEXTAUTH_URL}/pedido/${order.id}`,
-              failure: `${process.env.NEXTAUTH_URL}/carrito`,
-              pending: `${process.env.NEXTAUTH_URL}/pedido/${order.id}`,
-            },
-            external_reference: order.id,
-          }),
-        });
-
-        const mpData = await mpResponse.json();
-        console.log("MP response:", JSON.stringify({status: mpResponse.status, data: mpData}));
+      let mpStatus = 0;
+        let mpResponseData: any = null;
         
-        if (mpData.init_point) {
-          paymentUrl = mpData.init_point;
-          console.log("Got payment URL:", (paymentUrl || "").substring(0, 50) + "...");
-        } else {
-          console.error("MP response:", JSON.stringify(mpData));
+        try {
+          const mpResponse = await fetch("https://api.mercadopago.com/checkout/preferences", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify({
+              items: items.map((item: typeof items[number]) => ({
+                title: item.product.name,
+                quantity: item.quantity,
+                unit_price: item.product.priceCents / 100,
+                currency_id: "MXN",
+              })),
+              back_urls: {
+                success: `${process.env.NEXTAUTH_URL}/pedido/${order.id}`,
+                failure: `${process.env.NEXTAUTH_URL}/carrito`,
+                pending: `${process.env.NEXTAUTH_URL}/pedido/${order.id}`,
+              },
+              external_reference: order.id,
+            }),
+          });
+
+          mpStatus = mpResponse.status;
+          mpResponseData = await mpResponse.json();
+          console.log("MP response:", JSON.stringify({status: mpStatus, data: mpResponseData}));
+          
+          if (mpResponseData.init_point) {
+            paymentUrl = mpResponseData.init_point;
+            console.log("Got payment URL:", (paymentUrl || "").substring(0, 50) + "...");
+          } else {
+            console.error("MP response:", JSON.stringify(mpResponseData));
+          }
+        } catch (e) {
+          console.error("MP fetch error:", e);
         }
-      } catch (e) {
-        console.error("MP fetch error:", e);
-      }
+        
+        response.mpDebug = { status: mpStatus, hasInitPoint: !!mpResponseData?.init_point, data: mpResponseData };
     } else {
       console.log("No mercadoPagoAccessToken for store:", storeName);
     }
   }
 
-  const response: { ok: boolean; orderId: string; paymentUrl?: string; error?: string; debug?: string } = {
+  const response: { ok: boolean; orderId: string; paymentUrl?: string; error?: string; debug?: string; mpDebug?: any } = {
     ok: true,
     orderId: order.id,
     debug: parsed.data.paymentMethod === "ONLINE" 
