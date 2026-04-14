@@ -157,21 +157,13 @@ export async function POST(req: Request) {
         });
 
         const mpData = await mpResponse.json();
-        const mpLogs = {
-          status: mpResponse.status,
-          hasInitPoint: !!mpData.init_point,
-          error: mpData.error,
-          response: mpResponse.status >= 400 ? mpData.message || mpData.error : "OK"
-        };
-        console.log("MP response:", JSON.stringify(mpLogs));
+        console.log("MP response:", JSON.stringify({status: mpResponse.status, data: mpData}));
         
         if (mpData.init_point) {
           paymentUrl = mpData.init_point;
           console.log("Got payment URL:", (paymentUrl || "").substring(0, 50) + "...");
-        } else if (mpData.error) {
-          console.error("MP API error:", JSON.stringify(mpData.error));
         } else {
-          console.error("MP no init_point, response:", mpData);
+          console.error("MP response:", JSON.stringify(mpData));
         }
       } catch (e) {
         console.error("MP fetch error:", e);
@@ -185,7 +177,7 @@ export async function POST(req: Request) {
     ok: true,
     orderId: order.id,
     debug: parsed.data.paymentMethod === "ONLINE" 
-      ? (paymentUrl ? "MP OK: " + paymentUrl.substring(0, 30) : "MP failed - token:" + hasToken + ", accepted:" + acceptsMP)
+      ? (paymentUrl ? "MP OK: " + paymentUrl.substring(0, 30) : "MP failed - token:" + hasToken + ", accepted:" + acceptsMP + ", check logs")
       : "Payment method: " + parsed.data.paymentMethod,
   };
 
