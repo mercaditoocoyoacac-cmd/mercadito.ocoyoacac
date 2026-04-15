@@ -157,7 +157,7 @@ export async function POST(req: Request) {
           
           if (mpData.init_point) {
             paymentUrl = mpData.init_point;
-            console.log("Got payment URL:", paymentUrl.substring(0, 50) + "...");
+            console.log("Got payment URL:", (paymentUrl || "").substring(0, 50) + "...");
           } else if (mpData.error) {
             const errorMsg = mpData.error?.message || mpData.message || "Error desconocido";
             console.error("MercadoPago error:", errorMsg);
