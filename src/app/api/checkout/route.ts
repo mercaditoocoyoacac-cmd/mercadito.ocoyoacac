@@ -113,7 +113,7 @@ export async function POST(req: Request) {
 
   await prisma.cartItem.deleteMany({ where: { userId: auth.userId } });
 
-let paymentUrl: string | undefined;
+  let paymentUrl: string | undefined;
 
   if (parsed.data.paymentMethod === "ONLINE") {
     const store = await prisma.store.findUnique({
@@ -121,12 +121,9 @@ let paymentUrl: string | undefined;
       select: { mercadoPagoAccessToken: true, name: true, acceptsMercadoPago: true },
     });
 
-    storeName = store?.name || "Unknown";
-    hasToken = !!store?.mercadoPagoAccessToken;
-    acceptsMP = store?.acceptsMercadoPago || false;
-
     if (store?.mercadoPagoAccessToken) {
       const accessToken = Buffer.from(store.mercadoPagoAccessToken, "hex").toString("utf8");
+      console.log("Calling MP API with token:", accessToken.substring(0, 20) + "...");
 
       try {
         const mpResponse = await fetch("https://api.mercadopago.com/checkout/preferences", {
@@ -151,16 +148,23 @@ let paymentUrl: string | undefined;
           }),
         });
 
-        const mpData = await mpResponse.json();
+        const responseText = await mpResponse.text();
         
-        if (mpData.init_point) {
-          paymentUrl = mpData.init_point;
-        } else if (mpData.error) {
-          const errorMsg = mpData.error?.message || mpData.message || "Error desconocido";
-          console.error("MercadoPago error:", errorMsg);
+        if (!responseText) {
+          console.error("MP response empty, status:", mpResponse.status);
+        } else {
+          const mpData = JSON.parse(responseText);
+          
+          if (mpData.init_point) {
+            paymentUrl = mpData.init_point;
+            console.log("Got payment URL:", paymentUrl.substring(0, 50) + "...");
+          } else if (mpData.error) {
+            const errorMsg = mpData.error?.message || mpData.message || "Error desconocido";
+            console.error("MercadoPago error:", errorMsg);
+          }
         }
       } catch (e) {
-        console.error("MP fetch error:", e);
+        console.error("MP fetch/parse error:", e);
       }
     }
   }
