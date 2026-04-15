@@ -114,6 +114,7 @@ export async function POST(req: Request) {
   await prisma.cartItem.deleteMany({ where: { userId: auth.userId } });
 
   let paymentUrl: string | undefined;
+  let mpError: string | undefined;
 
   if (parsed.data.paymentMethod === "ONLINE") {
     const store = await prisma.store.findUnique({
@@ -152,6 +153,7 @@ export async function POST(req: Request) {
         
         if (!responseText) {
           console.error("MP response empty, status:", mpResponse.status);
+          mpError = "Error de autorización. Contacta al vendedor para configurar pagos.";
         } else {
           const mpData = JSON.parse(responseText);
           
@@ -177,6 +179,8 @@ export async function POST(req: Request) {
   if (parsed.data.paymentMethod === "ONLINE") {
     if (paymentUrl) {
       response.paymentUrl = paymentUrl;
+    } else if (mpError) {
+      response.error = mpError;
     } else {
       response.error = "El pago con tarjeta no está disponible. Usa pago contraentrega.";
     }
