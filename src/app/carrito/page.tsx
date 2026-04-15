@@ -338,8 +338,16 @@ export default function CarritoPage() {
                       setError(msg ?? "No se pudo crear el pedido.");
                       return;
                     }
-                    if (data.error) {
-                      setError(data.error);
+                    if (data.error && paymentMethod === "ONLINE") {
+                      const wantsCash = confirm(
+                        data.error + ". ¿Querés cambiar a pago en efectivo?",
+                      );
+                      if (wantsCash) {
+                        setPaymentMethod("CASH");
+                      } else {
+                        setError(data.error);
+                      }
+                      return;
                     }
                     if (data.paymentUrl) {
                       window.location.href = data.paymentUrl;
