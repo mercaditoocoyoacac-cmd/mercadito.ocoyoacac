@@ -181,8 +181,8 @@ export default async function Home() {
           <Link href="/login" className="text-[color:var(--muted)] hover:underline">
             Iniciar sesión
           </Link>
-          <Link href="/vendor/registro" className="text-[color:var(--muted)] hover:underline">
-            ¿Eres vendedor?
+          <Link href="/portal/vendedor" className="text-rose-600 font-medium hover:underline">
+            ¿Eres vendedor? Portal →
           </Link>
         </div>
       </section>
