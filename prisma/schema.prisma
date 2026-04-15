@@ -34,6 +34,7 @@ model User {
   cartItems     CartItem[]
   sessions      Session[]
   devices      DeviceAuthorization[]
+  notifications Notification[]
 }
 
 model Store {
@@ -206,4 +207,19 @@ model Session {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  type      String   @default("GENERAL")
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime  @default(now())
+
+  userId String
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([read])
 }

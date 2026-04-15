@@ -339,14 +339,8 @@ export default function CarritoPage() {
                       return;
                     }
                     if (data.error && paymentMethod === "ONLINE") {
-                      const wantsCash = confirm(
-                        data.error + ". ¿Querés cambiar a pago en efectivo?",
-                      );
-                      if (wantsCash) {
-                        setPaymentMethod("CASH");
-                      } else {
-                        setError(data.error);
-                      }
+                      alert(data.error + ". Volvé al carrito para cambiar el método de pago.");
+                      router.push("/carrito");
                       return;
                     }
                     if (data.paymentUrl) {
