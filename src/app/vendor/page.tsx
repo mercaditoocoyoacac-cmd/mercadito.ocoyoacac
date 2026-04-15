@@ -20,36 +20,67 @@ export default async function VendorDashboard() {
 
   if (!store) {
     return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Panel del Vendedor
-          </h1>
-          <p className="mt-1 text-sm text-[color:var(--muted)]">
-            Bienvenido, comienza a vender hoy.
-          </p>
-        </div>
+      <main className="flex-1">
+        <section className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-700 px-4 py-20 text-white">
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-white blur-3xl"></div>
+            <div className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-white blur-3xl"></div>
+          </div>
+          
+          <div className="relative mx-auto max-w-4xl text-center">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-1.5 text-sm font-medium backdrop-blur-sm">
+              🏪 Tu negocio online
+            </div>
+            
+            <h1 className="mt-6 text-4xl font-bold tracking-tight sm:text-5xl">
+              Vende en Mercadito
+            </h1>
+            
+            <p className="mt-4 text-lg text-white/90 sm:text-xl">
+              Crea tu tienda digital y reaching a más clientes en tu comunidad.
+              Es gratis empezar.
+            </p>
+            
+            <div className="mt-8">
+              <Link
+                href="/vendor/onboarding"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-base font-semibold text-emerald-700 shadow-lg transition-transform hover:scale-105 hover:bg-yellow-50"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Crear mi tienda
+              </Link>
+            </div>
+          </div>
+        </section>
 
-        <div className="rounded-xl border border-[var(--border)] p-8 text-center">
-          <div className="mx-auto h-16 w-16 rounded-full bg-[var(--accent-soft)] flex items-center justify-center mb-4">
-            <svg className="h-8 w-8 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
+        <section className="mx-auto max-w-4xl px-4 py-16">
+          <div className="grid gap-6 sm:grid-cols-3">
+            <div className="rounded-xl border border-[var(--border)] bg-white p-6 text-center shadow-sm">
+              <div className="text-3xl mb-2">📦</div>
+              <h3 className="font-semibold">Productos</h3>
+              <p className="mt-1 text-sm text-[color:var(--muted)]">
+                Sube fotos y descripciones de tus productos
+              </p>
+            </div>
+            <div className="rounded-xl border border-[var(--border)] bg-white p-6 text-center shadow-sm">
+              <div className="text-3xl mb-2">📱</div>
+              <h3 className="font-semibold">Gestión fácil</h3>
+              <p className="mt-1 text-sm text-[color:var(--muted)]">
+                Adminstra pedidos desde tu celular
+              </p>
+            </div>
+            <div className="rounded-xl border border-[var(--border)] bg-white p-6 text-center shadow-sm">
+              <div className="text-3xl mb-2">💳</div>
+              <h3 className="font-semibold">Pagos</h3>
+              <p className="mt-1 text-sm text-[color:var(--muted)]">
+                Acepta efectivo o tarjeta
+              </p>
+            </div>
           </div>
-          <h2 className="text-lg font-semibold">Crea tu tienda</h2>
-          <p className="mt-2 text-sm text-[color:var(--muted)]">
-            Configura tu negocio y empieza a publicar productos.
-          </p>
-          <div className="mt-6">
-            <Link
-              href="/vendor/onboarding"
-              className="inline-flex rounded-md bg-[var(--accent)] px-6 py-2.5 text-sm font-medium text-white hover:bg-[var(--accent-hover)]"
-            >
-              Crear mi tienda
-            </Link>
-          </div>
-        </div>
-      </div>
+        </section>
+      </main>
     );
   }
 
@@ -100,177 +131,197 @@ export default async function VendorDashboard() {
     where: { storeId: store.id, status: "PENDING" },
   });
 
+  const totalRevenue = await prisma.order.aggregate({
+    where: { storeId: store.id, status: { not: "CANCELLED" } },
+    _sum: { subtotalCents: true },
+  });
+
   return (
-    <div className="space-y-6">
+    <main className="flex-1">
       {!subscriptionActive && (
-        <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <svg className="h-5 w-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-              <div>
-                <div className="font-medium text-yellow-800">Membresía inactiva</div>
-                <div className="text-sm text-yellow-700">
-                  Tu tienda no está visible para los clientes. Contacta al administrador para activar tu membresía.
-                </div>
+        <div className="mx-4 mt-4 rounded-lg border border-yellow-500/30 bg-yellow-500/10 px-4 py-3">
+          <div className="flex items-center gap-3">
+            <svg className="h-5 w-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <div>
+              <div className="font-medium text-yellow-800">Membresía inactiva</div>
+              <div className="text-sm text-yellow-700">
+                Tu tienda no está visible. Contacta al admin para activar.
               </div>
             </div>
           </div>
         </div>
       )}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Panel del Vendedor
-          </h1>
-          <p className="mt-1 text-sm text-[color:var(--muted)]">
-            {store.name}
-          </p>
-        </div>
-        <Link
-          href={`/tienda/${store.slug}`}
-          className="inline-flex items-center gap-2 rounded-md border border-[var(--border)] px-4 py-2 text-sm font-medium hover:bg-[var(--accent-soft)]"
-        >
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-          </svg>
-          Ver mi tienda
-        </Link>
-      </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border border-[var(--border)] p-5">
-          <div className="text-sm text-[color:var(--muted)]">Productos</div>
-          <div className="mt-1 text-2xl font-semibold">{totalProducts}</div>
-          <div className="mt-1 text-xs text-[color:var(--muted)]">
-            {activeProducts} activos
+      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-700 px-4 py-12 text-white">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-white blur-3xl"></div>
+          <div className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-white blur-3xl"></div>
+        </div>
+        
+        <div className="relative mx-auto max-w-6xl">
+          <div className="flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-1.5 text-sm font-medium backdrop-blur-sm">
+                🏪 {store.name}
+              </div>
+              <h1 className="mt-4 text-3xl font-bold">Mi Tienda</h1>
+              <p className="mt-2 text-white/80">
+                {subscriptionActive ? "✓ Tu tienda está activa" : "Tu tienda no es visible para clientes"}
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Link
+                href={`/tienda/${store.slug}`}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-emerald-700 shadow-lg hover:bg-yellow-50"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                Ver tienda
+              </Link>
+              <Link
+                href="/vendor/productos/nuevo"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-white/30 bg-white/10 px-6 py-3 font-semibold backdrop-blur-sm hover:bg-white/20"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Agregar producto
+              </Link>
+            </div>
           </div>
         </div>
-        <div className="rounded-xl border border-[var(--border)] p-5">
-          <div className="text-sm text-[color:var(--muted)]">Pedidos</div>
-          <div className="mt-1 text-2xl font-semibold">{totalOrders}</div>
-          <div className="mt-1 text-xs text-[color:var(--muted)]">
-            {pendingOrders} pendientes
-          </div>
-        </div>
-        <Link
-          href="/vendor/productos/nuevo"
-          className="rounded-xl border border-dashed border-[var(--accent)] p-5 text-center hover:bg-[var(--accent-soft)]"
-        >
-          <div className="text-2xl font-semibold text-[var(--accent)]">+</div>
-          <div className="mt-1 text-sm text-[var(--accent)]">Nuevo producto</div>
-        </Link>
-        <Link
-          href="/vendor/mercado-pago"
-          className="rounded-xl border border-dashed border-yellow-500/50 bg-yellow-50 p-5 text-center hover:bg-yellow-100"
-        >
-          <div className="text-2xl font-semibold text-yellow-600">💳</div>
-          <div className="mt-1 text-sm text-yellow-700">Cobro con tarjeta</div>
-          <div className="text-xs text-[color:var(--muted)] mt-1">
-            {store.acceptsMercadoPago ? "✓ Configurado" : "Configure MercadoPago"}
-          </div>
-        </Link>
-        <Link
-          href="/vendor/mi-tienda"
-          className="rounded-xl border border-dashed border-[var(--border)] p-5 text-center hover:bg-[var(--accent-soft)]"
-        >
-          <div className="text-2xl font-semibold">⚙</div>
-          <div className="mt-1 text-sm">Configurar tienda</div>
-        </Link>
-      </div>
+      </section>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border border-[var(--border)]">
-          <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
-            <h2 className="font-semibold">Productos recientes</h2>
-            <Link href="/vendor/productos" className="text-sm text-[var(--accent)] hover:underline">
-              Ver todos
-            </Link>
+      <section className="mx-auto max-w-6xl px-4 py-8">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-xl border border-[var(--border)] bg-white p-6 shadow-sm">
+            <div className="text-sm text-[color:var(--muted)]"> Productos</div>
+            <div className="mt-1 text-3xl font-bold">{totalProducts}</div>
+            <div className="mt-1 text-xs text-green-600">
+              {activeProducts} activos
+            </div>
           </div>
-          {products.length === 0 ? (
-            <div className="p-5 text-center text-sm text-[color:var(--muted)]">
-              No tienes productos aún.
+          <div className="rounded-xl border border-[var(--border)] bg-white p-6 shadow-sm">
+            <div className="text-sm text-[color:var(--muted)]">Pedidos</div>
+            <div className="mt-1 text-3xl font-bold">{totalOrders}</div>
+            <div className="mt-1 text-xs text-yellow-600">
+              {pendingOrders} pendientes
             </div>
-          ) : (
-            <div className="divide-y divide-[var(--border)]">
-              {products.map((product: typeof products[number]) => (
-                <div key={product.id} className="flex items-center gap-4 px-5 py-3">
-                  {product.imageUrl ? (
-                    <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md border border-[var(--border)]">
-                      <img
-                        src={product.imageUrl}
-                        alt={product.name}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                  ) : (
-                    <div className="h-10 w-10 shrink-0 rounded-md border border-[var(--border)] bg-[var(--accent-soft)] flex items-center justify-center">
-                      <span className="text-xs text-[var(--muted)]">Sin img</span>
-                    </div>
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium">{product.name}</div>
-                    <div className="text-xs text-[color:var(--muted)]">
-                      {formatMoney(product.priceCents, product.currency)}
-                    </div>
-                  </div>
-                  <div className={`text-xs ${product.isActive ? "text-green-600" : "text-[var(--muted)]"}`}>
-                    {product.isActive ? "Activo" : "Inactivo"}
-                  </div>
-                </div>
-              ))}
+          </div>
+          <div className="rounded-xl border border-[var(--border)] bg-white p-6 shadow-sm">
+            <div className="text-sm text-[color:var(--muted)]">Ingresos</div>
+            <div className="mt-1 text-3xl font-bold">
+              {formatMoney(totalRevenue._sum.subtotalCents || 0, "MXN")}
             </div>
-          )}
+            <div className="mt-1 text-xs text-[color:var(--muted)]">
+              Total
+            </div>
+          </div>
+          <div className={`rounded-xl border p-6 shadow-sm ${store.acceptsMercadoPago ? "border-green-500 bg-green-50" : "border-yellow-500/50 bg-yellow-50"}`}>
+            <div className="text-sm text-[color:var(--muted)]">Pago con tarjeta</div>
+            <div className="mt-1 text-2xl font-bold">
+              {store.acceptsMercadoPago ? "✓ Configurado" : "⚠ No configurado"}
+            </div>
+            <div className="mt-1 text-xs text-[color:var(--muted)]">
+              {store.acceptsMercadoPago ? "Aceptas tarjetas" : "Configure en ajustes"}
+            </div>
+          </div>
         </div>
+      </section>
 
-        <div className="rounded-xl border border-[var(--border)]">
-          <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
-            <h2 className="font-semibold">Pedidos recientes</h2>
-            <Link href="/vendor/pedidos" className="text-sm text-[var(--accent)] hover:underline">
-              Ver todos
-            </Link>
+      <section className="mx-auto max-w-6xl px-4 pb-16">
+        <div className="grid gap-6 lg:grid-cols-2">
+          <div className="rounded-xl border border-[var(--border)] bg-white">
+            <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
+              <h2 className="font-semibold">Productos recientes</h2>
+              <Link href="/vendor/productos" className="text-sm text-emerald-600 hover:underline">
+                Ver todos →
+              </Link>
+            </div>
+            {products.length === 0 ? (
+              <div className="p-8 text-center">
+                <div className="text-4xl mb-2">📦</div>
+                <p className="text-[color:var(--muted)]">No tienes productos aún.</p>
+                <Link href="/vendor/productos/nuevo" className="mt-4 inline-block text-sm text-emerald-600 hover:underline">
+                  Agregar primer producto →
+                </Link>
+              </div>
+            ) : (
+              <div className="divide-y divide-[var(--border)]">
+                {products.map((product: typeof products[number]) => (
+                  <div key={product.id} className="flex items-center gap-4 px-5 py-3">
+                    {product.imageUrl ? (
+                      <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-[var(--border)]">
+                        <img src={product.imageUrl} alt={product.name} className="h-full w-full object-cover" />
+                      </div>
+                    ) : (
+                      <div className="h-12 w-12 shrink-0 rounded-lg border border-[var(--border)] bg-gray-100 flex items-center justify-center text-2xl">
+                        📷
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate font-medium">{product.name}</div>
+                      <div className="text-sm text-[color:var(--muted)]">
+                        {formatMoney(product.priceCents, product.currency)}
+                      </div>
+                    </div>
+                    <div className={`text-xs px-2 py-1 rounded-full ${product.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>
+                      {product.isActive ? "Activo" : "Inactivo"}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-          {orders.length === 0 ? (
-            <div className="p-5 text-center text-sm text-[color:var(--muted)]">
-              No tienes pedidos aún.
+
+          <div className="rounded-xl border border-[var(--border)] bg-white">
+            <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
+              <h2 className="font-semibold">Pedidos recientes</h2>
+              <Link href="/vendor/pedidos" className="text-sm text-emerald-600 hover:underline">
+                Ver todos →
+              </Link>
             </div>
-          ) : (
-            <div className="divide-y divide-[var(--border)]">
-              {orders.map((order: typeof orders[number]) => (
-                <div key={order.id} className="flex items-center justify-between px-5 py-3">
-                  <div>
-                    <div className="text-sm font-medium">
-                      #{order.id.slice(-6).toUpperCase()}
+            {orders.length === 0 ? (
+              <div className="p-8 text-center">
+                <div className="text-4xl mb-2">📋</div>
+                <p className="text-[color:var(--muted)]">No tienes pedidos aún.</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-[var(--border)]">
+                {orders.map((order: typeof orders[number]) => (
+                  <div key={order.id} className="flex items-center justify-between px-5 py-3">
+                    <div>
+                      <div className="font-medium">#{order.id.slice(-6).toUpperCase()}</div>
+                      <div className="text-xs text-[color:var(--muted)]">
+                        {new Date(order.createdAt).toLocaleDateString("es-MX", { dateStyle: "medium" })}
+                      </div>
                     </div>
-                    <div className="text-xs text-[color:var(--muted)]">
-                      {new Date(order.createdAt).toLocaleDateString("es-MX")}
+                    <div className="text-right">
+                      <div className="font-medium">{formatMoney(order.subtotalCents, "MXN")}</div>
+                      <div className={`text-xs ${
+                        order.status === "PENDING" ? "text-yellow-600" :
+                        order.status === "COMPLETED" ? "text-green-600" :
+                        "text-blue-600"
+                      }`}>
+                        {order.status === "PENDING" ? "⏳ Pendiente" :
+                         order.status === "CONFIRMED" ? "✓ Confirmado" :
+                         order.status === "READY" ? "📦 Listo" :
+                         order.status === "OUT_FOR_DELIVERY" ? "🚚 En camino" :
+                         order.status === "COMPLETED" ? "✅ Completado" :
+                         "❌ Cancelado"}
+                      </div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-sm font-medium">
-                      {formatMoney(order.subtotalCents, "MXN")}
-                    </div>
-                    <div className={`text-xs ${
-                      order.status === "PENDING" ? "text-yellow-600" :
-                      order.status === "COMPLETED" ? "text-green-600" :
-                      order.status === "CANCELLED" ? "text-red-600" :
-                      "text-blue-600"
-                    }`}>
-                      {order.status === "PENDING" ? "Pendiente" :
-                       order.status === "CONFIRMED" ? "Confirmado" :
-                       order.status === "READY" ? "Listo" :
-                       order.status === "OUT_FOR_DELIVERY" ? "En camino" :
-                       order.status === "COMPLETED" ? "Completado" :
-                       "Cancelado"}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
