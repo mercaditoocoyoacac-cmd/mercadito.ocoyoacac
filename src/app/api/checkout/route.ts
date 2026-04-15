@@ -123,8 +123,9 @@ export async function POST(req: Request) {
     });
 
     if (store?.mercadoPagoAccessToken) {
-      const accessToken = Buffer.from(store.mercadoPagoAccessToken, "hex").toString("utf8");
-      console.log("Calling MP API with token:", accessToken.substring(0, 20) + "...");
+      const encrypted = store.mercadoPagoAccessToken;
+      const accessToken = Buffer.from(encrypted, "hex").toString("utf8");
+      console.log("Decoded token:", accessToken);
 
       try {
         const mpResponse = await fetch("https://api.mercadopago.com/checkout/preferences", {
