@@ -124,7 +124,8 @@ export async function POST(req: Request) {
 
     if (store?.mercadoPagoAccessToken) {
       const encrypted = store.mercadoPagoAccessToken;
-      const accessToken = Buffer.from(encrypted, "hex").toString("utf8");
+      const base64 = Buffer.from(encrypted, "hex").toString("utf8");
+      const accessToken = Buffer.from(base64, "base64").toString("utf8");
       console.log("Decoded token:", accessToken);
 
       try {
