@@ -119,7 +119,7 @@ export default function ProfilePage() {
     }
   }
 
-  async function verifyCode(e: React.FormEvent) {
+  async function handleVerifyCode(e: React.FormEvent) {
     e.preventDefault();
     setVerifying(true);
     
@@ -142,7 +142,7 @@ export default function ProfilePage() {
       } else {
         setError(data.error || "Código incorrecto");
       }
-    } catch (e) {
+    } catch {
       setError("Error al verificar");
     } finally {
       setVerifying(false);
@@ -324,7 +324,7 @@ export default function ProfilePage() {
               Ingresa el código que enviamos a <strong>{verifyModal.target}</strong>
             </p>
             
-            <form onSubmit={verifyCode} className="mt-4 space-y-4">
+            <form onSubmit={handleVerifyCode} className="mt-4 space-y-4">
               <input
                 type="text"
                 value={verifyCode}
