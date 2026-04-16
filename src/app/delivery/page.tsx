@@ -124,7 +124,8 @@ export default async function DeliveryDashboard() {
                     📍 {order.customerAddress}
                   </div>
                 )}
-                <div className="mt-4 flex gap-2">
+                <div className="mt-4 space-y-2">
+                  <div className="text-xs text-orange-600 font-medium">Escaneá el codigo QR para entregar</div>
                   <form action={async () => {
                     "use server";
                     await prisma.order.update({
@@ -133,8 +134,8 @@ export default async function DeliveryDashboard() {
                     });
                     revalidatePath("/delivery");
                   }}>
-                    <button className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700">
-                      Marcar entregado
+                    <button className="w-full rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700">
+                      Confirmar entrega final
                     </button>
                   </form>
                 </div>

@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   }
 
   const json = await req.json().catch(() => null);
-  const { orderId, deliveryCode } = json || {};
+  const { orderId, deliveryCode, action } = json || {};
 
   if (!orderId || !deliveryCode) {
     return NextResponse.json({ ok: false, error: "Datos requeridos" }, { status: 400 });
@@ -46,11 +46,19 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Orden ya entregada" }, { status: 400 });
   }
 
+  let newStatus = "COMPLETED";
+  let message = "Entrega confirmada";
+
+  if (action === "pickup") {
+    newStatus = "OUT_FOR_DELIVERY";
+    message = "Producto recogido - En camino";
+  }
+
   const updateData: any = {
-    status: "COMPLETED",
+    status: newStatus,
   };
 
-  if (user?.role === "DELIVERY") {
+  if (user?.role === "DELIVERY" && !order.deliveryUserId) {
     updateData.deliveryUserId = auth.userId;
   }
 
@@ -61,12 +69,13 @@ export async function POST(req: Request) {
 
   return NextResponse.json({
     ok: true,
-    message: "Entrega confirmada",
+    message,
     order: {
       id: order.id,
       customerName: order.customerName,
       total: order.totalCents,
       storeName: order.store.name,
+      status: newStatus,
     },
   });
 }
@@ -83,9 +92,16 @@ export async function GET(req: Request) {
   }
 
   try {
-    const data = JSON.parse(code);
+    let deliveryCode = code;
+    
+    try {
+      const data = JSON.parse(code);
+      deliveryCode = data.code;
+    } catch {
+    }
+    
     const order = await prisma.order.findFirst({
-      where: { id: data.orderId, deliveryCode: data.code },
+      where: { deliveryCode: deliveryCode },
       select: {
         id: true,
         customerName: true,
@@ -93,12 +109,13 @@ export async function GET(req: Request) {
         customerAddress: true,
         status: true,
         totalCents: true,
+        deliveryCode: true,
         store: { select: { name: true, phone: true } },
       },
     });
 
     if (!order) {
-      return NextResponse.json({ ok: false, error: "Código inválido" }, { status: 404 });
+      return NextResponse.json({ ok: false, error: "Código no encontrado" }, { status: 404 });
     }
 
     return NextResponse.json({ ok: true, order });
