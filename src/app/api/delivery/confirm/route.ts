@@ -6,16 +6,10 @@ export async function POST(req: Request) {
   const auth = await requireUser();
   if (!auth.ok) return auth.res;
 
-  const session = await prisma.session.findUnique({
-    where: { token: auth.sessionToken || "" },
-  });
-
-  if (!session || session.userId !== auth.userId) {
-    return NextResponse.json({ ok: false, error: "No autorizado" }, { status: 401 });
-  }
+  const userId = auth.userId;
 
   const user = await prisma.user.findUnique({
-    where: { id: auth.userId },
+    where: { id: userId },
     select: { role: true },
   });
 
@@ -54,12 +48,12 @@ export async function POST(req: Request) {
     message = "Producto recogido - En camino";
   }
 
-  const updateData: any = {
+  const updateData: { status: string; deliveryUserId?: string } = {
     status: newStatus,
   };
 
   if (user?.role === "DELIVERY" && !order.deliveryUserId) {
-    updateData.deliveryUserId = auth.userId;
+    updateData.deliveryUserId = userId;
   }
 
   await prisma.order.update({
