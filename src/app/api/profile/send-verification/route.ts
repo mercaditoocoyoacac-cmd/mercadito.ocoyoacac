@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
+import { sendVerificationSMS } from "@/server/sns";
 
 function generateCode(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -48,7 +49,14 @@ export async function POST(req: Request) {
   if (type === "email") {
     console.log(`[EMAIL VERIFICATION] Code for ${target}: ${code}`);
   } else {
-    console.log(`[PHONE VERIFICATION] Code for ${target}: ${code}`);
+    console.log(`[PHONE VERIFICATION] Sending SMS to ${target} with code: ${code}`);
+    const sent = await sendVerificationSMS(target, code);
+    if (!sent) {
+      return NextResponse.json({ 
+        ok: false, 
+        error: "Error al enviar SMS. Asegúrate de que tu número esté verificado en AWS SNS." 
+      }, { status: 500 });
+    }
   }
 
   return NextResponse.json({ ok: true, target });
