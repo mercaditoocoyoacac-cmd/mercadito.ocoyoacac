@@ -18,7 +18,6 @@ export async function sendSMS(phoneNumber: string, message: string): Promise<boo
     const command = new PublishCommand({
       PhoneNumber: formattedPhone,
       Message: message,
-      MessageType: "OTP",
     });
 
     const result = await snsClient.send(command);
