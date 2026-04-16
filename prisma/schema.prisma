@@ -175,6 +175,7 @@ model Order {
   deliveryCents   Int             @default(0)
   totalCents      Int
   currency        String          @default("MXN")
+  deliveryCode    String?         @unique
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
