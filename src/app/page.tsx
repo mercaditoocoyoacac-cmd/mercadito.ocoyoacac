@@ -182,7 +182,10 @@ export default async function Home() {
             Iniciar sesión
           </Link>
           <Link href="/portal/vendedor" className="text-rose-600 font-medium hover:underline">
-            ¿Eres vendedor? Portal →
+            ¿Eres vendedor? →
+          </Link>
+          <Link href="/portal/repartidor" className="text-orange-600 font-medium hover:underline">
+            ¿Quieres entregar? →
           </Link>
         </div>
       </section>
