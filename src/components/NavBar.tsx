@@ -375,6 +375,15 @@ export function NavBar() {
                     Mis pedidos
                   </Link>
                   <Link
+                    href="/perfil"
+                    onClick={() => setMenuOpen(false)}
+                    className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${
+                      isActive("/perfil") ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                    }`}
+                  >
+                    Mi perfil
+                  </Link>
+                  <Link
                     href="/perfil/dispositivos"
                     onClick={() => setMenuOpen(false)}
                     className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${

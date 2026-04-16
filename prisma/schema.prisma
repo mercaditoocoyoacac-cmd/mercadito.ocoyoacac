@@ -28,6 +28,15 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  phone        String?
+  address      String?
+  city         String?
+  state        String?
+  zipCode      String?
+
+  emailVerified    Boolean @default(false)
+  phoneVerified   Boolean @default(false)
+
   stores        Store[]
   orders        Order[]       @relation("OrderCustomer")
   deliveries    Order[]       @relation("OrderDelivery")
@@ -35,6 +44,7 @@ model User {
   sessions      Session[]
   devices      DeviceAuthorization[]
   notifications Notification[]
+  verifications Verification[]
 }
 
 model Store {
@@ -222,4 +232,20 @@ model Notification {
 
   @@index([userId])
   @@index([read])
+}
+
+model Verification {
+  id        String   @id @default(cuid())
+  type      String
+  target    String
+  code      String
+  expiresAt DateTime
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([target])
 }
