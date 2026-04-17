@@ -72,6 +72,23 @@ export function NavBar() {
               </Link>
             )}
             
+            {!data?.user && (
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/login"
+                  className="rounded-lg px-4 py-2 text-sm font-medium text-[color:var(--muted)] hover:bg-gray-100 hover:text-gray-900"
+                >
+                  Entrar
+                </Link>
+                <Link
+                  href="/registro"
+                  className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)]"
+                >
+                  Registrarse
+                </Link>
+              </div>
+            )}
+            
             {isVendor ? (
               <div className="relative">
                 <button
