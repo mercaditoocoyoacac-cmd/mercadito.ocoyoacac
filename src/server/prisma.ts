@@ -16,14 +16,18 @@ function createPrismaClient() {
   const pool = new Pool({ 
     connectionString,
     ssl: { rejectUnauthorized: false },
-    max: 1,
-    idleTimeoutMillis: 1000,
-    connectionTimeoutMillis: 5000
+    max: 10,
+    min: 2,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000
   });
   
   const adapter = new PrismaPg(pool);
   
-  return new PrismaClient({ adapter });
+  return new PrismaClient({ 
+    adapter,
+    log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
+  });
 }
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();

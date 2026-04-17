@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
+import { rateLimit, getClientIP } from "@/server/rateLimit";
 
 const CheckoutSchema = z.object({
   fulfillmentType: z.enum(["PICKUP", "DELIVERY"]),
@@ -13,6 +14,16 @@ const CheckoutSchema = z.object({
 });
 
 export async function POST(req: Request) {
+  const ip = getClientIP(req);
+  const { success, remaining } = rateLimit(`checkout:${ip}`);
+  
+  if (!success) {
+    return NextResponse.json(
+      { ok: false, error: "Demasiadas solicitudes. Espera un momento." },
+      { status: 429 }
+    );
+  }
+
   const auth = await requireUser();
   if (!auth.ok) return auth.res;
 
