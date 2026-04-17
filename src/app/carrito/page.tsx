@@ -52,27 +52,51 @@ export default function CarritoPage() {
   async function refresh() {
     setLoading(true);
     setError(null);
-    const res = await fetch("/api/cart/items");
-    if (res.status === 401) {
+    
+    const [cartRes, profileRes] = await Promise.all([
+      fetch("/api/cart/items"),
+      fetch("/api/profile").catch(() => null)
+    ]);
+    
+    if (cartRes.status === 401) {
       router.push("/login?callbackUrl=/carrito");
       return;
     }
-    const data = (await res.json().catch(() => null)) as
+    
+    const cartData = (await cartRes.json().catch(() => null)) as
       | { ok: true; items: CartItem[] }
       | { ok: false; error?: string }
       | null;
-    setLoading(false);
-    if (!res.ok || !data?.ok) {
+    
+    if (!cartRes.ok || !cartData?.ok) {
       setError("No se pudo cargar tu carrito.");
+      setLoading(false);
       return;
     }
-    setItems(data.items);
+    
+    setItems(cartData.items);
+    
+    if (profileRes?.ok) {
+      const profileData = await profileRes.json();
+      if (profileData.ok && profileData.user) {
+        setCustomerName(profileData.user.name || "");
+        setCustomerPhone(profileData.user.phone || "");
+        const addr = [
+          profileData.user.address,
+          profileData.user.city,
+          profileData.user.state,
+          profileData.user.zipCode
+        ].filter(Boolean).join(", ");
+        setCustomerAddress(addr);
+      }
+    }
+    
+    setLoading(false);
   }
 
   useEffect(() => {
     void refresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [router]);
 
   return (
     <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
