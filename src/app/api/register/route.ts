@@ -12,6 +12,7 @@ const RegisterSchema = z.object({
     "La contraseña debe contener: mayúscula, minúscula, número y carácter especial"
   ),
   name: z.string().min(2).max(80).optional(),
+  phone: z.string().optional(),
   role: z.enum(["CUSTOMER", "VENDOR", "DELIVERY", "ADMIN"]).optional(),
   adminKey: z.string().optional(),
 });
@@ -27,7 +28,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { email, password, name, role, adminKey } = parsed.data;
+    const { email, password, name, phone, role, adminKey } = parsed.data;
     const emailLower = email.toLowerCase().trim();
 
     const exists = await prisma.user.findUnique({ where: { email: emailLower } });
@@ -50,14 +51,22 @@ export async function POST(req: Request) {
     userRole = "ADMIN";
 
     const passwordHash = await bcrypt.hash(password, 14);
+    const cleanPhone = phone?.replace(/\D/g, "") || null;
+    
     const user = await prisma.user.create({
       data: {
         email: emailLower,
         name: name?.trim() || null,
+        phone: cleanPhone,
+        phoneVerified: cleanPhone ? true : undefined,
         passwordHash,
         role: userRole,
       },
       select: { id: true, email: true },
+    });
+
+    await prisma.verification.deleteMany({
+      where: { userId: "temp" },
     });
 
     return NextResponse.json({ ok: true, user });

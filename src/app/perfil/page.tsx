@@ -2,6 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
+
+const LocationPicker = dynamic(
+  () => import("@/components/LocationPicker"),
+  { ssr: false, loading: () => <div className="h-64 w-full bg-gray-100 animate-pulse rounded-lg" /> }
+);
 
 interface ProfileData {
   id: string;
@@ -12,6 +18,8 @@ interface ProfileData {
   city: string;
   state: string;
   zipCode: string;
+  latitude: number | null;
+  longitude: number | null;
   emailVerified: boolean;
   phoneVerified: boolean;
   role: string;
@@ -33,6 +41,8 @@ export default function ProfilePage() {
     state: "",
     zipCode: "",
   });
+
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
 
   const [verifyModal, setVerifyModal] = useState<{ open: boolean; type: string; target: string }>({
     open: false,
@@ -61,6 +71,9 @@ export default function ProfilePage() {
           state: data.user.state || "",
           zipCode: data.user.zipCode || "",
         });
+        if (data.user.latitude && data.user.longitude) {
+          setLocation({ lat: data.user.latitude, lng: data.user.longitude });
+        }
       }
     } catch (e) {
       setError("Error al cargar perfil");
@@ -79,7 +92,11 @@ export default function ProfilePage() {
       const res = await fetch("/api/profile", {
         method: "PUT",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          latitude: location?.lat,
+          longitude: location?.lng,
+        }),
       });
       const data = await res.json();
       if (data.ok) {
@@ -303,6 +320,25 @@ export default function ProfilePage() {
                   placeholder="52740"
                 />
               </div>
+            </div>
+
+            <div className="mt-6">
+              <label className="block text-sm font-medium">Ubicación en el mapa</label>
+              <p className="mt-1 text-xs text-[color:var(--muted)]">
+                Toca o haz clic en el mapa para marcar tu ubicación de entrega
+              </p>
+              <div className="mt-2">
+                <LocationPicker
+                  latitude={location?.lat ?? null}
+                  longitude={location?.lng ?? null}
+                  onLocationChange={(lat, lng) => setLocation({ lat, lng })}
+                />
+              </div>
+              {location && (
+                <p className="mt-2 text-xs text-green-600">
+                  ✓ Ubicación seleccionada
+                </p>
+              )}
             </div>
           </div>
         </div>

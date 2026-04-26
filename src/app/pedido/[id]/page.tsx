@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
+import OrderConfirmation from "@/components/OrderConfirmation";
 
 function formatMoney(cents: number, currency: string) {
   return new Intl.NumberFormat("es-MX", { style: "currency", currency }).format(
@@ -28,7 +29,9 @@ export default async function PedidoPage({
       customerName: true,
       customerPhone: true,
       customerAddress: true,
+      deliveryCode: true,
       notes: true,
+      totalCents: true,
       subtotalCents: true,
       currency: true,
       createdAt: true,
@@ -120,6 +123,8 @@ export default async function PedidoPage({
           {formatMoney(order.subtotalCents, order.currency)}
         </span>
       </div>
+
+      <OrderConfirmation order={order} />
     </main>
   );
 }

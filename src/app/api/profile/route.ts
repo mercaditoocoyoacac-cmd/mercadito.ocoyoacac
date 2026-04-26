@@ -18,6 +18,8 @@ export async function GET() {
       city: true,
       state: true,
       zipCode: true,
+      latitude: true,
+      longitude: true,
       emailVerified: true,
       phoneVerified: true,
     },
@@ -31,7 +33,7 @@ export async function PUT(req: Request) {
   if (!auth.ok) return auth.res;
 
   const json = await req.json().catch(() => null);
-  const { name, phone, address, city, state, zipCode } = json || {};
+  const { name, phone, address, city, state, zipCode, latitude, longitude } = json || {};
 
   await prisma.user.update({
     where: { id: auth.userId },
@@ -42,6 +44,8 @@ export async function PUT(req: Request) {
       city: city?.trim() || null,
       state: state?.trim() || null,
       zipCode: zipCode?.trim() || null,
+      latitude: typeof latitude === "number" ? latitude : null,
+      longitude: typeof longitude === "number" ? longitude : null,
     },
   });
 

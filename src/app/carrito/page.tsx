@@ -3,6 +3,12 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
+
+const LocationPicker = dynamic(
+  () => import("@/components/LocationPicker"),
+  { ssr: false, loading: () => <div className="h-48 w-full bg-gray-100 animate-pulse rounded-lg" /> }
+);
 
 type CartItem = {
   quantity: number;
@@ -46,6 +52,8 @@ export default function CarritoPage() {
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
+  const [customerLat, setCustomerLat] = useState<number | null>(null);
+  const [customerLng, setCustomerLng] = useState<number | null>(null);
   const [notes, setNotes] = useState("");
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
@@ -88,6 +96,8 @@ export default function CarritoPage() {
           profileData.user.zipCode
         ].filter(Boolean).join(", ");
         setCustomerAddress(addr);
+        setCustomerLat(profileData.user.latitude);
+        setCustomerLng(profileData.user.longitude);
       }
     }
     
@@ -270,6 +280,22 @@ export default function CarritoPage() {
                       className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
                       placeholder="Calle, número, colonia..."
                     />
+                    <div className="mt-3">
+                      <div className="text-sm font-medium mb-2">Ubica tu domicilio en el mapa</div>
+                      <LocationPicker
+                        latitude={customerLat}
+                        longitude={customerLng}
+                        onLocationChange={(lat, lng) => {
+                          setCustomerLat(lat);
+                          setCustomerLng(lng);
+                        }}
+                      />
+                      {customerLat && customerLng && (
+                        <p className="mt-1 text-xs text-green-600">
+                          ✓ Punto de entrega marcado
+                        </p>
+                      )}
+                    </div>
                   </label>
                 ) : null}
 
@@ -346,6 +372,8 @@ export default function CarritoPage() {
                         customerName,
                         customerPhone,
                         customerAddress: customerAddress || undefined,
+                        customerLat: customerLat || undefined,
+                        customerLng: customerLng || undefined,
                         notes: notes || undefined,
                       }),
                     });

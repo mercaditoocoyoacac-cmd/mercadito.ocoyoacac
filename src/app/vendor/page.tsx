@@ -38,7 +38,7 @@ export default async function VendorDashboard() {
             
             <p className="mt-4 text-lg text-white/90 sm:text-xl">
               Crea tu tienda digital y reaching a más clientes en tu comunidad.
-              Es gratis empezar.
+              Empieza a vender hoy.
             </p>
             
             <div className="mt-8">
@@ -87,6 +87,49 @@ export default async function VendorDashboard() {
   const subscriptionActive = store.subscription && 
     store.subscription.status === "ACTIVE" && 
     new Date(store.subscription.endDate) > new Date();
+
+  const contractSigned = store.subscription?.contractSigned ?? false;
+
+  if (!contractSigned) {
+    return (
+      <main className="flex-1">
+        <section className="bg-gradient-to-br from-orange-600 via-orange-700 to-amber-700 px-4 py-20 text-white">
+          <div className="mx-auto max-w-2xl text-center">
+            <h1 className="text-3xl font-bold">Contrato requerido</h1>
+            <p className="mt-4 text-lg text-white/90">
+              Para continuar, necesitas firmar el contrato de servicio.
+            </p>
+            <div className="mt-8">
+              <Link
+                href="/contrato"
+                className="inline-block rounded-lg bg-white px-6 py-3 text-lg font-semibold text-orange-700 hover:bg-gray-100"
+              >
+                Firmar contrato
+              </Link>
+            </div>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (!store.isApproved) {
+    return (
+      <main className="flex-1">
+        <section className="bg-gradient-to-br from-amber-600 via-amber-700 to-yellow-700 px-4 py-20 text-white">
+          <div className="mx-auto max-w-2xl text-center">
+            <h1 className="text-3xl font-bold">En espera de aprobación</h1>
+            <p className="mt-4 text-lg text-white/90">
+              Tu tienda está en espera de aprobación por un administrador.
+            </p>
+            <p className="mt-2 text-white/70">
+              Serás notificado cuando tu solicitud sea aprobada.
+            </p>
+          </div>
+        </section>
+      </main>
+    );
+  }
 
   const products = await prisma.product.findMany({
     where: { storeId: store.id },

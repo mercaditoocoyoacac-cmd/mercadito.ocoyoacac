@@ -4,12 +4,23 @@ import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
 import { rateLimit, getClientIP } from "@/server/rateLimit";
 
+function generateDeliveryCode(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
 const CheckoutSchema = z.object({
   fulfillmentType: z.enum(["PICKUP", "DELIVERY"]),
   paymentMethod: z.enum(["CASH", "ONLINE"]).default("CASH"),
   customerName: z.string().min(2).max(80),
   customerPhone: z.string().min(6).max(30),
   customerAddress: z.string().max(140).optional(),
+  customerLat: z.number().optional(),
+  customerLng: z.number().optional(),
   notes: z.string().max(400).optional(),
 });
 
@@ -39,6 +50,13 @@ export async function POST(req: Request) {
   if (parsed.data.fulfillmentType === "DELIVERY" && !parsed.data.customerAddress) {
     return NextResponse.json(
       { ok: false, error: "La dirección es requerida para entrega." },
+      { status: 400 },
+    );
+  }
+
+  if (parsed.data.fulfillmentType === "DELIVERY" && (!parsed.data.customerLat || !parsed.data.customerLng)) {
+    return NextResponse.json(
+      { ok: false, error: "Marca tu ubicación en el mapa." },
       { status: 400 },
     );
   }
@@ -95,6 +113,7 @@ export async function POST(req: Request) {
   );
   const deliveryCents = 0;
   const totalCents = subtotalCents + deliveryCents;
+  const deliveryCode = generateDeliveryCode();
 
   const order = await prisma.order.create({
     data: {
@@ -105,11 +124,14 @@ export async function POST(req: Request) {
       customerName: parsed.data.customerName.trim(),
       customerPhone: parsed.data.customerPhone.trim(),
       customerAddress: parsed.data.customerAddress?.trim() || null,
+      customerLat: parsed.data.customerLat || null,
+      customerLng: parsed.data.customerLng || null,
       notes: parsed.data.notes?.trim() || null,
       subtotalCents,
       deliveryCents,
       totalCents,
       currency,
+      deliveryCode,
       items: {
         create: items.map((cartItem: typeof items[number]) => ({
           productId: cartItem.product.id,

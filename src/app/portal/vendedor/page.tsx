@@ -38,7 +38,7 @@ export default async function VendorPortalPage() {
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
-              Crear mi tienda gratis
+              Crear mi tienda
             </Link>
             <Link
               href="/vendor/login"
@@ -80,14 +80,14 @@ export default async function VendorPortalPage() {
         <div className="mx-auto max-w-4xl px-4 text-center">
           <h2 className="text-2xl font-bold">¿Listo para vender?</h2>
           <p className="mt-3 text-emerald-100">
-            Es gratis crear tu tienda y solo paga cuando vendes.
+            Crea tu tienda por solo $496/mes.
           </p>
           <div className="mt-8">
             <Link
               href="/vendor/registro"
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-base font-semibold text-emerald-700 shadow-lg transition-transform hover:scale-105"
             >
-              Crear mi tienda gratis
+              Crear mi tienda
             </Link>
           </div>
         </div>

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
+import DeliveryOrdersGrid from "@/components/DeliveryOrders";
 
 function formatMoney(cents: number, currency: string) {
   return new Intl.NumberFormat("es-MX", { style: "currency", currency }).format(
@@ -19,7 +20,7 @@ const statusLabels: Record<string, string> = {
   CANCELLED: "Cancelado",
 };
 
-export const dynamic = "force-dynamic";
+export const dynamicParams = true;
 
 export default async function DeliveryDashboard() {
   const session = await getSession();
@@ -38,6 +39,8 @@ export default async function DeliveryDashboard() {
       customerName: true,
       customerPhone: true,
       customerAddress: true,
+      customerLat: true,
+      customerLng: true,
       totalCents: true,
       currency: true,
       createdAt: true,
@@ -58,6 +61,8 @@ export default async function DeliveryDashboard() {
       customerName: true,
       customerPhone: true,
       customerAddress: true,
+      customerLat: true,
+      customerLng: true,
       totalCents: true,
       currency: true,
       createdAt: true,
@@ -100,49 +105,7 @@ export default async function DeliveryDashboard() {
               Escanear QR
             </Link>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {activeDeliveries.map((order) => (
-              <div
-                key={order.id}
-                className="rounded-xl border-2 border-orange-500 bg-orange-50 p-5"
-              >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="font-mono font-semibold">
-                      #{order.id.slice(-8).toUpperCase()}
-                    </div>
-                    <div className="mt-1 font-medium">{order.customerName}</div>
-                    <div className="text-sm text-[color:var(--muted)]">
-                      {order.customerPhone}
-                    </div>
-                  </div>
-                  <div className="text-lg font-semibold">
-                    {formatMoney(order.totalCents, order.currency)}
-                  </div>
-                </div>
-                {order.customerAddress && (
-                  <div className="mt-3 text-sm">
-                    📍 {order.customerAddress}
-                  </div>
-                )}
-                <div className="mt-4 space-y-2">
-                  <div className="text-xs text-orange-600 font-medium">Escaneá el codigo QR para entregar</div>
-                  <form action={async () => {
-                    "use server";
-                    await prisma.order.update({
-                      where: { id: order.id },
-                      data: { status: "COMPLETED" },
-                    });
-                    revalidatePath("/delivery");
-                  }}>
-                    <button className="w-full rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700">
-                      Confirmar entrega final
-                    </button>
-                  </form>
-                </div>
-              </div>
-            ))}
-          </div>
+          <DeliveryOrdersGrid orders={activeDeliveries} showMap />
         </>
       )}
 

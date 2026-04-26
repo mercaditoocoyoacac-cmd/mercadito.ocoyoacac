@@ -155,7 +155,7 @@ export default async function TiendasPage({
       <div className="mt-12 rounded-2xl bg-[var(--accent-soft)] p-8 text-center">
         <h3 className="text-lg font-semibold">¿Tienes un negocio?</h3>
         <p className="mt-2 text-sm text-[color:var(--muted)]">
-          Llega a más clientes creando tu tienda gratis en Mercadito.
+          Llega a más clientes creando tu tienda en Mercadito ($496/mes).
         </p>
         <Link
           href="/vendor/upgrade"
