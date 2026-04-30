@@ -276,8 +276,8 @@ model Verification {
   verified  Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String?
+  user   User?  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([target])
