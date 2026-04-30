@@ -7,10 +7,7 @@ const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY || "mercadito-admin-secure
 
 const RegisterSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(16, "La contraseña debe tener al menos 16 caracteres").regex(
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/,
-    "La contraseña debe contener: mayúscula, minúscula, número y carácter especial"
-  ),
+  password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
   name: z.string().min(2).max(80).optional(),
   phone: z.string().optional(),
   role: z.enum(["CUSTOMER", "VENDOR", "DELIVERY", "ADMIN"]).optional(),
@@ -41,16 +38,14 @@ export async function POST(req: Request) {
 
     let userRole: "CUSTOMER" | "VENDOR" | "DELIVERY" | "ADMIN" = role ?? "CUSTOMER";
 
-    if (adminKey !== ADMIN_SECRET_KEY) {
+    if (userRole === "ADMIN" && adminKey !== ADMIN_SECRET_KEY) {
       return NextResponse.json(
         { ok: false, error: "Clave de administrador inválida." },
         { status: 403 },
       );
     }
 
-    userRole = "ADMIN";
-
-    const passwordHash = await bcrypt.hash(password, 14);
+    const passwordHash = await bcrypt.hash(password, 10);
     const cleanPhone = phone?.replace(/\D/g, "") || null;
     
     const user = await prisma.user.create({
@@ -65,15 +60,11 @@ export async function POST(req: Request) {
       select: { id: true, email: true },
     });
 
-    await prisma.verification.deleteMany({
-      where: { userId: "temp" },
-    });
-
     return NextResponse.json({ ok: true, user });
   } catch (error) {
     console.error("Register error:", error);
     return NextResponse.json(
-      { ok: false, error: "Error del servidor: " + String(error) },
+      { ok: false, error: "Error del servidor" },
       { status: 500 },
     );
   }
