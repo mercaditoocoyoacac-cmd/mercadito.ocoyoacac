@@ -26,21 +26,43 @@ export default async function AdminAprobarVendedoresPage() {
     },
     include: {
       owner: { select: { id: true, name: true, email: true, phone: true } },
-      subscription: { select: { monthlyPriceCents: true, contractSignedAt: true } },
+      subscription: { select: { monthlyPriceCents: true, contractSignedAt: true, status: true } },
     },
     orderBy: { createdAt: "desc" },
   });
+
+  const trialStores = await prisma.store.findMany({
+    where: {
+      isApproved: false,
+      subscription: {
+        status: "TRIAL",
+      },
+    },
+    include: {
+      owner: { select: { id: true, name: true, email: true, phone: true } },
+      subscription: { select: { startDate: true, endDate: true, status: true, contractSigned: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const today = new Date();
+  const activeTrialStores = trialStores.filter(
+    (s) => s.subscription && new Date(s.subscription.endDate) > today
+  );
 
   const approvedStores = await prisma.store.findMany({
     where: { isApproved: true },
     include: {
       owner: { select: { id: true, name: true, email: true, phone: true } },
-      subscription: { select: { monthlyPriceCents: true } },
+      subscription: { select: { monthlyPriceCents: true, status: true, contractSigned: true, contractSignedAt: true } },
     },
     orderBy: { updatedAt: "desc" },
-    take: 20,
+    take: 50,
   });
 
+  const trialCount = await prisma.subscription.count({
+    where: { status: "TRIAL" },
+  });
   const activeCount = await prisma.subscription.count({
     where: { status: "ACTIVE" },
   });
@@ -56,16 +78,22 @@ export default async function AdminAprobarVendedoresPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3 mb-8">
-        <div className="rounded-xl border border-[var(--border)] p-5">
-          <div className="text-sm text-[color:var(--muted)]">En espera</div>
-          <div className="mt-1 text-2xl font-semibold">
+      <div className="grid gap-4 sm:grid-cols-4 mb-8">
+        <div className="rounded-xl border border-emerald-500/30 bg-emerald-50 p-5">
+          <div className="text-sm text-emerald-700">🧪 En prueba</div>
+          <div className="mt-1 text-2xl font-semibold text-emerald-700">
+            {trialCount}
+          </div>
+        </div>
+        <div className="rounded-xl border border-orange-500/30 bg-orange-50 p-5">
+          <div className="text-sm text-orange-700">En espera</div>
+          <div className="mt-1 text-2xl font-semibold text-orange-700">
             {pendingStores.length}
           </div>
         </div>
-        <div className="rounded-xl border border-[var(--border)] p-5">
-          <div className="text-sm text-[color:var(--muted)]">Aprobados</div>
-          <div className="mt-1 text-2xl font-semibold">
+        <div className="rounded-xl border border-blue-500/30 bg-blue-50 p-5">
+          <div className="text-sm text-blue-700">Aprobados</div>
+          <div className="mt-1 text-2xl font-semibold text-blue-700">
             {approvedStores.length}
           </div>
         </div>
@@ -76,6 +104,70 @@ export default async function AdminAprobarVendedoresPage() {
           </div>
         </div>
       </div>
+
+      {activeTrialStores.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold mb-4 text-emerald-800">
+            🧪 Tiendas en prueba gratuita ({activeTrialStores.length})
+          </h2>
+          <div className="space-y-4">
+            {activeTrialStores.map((store) => {
+              const sub = store.subscription!;
+              const daysLeft = Math.ceil((new Date(sub.endDate).getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+              return (
+                <div
+                  key={store.id}
+                  className="rounded-xl border border-emerald-500/30 bg-emerald-50 p-5"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="font-semibold">{store.name}</div>
+                      <div className="text-sm text-[color:var(--muted)]">
+                        {store.owner.name || store.owner.email}
+                      </div>
+                      <div className="text-sm text-[color:var(--muted)]">
+                        {store.owner.email}
+                      </div>
+                      {store.owner.phone && (
+                        <div className="text-sm text-[color:var(--muted)]">
+                          Tel: {store.owner.phone}
+                        </div>
+                      )}
+                      <div className="mt-2 text-sm">
+                        <span className="text-emerald-600 font-medium">
+                          Prueba gratuita · {daysLeft} días restantes
+                        </span>
+                        <span className="ml-2 text-[color:var(--muted)]">
+                          (vence: {new Date(sub.endDate).toLocaleDateString("es-MX")})
+                        </span>
+                      </div>
+                      {!sub.contractSigned && (
+                        <div className="mt-1 text-xs text-orange-600">
+                          ⚠ Sin contrato firmado
+                        </div>
+                      )}
+                    </div>
+                    <form
+                      action={async () => {
+                        "use server";
+                        await prisma.store.update({
+                          where: { id: store.id },
+                          data: { isApproved: true, isPublished: true },
+                        });
+                      }}
+                    >
+                      <button className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700">
+                        Aprobar tienda
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {pendingStores.length > 0 && (
         <div className="mb-8">
@@ -150,6 +242,7 @@ export default async function AdminAprobarVendedoresPage() {
                   <th className="px-4 py-3 font-medium">Tienda</th>
                   <th className="px-4 py-3 font-medium">Propietario</th>
                   <th className="px-4 py-3 font-medium">Precio</th>
+                  <th className="px-4 py-3 font-medium">Contrato</th>
                   <th className="px-4 py-3 font-medium">Estado</th>
                 </tr>
               </thead>
@@ -164,9 +257,24 @@ export default async function AdminAprobarVendedoresPage() {
                         : "-"}
                     </td>
                     <td className="px-4 py-3">
-                      <span className="rounded-full bg-green-100 px-2 py-1 text-xs text-green-700">
-                        Activo
-                      </span>
+                      {store.subscription?.contractSigned ? (
+                        <span className="text-green-600">
+                          ✓ {store.subscription.contractSignedAt?.toLocaleDateString("es-MX")}
+                        </span>
+                      ) : (
+                        <span className="text-orange-600">✗ Sin contrato</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      {store.subscription?.status === "TRIAL" ? (
+                        <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs text-emerald-700">
+                          🧪 Prueba
+                        </span>
+                      ) : (
+                        <span className="rounded-full bg-green-100 px-2 py-1 text-xs text-green-700">
+                          Activo
+                        </span>
+                      )}
                     </td>
                   </tr>
                 ))}
