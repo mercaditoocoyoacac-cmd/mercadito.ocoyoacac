@@ -14,7 +14,7 @@ export default async function AdminSubscriptionsPage() {
 
   const stores = await prisma.store.findMany({
     include: {
-      owner: { select: { id: true, email: true, name: true, isActive: true } },
+      owner: { select: { id: true, email: true, name: true, isActive: true, trialUsed: true } },
       subscription: true,
     },
     orderBy: { createdAt: "desc" },
@@ -104,7 +104,7 @@ export default async function AdminSubscriptionsPage() {
                     Inicio: {sub.startDate.toLocaleDateString("es-MX")} | 
                     Fin: {sub.endDate.toLocaleDateString("es-MX")}
                   </div>
-                  <div className="mt-3 flex gap-2">
+                  <div className="mt-3 flex gap-2 flex-wrap">
                     {store.isPublished ? (
                       <form action={async () => {
                         "use server";
@@ -151,6 +151,24 @@ export default async function AdminSubscriptionsPage() {
                     }}>
                       <button className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700">
                         Convertir a activo
+                      </button>
+                    </form>
+                    <form action={async () => {
+                      "use server";
+                      const trialEnd = new Date();
+                      trialEnd.setDate(trialEnd.getDate() + 15);
+                      await prisma.subscription.update({
+                        where: { storeId: store.id },
+                        data: {
+                          status: "TRIAL",
+                          startDate: new Date(),
+                          endDate: trialEnd,
+                        },
+                      });
+                      revalidatePath("/admin/membresias");
+                    }}>
+                      <button className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700">
+                        Reactivar prueba
                       </button>
                     </form>
                   </div>
@@ -224,6 +242,12 @@ export default async function AdminSubscriptionsPage() {
                       )}
                     </div>
                   </div>
+                  {store.owner.trialUsed && (
+                    <div className="mt-2 flex items-center gap-2 text-xs px-2 py-1 rounded-lg bg-amber-50 border border-amber-200">
+                      <span className="text-amber-600">⚠️</span>
+                      <span className="text-amber-700 font-medium">Ya utilizó su período de prueba de 15 días</span>
+                    </div>
+                  )}
                   {sub && (
                     <div className="mt-2 text-xs text-[color:var(--muted)]">
                       Inicio: {sub.startDate.toLocaleDateString("es-MX")} | 
@@ -290,6 +314,73 @@ data: { isPublished: true },
                     }}>
                       <button className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700">
                         Renovar membresía
+                      </button>
+                    </form>
+                    {!sub || (sub.status !== "TRIAL" && !isTrial) ? (
+                      <form action={async () => {
+                        "use server";
+                        const trialEnd = new Date();
+                        trialEnd.setDate(trialEnd.getDate() + 15);
+                        await prisma.subscription.upsert({
+                          where: { storeId: store.id },
+                          create: {
+                            storeId: store.id,
+                            status: "TRIAL",
+                            startDate: new Date(),
+                            endDate: trialEnd,
+                            monthlyPriceCents: 49600,
+                            contractSigned: false,
+                          },
+                          update: {
+                            status: "TRIAL",
+                            startDate: new Date(),
+                            endDate: trialEnd,
+                          },
+                        });
+                        if (!store.owner.trialUsed) {
+                          await prisma.user.update({
+                            where: { id: store.owner.id },
+                            data: { trialUsed: true },
+                          });
+                        }
+                        revalidatePath("/admin/membresias");
+                      }}>
+                        <button className={`rounded-lg px-3 py-1.5 text-xs font-medium text-white ${
+                          store.owner.trialUsed
+                            ? "bg-amber-500 hover:bg-amber-600"
+                            : "bg-emerald-500 hover:bg-emerald-600"
+                        }`}>
+                          {store.owner.trialUsed ? "Reactivar prueba ⚠️" : "🧪 Activar prueba"}
+                        </button>
+                      </form>
+                    ) : (
+                      <form action={async () => {
+                        "use server";
+                        await prisma.subscription.update({
+                          where: { storeId: store.id },
+                          data: { status: "EXPIRED" },
+                        });
+                        revalidatePath("/admin/membresias");
+                      }}>
+                        <button className="rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-600">
+                          Desactivar prueba
+                        </button>
+                      </form>
+                    )}
+                    <form action={async () => {
+                      "use server";
+                      await prisma.user.update({
+                        where: { id: store.owner.id },
+                        data: { trialUsed: !store.owner.trialUsed },
+                      });
+                      revalidatePath("/admin/membresias");
+                    }}>
+                      <button className={`rounded-lg px-3 py-1.5 text-xs font-medium text-white ${
+                        store.owner.trialUsed
+                          ? "bg-red-400 hover:bg-red-500"
+                          : "bg-gray-400 hover:bg-gray-500"
+                      }`}>
+                        {store.owner.trialUsed ? "✓ Prueba usada" : "✗ Prueba disponible"}
                       </button>
                     </form>
                     {store.owner.isActive ? (

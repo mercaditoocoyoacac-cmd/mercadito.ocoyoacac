@@ -42,6 +42,7 @@ model User {
   ineFrontUrl    String?
   ineBackUrl     String?
   ineNumber      String?
+  trialUsed      Boolean  @default(false)
 
   stores        Store[]
   orders        Order[]       @relation("OrderCustomer")

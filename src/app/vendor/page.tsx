@@ -15,7 +15,7 @@ export default async function VendorDashboard() {
 
   const store = await prisma.store.findFirst({
     where: { ownerId: userId },
-    include: { subscription: true },
+    include: { subscription: true, owner: { select: { trialUsed: true } } },
   });
 
   if (store && !store.subscription) {
@@ -36,7 +36,7 @@ export default async function VendorDashboard() {
   const storeWithSub = store
     ? await prisma.store.findFirst({
         where: { ownerId: userId },
-        include: { subscription: true },
+        include: { subscription: true, owner: { select: { trialUsed: true } } },
       })
     : store;
 
@@ -114,6 +114,36 @@ export default async function VendorDashboard() {
 
   const contractSigned = effectiveStore.subscription?.contractSigned ?? false;
   const isTrial = effectiveStore.subscription?.status === "TRIAL";
+  const trialUsed = effectiveStore.owner?.trialUsed ?? false;
+  const trialExpired = effectiveStore.subscription && 
+    effectiveStore.subscription.status === "TRIAL" && 
+    new Date(effectiveStore.subscription.endDate) <= new Date();
+
+  if (trialUsed && trialExpired && !contractSigned && !subscriptionActive) {
+    return (
+      <main className="flex-1">
+        <section className="bg-gradient-to-br from-red-600 via-red-700 to-rose-700 px-4 py-20 text-white">
+          <div className="mx-auto max-w-2xl text-center">
+            <h1 className="text-3xl font-bold">Período de prueba finalizado</h1>
+            <p className="mt-4 text-lg text-white/90">
+              Ya utilizaste tu prueba gratuita de 15 días.
+            </p>
+            <p className="mt-2 text-white/70">
+              Para continuar usando la plataforma, debes firmar el contrato o contactar a un administrador.
+            </p>
+            <div className="mt-8 flex justify-center gap-4">
+              <Link
+                href="/contrato"
+                className="inline-block rounded-lg bg-white px-6 py-3 text-lg font-semibold text-red-700 hover:bg-gray-100"
+              >
+                Firmar contrato
+              </Link>
+            </div>
+          </div>
+        </section>
+      </main>
+    );
+  }
 
   if (!contractSigned && !isTrial) {
     return (
