@@ -46,6 +46,9 @@ export default function EditarTiendaPage() {
       setPhone(data.store.phone ?? "");
       setAddress(data.store.address ?? "");
       setImageUrl(data.store.imageUrl ?? "");
+    } else {
+      router.push("/vendor/onboarding");
+      return;
     }
     setLoadingStore(false);
   }
