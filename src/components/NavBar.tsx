@@ -2,20 +2,27 @@
 
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useRef, useState } from "react";
 
 export function NavBar() {
   const { data } = useSession();
   const role = data?.user?.role;
   const pathname = usePathname();
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [vendorMenuOpen, setVendorMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const isActive = (path: string) => pathname === path;
   const isVendor = role === "VENDOR" || role === "ADMIN";
   const isDelivery = role === "DELIVERY";
   const isAdmin = role === "ADMIN";
+
+  const navigateTo = (href: string) => {
+    setVendorMenuOpen(false);
+    router.push(href);
+  };
 
   return (
     <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-white/95 backdrop-blur-md">
@@ -106,11 +113,10 @@ export function NavBar() {
             )}
             
             {isVendor ? (
-              <div className="relative">
+              <div className="relative" ref={menuRef}>
                 <button
                   type="button"
                   onClick={() => setVendorMenuOpen(!vendorMenuOpen)}
-                  onBlur={() => setTimeout(() => setVendorMenuOpen(false), 200)}
                   className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
                     pathname.startsWith("/vendor")
                       ? "bg-[var(--accent)] text-white"
@@ -127,62 +133,64 @@ export function NavBar() {
                 </button>
                 
                 {vendorMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-56 rounded-xl border border-[var(--border)] bg-white py-2 shadow-lg">
-                    <div className="px-4 py-2 border-b border-[var(--border)]">
-                      <div className="text-xs font-semibold text-[color:var(--muted)] uppercase tracking-wide">Mi Tienda</div>
-                    </div>
-                    <Link
-                      href="/vendor"
-                      onMouseDown={() => setVendorMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50"
-                    >
-                      <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                      </svg>
-                      <div>
-                        <div className="font-medium">Dashboard</div>
-                        <div className="text-xs text-[color:var(--muted)]">Resumen y estadísticas</div>
+                  <>
+                    <div
+                      className="fixed inset-0 z-[-1]"
+                      onClick={() => setVendorMenuOpen(false)}
+                    />
+                    <div className="absolute right-0 mt-2 w-56 rounded-xl border border-[var(--border)] bg-white py-2 shadow-lg z-50">
+                      <div className="px-4 py-2 border-b border-[var(--border)]">
+                        <div className="text-xs font-semibold text-[color:var(--muted)] uppercase tracking-wide">Mi Tienda</div>
                       </div>
-                    </Link>
-                    <Link
-                      href="/vendor/mi-tienda"
-                      onMouseDown={() => setVendorMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50"
-                    >
-                      <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                      <div>
-                        <div className="font-medium">Editar Tienda</div>
-                        <div className="text-xs text-[color:var(--muted)]">Nombre, logo, descripción</div>
-                      </div>
-                    </Link>
-                    <Link
-                      href="/vendor/productos"
-                      onMouseDown={() => setVendorMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50"
-                    >
-                      <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                      </svg>
-                      <div>
-                        <div className="font-medium">Mis Productos</div>
-                        <div className="text-xs text-[color:var(--muted)]">Agregar, editar, eliminar</div>
-                      </div>
-                    </Link>
-                    <div className="border-t border-[var(--border)] mt-2 pt-2">
-                      <Link
-                        href="/vendor/productos/nuevo"
-                        onMouseDown={() => setVendorMenuOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 text-sm text-[var(--accent)] hover:bg-[var(--accent-soft)]"
+                      <button
+                        onClick={() => navigateTo("/vendor")}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
                       >
-                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                         </svg>
-                        <div className="font-medium">Nuevo Producto</div>
-                      </Link>
+                        <div>
+                          <div className="font-medium">Dashboard</div>
+                          <div className="text-xs text-[color:var(--muted)]">Resumen y estadísticas</div>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => navigateTo("/vendor/mi-tienda")}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
+                      >
+                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        <div>
+                          <div className="font-medium">Editar Tienda</div>
+                          <div className="text-xs text-[color:var(--muted)]">Nombre, logo, descripción</div>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => navigateTo("/vendor/productos")}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
+                      >
+                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                        <div>
+                          <div className="font-medium">Mis Productos</div>
+                          <div className="text-xs text-[color:var(--muted)]">Agregar, editar, eliminar</div>
+                        </div>
+                      </button>
+                      <div className="border-t border-[var(--border)] mt-2 pt-2">
+                        <button
+                          onClick={() => navigateTo("/vendor/productos/nuevo")}
+                          className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left text-[var(--accent)] hover:bg-[var(--accent-soft)]"
+                        >
+                          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                          </svg>
+                          <div className="font-medium">Nuevo Producto</div>
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  </>
                 )}
               </div>
             ) : isDelivery ? (
@@ -200,11 +208,10 @@ export function NavBar() {
                 Repartidor
               </Link>
             ) : isAdmin ? (
-              <div className="relative">
+              <div className="relative" ref={menuRef}>
                 <button
                   type="button"
                   onClick={() => setVendorMenuOpen(!vendorMenuOpen)}
-                  onBlur={() => setTimeout(() => setVendorMenuOpen(false), 200)}
                   className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
                     pathname.startsWith("/admin")
                       ? "bg-[var(--accent)] text-white"
@@ -222,102 +229,89 @@ export function NavBar() {
                 </button>
                 
                 {vendorMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-56 rounded-xl border border-[var(--border)] bg-white py-2 shadow-lg">
-                    <div className="px-4 py-2 border-b border-[var(--border)]">
-                      <div className="text-xs font-semibold text-[color:var(--muted)] uppercase tracking-wide">Administración</div>
+                  <>
+                    <div
+                      className="fixed inset-0 z-[-1]"
+                      onClick={() => setVendorMenuOpen(false)}
+                    />
+                    <div className="absolute right-0 mt-2 w-56 rounded-xl border border-[var(--border)] bg-white py-2 shadow-lg z-50">
+                      <div className="px-4 py-2 border-b border-[var(--border)]">
+                        <div className="text-xs font-semibold text-[color:var(--muted)] uppercase tracking-wide">Administración</div>
+                      </div>
+                      <button
+                        onClick={() => navigateTo("/admin")}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
+                      >
+                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                        <div>
+                          <div className="font-medium">Dashboard</div>
+                          <div className="text-xs text-[color:var(--muted)]">Estadísticas generales</div>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => navigateTo("/admin/membresias")}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
+                      >
+                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                        <div>
+                          <div className="font-medium">Membresías</div>
+                          <div className="text-xs text-[color:var(--muted)]">Gestionar tiendas</div>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => navigateTo("/admin/usuarios")}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
+                      >
+                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        <div>
+                          <div className="font-medium">Usuarios</div>
+                          <div className="text-xs text-[color:var(--muted)]">Clientes, vendedores, repartidores</div>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => navigateTo("/vendor/pedidos")}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
+                      >
+                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                        <div>
+                          <div className="font-medium">Pedidos</div>
+                          <div className="text-xs text-[color:var(--muted)]">Gestionar pedidos</div>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => navigateTo("/vendor/mercado-pago")}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
+                      >
+                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        </svg>
+                        <div>
+                          <div className="font-medium">MercadoPago</div>
+                          <div className="text-xs text-[color:var(--muted)]">Configurar pagos</div>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => navigateTo("/contrato")}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
+                      >
+                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <div>
+                          <div className="font-medium">Contrato</div>
+                          <div className="text-xs text-[color:var(--muted)]">Firmar contrato</div>
+                        </div>
+                      </button>
                     </div>
-                    <Link
-                      href="/admin"
-                      onMouseDown={() => setVendorMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50"
-                    >
-                      <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                      </svg>
-                      <div>
-                        <div className="font-medium">Dashboard</div>
-                        <div className="text-xs text-[color:var(--muted)]">Estadísticas generales</div>
-                      </div>
-                    </Link>
-                    <Link
-                      href="/admin/membresias"
-                      onMouseDown={() => setVendorMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50"
-                    >
-                      <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                      </svg>
-                      <div>
-                        <div className="font-medium">Membresías</div>
-                        <div className="text-xs text-[color:var(--muted)]">Gestionar tiendas</div>
-                      </div>
-                    </Link>
-                    <Link
-                      href="/admin/usuarios"
-                      onMouseDown={() => setVendorMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50"
-                    >
-                      <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                      </svg>
-                      <div>
-                        <div className="font-medium">Usuarios</div>
-                        <div className="text-xs text-[color:var(--muted)]">Clientes, vendedores, repartidores</div>
-                      </div>
-                    </Link>
-                    <Link
-                      href="/vendor/pedidos"
-                      onMouseDown={() => setVendorMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50"
-                    >
-                      <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                      </svg>
-                      <div>
-                        <div className="font-medium">Pedidos</div>
-                        <div className="text-xs text-[color:var(--muted)]">Gestionar pedidos</div>
-                      </div>
-                    </Link>
-                    <Link
-                      href="/vendor/pedidos"
-                      onMouseDown={() => setVendorMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50"
-                    >
-                      <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                      </svg>
-                      <div>
-                        <div className="font-medium">Pedidos</div>
-                        <div className="text-xs text-[color:var(--muted)]">Gestionar pedidos</div>
-                      </div>
-                    </Link>
-                    <Link
-                      href="/vendor/mercado-pago"
-                      onMouseDown={() => setVendorMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50"
-                    >
-                      <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                      </svg>
-                      <div>
-                        <div className="font-medium">MercadoPago</div>
-                        <div className="text-xs text-[color:var(--muted)]">Configurar pagos</div>
-                      </div>
-                    </Link>
-                    <Link
-                      href="/contrato"
-                      onMouseDown={() => setVendorMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50"
-                    >
-                      <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <div>
-                        <div className="font-medium">Contrato</div>
-                        <div className="text-xs text-[color:var(--muted)]">Firmar contrato</div>
-                      </div>
-                    </Link>
-                  </div>
+                  </>
                 )}
               </div>
             ) : null}
