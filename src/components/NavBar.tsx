@@ -110,7 +110,7 @@ export function NavBar() {
                 <button
                   type="button"
                   onClick={() => setVendorMenuOpen(!vendorMenuOpen)}
-                  onBlur={() => setTimeout(() => setVendorMenuOpen(false), 150)}
+                  onBlur={() => setTimeout(() => setVendorMenuOpen(false), 200)}
                   className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
                     pathname.startsWith("/vendor")
                       ? "bg-[var(--accent)] text-white"
@@ -133,7 +133,7 @@ export function NavBar() {
                     </div>
                     <Link
                       href="/vendor"
-                      onClick={() => setVendorMenuOpen(false)}
+                      onMouseDown={() => setVendorMenuOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50"
                     >
                       <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -146,7 +146,7 @@ export function NavBar() {
                     </Link>
                     <Link
                       href="/vendor/mi-tienda"
-                      onClick={() => setVendorMenuOpen(false)}
+                      onMouseDown={() => setVendorMenuOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50"
                     >
                       <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -159,7 +159,7 @@ export function NavBar() {
                     </Link>
                     <Link
                       href="/vendor/productos"
-                      onClick={() => setVendorMenuOpen(false)}
+                      onMouseDown={() => setVendorMenuOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50"
                     >
                       <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -173,7 +173,7 @@ export function NavBar() {
                     <div className="border-t border-[var(--border)] mt-2 pt-2">
                       <Link
                         href="/vendor/productos/nuevo"
-                        onClick={() => setVendorMenuOpen(false)}
+                        onMouseDown={() => setVendorMenuOpen(false)}
                         className="flex items-center gap-3 px-4 py-3 text-sm text-[var(--accent)] hover:bg-[var(--accent-soft)]"
                       >
                         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -204,7 +204,7 @@ export function NavBar() {
                 <button
                   type="button"
                   onClick={() => setVendorMenuOpen(!vendorMenuOpen)}
-                  onBlur={() => setTimeout(() => setVendorMenuOpen(false), 150)}
+                  onBlur={() => setTimeout(() => setVendorMenuOpen(false), 200)}
                   className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
                     pathname.startsWith("/admin")
                       ? "bg-[var(--accent)] text-white"
@@ -228,7 +228,7 @@ export function NavBar() {
                     </div>
                     <Link
                       href="/admin"
-                      onClick={() => setVendorMenuOpen(false)}
+                      onMouseDown={() => setVendorMenuOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50"
                     >
                       <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -241,7 +241,7 @@ export function NavBar() {
                     </Link>
                     <Link
                       href="/admin/membresias"
-                      onClick={() => setVendorMenuOpen(false)}
+                      onMouseDown={() => setVendorMenuOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50"
                     >
                       <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -254,7 +254,7 @@ export function NavBar() {
                     </Link>
                     <Link
                       href="/admin/usuarios"
-                      onClick={() => setVendorMenuOpen(false)}
+                      onMouseDown={() => setVendorMenuOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50"
                     >
                       <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -264,10 +264,10 @@ export function NavBar() {
                         <div className="font-medium">Usuarios</div>
                         <div className="text-xs text-[color:var(--muted)]">Clientes, vendedores, repartidores</div>
                       </div>
-</Link>
+                    </Link>
                     <Link
                       href="/vendor/pedidos"
-                      onClick={() => setVendorMenuOpen(false)}
+                      onMouseDown={() => setVendorMenuOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50"
                     >
                       <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -280,7 +280,7 @@ export function NavBar() {
                     </Link>
                     <Link
                       href="/vendor/pedidos"
-                      onClick={() => setVendorMenuOpen(false)}
+                      onMouseDown={() => setVendorMenuOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50"
                     >
                       <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -293,7 +293,7 @@ export function NavBar() {
                     </Link>
                     <Link
                       href="/vendor/mercado-pago"
-                      onClick={() => setVendorMenuOpen(false)}
+                      onMouseDown={() => setVendorMenuOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50"
                     >
                       <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -306,7 +306,7 @@ export function NavBar() {
                     </Link>
                     <Link
                       href="/contrato"
-                      onClick={() => setVendorMenuOpen(false)}
+                      onMouseDown={() => setVendorMenuOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50"
                     >
                       <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
