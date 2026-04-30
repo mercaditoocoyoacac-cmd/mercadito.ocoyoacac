@@ -47,28 +47,38 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
+    console.log("[vendor/store] POST request received");
     const auth = await requireUser();
-    if (!auth.ok) return auth.res;
+    if (!auth.ok) {
+      console.log("[vendor/store] Auth failed");
+      return auth.res;
+    }
+    console.log("[vendor/store] Auth OK, userId:", auth.userId);
 
     const json = await req.json().catch(() => null);
+    console.log("[vendor/store] Request body:", JSON.stringify(json));
     const parsed = StoreSchema.safeParse(json);
     if (!parsed.success) {
+      console.log("[vendor/store] Validation failed:", parsed.error.issues);
       return NextResponse.json(
         { ok: false, error: "Datos inválidos: " + parsed.error.issues.map(e => e.message).join(", ") },
         { status: 400 },
       );
     }
+    console.log("[vendor/store] Validation OK");
 
     const existing = await prisma.store.findFirst({
       where: { ownerId: auth.userId },
       select: { id: true },
     });
     if (existing) {
+      console.log("[vendor/store] Store already exists");
       return NextResponse.json(
         { ok: false, error: "Ya tienes una tienda creada." },
         { status: 409 },
       );
     }
+    console.log("[vendor/store] No existing store");
 
     const slug = parsed.data.slug.toLowerCase();
     const taken = await prisma.store.findUnique({
@@ -76,12 +86,15 @@ export async function POST(req: Request) {
       select: { id: true },
     });
     if (taken) {
+      console.log("[vendor/store] Slug taken:", slug);
       return NextResponse.json(
         { ok: false, error: "Ese slug ya está en uso." },
         { status: 409 },
       );
     }
+    console.log("[vendor/store] Slug available");
 
+    console.log("[vendor/store] Creating store...");
     const store = await prisma.store.create({
       data: {
         name: parsed.data.name.trim(),
@@ -94,9 +107,11 @@ export async function POST(req: Request) {
       },
       select: { id: true, name: true, slug: true },
     });
+    console.log("[vendor/store] Store created:", store.id);
 
     const trialEnd = new Date();
     trialEnd.setDate(trialEnd.getDate() + 15);
+    console.log("[vendor/store] Creating subscription...");
 
     await prisma.subscription.create({
       data: {
@@ -108,11 +123,13 @@ export async function POST(req: Request) {
         contractSigned: false,
       },
     });
+    console.log("[vendor/store] Subscription created");
 
     await prisma.user.update({
       where: { id: auth.userId },
       data: { role: "VENDOR" },
     });
+    console.log("[vendor/store] User role updated");
 
     return NextResponse.json({ ok: true, store });
   } catch (error) {
