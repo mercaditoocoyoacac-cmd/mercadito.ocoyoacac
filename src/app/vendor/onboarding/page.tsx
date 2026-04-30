@@ -87,16 +87,15 @@ export default function VendorOnboardingPage() {
               imageUrl: imageUrl || undefined,
             }),
           });
-          const data = (await res.json().catch(() => null)) as
-            | { ok: true; store: { id: string; slug: string; name: string } }
-            | { ok: false; error?: string }
-            | null;
+          const text = await res.text().catch(() => "");
+          let data: { ok: true; store: { id: string; slug: string; name: string } } | { ok: false; error?: string } | null = null;
+          try { data = JSON.parse(text); } catch {}
           setLoading(false);
           if (!res.ok || !data?.ok) {
             const msg =
               data && "error" in data
                 ? data.error
-                : "No se pudo crear la tienda.";
+                : `Error del servidor (${res.status}): ${text.slice(0, 200)}`;
             setError(msg ?? "No se pudo crear la tienda.");
             return;
           }
