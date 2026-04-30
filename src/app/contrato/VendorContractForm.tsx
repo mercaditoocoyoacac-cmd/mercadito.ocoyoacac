@@ -62,18 +62,66 @@ type Props = {
     contractSigned: boolean;
     contractSignedAt: Date | null;
   } | null;
+  user: {
+    id: string;
+    name: string | null;
+    ineFrontUrl: string | null;
+    ineBackUrl: string | null;
+    ineNumber: string | null;
+  };
 };
 
-export default function VendorContractForm({ store, subscription }: Props) {
+export default function VendorContractForm({ store, subscription, user }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [agreed1, setAgreed1] = useState(false);
   const [agreed2, setAgreed2] = useState(false);
   const [agreed3, setAgreed3] = useState(false);
+  const [ineNumber, setIneNumber] = useState(user.ineNumber || "");
+  const [ineFrontUrl, setIneFrontUrl] = useState(user.ineFrontUrl || "");
+  const [ineBackUrl, setIneBackUrl] = useState(user.ineBackUrl || "");
+  const [uploadingFront, setUploadingFront] = useState(false);
+  const [uploadingBack, setUploadingBack] = useState(false);
 
   const precio = subscription?.monthlyPriceCents || 49600;
   const allAgreed = agreed1 && agreed2 && agreed3;
+  const hasIne = ineNumber && ineFrontUrl && ineBackUrl;
+
+  async function handleFileUpload(
+    e: React.ChangeEvent<HTMLInputElement>,
+    side: "front" | "back"
+  ) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (side === "front") setUploadingFront(true);
+    else setUploadingBack(true);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = (await res.json()) as
+      | { ok: true; url: string }
+      | { ok: false; error?: string };
+
+    if (side === "front") setUploadingFront(false);
+    else setUploadingBack(false);
+
+    if (!res.ok || !data.ok) {
+      const errorMsg = "error" in data ? data.error : "Error al subir imagen.";
+      setError(errorMsg ?? "Error al subir imagen.");
+      return;
+    }
+
+    if (side === "front") setIneFrontUrl(data.url);
+    else setIneBackUrl(data.url);
+  }
 
   async function handleSign(e: React.FormEvent) {
     e.preventDefault();
@@ -88,7 +136,12 @@ export default function VendorContractForm({ store, subscription }: Props) {
       const res = await fetch("/api/contract/sign", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ storeId: store.id }),
+        body: JSON.stringify({
+          storeId: store.id,
+          ineNumber,
+          ineFrontUrl,
+          ineBackUrl,
+        }),
       });
       const data = await res.json();
 
@@ -174,6 +227,77 @@ export default function VendorContractForm({ store, subscription }: Props) {
         </label>
       </div>
 
+      <div className="rounded-xl border border-[var(--border)] p-5">
+        <h2 className="text-lg font-semibold mb-2">Identificación oficial (INE)</h2>
+        <p className="text-sm text-[color:var(--muted)] mb-4">
+          Sube foto de tu INE por ambos lados para verificar tu identidad.
+        </p>
+
+        <div className="mb-4">
+          <label className="block">
+            <div className="text-sm font-medium">Número de INE / Credencial para votar</div>
+            <input
+              value={ineNumber}
+              onChange={(e) => setIneNumber(e.target.value)}
+              className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+              placeholder="1234567890123"
+            />
+          </label>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <div className="text-sm font-medium mb-2">Frente</div>
+            <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 border-[var(--border)]">
+              {ineFrontUrl ? (
+                <img src={ineFrontUrl} alt="INE frente" className="h-full w-full object-contain rounded-lg p-1" />
+              ) : (
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <svg className="w-8 h-8 mb-3 text-[color:var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3" />
+                  </svg>
+                  <p className="text-xs text-[color:var(--muted)]">
+                    {uploadingFront ? "Subiendo..." : "Click para subir"}
+                  </p>
+                </div>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => handleFileUpload(e, "front")}
+                disabled={uploadingFront}
+              />
+            </label>
+          </div>
+
+          <div>
+            <div className="text-sm font-medium mb-2">Reverso</div>
+            <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 border-[var(--border)]">
+              {ineBackUrl ? (
+                <img src={ineBackUrl} alt="INE reverso" className="h-full w-full object-contain rounded-lg p-1" />
+              ) : (
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <svg className="w-8 h-8 mb-3 text-[color:var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3" />
+                  </svg>
+                  <p className="text-xs text-[color:var(--muted)]">
+                    {uploadingBack ? "Subiendo..." : "Click para subir"}
+                  </p>
+                </div>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => handleFileUpload(e, "back")}
+                disabled={uploadingBack}
+              />
+            </label>
+          </div>
+        </div>
+      </div>
+
       <form className="rounded-xl border border-[var(--border)] p-5" onSubmit={handleSign}>
         {error && (
           <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-700">
@@ -181,9 +305,15 @@ export default function VendorContractForm({ store, subscription }: Props) {
           </div>
         )}
 
+        {!hasIne && (
+          <div className="mb-4 rounded-lg border border-orange-500/30 bg-orange-500/10 px-4 py-3 text-sm text-orange-700">
+            ⚠ Debes subir tu INE (ambos lados) y proporcionar el número de credencial para firmar.
+          </div>
+        )}
+
         <button
           type="submit"
-          disabled={loading || !allAgreed}
+          disabled={loading || !allAgreed || !hasIne}
           className="w-full rounded-lg bg-[var(--accent)] px-4 py-3 text-base font-semibold text-white hover:bg-[var(--accent-hover)] disabled:opacity-50"
         >
           {loading

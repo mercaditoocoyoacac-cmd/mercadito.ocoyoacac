@@ -39,6 +39,10 @@ model User {
   emailVerified    Boolean @default(false)
   phoneVerified   Boolean @default(false)
 
+  ineFrontUrl    String?
+  ineBackUrl     String?
+  ineNumber      String?
+
   stores        Store[]
   orders        Order[]       @relation("OrderCustomer")
   deliveries    Order[]       @relation("OrderDelivery")

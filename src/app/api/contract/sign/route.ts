@@ -15,10 +15,14 @@ function generateId(): string {
 
 export async function POST(req: Request) {
   const json = await req.json().catch(() => null);
-  const { storeId } = json || {};
+  const { storeId, ineNumber, ineFrontUrl, ineBackUrl } = json || {};
 
   if (!storeId) {
     return Response.json({ ok: false, error: "Store ID requerido" }, { status: 400 });
+  }
+
+  if (!ineNumber || !ineFrontUrl || !ineBackUrl) {
+    return Response.json({ ok: false, error: "INE requerido (número y ambos lados)" }, { status: 400 });
   }
 
   const store = await prisma.store.findFirst({
@@ -29,6 +33,15 @@ export async function POST(req: Request) {
   if (!store) {
     return Response.json({ ok: false, error: "Tienda no encontrada" }, { status: 404 });
   }
+
+  await prisma.user.update({
+    where: { id: store.ownerId },
+    data: {
+      ineNumber,
+      ineFrontUrl,
+      ineBackUrl,
+    },
+  });
 
   const headersList = await headers();
   const ip = headersList.get("x-forwarded-for")?.split(",")[0] || "unknown";

@@ -20,6 +20,19 @@ export default async function ContratoPage() {
 
   if (!store) redirect("/vendor/onboarding");
 
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: {
+      id: true,
+      name: true,
+      ineFrontUrl: true,
+      ineBackUrl: true,
+      ineNumber: true,
+    },
+  });
+
+  if (!store) redirect("/vendor/onboarding");
+
   const subscription = store.subscription;
   const today = new Date();
   const isExpired = !subscription || subscription.status === "EXPIRED" || subscription.endDate < today;
@@ -59,7 +72,7 @@ export default async function ContratoPage() {
               Puedes firmar el contrato en cualquier momento durante tu prueba.
             </p>
             <div className="mt-4">
-              <VendorContractForm store={store} subscription={subscription} />
+              <VendorContractForm store={store} subscription={subscription} user={user!} />
             </div>
           </div>
         </div>
@@ -89,7 +102,7 @@ export default async function ContratoPage() {
           </div>
         </div>
       ) : (
-        <VendorContractForm store={store} subscription={subscription} />
+        <VendorContractForm store={store} subscription={subscription} user={user!} />
       )}
     </main>
   );
