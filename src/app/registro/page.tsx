@@ -36,6 +36,10 @@ export default function RegistroPage() {
       
       if (data.ok) {
         setCodeSent(true);
+        if (data.mockCode) {
+          setPhoneCode(data.mockCode);
+          setError(`SMS no configurado. Código de prueba: ${data.mockCode}`);
+        }
       } else {
         setError(data.error || "Error al enviar código");
       }

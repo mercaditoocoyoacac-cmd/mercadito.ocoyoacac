@@ -6,6 +6,10 @@ function generateCode(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
+const HAS_AWS_CREDS = !!(
+  process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY
+);
+
 export async function POST(req: Request) {
   try {
     const json = await req.json().catch(() => null);
@@ -45,15 +49,19 @@ export async function POST(req: Request) {
       },
     });
 
-    const sent = await sendVerificationSMS(cleanPhone, code);
-    if (!sent) {
-      return NextResponse.json({ 
-        ok: false, 
-        error: "Error al enviar SMS. Verifica tu número en AWS SNS." 
-      }, { status: 500 });
+    if (HAS_AWS_CREDS) {
+      const sent = await sendVerificationSMS(cleanPhone, code);
+      if (!sent) {
+        return NextResponse.json({ 
+          ok: false, 
+          error: "Error al enviar SMS. Verifica tu configuración de AWS SNS." 
+        }, { status: 500 });
+      }
+      return NextResponse.json({ ok: true });
     }
 
-    return NextResponse.json({ ok: true });
+    console.log(`[SMS MOCK] Phone: ${cleanPhone}, Code: ${code}`);
+    return NextResponse.json({ ok: true, mockCode: code });
   } catch (error) {
     console.error("[send-verification] Error:", error);
     return NextResponse.json({ ok: false, error: "Error al conectar con el servidor" }, { status: 500 });
