@@ -46,7 +46,7 @@ export default function VendorRegistroPage() {
             }),
           });
           const data = (await res.json().catch(() => null)) as
-            | { ok: true; user: { id: string; email: string } }
+            | { ok: true; user: { id: string; email: string }; upgraded?: boolean }
             | { ok: false; error?: string }
             | null;
 
@@ -57,13 +57,20 @@ export default function VendorRegistroPage() {
             return;
           }
 
+          setLoading(false);
+          
+          if (data.upgraded) {
+            setError("Tu cuenta de cliente se actualizó a vendedor. Inicia sesión con tu contraseña actual.");
+            setTimeout(() => router.push("/vendor/login"), 2000);
+            return;
+          }
+
           const login = await signIn("credentials", {
             email,
             password,
             redirect: false,
             callbackUrl: "/vendor/onboarding",
           });
-          setLoading(false);
           router.push(login?.url ?? "/vendor/onboarding");
         }}
       >

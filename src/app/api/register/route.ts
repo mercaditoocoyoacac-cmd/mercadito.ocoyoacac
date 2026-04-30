@@ -30,6 +30,14 @@ export async function POST(req: Request) {
 
     const exists = await prisma.user.findUnique({ where: { email: emailLower } });
     if (exists) {
+      if (role === "VENDOR") {
+        const updated = await prisma.user.update({
+          where: { email: emailLower },
+          data: { role: "VENDOR" },
+          select: { id: true, email: true },
+        });
+        return NextResponse.json({ ok: true, user: updated, upgraded: true });
+      }
       return NextResponse.json(
         { ok: false, error: "Ese correo ya está registrado." },
         { status: 409 },
