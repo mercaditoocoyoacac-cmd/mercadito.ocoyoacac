@@ -102,15 +102,15 @@ export default function EditarTiendaPage() {
       }),
     });
 
-    const data = (await res.json()) as
-      | { ok: true }
-      | { ok: false; error?: string };
+    const text = await res.text().catch(() => "");
+    let data: { ok: true } | { ok: false; error?: string } = { ok: false };
+    try { data = JSON.parse(text); } catch {}
 
     setSaving(false);
 
     if (!res.ok || !data.ok) {
-      const msg = "error" in data ? data.error : "No se pudo guardar.";
-      setError(msg ?? "No se pudo guardar.");
+      const msg = "error" in data && data.error ? data.error : `Error (${res.status}): ${text.slice(0, 200)}`;
+      setError(msg);
       return;
     }
 

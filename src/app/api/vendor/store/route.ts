@@ -143,46 +143,59 @@ export async function POST(req: Request) {
 }
 
 export async function PUT(req: Request) {
-  const auth = await requireUser();
-  if (!auth.ok) return auth.res;
+  try {
+    const auth = await requireUser();
+    if (!auth.ok) return auth.res;
 
-  const store = await prisma.store.findFirst({
-    where: { ownerId: auth.userId },
-    select: { id: true },
-  });
-  if (!store) {
-    return NextResponse.json({ ok: false }, { status: 403 });
-  }
+    const store = await prisma.store.findFirst({
+      where: { ownerId: auth.userId },
+      select: { id: true },
+    });
+    if (!store) {
+      return NextResponse.json({ ok: false, error: "No tienes tienda creada." }, { status: 403 });
+    }
 
-  const json = await req.json().catch(() => null);
-  const parsed = UpdateStoreSchema.safeParse(json);
-  if (!parsed.success) {
+    const json = await req.json().catch(() => null);
+    console.log("[vendor/store] PUT request:", JSON.stringify(json));
+    const parsed = UpdateStoreSchema.safeParse(json);
+    if (!parsed.success) {
+      console.log("[vendor/store] PUT validation failed:", parsed.error.issues);
+      return NextResponse.json(
+        { ok: false, error: "Datos inválidos: " + parsed.error.issues.map(e => e.message).join(", ") },
+        { status: 400 },
+      );
+    }
+
+    console.log("[vendor/store] Updating store...");
+    const updated = await prisma.store.update({
+      where: { id: store.id },
+      data: {
+        name: parsed.data.name?.trim(),
+        description:
+          parsed.data.description === undefined
+            ? undefined
+            : parsed.data.description?.trim() || null,
+        phone:
+          parsed.data.phone === undefined
+            ? undefined
+            : parsed.data.phone?.trim() || null,
+        address:
+          parsed.data.address === undefined
+            ? undefined
+            : parsed.data.address?.trim() || null,
+        imageUrl: parsed.data.imageUrl,
+      },
+    });
+    console.log("[vendor/store] Store updated:", updated.id);
+
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error("[vendor/store] PUT Error:", error);
+    const msg = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { ok: false, error: "Datos inválidos." },
-      { status: 400 },
+      { ok: false, error: "Error al guardar: " + msg },
+      { status: 500 },
     );
   }
-
-  await prisma.store.update({
-    where: { id: store.id },
-    data: {
-      name: parsed.data.name?.trim(),
-      description:
-        parsed.data.description === undefined
-          ? undefined
-          : parsed.data.description?.trim() || null,
-      phone:
-        parsed.data.phone === undefined
-          ? undefined
-          : parsed.data.phone?.trim() || null,
-      address:
-        parsed.data.address === undefined
-          ? undefined
-          : parsed.data.address?.trim() || null,
-      imageUrl: parsed.data.imageUrl,
-    },
-  });
-
-  return NextResponse.json({ ok: true });
 }
 
