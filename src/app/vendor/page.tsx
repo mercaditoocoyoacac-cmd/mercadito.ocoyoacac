@@ -114,7 +114,7 @@ export default async function VendorDashboard() {
     );
   }
 
-  if (!store.isApproved) {
+  if (!store.isApproved && !isTrial) {
     return (
       <main className="flex-1">
         <section className="bg-gradient-to-br from-amber-600 via-amber-700 to-yellow-700 px-4 py-20 text-white">
@@ -126,6 +126,11 @@ export default async function VendorDashboard() {
             <p className="mt-2 text-white/70">
               Serás notificado cuando tu solicitud sea aprobada.
             </p>
+            {isTrial && (
+              <p className="mt-2 text-white/90">
+                Mientras tanto, puedes configurar tus productos durante tu prueba.
+              </p>
+            )}
           </div>
         </section>
       </main>
