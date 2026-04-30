@@ -46,74 +46,83 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const auth = await requireUser();
-  if (!auth.ok) return auth.res;
+  try {
+    const auth = await requireUser();
+    if (!auth.ok) return auth.res;
 
-  const json = await req.json().catch(() => null);
-  const parsed = StoreSchema.safeParse(json);
-  if (!parsed.success) {
+    const json = await req.json().catch(() => null);
+    const parsed = StoreSchema.safeParse(json);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { ok: false, error: "Datos inválidos: " + parsed.error.issues.map(e => e.message).join(", ") },
+        { status: 400 },
+      );
+    }
+
+    const existing = await prisma.store.findFirst({
+      where: { ownerId: auth.userId },
+      select: { id: true },
+    });
+    if (existing) {
+      return NextResponse.json(
+        { ok: false, error: "Ya tienes una tienda creada." },
+        { status: 409 },
+      );
+    }
+
+    const slug = parsed.data.slug.toLowerCase();
+    const taken = await prisma.store.findUnique({
+      where: { slug },
+      select: { id: true },
+    });
+    if (taken) {
+      return NextResponse.json(
+        { ok: false, error: "Ese slug ya está en uso." },
+        { status: 409 },
+      );
+    }
+
+    const store = await prisma.store.create({
+      data: {
+        name: parsed.data.name.trim(),
+        slug,
+        description: parsed.data.description?.trim() || null,
+        phone: parsed.data.phone?.trim() || null,
+        address: parsed.data.address?.trim() || null,
+        imageUrl: parsed.data.imageUrl ?? null,
+        ownerId: auth.userId,
+      },
+      select: { id: true, name: true, slug: true },
+    });
+
+    const trialEnd = new Date();
+    trialEnd.setDate(trialEnd.getDate() + 15);
+
+    await prisma.subscription.create({
+      data: {
+        storeId: store.id,
+        status: "TRIAL",
+        startDate: new Date(),
+        endDate: trialEnd,
+        monthlyPriceCents: 49600,
+        contractSigned: false,
+      },
+    });
+
+    await prisma.user.update({
+      where: { id: auth.userId },
+      data: { role: "VENDOR" },
+    });
+
+    return NextResponse.json({ ok: true, store });
+  } catch (error) {
+    console.error("[vendor/store] Error creating store:", error);
+    const msg = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { ok: false, error: "Datos inválidos." },
-      { status: 400 },
+      { ok: false, error: "Error al crear la tienda: " + msg },
+      { status: 500 },
     );
   }
-
-  const existing = await prisma.store.findFirst({
-    where: { ownerId: auth.userId },
-    select: { id: true },
-  });
-  if (existing) {
-    return NextResponse.json(
-      { ok: false, error: "Ya tienes una tienda creada." },
-      { status: 409 },
-    );
-  }
-
-  const slug = parsed.data.slug.toLowerCase();
-  const taken = await prisma.store.findUnique({
-    where: { slug },
-    select: { id: true },
-  });
-  if (taken) {
-    return NextResponse.json(
-      { ok: false, error: "Ese slug ya está en uso." },
-      { status: 409 },
-    );
-  }
-
-  const store = await prisma.store.create({
-    data: {
-      name: parsed.data.name.trim(),
-      slug,
-      description: parsed.data.description?.trim() || null,
-      phone: parsed.data.phone?.trim() || null,
-      address: parsed.data.address?.trim() || null,
-      imageUrl: parsed.data.imageUrl ?? null,
-      ownerId: auth.userId,
-    },
-    select: { id: true, name: true, slug: true },
-  });
-
-  const trialEnd = new Date();
-  trialEnd.setDate(trialEnd.getDate() + 15);
-
-  await prisma.subscription.create({
-    data: {
-      storeId: store.id,
-      status: "TRIAL",
-      startDate: new Date(),
-      endDate: trialEnd,
-      monthlyPriceCents: 49600,
-      contractSigned: false,
-    },
-  });
-
-  await prisma.user.update({
-    where: { id: auth.userId },
-    data: { role: "VENDOR" },
-  });
-
-  return NextResponse.json({ ok: true, store });
 }
 
 export async function PUT(req: Request) {
