@@ -175,6 +175,7 @@ enum FulfillmentType {
 }
 
 enum SubscriptionStatus {
+  TRIAL
   ACTIVE
   EXPIRED
   CANCELLED

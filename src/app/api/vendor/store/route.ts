@@ -94,6 +94,20 @@ export async function POST(req: Request) {
     select: { id: true, name: true, slug: true },
   });
 
+  const trialEnd = new Date();
+  trialEnd.setDate(trialEnd.getDate() + 15);
+
+  await prisma.subscription.create({
+    data: {
+      storeId: store.id,
+      status: "TRIAL",
+      startDate: new Date(),
+      endDate: trialEnd,
+      monthlyPriceCents: 49600,
+      contractSigned: false,
+    },
+  });
+
   await prisma.user.update({
     where: { id: auth.userId },
     data: { role: "VENDOR" },

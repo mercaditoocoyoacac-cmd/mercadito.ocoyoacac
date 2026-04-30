@@ -95,7 +95,10 @@ Navegador: ${userAgent.substring(0, 50)}
 Fecha de aceptación: ${fecha}
 `;
 
-  const pdfBuffer = await new Promise<Buffer>((resolve, reject) => {
+  const endDate = new Date();
+  endDate.setMonth(endDate.getMonth() + 1);
+
+  const base64Pdf = await new Promise<Buffer>((resolve, reject) => {
     const doc = new PDFDocument({ margin: 50 });
     const chunks: Buffer[] = [];
 
@@ -154,10 +157,7 @@ Fecha de aceptación: ${fecha}
     doc.end();
   });
 
-  const base64Pdf = pdfBuffer.toString("base64");
-
-  const endDate = new Date();
-  endDate.setMonth(endDate.getMonth() + 1);
+  const base64PdfString = base64Pdf.toString("base64");
 
   if (!store.subscription) {
     await prisma.subscription.create({
@@ -171,7 +171,21 @@ Fecha de aceptación: ${fecha}
         contractSignedAt: today,
         contractIp: ip,
         contractTerms: contractTerms,
-        contractPdfUrl: base64Pdf,
+        contractPdfUrl: base64PdfString,
+      },
+    });
+  } else if (store.subscription.status === "TRIAL") {
+    await prisma.subscription.update({
+      where: { id: store.subscription.id },
+      data: {
+        status: "ACTIVE",
+        monthlyPriceCents: 49600,
+        endDate,
+        contractSigned: true,
+        contractSignedAt: today,
+        contractIp: ip,
+        contractTerms: contractTerms,
+        contractPdfUrl: base64PdfString,
       },
     });
   } else {
@@ -186,10 +200,10 @@ Fecha de aceptación: ${fecha}
         contractSignedAt: today,
         contractIp: ip,
         contractTerms: contractTerms,
-        contractPdfUrl: base64Pdf,
+        contractPdfUrl: base64PdfString,
       },
     });
   }
 
-  return Response.json({ ok: true, contractId, pdf: base64Pdf });
+  return Response.json({ ok: true, contractId, pdf: base64PdfString });
 }

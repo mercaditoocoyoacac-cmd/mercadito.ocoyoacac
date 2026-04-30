@@ -85,12 +85,13 @@ export default async function VendorDashboard() {
   }
 
   const subscriptionActive = store.subscription && 
-    store.subscription.status === "ACTIVE" && 
+    ["ACTIVE", "TRIAL"].includes(store.subscription.status) && 
     new Date(store.subscription.endDate) > new Date();
 
   const contractSigned = store.subscription?.contractSigned ?? false;
+  const isTrial = store.subscription?.status === "TRIAL";
 
-  if (!contractSigned) {
+  if (!contractSigned && !isTrial) {
     return (
       <main className="flex-1">
         <section className="bg-gradient-to-br from-orange-600 via-orange-700 to-amber-700 px-4 py-20 text-white">
@@ -181,16 +182,20 @@ export default async function VendorDashboard() {
 
   return (
     <main className="flex-1">
-      {!subscriptionActive && (
-        <div className="mx-4 mt-4 rounded-lg border border-yellow-500/30 bg-yellow-500/10 px-4 py-3">
+      {(!subscriptionActive || isTrial) && (
+        <div className={`mx-4 mt-4 rounded-lg border px-4 py-3 ${isTrial ? "border-emerald-500/30 bg-emerald-500/10" : "border-yellow-500/30 bg-yellow-500/10"}`}>
           <div className="flex items-center gap-3">
-            <svg className="h-5 w-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            <svg className={`h-5 w-5 ${isTrial ? "text-emerald-600" : "text-yellow-600"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isTrial ? "M13 10V3L4 14h7v7l9-11h-7z" : "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"} />
             </svg>
             <div>
-              <div className="font-medium text-yellow-800">Membresía inactiva</div>
-              <div className="text-sm text-yellow-700">
-                Tu tienda no está visible. Contacta al admin para activar.
+              <div className={`font-medium ${isTrial ? "text-emerald-800" : "text-yellow-800"}`}>
+                {isTrial ? "Prueba gratuita activa" : "Membresía inactiva"}
+              </div>
+              <div className={`text-sm ${isTrial ? "text-emerald-700" : "text-yellow-700"}`}>
+                {isTrial
+                  ? `Tu prueba termina el ${store.subscription!.endDate.toLocaleDateString("es-MX", { day: "numeric", month: "long" })}. Firma el contrato para continuar.`
+                  : "Tu tienda no está visible. Contacta al admin para activar."}
               </div>
             </div>
           </div>
