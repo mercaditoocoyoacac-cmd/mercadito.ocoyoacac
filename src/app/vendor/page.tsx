@@ -18,31 +18,7 @@ export default async function VendorDashboard() {
     include: { subscription: true, owner: { select: { trialUsed: true } } },
   });
 
-  if (store && !store.subscription) {
-    const trialEnd = new Date();
-    trialEnd.setDate(trialEnd.getDate() + 15);
-    await prisma.subscription.create({
-      data: {
-        storeId: store.id,
-        status: "TRIAL",
-        startDate: new Date(),
-        endDate: trialEnd,
-        monthlyPriceCents: 49600,
-        contractSigned: false,
-      },
-    });
-  }
-
-  const storeWithSub = store
-    ? await prisma.store.findFirst({
-        where: { ownerId: userId },
-        include: { subscription: true, owner: { select: { trialUsed: true } } },
-      })
-    : store;
-
-  const effectiveStore = storeWithSub ?? store;
-
-  if (!effectiveStore) {
+  if (!store) {
     return (
       <main className="flex-1">
         <section className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-700 px-4 py-20 text-white">
@@ -108,16 +84,16 @@ export default async function VendorDashboard() {
     );
   }
 
-  const subscriptionActive = effectiveStore.subscription && 
-    ["ACTIVE", "TRIAL"].includes(effectiveStore.subscription.status) && 
-    new Date(effectiveStore.subscription.endDate) > new Date();
+  const subscriptionActive = store.subscription && 
+    ["ACTIVE", "TRIAL"].includes(store.subscription.status) && 
+    new Date(store.subscription.endDate) > new Date();
 
-  const contractSigned = effectiveStore.subscription?.contractSigned ?? false;
-  const isTrial = effectiveStore.subscription?.status === "TRIAL";
-  const trialUsed = effectiveStore.owner?.trialUsed ?? false;
-  const trialExpired = effectiveStore.subscription && 
-    effectiveStore.subscription.status === "TRIAL" && 
-    new Date(effectiveStore.subscription.endDate) <= new Date();
+  const contractSigned = store.subscription?.contractSigned ?? false;
+  const isTrial = store.subscription?.status === "TRIAL";
+  const trialUsed = store.owner?.trialUsed ?? false;
+  const trialExpired = store.subscription && 
+    store.subscription.status === "TRIAL" && 
+    new Date(store.subscription.endDate) <= new Date();
 
   if (trialUsed && trialExpired && !contractSigned && !subscriptionActive) {
     return (
@@ -168,7 +144,7 @@ export default async function VendorDashboard() {
     );
   }
 
-  if (!effectiveStore.isApproved && !isTrial) {
+  if (!store.isApproved && !isTrial) {
     return (
       <main className="flex-1">
         <section className="bg-gradient-to-br from-amber-600 via-amber-700 to-yellow-700 px-4 py-20 text-white">
@@ -192,7 +168,7 @@ export default async function VendorDashboard() {
   }
 
   const products = await prisma.product.findMany({
-    where: { storeId: effectiveStore.id },
+    where: { storeId: store.id },
     select: {
       id: true,
       name: true,
@@ -207,15 +183,15 @@ export default async function VendorDashboard() {
   });
 
   const totalProducts = await prisma.product.count({
-    where: { storeId: effectiveStore.id },
+    where: { storeId: store.id },
   });
 
   const activeProducts = await prisma.product.count({
-    where: { storeId: effectiveStore.id, isActive: true },
+    where: { storeId: store.id, isActive: true },
   });
 
   const orders = await prisma.order.findMany({
-    where: { storeId: effectiveStore.id },
+    where: { storeId: store.id },
     select: {
       id: true,
       status: true,
@@ -227,15 +203,15 @@ export default async function VendorDashboard() {
   });
 
   const totalOrders = await prisma.order.count({
-    where: { storeId: effectiveStore.id },
+    where: { storeId: store.id },
   });
 
   const pendingOrders = await prisma.order.count({
-    where: { storeId: effectiveStore.id, status: "PENDING" },
+    where: { storeId: store.id, status: "PENDING" },
   });
 
   const totalRevenue = await prisma.order.aggregate({
-    where: { storeId: effectiveStore.id, status: { not: "CANCELLED" } },
+    where: { storeId: store.id, status: { not: "CANCELLED" } },
     _sum: { subtotalCents: true },
   });
 
@@ -253,7 +229,7 @@ export default async function VendorDashboard() {
               </div>
               <div className={`text-sm ${isTrial ? "text-emerald-700" : "text-yellow-700"}`}>
                 {isTrial
-                  ? `Tu prueba termina el ${effectiveStore.subscription!.endDate.toLocaleDateString("es-MX", { day: "numeric", month: "long" })}. Firma el contrato para continuar.`
+                  ? `Tu prueba termina el ${store.subscription!.endDate.toLocaleDateString("es-MX", { day: "numeric", month: "long" })}. Firma el contrato para continuar.`
                   : "Tu tienda no está visible. Contacta al admin para activar."}
               </div>
             </div>
@@ -271,7 +247,7 @@ export default async function VendorDashboard() {
           <div className="flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-1.5 text-sm font-medium backdrop-blur-sm">
-                🏪 {effectiveStore.name}
+                🏪 {store.name}
               </div>
               <h1 className="mt-4 text-3xl font-bold">Mi Tienda</h1>
               <p className="mt-2 text-white/80">
@@ -280,7 +256,7 @@ export default async function VendorDashboard() {
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Link
-                href={`/tienda/${effectiveStore.slug}`}
+                href={`/tienda/${store.slug}`}
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-emerald-700 shadow-lg hover:bg-yellow-50"
               >
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -328,13 +304,13 @@ export default async function VendorDashboard() {
               Total
             </div>
           </div>
-          <div className={`rounded-xl border p-6 shadow-sm ${effectiveStore.acceptsMercadoPago ? "border-green-500 bg-green-50" : "border-yellow-500/50 bg-yellow-50"}`}>
+          <div className={`rounded-xl border p-6 shadow-sm ${store.acceptsMercadoPago ? "border-green-500 bg-green-50" : "border-yellow-500/50 bg-yellow-50"}`}>
             <div className="text-sm text-[color:var(--muted)]">Pago con tarjeta</div>
             <div className="mt-1 text-2xl font-bold">
-              {effectiveStore.acceptsMercadoPago ? "✓ Configurado" : "⚠ No configurado"}
+              {store.acceptsMercadoPago ? "✓ Configurado" : "⚠ No configurado"}
             </div>
             <div className="mt-1 text-xs text-[color:var(--muted)]">
-              {effectiveStore.acceptsMercadoPago ? "Aceptas tarjetas" : "Configure en ajustes"}
+              {store.acceptsMercadoPago ? "Aceptas tarjetas" : "Configure en ajustes"}
             </div>
           </div>
         </div>
