@@ -18,6 +18,16 @@ enum Role {
   ADMIN
 }
 
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -76,6 +86,9 @@ model Store {
   mercadoPagoRefreshToken String?
   mercadoPagoPublicKey String?
   mercadoPagoAccountId String?
+  openTime   String?
+  closeTime  String?
+  scheduleDays DayOfWeek[] @default([MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

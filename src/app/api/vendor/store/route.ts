@@ -22,6 +22,9 @@ const UpdateStoreSchema = z.object({
   phone: z.string().max(40).optional(),
   address: z.string().max(140).optional(),
   imageUrl: z.string().url().nullable().optional(),
+  openTime: z.string().regex(/^([01]?\d|2[0-3]):[0-5]\d$/).nullable().optional(),
+  closeTime: z.string().regex(/^([01]?\d|2[0-3]):[0-5]\d$/).nullable().optional(),
+  scheduleDays: z.array(z.enum(["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"])).min(1).optional(),
 });
 
 export async function GET() {
@@ -39,6 +42,9 @@ export async function GET() {
       address: true,
       imageUrl: true,
       isActive: true,
+      openTime: true,
+      closeTime: true,
+      scheduleDays: true,
     },
   });
 
@@ -47,38 +53,28 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    console.log("[vendor/store] POST request received");
     const auth = await requireUser();
-    if (!auth.ok) {
-      console.log("[vendor/store] Auth failed");
-      return auth.res;
-    }
-    console.log("[vendor/store] Auth OK, userId:", auth.userId);
+    if (!auth.ok) return auth.res;
 
     const json = await req.json().catch(() => null);
-    console.log("[vendor/store] Request body:", JSON.stringify(json));
     const parsed = StoreSchema.safeParse(json);
     if (!parsed.success) {
-      console.log("[vendor/store] Validation failed:", parsed.error.issues);
       return NextResponse.json(
         { ok: false, error: "Datos inválidos: " + parsed.error.issues.map(e => e.message).join(", ") },
         { status: 400 },
       );
     }
-    console.log("[vendor/store] Validation OK");
 
     const existing = await prisma.store.findFirst({
       where: { ownerId: auth.userId },
       select: { id: true },
     });
     if (existing) {
-      console.log("[vendor/store] Store already exists");
       return NextResponse.json(
         { ok: false, error: "Ya tienes una tienda creada." },
         { status: 409 },
       );
     }
-    console.log("[vendor/store] No existing store");
 
     const slug = parsed.data.slug.toLowerCase();
     const taken = await prisma.store.findUnique({
@@ -86,15 +82,12 @@ export async function POST(req: Request) {
       select: { id: true },
     });
     if (taken) {
-      console.log("[vendor/store] Slug taken:", slug);
       return NextResponse.json(
         { ok: false, error: "Ese slug ya está en uso." },
         { status: 409 },
       );
     }
-    console.log("[vendor/store] Slug available");
 
-    console.log("[vendor/store] Creating store...");
     const store = await prisma.store.create({
       data: {
         name: parsed.data.name.trim(),
@@ -104,14 +97,13 @@ export async function POST(req: Request) {
         address: parsed.data.address?.trim() || null,
         imageUrl: parsed.data.imageUrl ?? null,
         ownerId: auth.userId,
+        isPublished: true,
       },
       select: { id: true, name: true, slug: true },
     });
-    console.log("[vendor/store] Store created:", store.id);
 
     const trialEnd = new Date();
     trialEnd.setDate(trialEnd.getDate() + 15);
-    console.log("[vendor/store] Creating subscription...");
 
     await prisma.subscription.create({
       data: {
@@ -123,13 +115,11 @@ export async function POST(req: Request) {
         contractSigned: false,
       },
     });
-    console.log("[vendor/store] Subscription created");
 
     await prisma.user.update({
       where: { id: auth.userId },
       data: { role: "VENDOR" },
     });
-    console.log("[vendor/store] User role updated");
 
     return NextResponse.json({ ok: true, store });
   } catch (error) {
@@ -156,17 +146,14 @@ export async function PUT(req: Request) {
     }
 
     const json = await req.json().catch(() => null);
-    console.log("[vendor/store] PUT request:", JSON.stringify(json));
     const parsed = UpdateStoreSchema.safeParse(json);
     if (!parsed.success) {
-      console.log("[vendor/store] PUT validation failed:", parsed.error.issues);
       return NextResponse.json(
         { ok: false, error: "Datos inválidos: " + parsed.error.issues.map(e => e.message).join(", ") },
         { status: 400 },
       );
     }
 
-    console.log("[vendor/store] Updating store...");
     const updated = await prisma.store.update({
       where: { id: store.id },
       data: {
@@ -184,9 +171,11 @@ export async function PUT(req: Request) {
             ? undefined
             : parsed.data.address?.trim() || null,
         imageUrl: parsed.data.imageUrl,
+        openTime: parsed.data.openTime === undefined ? undefined : (parsed.data.openTime || null),
+        closeTime: parsed.data.closeTime === undefined ? undefined : (parsed.data.closeTime || null),
+        scheduleDays: parsed.data.scheduleDays,
       },
     });
-    console.log("[vendor/store] Store updated:", updated.id);
 
     return NextResponse.json({ ok: true });
   } catch (error) {

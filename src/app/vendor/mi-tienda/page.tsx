@@ -11,7 +11,20 @@ interface Store {
   phone: string | null;
   address: string | null;
   imageUrl: string | null;
+  openTime: string | null;
+  closeTime: string | null;
+  scheduleDays: string[];
 }
+
+const DAYS = [
+  { key: "MONDAY", label: "Lunes" },
+  { key: "TUESDAY", label: "Martes" },
+  { key: "WEDNESDAY", label: "Miércoles" },
+  { key: "THURSDAY", label: "Jueves" },
+  { key: "FRIDAY", label: "Viernes" },
+  { key: "SATURDAY", label: "Sábado" },
+  { key: "SUNDAY", label: "Domingo" },
+] as const;
 
 export default function EditarTiendaPage() {
   const router = useRouter();
@@ -22,6 +35,11 @@ export default function EditarTiendaPage() {
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [openTime, setOpenTime] = useState("");
+  const [closeTime, setCloseTime] = useState("");
+  const [scheduleDays, setScheduleDays] = useState<string[]>(
+    DAYS.map((d) => d.key)
+  );
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -46,6 +64,9 @@ export default function EditarTiendaPage() {
       setPhone(data.store.phone ?? "");
       setAddress(data.store.address ?? "");
       setImageUrl(data.store.imageUrl ?? "");
+      setOpenTime(data.store.openTime ?? "");
+      setCloseTime(data.store.closeTime ?? "");
+      setScheduleDays(data.store.scheduleDays.length > 0 ? data.store.scheduleDays : DAYS.map((d) => d.key));
     } else {
       router.push("/vendor/onboarding");
       return;
@@ -88,6 +109,12 @@ export default function EditarTiendaPage() {
     setImageUrl(data.url);
   }
 
+  function toggleDay(day: string) {
+    setScheduleDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    );
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
@@ -102,6 +129,9 @@ export default function EditarTiendaPage() {
         phone: phone.trim() || undefined,
         address: address.trim() || undefined,
         imageUrl: imageUrl || null,
+        openTime: openTime || null,
+        closeTime: closeTime || null,
+        scheduleDays,
       }),
     });
 
@@ -202,6 +232,61 @@ export default function EditarTiendaPage() {
               className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
             />
           </label>
+        </div>
+
+        <div className="rounded-xl border border-[var(--border)] bg-white p-5 shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <svg className="h-5 w-5 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div className="text-sm font-semibold">Horario de atención</div>
+          </div>
+          <p className="text-xs text-[color:var(--muted)] mb-4">
+            Los clientes solo podrán hacer pedidos durante tu horario configurado.
+            Deja los campos vacíos para aceptar pedidos 24/7.
+          </p>
+
+          <div className="grid gap-4 sm:grid-cols-2 mb-5">
+            <label className="block">
+              <div className="text-xs font-medium text-[color:var(--muted)]">Hora de apertura</div>
+              <input
+                type="time"
+                value={openTime}
+                onChange={(e) => setOpenTime(e.target.value)}
+                className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+              />
+            </label>
+            <label className="block">
+              <div className="text-xs font-medium text-[color:var(--muted)]">Hora de cierre</div>
+              <input
+                type="time"
+                value={closeTime}
+                onChange={(e) => setCloseTime(e.target.value)}
+                className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+              />
+            </label>
+          </div>
+
+          <div className="text-xs font-medium text-[color:var(--muted)] mb-2">Días de atención</div>
+          <div className="flex flex-wrap gap-2">
+            {DAYS.map((day) => {
+              const isActive = scheduleDays.includes(day.key);
+              return (
+                <button
+                  key={day.key}
+                  type="button"
+                  onClick={() => toggleDay(day.key)}
+                  className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                    isActive
+                      ? "bg-[var(--accent)] text-white"
+                      : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                  }`}
+                >
+                  {day.label.slice(0, 3)}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {error ? (

@@ -2,15 +2,17 @@
 
 import { useState } from "react";
 
-export function AddToCartButton({ productId }: { productId: string }) {
+export function AddToCartButton({ productId, disabled }: { productId: string; disabled?: boolean }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+
+  const isBlocked = disabled || loading;
 
   return (
     <div className="flex items-center gap-2">
       <button
         type="button"
-        disabled={loading}
+        disabled={isBlocked}
         onClick={async () => {
           setLoading(true);
           setMessage(null);
@@ -34,9 +36,13 @@ export function AddToCartButton({ productId }: { productId: string }) {
           setMessage("Agregado.");
           setTimeout(() => setMessage(null), 1500);
         }}
-        className="rounded-md bg-[var(--accent)] px-3 py-1.5 text-xs font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
+        className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+          disabled
+            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+            : "bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]"
+        } disabled:opacity-60`}
       >
-        {loading ? "..." : "Agregar"}
+        {loading ? "..." : disabled ? "Tienda cerrada" : "Agregar"}
       </button>
       {message ? (
         <span className="text-xs text-[color:var(--muted)]">

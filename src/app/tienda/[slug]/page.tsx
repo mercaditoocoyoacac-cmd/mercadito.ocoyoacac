@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/server/prisma";
 import { AddToCartButton } from "@/components/AddToCartButton";
+import { isStoreOpen } from "@/lib/schedule";
 
 function formatMoney(cents: number, currency: string) {
   return new Intl.NumberFormat("es-MX", { style: "currency", currency }).format(
@@ -25,9 +26,14 @@ export default async function StorefrontPage({
       address: true,
       imageUrl: true,
       isActive: true,
+      openTime: true,
+      closeTime: true,
+      scheduleDays: true,
     },
   });
   if (!store || !store.isActive) return notFound();
+
+  const open = isStoreOpen(store);
 
   const products = await prisma.product.findMany({
     where: { storeId: store.id, isActive: true },
@@ -56,7 +62,13 @@ export default async function StorefrontPage({
             </div>
           )}
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">{store.name}</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-semibold tracking-tight">{store.name}</h1>
+              <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${open ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                <span className={`h-1.5 w-1.5 rounded-full ${open ? "bg-green-500" : "bg-red-500"}`}></span>
+                {open ? "Abierto" : "Cerrado"}
+              </span>
+            </div>
             {store.description ? (
               <p className="mt-2 max-w-2xl text-sm leading-6 text-[color:var(--muted)]">
                 {store.description}
@@ -65,6 +77,14 @@ export default async function StorefrontPage({
             <div className="mt-3 flex flex-col gap-1 text-xs text-[color:var(--muted)]">
               {store.address ? <div>{store.address}</div> : null}
               {store.phone ? <div>{store.phone}</div> : null}
+              {store.openTime && store.closeTime && (
+                <div className="flex items-center gap-1 mt-1">
+                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  {store.openTime} – {store.closeTime}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -105,7 +125,7 @@ export default async function StorefrontPage({
                   {formatMoney(product.priceCents, product.currency)}
                 </div>
                 <div className="mt-2">
-                  <AddToCartButton productId={product.id} />
+                  <AddToCartButton productId={product.id} disabled={!open} />
                 </div>
               </div>
             </div>

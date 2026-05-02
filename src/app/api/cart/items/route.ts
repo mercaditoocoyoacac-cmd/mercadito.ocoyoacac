@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
+import { isStoreOpen } from "@/lib/schedule";
 
 const AddSchema = z.object({
   productId: z.string().min(1),
@@ -57,13 +58,20 @@ export async function POST(req: Request) {
       id: true,
       isActive: true,
       storeId: true,
-      store: { select: { isActive: true } },
+      store: { select: { isActive: true, openTime: true, closeTime: true, scheduleDays: true } },
     },
   });
   if (!product || !product.isActive || !product.store.isActive) {
     return NextResponse.json(
       { ok: false, error: "Producto no disponible." },
       { status: 404 },
+    );
+  }
+
+  if (!isStoreOpen(product.store)) {
+    return NextResponse.json(
+      { ok: false, error: "La tienda está cerrada en este momento." },
+      { status: 400 },
     );
   }
 

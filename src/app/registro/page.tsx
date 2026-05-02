@@ -58,8 +58,8 @@ export default function RegistroPage() {
       return;
     }
 
-    if (password.length < 16) {
-      setError("La contraseña debe tener al menos 16 caracteres");
+    if (password.length < 8) {
+      setError("La contraseña debe tener al menos 8 caracteres");
       return;
     }
     
@@ -142,7 +142,7 @@ export default function RegistroPage() {
             type="password"
             required
             className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-            placeholder="Mínimo 16 caracteres"
+            placeholder="Mínimo 8 caracteres"
           />
           <p className="mt-1 text-xs text-[color:var(--muted)]">
             Debe tener: mayúscula, minúscula, número y carácter especial

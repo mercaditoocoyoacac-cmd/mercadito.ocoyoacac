@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { revalidatePath } from "next/cache";
+import { autoAssignDelivery } from "@/lib/autoAssign";
 
 function formatMoney(cents: number, currency: string) {
   return new Intl.NumberFormat("es-MX", {
@@ -198,6 +199,12 @@ export default async function VendorPedidosPage() {
                           where: { id: order.id },
                           data: { status: "READY" },
                         });
+                        if (
+                          order.fulfillmentType === "DELIVERY" &&
+                          !order.deliveryUserId
+                        ) {
+                          await autoAssignDelivery(order.id);
+                        }
                         revalidatePath("/vendor/pedidos");
                       }}
                     >
@@ -205,7 +212,7 @@ export default async function VendorPedidosPage() {
                         Marcar listo
                       </button>
                     </form>
-)}
+                  )}
                   {order.status === "READY" &&
                     order.fulfillmentType === "DELIVERY" &&
                     order.deliveryUserId && (

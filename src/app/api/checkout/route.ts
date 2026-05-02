@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
 import { rateLimit, getClientIP } from "@/server/rateLimit";
+import { isStoreOpen } from "@/lib/schedule";
 
 function generateDeliveryCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -73,7 +74,7 @@ export async function POST(req: Request) {
           currency: true,
           storeId: true,
           isActive: true,
-          store: { select: { isActive: true } },
+          store: { select: { isActive: true, openTime: true, closeTime: true, scheduleDays: true } },
         },
       },
     },
@@ -93,6 +94,14 @@ export async function POST(req: Request) {
   if (badItem) {
     return NextResponse.json(
       { ok: false, error: "Hay productos no disponibles en tu carrito." },
+      { status: 400 },
+    );
+  }
+
+  const store = items[0]!.product.store;
+  if (!isStoreOpen(store)) {
+    return NextResponse.json(
+      { ok: false, error: "La tienda está cerrada en este momento." },
       { status: 400 },
     );
   }
@@ -159,7 +168,6 @@ export async function POST(req: Request) {
       const encrypted = store.mercadoPagoAccessToken;
       const base64 = Buffer.from(encrypted, "hex").toString("utf8");
       const accessToken = Buffer.from(base64, "base64").toString("utf8");
-      console.log("Decoded token:", accessToken);
 
       try {
         const mpResponse = await fetch("https://api.mercadopago.com/checkout/preferences", {
@@ -194,7 +202,6 @@ export async function POST(req: Request) {
           
           if (mpData.init_point) {
             paymentUrl = mpData.init_point;
-            console.log("Got payment URL:", (paymentUrl || "").substring(0, 50) + "...");
           } else if (mpData.error) {
             const errorMsg = mpData.error?.message || mpData.message || "Error desconocido";
             console.error("MercadoPago error:", errorMsg);
