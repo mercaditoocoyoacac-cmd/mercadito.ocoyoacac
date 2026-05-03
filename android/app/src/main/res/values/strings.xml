@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Mercadito Ocoyoacac</string>
+    <string name="app_name">Mercadito Admin</string>
     <string name="title_activity_main">Mercadito Ocoyoacac</string>
-    <string name="package_name">com.mercaditoocoyoacac.app</string>
-    <string name="custom_url_scheme">com.mercaditoocoyoacac.app</string>
+    <string name="package_name">com.mercaditoocoyoacac.admin</string>
+    <string name="custom_url_scheme">com.mercaditoocoyoacac.admin</string>
 </resources>

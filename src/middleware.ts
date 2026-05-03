@@ -18,6 +18,13 @@ const loginRoutes: Record<string, string> = {
   WEB: "/login",
 };
 
+const homeRoutes: Record<string, string> = {
+  CLIENTE: "/tiendas",
+  VENDOR: "/vendor",
+  DELIVERY: "/delivery",
+  ADMIN: "/admin",
+};
+
 const blockedByApp: Record<string, string[]> = {
   CLIENTE: ["/vendor/", "/delivery/", "/admin/", "/portal/"],
   DELIVERY: ["/vendor/", "/admin/", "/mis-pedidos", "/carrito", "/tiendas", "/tienda/", "/contrato"],
@@ -38,6 +45,10 @@ export function middleware(request: NextRequest) {
 
   if (appType === "WEB") {
     return NextResponse.next();
+  }
+
+  if (pathname === "/" || pathname === "") {
+    return NextResponse.redirect(new URL(homeRoutes[appType], request.url));
   }
 
   for (const prefix of publicPaths) {

@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.mercaditoocoyoacac.app',
-  appName: 'Mercadito Ocoyoacac',
+  appId: 'com.mercaditoocoyoacac.admin',
+  appName: 'Mercadito Admin',
   webDir: 'out',
   server: {
     url: 'https://mercadito-ocoyoacac.vercel.app',
@@ -11,12 +11,12 @@ const config: CapacitorConfig = {
   plugins: {
     SplashScreen: {
       launchShowDuration: 2000,
-      backgroundColor: '#2563eb',
+      backgroundColor: '#7c3aed',
       showSpinner: false,
     },
     StatusBar: {
       style: 'light',
-      backgroundColor: '#2563eb',
+      backgroundColor: '#7c3aed',
     },
   },
 };

@@ -3,32 +3,29 @@
 import { useEffect } from "react";
 import { SessionProvider } from "next-auth/react";
 import { App } from "@capacitor/app";
-import { useRouter, usePathname } from "next/navigation";
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
-  const pathname = usePathname();
-
   useEffect(() => {
-    const setupBackButton = async () => {
-      const backButtonHandler = await App.addListener('backButton', ({ canGoBack }) => {
-        // Si no estamos en la página principal, intentamos ir atrás
-        if (pathname !== "/" && pathname !== "/login") {
-            window.history.back();
+    // Escuchar el botón físico de atrás
+    const handleBackButton = async () => {
+      await App.addListener('backButton', ({ canGoBack }) => {
+        if (canGoBack) {
+          // Si el navegador tiene historial, regresa una página
+          window.history.back();
         } else {
-          // Si estamos en el inicio y presionamos atrás, cerramos la app
+          // Si ya no hay más historial (estás en el inicio), cierra la app
           App.exitApp();
         }
       });
-      return backButtonHandler;
     };
 
-    const handlerPromise = setupBackButton();
+    handleBackButton();
 
+    // Limpiar el evento al desmontar
     return () => {
-      handlerPromise.then(handler => handler.remove());
+      App.removeAllListeners();
     };
-  }, [pathname]); // Se reinicia si cambia la ruta para estar siempre alerta
+  }, []);
 
   return <SessionProvider>{children}</SessionProvider>;
 }
