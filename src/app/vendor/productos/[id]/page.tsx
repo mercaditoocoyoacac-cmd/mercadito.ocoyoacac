@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface Product {
   id: string;
@@ -30,25 +30,31 @@ export default function EditarProductoPage() {
   const [deleting, setDeleting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  if (loadingProduct && !product) {
+  useEffect(() => {
     fetchProduct();
-    return (
-      <div className="mx-auto max-w-xl">
-        <div className="text-sm text-[color:var(--muted)]">Cargando...</div>
-      </div>
-    );
-  }
+  }, []);
 
   async function fetchProduct() {
-    const res = await fetch("/api/vendor/products");
-    const data = (await res.json()) as { ok: true; products: Product[] };
-    const found = data.products.find((p) => p.id === productId);
-    if (found) {
-      setProduct(found);
-      setName(found.name);
-      setPrice((found.priceCents / 100).toString());
-      setDescription(found.description ?? "");
-      setImageUrl(found.imageUrl ?? "");
+    try {
+      const res = await fetch("/api/vendor/products");
+      if (!res.ok) {
+        setError("No se pudo cargar el producto.");
+        setLoadingProduct(false);
+        return;
+      }
+      const data = (await res.json()) as { ok: true; products: Product[] };
+      const found = data.products?.find((p) => p.id === productId);
+      if (found) {
+        setProduct(found);
+        setName(found.name);
+        setPrice((found.priceCents / 100).toString());
+        setDescription(found.description ?? "");
+        setImageUrl(found.imageUrl ?? "");
+      } else {
+        setError("Producto no encontrado.");
+      }
+    } catch {
+      setError("Error de conexion.");
     }
     setLoadingProduct(false);
   }
@@ -141,6 +147,25 @@ export default function EditarProductoPage() {
       return;
     }
     router.push("/vendor/productos");
+  }
+
+  if (loadingProduct) {
+    return (
+      <div className="mx-auto max-w-xl">
+        <div className="text-sm text-[color:var(--muted)]">Cargando...</div>
+      </div>
+    );
+  }
+
+  if (error && !product) {
+    return (
+      <div className="mx-auto max-w-xl">
+        <div className="text-sm text-red-600">{error}</div>
+        <button onClick={() => router.back()} className="mt-4 text-sm underline">
+          Volver
+        </button>
+      </div>
+    );
   }
 
   return (
