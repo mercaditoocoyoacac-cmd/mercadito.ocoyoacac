@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 
@@ -187,10 +188,22 @@ export default function ProfilePage() {
 
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-10">
-      <h1 className="text-2xl font-bold">Mi Perfil</h1>
-      <p className="mt-1 text-sm text-[color:var(--muted)]">
-        Actualiza tu información personal
-      </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Mi Perfil</h1>
+          <p className="mt-1 text-sm text-[color:var(--muted)]">
+            Actualiza tu información personal
+          </p>
+        </div>
+        {profile.role === "ADMIN" && (
+          <Link
+            href="/admin"
+            className="shrink-0 rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-700 transition-colors"
+          >
+            Ir al Panel Admin
+          </Link>
+        )}
+      </div>
 
       {error && (
         <div className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-700">
