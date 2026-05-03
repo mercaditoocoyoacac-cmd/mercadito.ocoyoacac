@@ -585,6 +585,42 @@ export function NavBar() {
                   </button>
                 </>
               )}
+
+              {!data?.user && (
+                <>
+                  <div className="my-2 border-t border-[var(--border)]"></div>
+                  <div className="px-4 py-2 text-xs font-semibold text-[color:var(--muted)] uppercase tracking-wide">Mi cuenta</div>
+                  <Link
+                    href="/login"
+                    onClick={() => setMenuOpen(false)}
+                    className="rounded-lg px-4 py-3 text-sm font-medium text-[var(--accent)]"
+                  >
+                    Iniciar sesión
+                  </Link>
+                  <Link
+                    href="/registro"
+                    onClick={() => setMenuOpen(false)}
+                    className="rounded-lg px-4 py-3 text-sm font-medium text-[var(--accent)]"
+                  >
+                    Registrarse
+                  </Link>
+                  <div className="my-2 border-t border-[var(--border)]"></div>
+                  <Link
+                    href="/vendor/registro"
+                    onClick={() => setMenuOpen(false)}
+                    className="rounded-lg px-4 py-3 text-sm font-medium text-[color:var(--muted)]"
+                  >
+                    Soy vendedor
+                  </Link>
+                  <Link
+                    href="/delivery/registro"
+                    onClick={() => setMenuOpen(false)}
+                    className="rounded-lg px-4 py-3 text-sm font-medium text-[color:var(--muted)]"
+                  >
+                    Soy repartidor
+                  </Link>
+                </>
+              )}
             </nav>
           </div>
         )}
