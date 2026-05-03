@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/server/prisma";
+import AppRedirectChecker from "@/components/AppRedirectChecker";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,7 @@ export default async function Home() {
 
   return (
     <main className="flex-1">
+      <AppRedirectChecker />
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-rose-500 via-rose-600 to-rose-700 px-4 py-20 text-white">
         <div className="absolute inset-0 opacity-15">
