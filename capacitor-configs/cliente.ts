@@ -19,9 +19,6 @@ const config: CapacitorConfig = {
       backgroundColor: '#2563eb',
     },
   },
-  overrides: {
-    UserAgent: 'MercaditoCliente/1.0',
-  },
 };
 
 export default config;
