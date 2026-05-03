@@ -18,28 +18,14 @@ const loginRoutes: Record<string, string> = {
   WEB: "/login",
 };
 
-const registerRoutes: Record<string, string> = {
-  CLIENTE: "/registro",
-  VENDOR: "/vendor/registro",
-  DELIVERY: "/delivery/registro",
-  ADMIN: "/admin/registro",
-  WEB: "/registro",
-};
-
-const allowedRoutes: Record<string, string[]> = {
-  CLIENTE: ["/", "/tiendas", "/tienda/", "/carrito", "/mis-pedidos", "/perfil", "/login", "/registro", "/api/", "/pedido/"],
-  VENDOR: ["/", "/vendor", "/vendor/login", "/vendor/registro", "/vendor/onboarding", "/vendor/upgrade", "/vendor/mi-tienda", "/vendor/productos", "/vendor/pedidos", "/vendor/mercado-pago", "/vendor/onboarding", "/api/", "/tienda/", "/carrito", "/perfil", "/mis-pedidos", "/contrato", "/pedido/"],
-  DELIVERY: ["/", "/delivery", "/delivery/login", "/delivery/registro", "/delivery/escanear", "/api/", "/perfil", "/login", "/registro"],
-  ADMIN: ["/", "/admin", "/admin/login", "/admin/registro", "/admin/membresias", "/admin/aprobacion", "/admin/contratos", "/admin/usuarios", "/admin/pedidos", "/admin/mercado-pago", "/api/", "/vendor/pedidos", "/vendor/mercado-pago", "/contrato", "/perfil"],
-  WEB: [],
+const blockedByApp: Record<string, string[]> = {
+  CLIENTE: ["/vendor/", "/delivery/", "/admin/", "/portal/"],
+  DELIVERY: ["/vendor/", "/admin/", "/mis-pedidos", "/carrito", "/tiendas", "/tienda/", "/contrato"],
+  VENDOR: ["/delivery/", "/admin/"],
+  ADMIN: ["/delivery/"],
 };
 
 const publicPaths = [
-  "/tiendas",
-  "/tienda/",
-  "/",
-  "/login",
-  "/registro",
   "/_next",
   "/favicon",
   "/api/auth",
@@ -54,18 +40,18 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const isPublic = publicPaths.some(
-    (p) => pathname === p || pathname.startsWith(p)
-  );
+  for (const prefix of publicPaths) {
+    if (pathname.startsWith(prefix)) {
+      return NextResponse.next();
+    }
+  }
 
-  const allowed = allowedRoutes[appType] || [];
-  const isAllowed = allowed.some(
-    (p) => pathname === p || pathname.startsWith(p)
-  );
+  const blocked = blockedByApp[appType] || [];
+  const isBlocked = blocked.some((p) => pathname.startsWith(p));
 
-  if (!isAllowed && !isPublic) {
+  if (isBlocked) {
     const loginUrl = new URL(loginRoutes[appType], request.url);
-    loginUrl.searchParams.set("from", pathname);
+    loginUrl.searchParams.set("blocked", "1");
     return NextResponse.redirect(loginUrl);
   }
 
