@@ -4,6 +4,8 @@ import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
 import { rateLimit, getClientIP } from "@/server/rateLimit";
 import { isStoreOpen } from "@/lib/schedule";
+import { sendTextNotification } from "@/server/notifications";
+import { notifyVendorNewOrder } from "@/server/whatsapp";
 
 function generateDeliveryCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -154,6 +156,38 @@ export async function POST(req: Request) {
   });
 
   await prisma.cartItem.deleteMany({ where: { userId: auth.userId } });
+
+  const storeForNotification = await prisma.store.findUnique({
+    where: { id: storeId },
+    select: { phone: true, name: true, ownerId: true },
+  });
+
+  if (storeForNotification?.phone) {
+    const orderItems = items.map((cartItem: typeof items[number]) => ({
+      name: cartItem.product.name,
+      quantity: cartItem.quantity,
+    }));
+
+    await Promise.all([
+      sendTextNotification(storeForNotification.ownerId, {
+        title: "Nuevo pedido!",
+        body: `${parsed.data.customerName} hizo un pedido de $${(totalCents / 100).toFixed(2)} ${currency}`,
+        type: "NEW_ORDER",
+      }),
+      notifyVendorNewOrder({
+        vendorPhone: storeForNotification.phone,
+        storeName: storeForNotification.name,
+        customerName: parsed.data.customerName.trim(),
+        customerPhone: parsed.data.customerPhone.trim(),
+        customerAddress: parsed.data.customerAddress?.trim() || null,
+        totalCents,
+        currency,
+        fulfillmentType: parsed.data.fulfillmentType,
+        orderId: order.id,
+        items: orderItems,
+      }),
+    ]);
+  }
 
   let paymentUrl: string | undefined;
   let mpError: string | undefined;
