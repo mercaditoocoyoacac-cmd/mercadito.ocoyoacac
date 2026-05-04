@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 const appType = process.argv[2];
 
@@ -47,6 +48,39 @@ if (!fs.existsSync(targetDir)) {
 if (fs.existsSync(sourceFile)) {
   fs.copyFileSync(sourceFile, targetFile);
   console.log(`MainActivity.java instalado en ${appType}/`);
+}
+
+const iconSource = path.join(sourceDir, 'icon.png');
+const splashSource = path.join(sourceDir, 'splash.png');
+const resDir = path.join(__dirname, '..', 'android', 'app', 'src', 'main', 'res');
+
+if (fs.existsSync(iconSource)) {
+  const densities = ['mipmap-hdpi', 'mipmap-mdpi', 'mipmap-xhdpi', 'mipmap-xxhdpi', 'mipmap-xxxhdpi'];
+  for (const density of densities) {
+    const destDir = path.join(resDir, density);
+    if (!fs.existsSync(destDir)) {
+      fs.mkdirSync(destDir, { recursive: true });
+    }
+    fs.copyFileSync(iconSource, path.join(destDir, 'ic_launcher.png'));
+    fs.copyFileSync(iconSource, path.join(destDir, 'ic_launcher_round.png'));
+  }
+  console.log(`Icono copiado a todas las densidades`);
+}
+
+if (fs.existsSync(splashSource)) {
+  const densities = [
+    'drawable', 'drawable-hdpi', 'drawable-mdpi', 'drawable-xhdpi', 'drawable-xxhdpi', 'drawable-xxxhdpi',
+    'drawable-port-hdpi', 'drawable-port-mdpi', 'drawable-port-xhdpi', 'drawable-port-xxhdpi', 'drawable-port-xxxhdpi',
+    'drawable-land-hdpi', 'drawable-land-mdpi', 'drawable-land-xhdpi', 'drawable-land-xxhdpi', 'drawable-land-xxxhdpi',
+  ];
+  for (const density of densities) {
+    const destDir = path.join(resDir, density);
+    if (!fs.existsSync(destDir)) {
+      fs.mkdirSync(destDir, { recursive: true });
+    }
+    fs.copyFileSync(splashSource, path.join(destDir, 'splash.png'));
+  }
+  console.log(`Splash copiado a todas las densidades y orientaciones`);
 }
 
 const buildGradle = path.join(__dirname, '..', 'android', 'app', 'build.gradle');
