@@ -3,10 +3,10 @@
 import { useEffect } from "react";
 
 const APP_REDIRECTS: Record<string, string> = {
-  MercaditoCliente: "/tiendas",
-  MercaditoVendedor: "/vendor",
-  MercaditoRepartidor: "/delivery",
-  MercaditoAdmin: "/admin",
+  MercaditoCliente: "/",
+  MercaditoVendedor: "/portal/vendedor",
+  MercaditoRepartidor: "/portal/repartidor",
+  MercaditoAdmin: "/portal/admin",
 };
 
 export default function AppRedirectChecker() {

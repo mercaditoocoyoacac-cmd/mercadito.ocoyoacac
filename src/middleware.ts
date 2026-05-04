@@ -10,6 +10,13 @@ function getAppType(ua: string | null): string {
   return "WEB";
 }
 
+const portalRoutes: Record<string, string> = {
+  CLIENTE: "/",
+  VENDOR: "/portal/vendedor",
+  DELIVERY: "/portal/repartidor",
+  ADMIN: "/portal/admin",
+};
+
 const loginRoutes: Record<string, string> = {
   CLIENTE: "/login",
   VENDOR: "/vendor/login",
@@ -18,15 +25,8 @@ const loginRoutes: Record<string, string> = {
   WEB: "/login",
 };
 
-const homeRoutes: Record<string, string> = {
-  CLIENTE: "/tiendas",
-  VENDOR: "/vendor",
-  DELIVERY: "/delivery",
-  ADMIN: "/admin",
-};
-
 const blockedByApp: Record<string, string[]> = {
-  CLIENTE: ["/vendor/", "/delivery/", "/admin/", "/portal/"],
+  CLIENTE: ["/vendor/", "/delivery/", "/admin/"],
   DELIVERY: ["/vendor/", "/admin/", "/mis-pedidos", "/carrito", "/tiendas", "/tienda/", "/contrato"],
   VENDOR: ["/delivery/", "/admin/"],
   ADMIN: ["/delivery/"],
@@ -48,7 +48,7 @@ export function middleware(request: NextRequest) {
   }
 
   if (pathname === "/" || pathname === "") {
-    return NextResponse.redirect(new URL(homeRoutes[appType], request.url));
+    return NextResponse.redirect(new URL(portalRoutes[appType], request.url));
   }
 
   for (const prefix of publicPaths) {
