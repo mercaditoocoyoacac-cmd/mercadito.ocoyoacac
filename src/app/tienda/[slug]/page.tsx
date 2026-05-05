@@ -140,7 +140,7 @@ export default async function StorefrontPage({
                   <AddToCartButton
                     productId={product.id}
                     disabled={!open || product.isUnavailable}
-                    disabledLabel={!open ? "Tienda cerrada" : "Agotado"}
+                    disabledLabel={product.isUnavailable ? "Agotado" : !open ? "Tienda cerrada" : undefined}
                   />
                 </div>
               </div>
