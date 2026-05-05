@@ -11,6 +11,8 @@ interface Product {
   currency: string;
   imageUrl: string | null;
   isActive: boolean;
+  sku: string | null;
+  stock: number;
 }
 
 export default function EditarProductoPage() {
@@ -24,6 +26,8 @@ export default function EditarProductoPage() {
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [sku, setSku] = useState("");
+  const [stock, setStock] = useState("");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -50,6 +54,8 @@ export default function EditarProductoPage() {
         setPrice((found.priceCents / 100).toString());
         setDescription(found.description ?? "");
         setImageUrl(found.imageUrl ?? "");
+        setSku(found.sku ?? "");
+        setStock(found.stock === -1 ? "" : found.stock.toString());
       } else {
         setError("Producto no encontrado.");
       }
@@ -114,6 +120,8 @@ export default function EditarProductoPage() {
         description: description.trim() || undefined,
         priceCents: Math.round(priceNumber * 100),
         imageUrl: imageUrl || null,
+        sku: sku.trim() || null,
+        stock: stock.trim() === "" ? -1 : parseInt(stock) || 0,
       }),
     });
 
@@ -233,6 +241,31 @@ export default function EditarProductoPage() {
             className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
           />
         </label>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className="block">
+            <div className="text-sm font-medium">SKU / Codigo (opcional)</div>
+            <input
+              value={sku}
+              onChange={(e) => setSku(e.target.value)}
+              className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm font-mono outline-none focus:border-[var(--accent)]"
+              placeholder="Producto-SKU-001"
+            />
+          </label>
+          <label className="block">
+            <div className="text-sm font-medium">Existencias</div>
+            <input
+              value={stock}
+              onChange={(e) => setStock(e.target.value)}
+              inputMode="numeric"
+              className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+              placeholder="Dejar vacio = sin control"
+            />
+            <p className="mt-1 text-xs text-[color:var(--muted)]">
+              Vacio = sin control de inventario
+            </p>
+          </label>
+        </div>
 
         <label className="block">
           <div className="text-sm font-medium">Descripción (opcional)</div>

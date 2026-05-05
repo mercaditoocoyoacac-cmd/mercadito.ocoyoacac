@@ -9,6 +9,8 @@ const UpdateProductSchema = z.object({
   priceCents: z.number().int().min(1).optional(),
   imageUrl: z.string().url().nullable().optional(),
   isActive: z.boolean().optional(),
+  sku: z.string().nullable().optional(),
+  stock: z.number().int().min(-1).optional(),
 });
 
 export async function PUT(
@@ -51,6 +53,8 @@ export async function PUT(
       priceCents: parsed.data.priceCents,
       imageUrl: parsed.data.imageUrl,
       isActive: parsed.data.isActive,
+      sku: parsed.data.sku,
+      stock: parsed.data.stock,
     },
   });
 

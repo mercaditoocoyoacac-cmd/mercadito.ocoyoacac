@@ -76,6 +76,7 @@ export async function POST(req: Request) {
           currency: true,
           storeId: true,
           isActive: true,
+          stock: true,
           store: { select: { isActive: true, openTime: true, closeTime: true, scheduleDays: true } },
         },
       },
@@ -104,6 +105,17 @@ export async function POST(req: Request) {
   if (!isStoreOpen(store)) {
     return NextResponse.json(
       { ok: false, error: "La tienda está cerrada en este momento." },
+      { status: 400 },
+    );
+  }
+
+  const outOfStock = items.find(
+    (cartItem: typeof items[number]) =>
+      cartItem.product.stock !== -1 && cartItem.product.stock !== null && cartItem.product.stock < cartItem.quantity,
+  );
+  if (outOfStock) {
+    return NextResponse.json(
+      { ok: false, error: `El producto "${outOfStock.product.name}" solo tiene ${outOfStock.product.stock} unidades disponibles.` },
       { status: 400 },
     );
   }
@@ -156,6 +168,15 @@ export async function POST(req: Request) {
   });
 
   await prisma.cartItem.deleteMany({ where: { userId: auth.userId } });
+
+  for (const cartItem of items) {
+    if (cartItem.product.stock !== -1 && cartItem.product.stock !== null) {
+      await prisma.product.update({
+        where: { id: cartItem.product.id },
+        data: { stock: { decrement: cartItem.quantity } },
+      });
+    }
+  }
 
   const storeForNotification = await prisma.store.findUnique({
     where: { id: storeId },

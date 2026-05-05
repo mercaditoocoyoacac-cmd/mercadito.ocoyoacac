@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
 
 const appType = process.argv[2];
 
@@ -9,7 +8,6 @@ if (!appType || !['cliente', 'vendedor', 'repartidor', 'admin'].includes(appType
   process.exit(1);
 }
 
-const baseDir = path.join(__dirname, '..', 'android', 'app', 'src', 'main', 'java', 'com', 'mercaditoocoyoacac');
 const appIds = {
   cliente: 'com.mercaditoocoyoacac.cliente',
   vendedor: 'com.mercaditoocoyoacac.vendedor',
@@ -17,94 +15,86 @@ const appIds = {
   admin: 'com.mercaditoocoyoacac.admin',
 };
 
+const appNames = {
+  cliente: 'Mercadito-Compras',
+  vendedor: 'Mercadito-Tienda',
+  repartidor: 'Mercadito-Entregas',
+  admin: 'Mercadito-Admin',
+};
+
+// 1. Configuración de Capacitor
 const configSource = path.join(__dirname, '..', 'capacitor-configs', `${appType}.ts`);
 const configDest = path.join(__dirname, '..', 'capacitor.config.ts');
-
-if (!fs.existsSync(configSource)) {
-  console.error(`Config no encontrado: ${configSource}`);
-  process.exit(1);
+if (fs.existsSync(configSource)) {
+  fs.copyFileSync(configSource, configDest);
+  console.log(`capacitor.config.ts actualizado para ${appType}`);
 }
 
-fs.copyFileSync(configSource, configDest);
-console.log(`capacitor.config.ts actualizado para ${appType}`);
+// 2. MainActivity.java
+const mainActivitySource = path.join(__dirname, '..', 'capacitor-configs', appType, 'MainActivity.java');
+const mainActivityDest = path.join(__dirname, '..', 'android', 'app', 'src', 'main', 'java', 'com', 'mercaditoocoyoacac', 'app', 'MainActivity.java');
 
-for (const app of Object.keys(appIds)) {
-  const dir = path.join(baseDir, app);
-  const file = path.join(dir, 'MainActivity.java');
-  if (fs.existsSync(file)) {
-    fs.rmSync(file, { force: true });
-  }
+if (fs.existsSync(mainActivitySource)) {
+  const destDir = path.dirname(mainActivityDest);
+  if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
+  let content = fs.readFileSync(mainActivitySource, 'utf8');
+  content = content.replace(/package\s+[^;]+;/, 'package com.mercaditoocoyoacac.app;');
+  fs.writeFileSync(mainActivityDest, content);
 }
 
+// 3. Iconos y Splash
 const sourceDir = path.join(__dirname, '..', 'capacitor-configs', appType);
-const sourceFile = path.join(sourceDir, 'MainActivity.java');
-const targetDir = path.join(baseDir, appType);
-const targetFile = path.join(targetDir, 'MainActivity.java');
-
-if (!fs.existsSync(targetDir)) {
-  fs.mkdirSync(targetDir, { recursive: true });
-}
-
-if (fs.existsSync(sourceFile)) {
-  fs.copyFileSync(sourceFile, targetFile);
-  console.log(`MainActivity.java instalado en ${appType}/`);
-}
-
 const iconSource = path.join(sourceDir, 'icon.png');
 const splashSource = path.join(sourceDir, 'splash.png');
 const resDir = path.join(__dirname, '..', 'android', 'app', 'src', 'main', 'res');
 
 if (fs.existsSync(iconSource)) {
-  const densities = ['mipmap-hdpi', 'mipmap-mdpi', 'mipmap-xhdpi', 'mipmap-xxhdpi', 'mipmap-xxxhdpi'];
-  for (const density of densities) {
+  const mipmapDensities = ['mipmap-hdpi', 'mipmap-mdpi', 'mipmap-xhdpi', 'mipmap-xxhdpi', 'mipmap-xxxhdpi'];
+  for (const density of mipmapDensities) {
     const destDir = path.join(resDir, density);
-    if (!fs.existsSync(destDir)) {
-      fs.mkdirSync(destDir, { recursive: true });
-    }
+    if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
     fs.copyFileSync(iconSource, path.join(destDir, 'ic_launcher.png'));
     fs.copyFileSync(iconSource, path.join(destDir, 'ic_launcher_round.png'));
+    fs.copyFileSync(iconSource, path.join(destDir, 'ic_launcher_foreground.png'));
   }
-  console.log(`Icono copiado a todas las densidades`);
+
+  // ELIMINAR XMLs que bloquean el icono PNG en Android 8+
+  const anyDpiDir = path.join(resDir, 'mipmap-anydpi-v26');
+  if (fs.existsSync(anyDpiDir)) {
+      const xmls = ['ic_launcher.xml', 'ic_launcher_round.xml'];
+      for (const xml of xmls) {
+          const xmlPath = path.join(anyDpiDir, xml);
+          if (fs.existsSync(xmlPath)) fs.unlinkSync(xmlPath);
+      }
+  }
+  console.log(`Iconos limpios y actualizados`);
 }
 
 if (fs.existsSync(splashSource)) {
-  const densities = [
-    'drawable', 'drawable-hdpi', 'drawable-mdpi', 'drawable-xhdpi', 'drawable-xxhdpi', 'drawable-xxxhdpi',
-    'drawable-port-hdpi', 'drawable-port-mdpi', 'drawable-port-xhdpi', 'drawable-port-xxhdpi', 'drawable-port-xxxhdpi',
-    'drawable-land-hdpi', 'drawable-land-mdpi', 'drawable-land-xhdpi', 'drawable-land-xxhdpi', 'drawable-land-xxxhdpi',
-  ];
-  for (const density of densities) {
+  const drawableDensities = ['drawable', 'drawable-hdpi', 'drawable-mdpi', 'drawable-xhdpi', 'drawable-xxhdpi', 'drawable-xxxhdpi'];
+  for (const density of drawableDensities) {
     const destDir = path.join(resDir, density);
-    if (!fs.existsSync(destDir)) {
-      fs.mkdirSync(destDir, { recursive: true });
-    }
+    if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
     fs.copyFileSync(splashSource, path.join(destDir, 'splash.png'));
   }
-  console.log(`Splash copiado a todas las densidades y orientaciones`);
 }
 
+// 4. build.gradle
 const buildGradle = path.join(__dirname, '..', 'android', 'app', 'build.gradle');
 if (fs.existsSync(buildGradle)) {
   let content = fs.readFileSync(buildGradle, 'utf8');
-  content = content.replace(/namespace\s*=\s*"[^"]+"/g, `namespace = "${appIds[appType]}"`);
+  content = content.replace(/namespace\s*=\s*"[^"]+"/g, `namespace = "com.mercaditoocoyoacac.app"`);
   content = content.replace(/applicationId\s+"[^"]+"/g, `applicationId "${appIds[appType]}"`);
   fs.writeFileSync(buildGradle, content);
-  console.log(`build.gradle actualizado: namespace + applicationId = ${appIds[appType]}`);
 }
 
+// 5. strings.xml
 const stringsXml = path.join(__dirname, '..', 'android', 'app', 'src', 'main', 'res', 'values', 'strings.xml');
 if (fs.existsSync(stringsXml)) {
   let content = fs.readFileSync(stringsXml, 'utf8');
-  const appNames = {
-    cliente: 'Mercadito Cliente',
-    vendedor: 'Mercadito Vendedor',
-    repartidor: 'Mercadito Repartidor',
-    admin: 'Mercadito Admin',
-  };
-  content = content.replace(/app_name"[^>]*>[^<]*/, `app_name">${appNames[appType]}`);
-  content = content.replace(/custom_url_scheme"[^>]*>[^<]*/, `custom_url_scheme">${appIds[appType]}`);
+  content = content.replace(/app_name">[^<]*/, `app_name">${appNames[appType]}`);
+  content = content.replace(/custom_url_scheme">[^<]*/, `custom_url_scheme">${appIds[appType]}`);
   fs.writeFileSync(stringsXml, content);
-  console.log(`strings.xml actualizado: nombre = ${appNames[appType]}`);
 }
 
-console.log(`App configurada como: ${appType}`);
+console.log(`¡App ${appType} configurada y lista!`);

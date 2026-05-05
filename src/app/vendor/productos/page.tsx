@@ -47,6 +47,8 @@ export default async function VendorProductosPage() {
       currency: true,
       imageUrl: true,
       isActive: true,
+      sku: true,
+      stock: true,
     },
   });
 
@@ -62,12 +64,20 @@ export default async function VendorProductosPage() {
             </Link>
           </p>
         </div>
-        <Link
-          href="/vendor/productos/nuevo"
-          className="inline-flex rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)]"
-        >
-          Nuevo producto
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href="/vendor/productos/importar"
+            className="inline-flex rounded-md border border-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent)] hover:bg-[var(--accent-soft)]"
+          >
+            Importar CSV
+          </Link>
+          <Link
+            href="/vendor/productos/nuevo"
+            className="inline-flex rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)]"
+          >
+            Nuevo producto
+          </Link>
+        </div>
       </div>
 
       {products.length === 0 ? (
@@ -83,7 +93,9 @@ export default async function VendorProductosPage() {
             <thead className="bg-[var(--accent-soft)]">
               <tr>
                 <th className="px-4 py-3 font-medium">Producto</th>
+                <th className="px-4 py-3 font-medium">SKU</th>
                 <th className="px-4 py-3 font-medium">Precio</th>
+                <th className="px-4 py-3 font-medium">Exist.</th>
                 <th className="px-4 py-3 font-medium">Estado</th>
                 <th className="px-4 py-3 font-medium"></th>
               </tr>
@@ -107,11 +119,29 @@ export default async function VendorProductosPage() {
                       </span>
                     </div>
                   </td>
+                  <td className="px-4 py-3 font-mono text-xs text-[color:var(--muted)]">
+                    {product.sku || "-"}
+                  </td>
                   <td className="px-4 py-3">
                     {formatMoney(product.priceCents, product.currency)}
                   </td>
                   <td className="px-4 py-3">
-                    {product.isActive ? "Activo" : "Inactivo"}
+                    {product.stock === -1 ? (
+                      <span className="text-[color:var(--muted)]">Sin control</span>
+                    ) : product.stock === 0 ? (
+                      <span className="text-red-600 font-medium">Agotado</span>
+                    ) : product.stock !== null && product.stock <= 5 ? (
+                      <span className="text-amber-600 font-medium">{product.stock}</span>
+                    ) : (
+                      <span>{product.stock}</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    {product.isActive ? (
+                      <span className="text-green-600">Activo</span>
+                    ) : (
+                      <span className="text-red-600">Inactivo</span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <Link

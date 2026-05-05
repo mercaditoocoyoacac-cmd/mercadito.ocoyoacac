@@ -9,6 +9,8 @@ export default function NuevoProductoPage() {
   const [price, setPrice] = useState("0");
   const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [sku, setSku] = useState("");
+  const [stock, setStock] = useState("");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -78,6 +80,8 @@ export default function NuevoProductoPage() {
               description: description.trim() || undefined,
               priceCents: Math.round(priceNumber * 100),
               imageUrl: imageUrl || undefined,
+              sku: sku.trim() || undefined,
+              stock: stock.trim() === "" ? -1 : parseInt(stock) || 0,
             }),
           });
           const data = (await res.json().catch(() => null)) as
@@ -158,6 +162,31 @@ export default function NuevoProductoPage() {
             placeholder="Ej: 25.00"
           />
         </label>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className="block">
+            <div className="text-sm font-medium">SKU / Codigo (opcional)</div>
+            <input
+              value={sku}
+              onChange={(e) => setSku(e.target.value)}
+              className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm font-mono outline-none focus:border-[var(--accent)]"
+              placeholder="Producto-SKU-001"
+            />
+          </label>
+          <label className="block">
+            <div className="text-sm font-medium">Existencias</div>
+            <input
+              value={stock}
+              onChange={(e) => setStock(e.target.value)}
+              inputMode="numeric"
+              className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+              placeholder="Dejar vacio = sin control"
+            />
+            <p className="mt-1 text-xs text-[color:var(--muted)]">
+              Vacio = sin control de inventario
+            </p>
+          </label>
+        </div>
 
         <label className="block">
           <div className="text-sm font-medium">Descripción (opcional)</div>
