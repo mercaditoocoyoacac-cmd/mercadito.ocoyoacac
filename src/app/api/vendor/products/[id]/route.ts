@@ -85,3 +85,31 @@ export async function DELETE(
   return NextResponse.json({ ok: true });
 }
 
+export async function PATCH(
+  _req: Request,
+  ctx: { params: Promise<{ id: string }> },
+) {
+  const auth = await requireUser();
+  if (!auth.ok) return auth.res;
+  const { id } = await ctx.params;
+
+  const store = await prisma.store.findFirst({
+    where: { ownerId: auth.userId },
+    select: { id: true },
+  });
+  if (!store) return NextResponse.json({ ok: false }, { status: 403 });
+
+  const product = await prisma.product.findFirst({
+    where: { id, storeId: store.id },
+    select: { id: true, isUnavailable: true },
+  });
+  if (!product) return NextResponse.json({ ok: false }, { status: 404 });
+
+  const updated = await prisma.product.update({
+    where: { id },
+    data: { isUnavailable: !product.isUnavailable },
+  });
+
+  return NextResponse.json({ ok: true, isUnavailable: updated.isUnavailable });
+}
+

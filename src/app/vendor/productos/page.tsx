@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
+import { StockToggle } from "@/components/StockToggle";
 
 function formatMoney(cents: number, currency: string) {
   return new Intl.NumberFormat("es-MX", {
@@ -49,6 +50,7 @@ export default async function VendorProductosPage() {
       isActive: true,
       sku: true,
       stock: true,
+      isUnavailable: true,
     },
   });
 
@@ -97,6 +99,7 @@ export default async function VendorProductosPage() {
                 <th className="px-4 py-3 font-medium">Precio</th>
                 <th className="px-4 py-3 font-medium">Exist.</th>
                 <th className="px-4 py-3 font-medium">Estado</th>
+                <th className="px-4 py-3 font-medium">Agotado</th>
                 <th className="px-4 py-3 font-medium"></th>
               </tr>
             </thead>
@@ -142,6 +145,9 @@ export default async function VendorProductosPage() {
                     ) : (
                       <span className="text-red-600">Inactivo</span>
                     )}
+                  </td>
+                  <td className="px-4 py-3">
+                    <StockToggle productId={product.id} initial={product.isUnavailable} />
                   </td>
                   <td className="px-4 py-3">
                     <Link

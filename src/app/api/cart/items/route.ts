@@ -30,6 +30,7 @@ export async function GET() {
           name: true,
           priceCents: true,
           currency: true,
+          isUnavailable: true,
           store: { select: { id: true, name: true, slug: true, acceptsMercadoPago: true } },
         },
       },
@@ -57,11 +58,12 @@ export async function POST(req: Request) {
     select: {
       id: true,
       isActive: true,
+      isUnavailable: true,
       storeId: true,
       store: { select: { isActive: true, openTime: true, closeTime: true, scheduleDays: true } },
     },
   });
-  if (!product || !product.isActive || !product.store.isActive) {
+  if (!product || !product.isActive || !product.store.isActive || product.isUnavailable) {
     return NextResponse.json(
       { ok: false, error: "Producto no disponible." },
       { status: 404 },

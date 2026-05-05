@@ -47,6 +47,7 @@ export default async function StorefrontPage({
       priceCents: true,
       currency: true,
       imageUrl: true,
+      isUnavailable: true,
     },
   });
 
@@ -110,7 +111,9 @@ export default async function StorefrontPage({
           {products.map((product: typeof products[number]) => (
             <div
               key={product.id}
-              className="rounded-xl border border-[var(--border)] overflow-hidden bg-white"
+              className={`rounded-xl border border-[var(--border)] overflow-hidden bg-white ${
+                product.isUnavailable ? "opacity-60" : ""
+              }`}
             >
               {product.imageUrl && (
                 <div className="h-36 overflow-hidden bg-[var(--accent-soft)]">
@@ -122,12 +125,23 @@ export default async function StorefrontPage({
                 </div>
               )}
               <div className="p-3">
-                <div className="text-sm font-semibold truncate">{product.name}</div>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="text-sm font-semibold truncate">{product.name}</div>
+                  {product.isUnavailable && (
+                    <span className="shrink-0 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-medium text-red-700">
+                      Agotado
+                    </span>
+                  )}
+                </div>
                 <div className="text-sm font-semibold text-[var(--accent)]">
                   {formatMoney(product.priceCents, product.currency)}
                 </div>
                 <div className="mt-2">
-                  <AddToCartButton productId={product.id} disabled={!open} />
+                  <AddToCartButton
+                    productId={product.id}
+                    disabled={!open || product.isUnavailable}
+                    disabledLabel={!open ? "Tienda cerrada" : "Agotado"}
+                  />
                 </div>
               </div>
             </div>

@@ -76,6 +76,7 @@ export async function POST(req: Request) {
           currency: true,
           storeId: true,
           isActive: true,
+          isUnavailable: true,
           stock: true,
           store: { select: { isActive: true, openTime: true, closeTime: true, scheduleDays: true } },
         },
@@ -92,7 +93,7 @@ export async function POST(req: Request) {
 
   const badItem = items.find(
     (cartItem: typeof items[number]) =>
-      !cartItem.product.isActive || !cartItem.product.store.isActive,
+      !cartItem.product.isActive || !cartItem.product.store.isActive || cartItem.product.isUnavailable,
   );
   if (badItem) {
     return NextResponse.json(

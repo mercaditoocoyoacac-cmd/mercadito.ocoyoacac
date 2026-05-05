@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 
-export function AddToCartButton({ productId, disabled }: { productId: string; disabled?: boolean }) {
+export function AddToCartButton({ productId, disabled, disabledLabel }: { productId: string; disabled?: boolean; disabledLabel?: string }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
   const isBlocked = disabled || loading;
+  const label = disabledLabel || (disabled ? "No disponible" : "Agregar");
 
   return (
     <div className="flex items-center gap-2">
@@ -42,7 +43,7 @@ export function AddToCartButton({ productId, disabled }: { productId: string; di
             : "bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]"
         } disabled:opacity-60`}
       >
-        {loading ? "..." : disabled ? "Tienda cerrada" : "Agregar"}
+        {loading ? "..." : label}
       </button>
       {message ? (
         <span className="text-xs text-[color:var(--muted)]">

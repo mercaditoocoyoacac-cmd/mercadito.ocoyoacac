@@ -17,6 +17,7 @@ type CartItem = {
     name: string;
     priceCents: number;
     currency: string;
+    isUnavailable: boolean;
     store: { id: string; name: string; slug: string; acceptsMercadoPago: boolean };
   };
 };
@@ -147,6 +148,13 @@ export default function CarritoPage() {
             </Link>
           </div>
         </div>
+      ) : (items ?? []).some((item: CartItem) => item.product.isUnavailable) ? (
+        <div className="mt-6 rounded-xl border border-red-500/30 bg-red-50 p-5">
+          <div className="font-medium text-red-700">Productos agotados en tu carrito</div>
+          <div className="mt-1 text-sm text-red-600">
+            Algunos productos ya no están disponibles. Retira los productos marcados como "Agotado" para continuar.
+          </div>
+        </div>
       ) : (
         <div className="mt-6 grid gap-6 lg:grid-cols-5">
           <div className="lg:col-span-3">
@@ -163,10 +171,19 @@ export default function CarritoPage() {
                   {(items ?? []).map((item) => (
                     <tr
                       key={item.product.id}
-                      className="border-t border-[var(--border)]"
+                      className={`border-t border-[var(--border)] ${
+                        item.product.isUnavailable ? "bg-red-50" : ""
+                      }`}
                     >
                       <td className="px-4 py-3">
-                        <div className="font-medium">{item.product.name}</div>
+                        <div className="flex items-center gap-2">
+                          <div className="font-medium">{item.product.name}</div>
+                          {item.product.isUnavailable && (
+                            <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-medium text-red-700">
+                              Agotado
+                            </span>
+                          )}
+                        </div>
                         <div className="text-xs text-[color:var(--muted)]">
                           {formatMoney(item.product.priceCents, item.product.currency)}
                         </div>
