@@ -36,7 +36,9 @@ const publicPaths = [
   "/_next",
   "/favicon",
   "/api/auth",
+  "/api/account/delete",
   "/privacidad",
+  "/eliminar-cuenta",
 ];
 
 export function middleware(request: NextRequest) {

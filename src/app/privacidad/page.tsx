@@ -97,6 +97,23 @@ export default function PrivacidadPage() {
         correo electronico.
       </p>
 
+      <h2 className="mt-8 text-lg font-semibold">10. Eliminacion de cuenta y datos</h2>
+      <p className="mt-2">
+        Si deseas que eliminemos tu cuenta y todos los datos asociados de forma permanente,
+        puedes hacerlo directamente desde la aplicacion o utilizando el siguiente enlace:
+      </p>
+      <p className="mt-3">
+        <Link
+          href="/eliminar-cuenta"
+          className="inline-flex items-center gap-1 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+        >
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+          Solicitar eliminacion de mi cuenta
+        </Link>
+      </p>
+
       <div className="mt-10 border-t border-[var(--border)] pt-6">
         <Link href="/" className="text-[var(--accent)] hover:underline">
           &larr; Volver al inicio
