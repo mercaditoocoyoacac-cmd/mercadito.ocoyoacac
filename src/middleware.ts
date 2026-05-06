@@ -36,6 +36,7 @@ const publicPaths = [
   "/_next",
   "/favicon",
   "/api/auth",
+  "/privacidad",
 ];
 
 export function middleware(request: NextRequest) {

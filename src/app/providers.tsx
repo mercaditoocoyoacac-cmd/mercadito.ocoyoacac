@@ -3,27 +3,52 @@
 import { useEffect } from "react";
 import { SessionProvider } from "next-auth/react";
 import { App } from "@capacitor/app";
+import { PushNotifications } from "@capacitor/push-notifications";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    // Escuchar el botón físico de atrás
+    // 1. Manejo del botón atrás
     const handleBackButton = async () => {
       await App.addListener('backButton', ({ canGoBack }) => {
         if (canGoBack) {
-          // Si el navegador tiene historial, regresa una página
           window.history.back();
         } else {
-          // Si ya no hay más historial (estás en el inicio), cierra la app
           App.exitApp();
         }
       });
     };
 
-    handleBackButton();
+    // 2. Configuración de Notificaciones Push
+    const setupPush = async () => {
+      try {
+        // Pequeña espera para asegurar que el hardware esté listo
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // Limpiar el evento al desmontar
+        // Pedir permisos de forma más directa
+        let perm = await PushNotifications.checkPermissions();
+
+        if (perm.receive !== 'granted') {
+          perm = await PushNotifications.requestPermissions();
+        }
+
+        if (perm.receive === 'granted') {
+          // Registrar el dispositivo en Firebase
+          await PushNotifications.register();
+          console.log('Permiso de notificaciones concedido');
+        } else {
+          console.log('Permiso de notificaciones denegado');
+        }
+      } catch (error) {
+        console.error('Error configurando Push:', error);
+      }
+    };
+
+    handleBackButton();
+    setupPush();
+
     return () => {
       App.removeAllListeners();
+      PushNotifications.removeAllListeners();
     };
   }, []);
 

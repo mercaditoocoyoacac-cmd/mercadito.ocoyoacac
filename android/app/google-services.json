@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "67218965388",
+    "project_id": "mercadito-ocoyoacac",
+    "storage_bucket": "mercadito-ocoyoacac.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:67218965388:android:23df379059bff627f40ca9",
+        "android_client_info": {
+          "package_name": "com.mercadito.ocoyoacac.app.compras"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfStPhif5-KuGTN7NMjR8Y-QH4RTd6X7U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

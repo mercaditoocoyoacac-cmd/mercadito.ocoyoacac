@@ -1,22 +1,26 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.mercaditoocoyoacac.vendedor',
-  appName: 'Mercadito Vendedor',
+  appId: 'com.mercadito.ocoyoacac.tienda',
+  appName: 'Mercadito-Tienda',
   webDir: 'out',
   server: {
-    url: 'https://mercadito-ocoyoacac.vercel.app',
+    url: 'https://mercadito-ocoyoacac.vercel.app/portal/vendedor',
     cleartext: true,
+    allowNavigation: ['*']
   },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 2000,
-      backgroundColor: '#16a34a',
+      launchShowDuration: 3000,
+      launchAutoHide: true,
+      backgroundColor: '#2563eb',
+      androidSplashResourceName: 'splash',
+      androidScaleType: 'CENTER_CROP',
       showSpinner: false,
     },
     StatusBar: {
       style: 'light',
-      backgroundColor: '#16a34a',
+      backgroundColor: '#2563eb',
     },
   },
 };
