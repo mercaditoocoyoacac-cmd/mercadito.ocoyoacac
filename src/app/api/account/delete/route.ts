@@ -41,7 +41,7 @@ export async function POST(req: Request) {
   await prisma.$transaction(async (tx) => {
     await tx.cartItem.deleteMany({ where: { userId: user.id } });
     await tx.notification.deleteMany({ where: { userId: user.id } });
-    await tx.device.deleteMany({ where: { userId: user.id } });
+    await tx.deviceAuthorization.deleteMany({ where: { userId: user.id } });
     await tx.session.deleteMany({ where: { userId: user.id } });
     await tx.verification.deleteMany({ where: { userId: user.id } });
 
