@@ -6,6 +6,7 @@ import { rateLimit, getClientIP } from "@/server/rateLimit";
 import { isStoreOpen } from "@/lib/schedule";
 import { sendTextNotification } from "@/server/notifications";
 import { notifyVendorNewOrder } from "@/server/whatsapp";
+import { sendPushNotification } from "@/server/push";
 
 function generateDeliveryCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -181,7 +182,7 @@ export async function POST(req: Request) {
 
   const storeForNotification = await prisma.store.findUnique({
     where: { id: storeId },
-    select: { phone: true, name: true, ownerId: true, owner: { select: { phone: true } } },
+    select: { phone: true, name: true, ownerId: true, owner: { select: { phone: true, pushToken: true } } },
   });
 
   if (storeForNotification) {
@@ -198,6 +199,15 @@ export async function POST(req: Request) {
         type: "NEW_ORDER",
       }),
     ];
+
+    if (storeForNotification.owner.pushToken) {
+      notifications.push(
+        sendPushNotification(storeForNotification.owner.pushToken, {
+          title: "Nuevo pedido!",
+          body: `${parsed.data.customerName} - $${(totalCents / 100).toFixed(2)} ${currency}`,
+        }),
+      );
+    }
 
     if (vendorPhone) {
       notifications.push(

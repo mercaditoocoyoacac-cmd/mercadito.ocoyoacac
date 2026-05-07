@@ -46,6 +46,7 @@ model User {
   latitude    Float?
   longitude   Float?
 
+  pushToken   String?
   emailVerified    Boolean @default(false)
   phoneVerified   Boolean @default(false)
 
@@ -65,8 +66,9 @@ model User {
 
   @@index([role])
   @@index([isActive])
-  @@index([latitude])
-  @@index([longitude])
+  @@index([latitude], map: "User_latitude_idx")
+  @@index([longitude], map: "User_longitude_idx")
+  @@index([pushToken], map: "User_pushToken_idx")
 }
 
 model Store {

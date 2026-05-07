@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { sendTextNotification } from "@/server/notifications";
+import { sendPushToMultiple } from "@/server/push";
 
 const StatusSchema = z.object({
   status: z.enum(["PENDING", "CONFIRMED", "READY", "OUT_FOR_DELIVERY", "COMPLETED", "CANCELLED"]),
@@ -52,7 +53,7 @@ export async function POST(
   ) {
     const drivers = await prisma.user.findMany({
       where: { role: "DELIVERY", isActive: true },
-      select: { id: true },
+      select: { id: true, pushToken: true },
     });
 
     const notifyPromises = drivers.map((driver) =>
@@ -62,6 +63,19 @@ export async function POST(
         type: "NEW_ORDER",
       })
     );
+
+    const driverTokens = drivers
+      .map((d) => d.pushToken)
+      .filter((t): t is string => Boolean(t));
+
+    if (driverTokens.length > 0) {
+      notifyPromises.push(
+        sendPushToMultiple(driverTokens, {
+          title: "Nuevo pedido disponible",
+          body: `${store.name} — ${order.customerName}`,
+        }),
+      );
+    }
 
     if (notifyPromises.length > 0) {
       await Promise.allSettled(notifyPromises);

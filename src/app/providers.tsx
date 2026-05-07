@@ -35,6 +35,23 @@ export function Providers({ children }: { children: React.ReactNode }) {
           // Registrar el dispositivo en Firebase
           await PushNotifications.register();
           console.log('Permiso de notificaciones concedido');
+
+          // Escuchar el token de FCM y guardarlo
+          await PushNotifications.addListener('registration', async (token) => {
+            console.log('FCM Token:', token.value);
+            try {
+              const response = await fetch('/api/push-token', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pushToken: token.value }),
+              });
+              if (response.ok) {
+                console.log('Push token guardado');
+              }
+            } catch (err) {
+              console.error('Error guardando push token:', err);
+            }
+          });
         } else {
           console.log('Permiso de notificaciones denegado');
         }
