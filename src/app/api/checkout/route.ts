@@ -215,22 +215,6 @@ export async function POST(req: Request) {
       );
     }
 
-    if (parsed.data.fulfillmentType === "DELIVERY") {
-      const drivers = await prisma.user.findMany({
-        where: { role: "DELIVERY", isActive: true },
-        select: { id: true },
-      });
-      for (const driver of drivers) {
-        notifications.push(
-          sendTextNotification(driver.id, {
-            title: "Nuevo pedido de entrega",
-            body: `${parsed.data.customerName} requiere entrega — ${parsed.data.customerAddress || "Ver detalles"}`,
-            type: "NEW_ORDER",
-          }),
-        );
-      }
-    }
-
     await Promise.allSettled(notifications);
   }
 

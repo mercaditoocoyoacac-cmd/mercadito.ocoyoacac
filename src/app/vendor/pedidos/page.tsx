@@ -2,7 +2,6 @@ import Link from "next/link";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { revalidatePath } from "next/cache";
-import { autoAssignDelivery } from "@/lib/autoAssign";
 
 function formatMoney(cents: number, currency: string) {
   return new Intl.NumberFormat("es-MX", {
@@ -186,16 +185,11 @@ export default async function VendorPedidosPage() {
                     <form
                       action={async () => {
                         "use server";
-                        await prisma.order.update({
-                          where: { id: order.id },
-                          data: { status: "CONFIRMED" },
+                        await fetch(`${process.env.NEXTAUTH_URL}/api/vendor/orders/${order.id}/status`, {
+                          method: "POST",
+                          headers: { "content-type": "application/json" },
+                          body: JSON.stringify({ status: "CONFIRMED" }),
                         });
-                        if (
-                          order.fulfillmentType === "DELIVERY" &&
-                          !order.deliveryUserId
-                        ) {
-                          await autoAssignDelivery(order.id);
-                        }
                         revalidatePath("/vendor/pedidos");
                       }}
                     >
@@ -208,16 +202,11 @@ export default async function VendorPedidosPage() {
                     <form
                       action={async () => {
                         "use server";
-                        await prisma.order.update({
-                          where: { id: order.id },
-                          data: { status: "READY" },
+                        await fetch(`${process.env.NEXTAUTH_URL}/api/vendor/orders/${order.id}/status`, {
+                          method: "POST",
+                          headers: { "content-type": "application/json" },
+                          body: JSON.stringify({ status: "READY" }),
                         });
-                        if (
-                          order.fulfillmentType === "DELIVERY" &&
-                          !order.deliveryUserId
-                        ) {
-                          await autoAssignDelivery(order.id);
-                        }
                         revalidatePath("/vendor/pedidos");
                       }}
                     >

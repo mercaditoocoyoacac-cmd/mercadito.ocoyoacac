@@ -74,17 +74,16 @@ export default function DeliveryTracker({
   }, []);
 
   async function acceptOrder(orderId: string) {
-    const sessionRes = await fetch("/api/auth/session");
-    const session = (await sessionRes.json()) as { user?: { id: string } } | null;
-    if (session?.user?.id) {
-      const res = await fetch(`/api/vendor/orders/${orderId}/status`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ status: "READY" }),
-      });
-      if (res.ok) {
-        router.refresh();
-      }
+    const res = await fetch("/api/delivery/claim", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ orderId }),
+    });
+    const data = (await res.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
+    if (res.ok && data?.ok) {
+      router.refresh();
+    } else {
+      alert(data?.error || "No se pudo aceptar el pedido.");
     }
   }
 
