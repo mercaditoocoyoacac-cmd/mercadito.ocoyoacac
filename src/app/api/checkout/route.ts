@@ -181,10 +181,11 @@ export async function POST(req: Request) {
 
   const storeForNotification = await prisma.store.findUnique({
     where: { id: storeId },
-    select: { phone: true, name: true, ownerId: true },
+    select: { phone: true, name: true, ownerId: true, owner: { select: { phone: true } } },
   });
 
   if (storeForNotification) {
+    const vendorPhone = storeForNotification.phone || storeForNotification.owner.phone;
     const orderItems = items.map((cartItem: typeof items[number]) => ({
       name: cartItem.product.name,
       quantity: cartItem.quantity,
@@ -198,10 +199,10 @@ export async function POST(req: Request) {
       }),
     ];
 
-    if (storeForNotification.phone) {
+    if (vendorPhone) {
       notifications.push(
         notifyVendorNewOrder({
-          vendorPhone: storeForNotification.phone,
+          vendorPhone,
           storeName: storeForNotification.name,
           customerName: parsed.data.customerName.trim(),
           customerPhone: parsed.data.customerPhone.trim(),
