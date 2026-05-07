@@ -18,6 +18,7 @@ export default function VendorOnboardingPage() {
   const [name, setName] = useState("");
   const autoSlug = useMemo(() => slugify(name), [name]);
   const [slug, setSlug] = useState("");
+  const [category, setCategory] = useState("CANASTA_BASICA");
   const [description, setDescription] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
@@ -81,6 +82,7 @@ export default function VendorOnboardingPage() {
             body: JSON.stringify({
               name,
               slug: (slug || autoSlug).trim(),
+              category,
               description: description.trim() || undefined,
               phone: phone.trim() || undefined,
               address: address.trim() || undefined,
@@ -166,6 +168,29 @@ export default function VendorOnboardingPage() {
             className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 font-mono text-sm outline-none focus:border-[var(--accent)]"
             placeholder={autoSlug || "mi-tienda"}
           />
+        </label>
+
+        <label className="block">
+          <div className="text-sm font-medium">Categoría del negocio</div>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+          >
+            <option value="CANASTA_BASICA">Canasta básica</option>
+            <option value="HERRAMIENTAS">Herramientas</option>
+            <option value="FLORERIAS">Florerías</option>
+            <option value="POSTRES">Postres</option>
+            <option value="COMIDA_PREPARADA">Comida preparada</option>
+            <option value="FRUTAS_VERDURAS">Frutas y verduras</option>
+            <option value="FARMACIAS">Farmacias</option>
+            <option value="SERVICIOS">Servicios</option>
+          </select>
+          <p className="mt-1 text-xs text-[color:var(--muted)]">
+            {category === "SERVICIOS"
+              ? "Consultorios, estéticas, oficios, renta para fiestas y similares. Sin envío ni recolección."
+              : "Tiendas con productos disponibles para pedido y entrega."}
+          </p>
         </label>
 
         <label className="block">

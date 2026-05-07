@@ -10,6 +10,7 @@ const StoreSchema = z.object({
     .min(3)
     .max(40)
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug inválido"),
+  category: z.enum(["CANASTA_BASICA", "HERRAMIENTAS", "FLORERIAS", "POSTRES", "COMIDA_PREPARADA", "FRUTAS_VERDURAS", "FARMACIAS", "SERVICIOS"]).default("CANASTA_BASICA"),
   description: z.string().max(280).optional(),
   phone: z.string().max(40).optional(),
   address: z.string().max(140).optional(),
@@ -18,6 +19,7 @@ const StoreSchema = z.object({
 
 const UpdateStoreSchema = z.object({
   name: z.string().min(2).max(80).optional(),
+  category: z.enum(["CANASTA_BASICA", "HERRAMIENTAS", "FLORERIAS", "POSTRES", "COMIDA_PREPARADA", "FRUTAS_VERDURAS", "FARMACIAS", "SERVICIOS"]).optional(),
   description: z.string().max(280).optional(),
   phone: z.string().max(40).optional(),
   address: z.string().max(140).optional(),
@@ -37,6 +39,7 @@ export async function GET() {
       id: true,
       name: true,
       slug: true,
+      category: true,
       description: true,
       phone: true,
       address: true,
@@ -92,6 +95,7 @@ export async function POST(req: Request) {
       data: {
         name: parsed.data.name.trim(),
         slug,
+        category: parsed.data.category,
         description: parsed.data.description?.trim() || null,
         phone: parsed.data.phone?.trim() || null,
         address: parsed.data.address?.trim() || null,
@@ -158,6 +162,7 @@ export async function PUT(req: Request) {
       where: { id: store.id },
       data: {
         name: parsed.data.name?.trim(),
+        category: parsed.data.category,
         description:
           parsed.data.description === undefined
             ? undefined

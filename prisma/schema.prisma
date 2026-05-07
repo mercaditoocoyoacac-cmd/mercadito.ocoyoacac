@@ -28,6 +28,17 @@ enum DayOfWeek {
   SUNDAY
 }
 
+enum StoreCategory {
+  CANASTA_BASICA
+  HERRAMIENTAS
+  FLORERIAS
+  POSTRES
+  COMIDA_PREPARADA
+  FRUTAS_VERDURAS
+  FARMACIAS
+  SERVICIOS
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -75,6 +86,7 @@ model Store {
   id          String   @id @default(cuid())
   slug        String   @unique
   name       String
+  category   StoreCategory @default(CANASTA_BASICA)
   description String?
   phone      String?
   address    String?

@@ -7,6 +7,7 @@ interface Store {
   id: string;
   name: string;
   slug: string;
+  category: string;
   description: string | null;
   phone: string | null;
   address: string | null;
@@ -31,6 +32,7 @@ export default function EditarTiendaPage() {
   const [store, setStore] = useState<Store | null>(null);
   const [loadingStore, setLoadingStore] = useState(true);
   const [name, setName] = useState("");
+  const [category, setCategory] = useState("CANASTA_BASICA");
   const [description, setDescription] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
@@ -60,6 +62,7 @@ export default function EditarTiendaPage() {
     if (data.store) {
       setStore(data.store);
       setName(data.store.name);
+      setCategory(data.store.category);
       setDescription(data.store.description ?? "");
       setPhone(data.store.phone ?? "");
       setAddress(data.store.address ?? "");
@@ -125,6 +128,7 @@ export default function EditarTiendaPage() {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         name,
+        category,
         description: description.trim() || undefined,
         phone: phone.trim() || undefined,
         address: address.trim() || undefined,
@@ -203,6 +207,29 @@ export default function EditarTiendaPage() {
             required
             className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
           />
+        </label>
+
+        <label className="block">
+          <div className="text-sm font-medium">Categoría del negocio</div>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+          >
+            <option value="CANASTA_BASICA">Canasta básica</option>
+            <option value="HERRAMIENTAS">Herramientas</option>
+            <option value="FLORERIAS">Florerías</option>
+            <option value="POSTRES">Postres</option>
+            <option value="COMIDA_PREPARADA">Comida preparada</option>
+            <option value="FRUTAS_VERDURAS">Frutas y verduras</option>
+            <option value="FARMACIAS">Farmacias</option>
+            <option value="SERVICIOS">Servicios</option>
+          </select>
+          <p className="mt-1 text-xs text-[color:var(--muted)]">
+            {category === "SERVICIOS"
+              ? "Consultorios, estéticas, oficios, renta para fiestas. Sin envío ni recolección."
+              : "Tiendas con productos disponibles para pedido y entrega."}
+          </p>
         </label>
 
         <label className="block">
