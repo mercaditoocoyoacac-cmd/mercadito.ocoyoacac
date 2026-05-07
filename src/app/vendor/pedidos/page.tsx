@@ -175,6 +175,12 @@ export default async function VendorPedidosPage() {
                   </div>
                 </div>
                 <div className="mt-3 flex gap-2 flex-wrap">
+                  <Link
+                    href={`/vendor/pedidos/${order.id}`}
+                    className="rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs font-medium hover:bg-[var(--accent-soft)]"
+                  >
+                    Ver detalle
+                  </Link>
                   {order.status === "PENDING" && (
                     <form
                       action={async () => {
