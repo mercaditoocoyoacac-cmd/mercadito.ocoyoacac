@@ -60,13 +60,20 @@ export async function POST(req: Request) {
       isActive: true,
       isUnavailable: true,
       storeId: true,
-      store: { select: { isActive: true, openTime: true, closeTime: true, scheduleDays: true } },
+      store: { select: { isActive: true, openTime: true, closeTime: true, scheduleDays: true, category: true } },
     },
   });
   if (!product || !product.isActive || !product.store.isActive || product.isUnavailable) {
     return NextResponse.json(
       { ok: false, error: "Producto no disponible." },
       { status: 404 },
+    );
+  }
+
+  if (product.store.category === "SERVICIOS") {
+    return NextResponse.json(
+      { ok: false, error: "Los servicios no se pueden agregar al carrito. Contacta al negocio para agendar una cita." },
+      { status: 400 },
     );
   }
 

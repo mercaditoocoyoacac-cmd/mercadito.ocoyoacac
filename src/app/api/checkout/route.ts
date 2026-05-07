@@ -79,7 +79,7 @@ export async function POST(req: Request) {
           isActive: true,
           isUnavailable: true,
           stock: true,
-          store: { select: { isActive: true, openTime: true, closeTime: true, scheduleDays: true } },
+          store: { select: { isActive: true, openTime: true, closeTime: true, scheduleDays: true, category: true } },
         },
       },
     },
@@ -99,6 +99,13 @@ export async function POST(req: Request) {
   if (badItem) {
     return NextResponse.json(
       { ok: false, error: "Hay productos no disponibles en tu carrito." },
+      { status: 400 },
+    );
+  }
+
+  if (items.some((cartItem: typeof items[number]) => cartItem.product.store.category === "SERVICIOS")) {
+    return NextResponse.json(
+      { ok: false, error: "Los servicios no se pueden pedir por carrito. Contacta al negocio para agendar." },
       { status: 400 },
     );
   }
