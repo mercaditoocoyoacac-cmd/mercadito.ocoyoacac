@@ -95,13 +95,14 @@ export default async function PedidoDetallePage({
               </h1>
               <p className="mt-1 text-sm text-[color:var(--muted)]">
                 Realizado el{" "}
-                {new Date(order.createdAt).toLocaleDateString("es-MX", {
+                {new Date(order.createdAt).toLocaleString("es-MX", {
+                  timeZone: "America/Mexico_City",
                   day: "numeric",
                   month: "long",
                   year: "numeric",
                   hour: "2-digit",
                   minute: "2-digit",
-                })}
+                })} CST
               </p>
             </div>
             <div className={`rounded-lg px-4 py-2 ${getStatusColor(order.status)} border-l-4`}>

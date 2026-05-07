@@ -111,13 +111,14 @@ export default async function AdminOrdersPage() {
                       </div>
                     )}
                     <div className="text-xs text-[color:var(--muted)]">
-                      {new Date(order.createdAt).toLocaleDateString("es-MX", {
+                      {new Date(order.createdAt).toLocaleString("es-MX", {
+                        timeZone: "America/Mexico_City",
                         year: "numeric",
                         month: "short",
                         day: "numeric",
                         hour: "2-digit",
                         minute: "2-digit",
-                      })}
+                      })} CST
                     </div>
                   </div>
                   <div className="text-right">

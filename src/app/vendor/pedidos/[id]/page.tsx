@@ -73,15 +73,17 @@ export default async function VendorPedidoPage({
               #{order.id.slice(-8).toUpperCase()}
             </div>
             <div className="text-xs text-[color:var(--muted)] mt-1">
-              {order.createdAt.toLocaleDateString("es-MX", {
+              {order.createdAt.toLocaleString("es-MX", {
+                timeZone: "America/Mexico_City",
                 year: "numeric",
                 month: "long",
                 day: "numeric",
               })}{" "}
               {order.createdAt.toLocaleTimeString("es-MX", {
+                timeZone: "America/Mexico_City",
                 hour: "2-digit",
                 minute: "2-digit",
-              })}
+              })} CST
             </div>
           </div>
           <div className="text-right">

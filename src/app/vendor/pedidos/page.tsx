@@ -135,13 +135,14 @@ export default async function VendorPedidosPage() {
                       {order.user.email}
                     </div>
                     <div className="text-xs text-[color:var(--muted)]">
-                      {order.createdAt.toLocaleDateString("es-MX", {
+                      {order.createdAt.toLocaleString("es-MX", {
+                        timeZone: "America/Mexico_City",
                         year: "numeric",
                         month: "short",
                         day: "numeric",
                         hour: "2-digit",
                         minute: "2-digit",
-                      })}
+                      })} CST
                     </div>
                     {order.fulfillmentType === "DELIVERY" &&
                       order.customerAddress && (
@@ -189,6 +190,12 @@ export default async function VendorPedidosPage() {
                           where: { id: order.id },
                           data: { status: "CONFIRMED" },
                         });
+                        if (
+                          order.fulfillmentType === "DELIVERY" &&
+                          !order.deliveryUserId
+                        ) {
+                          await autoAssignDelivery(order.id);
+                        }
                         revalidatePath("/vendor/pedidos");
                       }}
                     >
