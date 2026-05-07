@@ -23,7 +23,7 @@ const appNames = {
 };
 
 const appVersions = {
-  cliente:    { code: 1, name: "1.0.0" },
+  cliente:    { code: 2, name: "1.0.1" },
   vendedor:   { code: 1, name: "1.0.0" },
   repartidor: { code: 1, name: "1.0.0" },
   admin:      { code: 1, name: "1.0.0" },

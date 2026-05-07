@@ -184,31 +184,54 @@ export async function POST(req: Request) {
     select: { phone: true, name: true, ownerId: true },
   });
 
-  if (storeForNotification?.phone) {
+  if (storeForNotification) {
     const orderItems = items.map((cartItem: typeof items[number]) => ({
       name: cartItem.product.name,
       quantity: cartItem.quantity,
     }));
 
-    await Promise.all([
+    const notifications: Promise<unknown>[] = [
       sendTextNotification(storeForNotification.ownerId, {
         title: "Nuevo pedido!",
         body: `${parsed.data.customerName} hizo un pedido de $${(totalCents / 100).toFixed(2)} ${currency}`,
         type: "NEW_ORDER",
       }),
-      notifyVendorNewOrder({
-        vendorPhone: storeForNotification.phone,
-        storeName: storeForNotification.name,
-        customerName: parsed.data.customerName.trim(),
-        customerPhone: parsed.data.customerPhone.trim(),
-        customerAddress: parsed.data.customerAddress?.trim() || null,
-        totalCents,
-        currency,
-        fulfillmentType: parsed.data.fulfillmentType,
-        orderId: order.id,
-        items: orderItems,
-      }),
-    ]);
+    ];
+
+    if (storeForNotification.phone) {
+      notifications.push(
+        notifyVendorNewOrder({
+          vendorPhone: storeForNotification.phone,
+          storeName: storeForNotification.name,
+          customerName: parsed.data.customerName.trim(),
+          customerPhone: parsed.data.customerPhone.trim(),
+          customerAddress: parsed.data.customerAddress?.trim() || null,
+          totalCents,
+          currency,
+          fulfillmentType: parsed.data.fulfillmentType,
+          orderId: order.id,
+          items: orderItems,
+        }),
+      );
+    }
+
+    if (parsed.data.fulfillmentType === "DELIVERY") {
+      const drivers = await prisma.user.findMany({
+        where: { role: "DELIVERY", isActive: true },
+        select: { id: true },
+      });
+      for (const driver of drivers) {
+        notifications.push(
+          sendTextNotification(driver.id, {
+            title: "Nuevo pedido de entrega",
+            body: `${parsed.data.customerName} requiere entrega — ${parsed.data.customerAddress || "Ver detalles"}`,
+            type: "NEW_ORDER",
+          }),
+        );
+      }
+    }
+
+    await Promise.allSettled(notifications);
   }
 
   let paymentUrl: string | undefined;
