@@ -1,8 +1,9 @@
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/server/prisma";
 import AppRedirectChecker from "@/components/AppRedirectChecker";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
 export default async function Home() {
   const storeCount = await prisma.store.count({ where: { isActive: true, isPublished: true } });
@@ -119,11 +120,13 @@ export default async function Home() {
                 className="group rounded-2xl border border-[var(--border)] bg-white p-6 shadow-sm transition-all hover:shadow-lg hover:-translate-y-1"
               >
                 {store.imageUrl ? (
-                  <div className="h-32 overflow-hidden rounded-xl">
-                    <img 
+                  <div className="relative h-32 overflow-hidden rounded-xl">
+                    <Image 
                       src={store.imageUrl} 
                       alt={store.name}
-                      className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                      fill
+                      className="object-cover transition-transform group-hover:scale-105"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     />
                   </div>
                 ) : (

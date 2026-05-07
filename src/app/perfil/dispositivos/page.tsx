@@ -3,7 +3,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
 export default async function DispositivosPage() {
   const session = await getSession();

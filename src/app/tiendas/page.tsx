@@ -1,8 +1,8 @@
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/server/prisma";
-import { Suspense } from "react";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 const STORES_PER_PAGE = 12;
 
@@ -128,18 +128,21 @@ export default async function TiendasPage({
         </div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {stores.map((store: typeof stores[number]) => (
+          {stores.map((store: typeof stores[number], i: number) => (
             <Link
               key={store.id}
               href={`/tienda/${store.slug}`}
               className="group rounded-2xl border border-[var(--border)] bg-white overflow-hidden shadow-sm transition-all hover:shadow-lg hover:-translate-y-1"
             >
-              <div className="aspect-video bg-gradient-to-br from-[var(--accent-soft)] to-[var(--accent)] p-6 flex items-center justify-center">
+              <div className="relative aspect-video bg-gradient-to-br from-[var(--accent-soft)] to-[var(--accent)] flex items-center justify-center">
                 {store.imageUrl ? (
-                  <img
+                  <Image
                     src={store.imageUrl}
                     alt={store.name}
-                    className="h-full w-full object-cover rounded-xl"
+                    fill
+                    className="object-cover p-4 rounded-xl"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    priority={i < 6}
                   />
                 ) : (
                   <div className="h-20 w-20 rounded-full bg-white/50 flex items-center justify-center text-3xl font-bold text-[var(--accent)]">

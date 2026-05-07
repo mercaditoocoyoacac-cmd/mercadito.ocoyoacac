@@ -10,7 +10,7 @@ function formatMoney(cents: number, currency: string) {
   }).format(cents / 100);
 }
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
 const statusLabels: Record<string, string> = {
   PENDING: "Pendiente",

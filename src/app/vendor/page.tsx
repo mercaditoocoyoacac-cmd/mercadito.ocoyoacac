@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 
@@ -347,8 +348,8 @@ export default async function VendorDashboard() {
                 {products.map((product: typeof products[number]) => (
                   <div key={product.id} className="flex items-center gap-4 px-5 py-3">
                     {product.imageUrl ? (
-                      <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-[var(--border)]">
-                        <img src={product.imageUrl} alt={product.name} className="h-full w-full object-cover" />
+                      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-[var(--border)]">
+                        <Image src={product.imageUrl} alt={product.name} fill className="object-cover" sizes="48px" />
                       </div>
                     ) : (
                       <div className="h-12 w-12 shrink-0 rounded-lg border border-[var(--border)] bg-gray-100 flex items-center justify-center text-2xl">

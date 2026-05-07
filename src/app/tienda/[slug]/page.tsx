@@ -1,11 +1,12 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/server/prisma";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { ProductImageModal } from "@/components/ProductImageModal";
 import { isStoreOpen } from "@/lib/schedule";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
 function formatMoney(cents: number, currency: string) {
   return new Intl.NumberFormat("es-MX", { style: "currency", currency }).format(
@@ -58,11 +59,14 @@ export default async function StorefrontPage({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-4">
           {store.imageUrl && (
-            <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-[var(--border)]">
-              <img
+            <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-[var(--border)]">
+              <Image
                 src={store.imageUrl}
                 alt={store.name}
-                className="h-full w-full object-cover"
+                fill
+                className="object-cover"
+                sizes="80px"
+                priority
               />
             </div>
           )}
@@ -137,7 +141,7 @@ export default async function StorefrontPage({
         </div>
       ) : (
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {products.map((product: typeof products[number]) => (
+          {products.map((product: typeof products[number], i: number) => (
             <div
               key={product.id}
               className={`rounded-xl border border-[var(--border)] overflow-hidden bg-white ${
@@ -146,11 +150,14 @@ export default async function StorefrontPage({
             >
               {product.imageUrl && (
                 <ProductImageModal src={product.imageUrl} alt={product.name}>
-                  <div className="group-img h-36 overflow-hidden bg-[var(--accent-soft)]">
-                    <img
+                  <div className="relative h-36 overflow-hidden bg-[var(--accent-soft)]">
+                    <Image
                       src={product.imageUrl}
                       alt={product.name}
-                      className="h-full w-full object-cover transition-transform duration-300 hover:scale-110"
+                      fill
+                      className="object-cover transition-transform duration-300 hover:scale-110"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      priority={i < 8}
                     />
                   </div>
                 </ProductImageModal>

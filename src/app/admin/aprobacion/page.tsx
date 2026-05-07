@@ -8,7 +8,7 @@ function formatMoney(cents: number) {
   );
 }
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
 export default async function AdminAprobarVendedoresPage() {
   const session = await getSession();

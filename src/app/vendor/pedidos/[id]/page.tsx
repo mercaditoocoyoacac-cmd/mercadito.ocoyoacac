@@ -4,7 +4,7 @@ import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { revalidatePath } from "next/cache";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
 const statusLabels: Record<string, string> = {
   PENDING: "Pendiente",
