@@ -3,6 +3,8 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
 import { sendTextNotification } from "@/server/notifications";
+import { sendWhatsAppMessage } from "@/server/whatsapp";
+import { sendSMS } from "@/server/sns";
 
 export async function POST(req: Request) {
   const auth = await requireUser();
@@ -84,6 +86,12 @@ export async function POST(req: Request) {
       body: `Tu pedido en ${order.store.name} ha sido entregado.`,
       type: "ORDER_COMPLETED",
     });
+
+    const message = `🛵 ¡Tu pedido de ${order.store.name} ha llegado! El repartidor ya está en tu domicilio.`;
+    await Promise.allSettled([
+      sendWhatsAppMessage(order.customerPhone, message),
+      sendSMS(order.customerPhone, message.replace(/[^\w\sáéíóúñ,.!¡¿?]/g, "")),
+    ]);
   }
 
   return NextResponse.json({
