@@ -322,7 +322,10 @@ export default async function VendorDashboard() {
               Total
             </div>
           </div>
-          <div className={`rounded-xl border p-6 shadow-sm ${store.paymentMethods.length > 0 ? "border-green-500 bg-green-50" : "border-yellow-500/50 bg-yellow-50"}`}>
+          <Link
+            href="/vendor/pagos"
+            className={`block rounded-xl border p-6 shadow-sm transition hover:shadow-md ${store.paymentMethods.length > 0 ? "border-green-500 bg-green-50" : "border-yellow-500/50 bg-yellow-50"}`}
+          >
             <div className="text-sm text-[color:var(--muted)]">Pago con tarjeta</div>
             <div className="mt-1 text-2xl font-bold">
               {store.paymentMethods.length > 0 ? "✓ Configurado" : "⚠ No configurado"}
@@ -332,7 +335,7 @@ export default async function VendorDashboard() {
                 ? store.paymentMethods.map((m) => m.label).join(", ")
                 : "Configure en ajustes"}
             </div>
-          </div>
+          </Link>
         </div>
       </section>
 
