@@ -18,6 +18,7 @@
     "cap:ios:open": "npx cap sync && npx cap open ios"
   },
   "dependencies": {
+    "@aws-sdk/client-sesv2": "^3.1045.0",
     "@aws-sdk/client-sns": "^3.1030.0",
     "@capacitor/android": "^8.3.1",
     "@capacitor/app": "^8.1.0",
