@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
+import { formatDateInMexico, formatDateTimeInMexico } from "@/lib/dates";
 
 function formatMoney(cents: number, currency: string) {
   return new Intl.NumberFormat("es-MX", {
@@ -16,7 +17,14 @@ export default async function VendorDashboard() {
 
   const store = await prisma.store.findFirst({
     where: { ownerId: userId },
-    include: { subscription: true, owner: { select: { trialUsed: true } } },
+    include: {
+      subscription: true,
+      owner: { select: { trialUsed: true } },
+      paymentMethods: {
+        where: { isActive: true, status: "APPROVED" },
+        select: { processor: true, label: true },
+      },
+    },
   });
 
   if (!store) {
@@ -230,7 +238,7 @@ export default async function VendorDashboard() {
               </div>
               <div className={`text-sm ${isTrial ? "text-emerald-700" : "text-yellow-700"}`}>
                 {isTrial
-                  ? `Tu prueba termina el ${store.subscription!.endDate.toLocaleDateString("es-MX", { day: "numeric", month: "long" })}. Firma el contrato para continuar.`
+                  ? `Tu prueba termina el ${formatDateInMexico(store.subscription!.endDate, { day: "numeric", month: "long" })}. Firma el contrato para continuar.`
                   : "Tu tienda no está visible. Contacta al admin para activar."}
               </div>
             </div>
@@ -314,13 +322,15 @@ export default async function VendorDashboard() {
               Total
             </div>
           </div>
-          <div className={`rounded-xl border p-6 shadow-sm ${store.acceptsMercadoPago ? "border-green-500 bg-green-50" : "border-yellow-500/50 bg-yellow-50"}`}>
+          <div className={`rounded-xl border p-6 shadow-sm ${store.paymentMethods.length > 0 ? "border-green-500 bg-green-50" : "border-yellow-500/50 bg-yellow-50"}`}>
             <div className="text-sm text-[color:var(--muted)]">Pago con tarjeta</div>
             <div className="mt-1 text-2xl font-bold">
-              {store.acceptsMercadoPago ? "✓ Configurado" : "⚠ No configurado"}
+              {store.paymentMethods.length > 0 ? "✓ Configurado" : "⚠ No configurado"}
             </div>
             <div className="mt-1 text-xs text-[color:var(--muted)]">
-              {store.acceptsMercadoPago ? "Aceptas tarjetas" : "Configure en ajustes"}
+              {store.paymentMethods.length > 0
+                ? store.paymentMethods.map((m) => m.label).join(", ")
+                : "Configure en ajustes"}
             </div>
           </div>
         </div>
@@ -390,7 +400,7 @@ export default async function VendorDashboard() {
                     <div>
                       <div className="font-medium">#{order.id.slice(-6).toUpperCase()}</div>
                       <div className="text-xs text-[color:var(--muted)]">
-                        {new Date(order.createdAt).toLocaleDateString("es-MX", { dateStyle: "medium" })}
+                        {formatDateTimeInMexico(order.createdAt, { dateStyle: "medium" })}
                       </div>
                     </div>
                     <div className="text-right">

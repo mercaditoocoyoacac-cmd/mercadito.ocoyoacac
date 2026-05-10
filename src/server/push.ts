@@ -5,16 +5,20 @@ let initialized = false;
 function ensureInitialized() {
   if (initialized) return;
   
+  const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT;
+  
+  if (!serviceAccountJson) {
+    console.warn("FIREBASE_SERVICE_ACCOUNT not set, push notifications disabled");
+    return;
+  }
+  
   try {
-    const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT;
-    
-    if (serviceAccountJson) {
-      const serviceAccount = JSON.parse(serviceAccountJson);
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-      });
-      initialized = true;
-    }
+    const serviceAccount = JSON.parse(serviceAccountJson);
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+    });
+    initialized = true;
+    console.log("Firebase admin initialized successfully");
   } catch (error) {
     console.error("Firebase admin initialization failed:", error);
   }
@@ -29,7 +33,7 @@ export async function sendPushNotification(token: string, data: { title: string;
   }
 
   try {
-    await admin.messaging().send({
+    const response = await admin.messaging().send({
       token,
       notification: {
         title: data.title,
@@ -49,6 +53,7 @@ export async function sendPushNotification(token: string, data: { title: string;
         },
       },
     });
+    console.log("Push sent successfully:", response);
   } catch (error) {
     console.error("Error sending push notification:", error);
   }
@@ -88,6 +93,13 @@ export async function sendPushToMultiple(tokens: string[], data: { title: string
 
     const response = await admin.messaging().sendEach(messages);
     console.log(`Push notifications sent: ${response.successCount} succeeded, ${response.failureCount} failed`);
+    if (response.failureCount > 0) {
+      response.responses.forEach((r, i) => {
+        if (r.error) {
+          console.error(`Push failed for token ${i}:`, r.error.message);
+        }
+      });
+    }
   } catch (error) {
     console.error("Error sending push notifications:", error);
   }

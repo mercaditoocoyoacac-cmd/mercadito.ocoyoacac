@@ -1,6 +1,7 @@
 import PDFDocument from "pdfkit";
 import { prisma } from "@/server/prisma";
 import { headers } from "next/headers";
+import { formatDateInMexico } from "@/lib/dates";
 
 export const dynamic = "force-dynamic";
 
@@ -49,7 +50,7 @@ export async function POST(req: Request) {
 
   const today = new Date();
   const contractId = generateId();
-  const fecha = today.toLocaleDateString("es-MX", {
+  const fecha = formatDateInMexico(today, {
     year: "numeric",
     month: "long",
     day: "numeric",

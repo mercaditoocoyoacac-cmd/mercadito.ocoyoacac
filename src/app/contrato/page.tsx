@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import VendorContractForm from "./VendorContractForm";
+import { formatDateInMexico } from "@/lib/dates";
 
 function formatMoney(cents: number) {
   return new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(
@@ -57,7 +58,7 @@ export default async function ContratoPage() {
               <div>
                 <div className="text-lg font-semibold text-emerald-700">Prueba gratuita activa</div>
                 <p className="text-sm text-emerald-600">
-                  Tienes acceso completo hasta el {subscription.endDate.toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" })}
+                  Tienes acceso completo hasta el {formatDateInMexico(subscription.endDate, { day: "numeric", month: "long", year: "numeric" })}
                 </p>
               </div>
             </div>
@@ -87,7 +88,7 @@ export default async function ContratoPage() {
             <div>
               <div className="text-lg font-semibold text-green-700">Contrato activo</div>
               <p className="text-sm text-green-600">
-                Firmado el {subscription.contractSignedAt?.toLocaleDateString("es-MX")}
+                Firmado el {formatDateInMexico(subscription.contractSignedAt)}
               </p>
             </div>
           </div>

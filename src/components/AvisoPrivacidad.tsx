@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { formatDateInMexico } from "@/lib/dates";
 
 export default function AvisoPrivacidad() {
   const [open, setOpen] = useState(false);
@@ -93,7 +94,7 @@ export default function AvisoPrivacidad() {
           </div>
 
           <p className="text-xs text-gray-500 mt-4">
-            Última actualización: {new Date().toLocaleDateString("es-MX")}
+            Última actualización: {formatDateInMexico(new Date())}
           </p>
         </div>
 

@@ -1,11 +1,18 @@
 import Link from "next/link";
 import Image from "next/image";
+import { redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
-import AppRedirectChecker from "@/components/AppRedirectChecker";
+import { getSession } from "@/server/session";
 
 export const revalidate = 30;
 
 export default async function Home() {
+  const session = await getSession();
+  const role = session?.user?.role;
+  if (role === "VENDOR") redirect("/vendor");
+  if (role === "DELIVERY") redirect("/delivery");
+  if (role === "ADMIN") redirect("/admin");
+
   const storeCount = await prisma.store.count({ where: { isActive: true, isPublished: true } });
   const productCount = await prisma.product.count({ where: { isActive: true } });
 
@@ -17,7 +24,6 @@ export default async function Home() {
 
   return (
     <main className="flex-1">
-      <AppRedirectChecker />
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-rose-500 via-rose-600 to-rose-700 px-4 py-20 text-white">
         <div className="absolute inset-0 opacity-15">

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
+import { formatDateInMexico } from "@/lib/dates";
 
 function formatMoney(cents: number) {
   return new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(
@@ -139,7 +140,7 @@ export default async function AdminAprobarVendedoresPage() {
                           Prueba gratuita · {daysLeft} días restantes
                         </span>
                         <span className="ml-2 text-[color:var(--muted)]">
-                          (vence: {new Date(sub.endDate).toLocaleDateString("es-MX")})
+                          (vence: {formatDateInMexico(sub.endDate)})
                         </span>
                       </div>
                       {!sub.contractSigned && (
@@ -195,7 +196,7 @@ export default async function AdminAprobarVendedoresPage() {
                     {store.subscription && (
                       <div className="mt-2 text-sm">
                         <span className="text-green-600">
-                          Contrato firmado: {store.subscription.contractSignedAt?.toLocaleDateString("es-MX")}
+                          Contrato firmado: {formatDateInMexico(store.subscription.contractSignedAt)}
                         </span>
                         <span className="ml-3">
                           {formatMoney(store.subscription.monthlyPriceCents)}/mes
@@ -259,7 +260,7 @@ export default async function AdminAprobarVendedoresPage() {
                     <td className="px-4 py-3">
                       {store.subscription?.contractSigned ? (
                         <span className="text-green-600">
-                          ✓ {store.subscription.contractSignedAt?.toLocaleDateString("es-MX")}
+                          ✓ {formatDateInMexico(store.subscription.contractSignedAt)}
                         </span>
                       ) : (
                         <span className="text-orange-600">✗ Sin contrato</span>

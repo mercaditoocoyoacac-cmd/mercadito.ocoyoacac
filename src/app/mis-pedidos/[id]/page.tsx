@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
+import { OrderCancelButton } from "@/components/OrderCancelButton";
 
 function formatMoney(cents: number, currency: string) {
   return new Intl.NumberFormat("es-MX", { style: "currency", currency }).format(
@@ -64,10 +65,13 @@ export default async function PedidoDetallePage({
       customerAddress: true,
       notes: true,
       subtotalCents: true,
+      deliveryCents: true,
       totalCents: true,
       currency: true,
       createdAt: true,
       updatedAt: true,
+      pickupCode: true,
+      deliveryCode: true,
       store: { select: { name: true, slug: true, phone: true } },
       items: { select: { id: true, name: true, priceCents: true, quantity: true } },
     },
@@ -150,6 +154,10 @@ export default async function PedidoDetallePage({
           </div>
         )}
 
+        {order.status === "PENDING" && (
+          <OrderCancelButton orderId={order.id} createdAt={order.createdAt.toISOString()} />
+        )}
+
         <div className="rounded-xl border border-[var(--border)] p-6">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
@@ -185,6 +193,20 @@ export default async function PedidoDetallePage({
           </div>
         </div>
 
+        {(order.status === "OUT_FOR_DELIVERY" || order.status === "READY" || order.status === "CONFIRMED") && order.pickupCode && (
+          <div className="rounded-xl border border-orange-200 bg-orange-50 p-6 text-center">
+            <div className="text-sm font-medium text-orange-700">Tu código de entrega</div>
+            <div className="mt-2 font-mono text-4xl font-bold tracking-widest text-orange-700">
+              {order.pickupCode}
+            </div>
+            <div className="mt-2 text-xs text-orange-600">
+              {order.fulfillmentType === "DELIVERY"
+                ? "Proporciona este código al repartidor para recibir tu pedido"
+                : "Proporciona este código al recoger tu pedido en la tienda"}
+            </div>
+          </div>
+        )}
+
         <div className="rounded-xl border border-[var(--border)] overflow-hidden">
           <div className="bg-[var(--accent-soft)] px-6 py-3">
             <h3 className="font-medium">Productos</h3>
@@ -204,11 +226,23 @@ export default async function PedidoDetallePage({
               </div>
             ))}
           </div>
-          <div className="flex justify-between px-6 py-4 bg-gray-50">
-            <span className="font-medium">Total</span>
-            <span className="text-lg font-semibold">
-              {formatMoney(order.totalCents, order.currency)}
-            </span>
+          <div className="space-y-1 px-6 py-3 bg-gray-50 text-sm">
+            <div className="flex justify-between">
+              <span className="text-[color:var(--muted)]">Subtotal</span>
+              <span>{formatMoney(order.subtotalCents, order.currency)}</span>
+            </div>
+            {order.fulfillmentType === "DELIVERY" && (
+              <div className="flex justify-between">
+                <span className="text-[color:var(--muted)]">Envío</span>
+                <span>{formatMoney(order.deliveryCents, order.currency)}</span>
+              </div>
+            )}
+            <div className="flex justify-between font-medium text-base pt-1 border-t border-[var(--border)]">
+              <span>Total</span>
+              <span className="text-lg font-semibold">
+                {formatMoney(order.totalCents, order.currency)}
+              </span>
+            </div>
           </div>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { revalidatePath } from "next/cache";
@@ -185,9 +186,10 @@ export default async function VendorPedidosPage() {
                     <form
                       action={async () => {
                         "use server";
+                        const c = (await cookies()).toString();
                         await fetch(`${process.env.NEXTAUTH_URL}/api/vendor/orders/${order.id}/status`, {
                           method: "POST",
-                          headers: { "content-type": "application/json" },
+                          headers: { "content-type": "application/json", cookie: c },
                           body: JSON.stringify({ status: "CONFIRMED" }),
                         });
                         revalidatePath("/vendor/pedidos");
@@ -202,9 +204,10 @@ export default async function VendorPedidosPage() {
                     <form
                       action={async () => {
                         "use server";
+                        const c = (await cookies()).toString();
                         await fetch(`${process.env.NEXTAUTH_URL}/api/vendor/orders/${order.id}/status`, {
                           method: "POST",
-                          headers: { "content-type": "application/json" },
+                          headers: { "content-type": "application/json", cookie: c },
                           body: JSON.stringify({ status: "READY" }),
                         });
                         revalidatePath("/vendor/pedidos");

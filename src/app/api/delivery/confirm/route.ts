@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
+import { sendTextNotification } from "@/server/notifications";
 
 export async function POST(req: Request) {
   const auth = await requireUser();
@@ -18,19 +19,30 @@ export async function POST(req: Request) {
   }
 
   const json = await req.json().catch(() => null);
-  const { orderId, deliveryCode, action } = json || {};
+  const { orderId, code, action } = json || {};
 
-  if (!orderId || !deliveryCode) {
-    return NextResponse.json({ ok: false, error: "Datos requeridos" }, { status: 400 });
+  if (!orderId || !code) {
+    return NextResponse.json({ ok: false, error: "Código requerido" }, { status: 400 });
   }
 
-  const order = await prisma.order.findFirst({
-    where: { id: orderId, deliveryCode },
-    include: {
-      store: { select: { name: true } },
-      user: { select: { name: true, phone: true } },
-    },
-  });
+  let order;
+  if (action === "pickup") {
+    order = await prisma.order.findFirst({
+      where: { id: orderId, deliveryCode: code },
+      include: {
+        store: { select: { name: true } },
+        user: { select: { name: true, phone: true } },
+      },
+    });
+  } else {
+    order = await prisma.order.findFirst({
+      where: { id: orderId, pickupCode: code },
+      include: {
+        store: { select: { name: true } },
+        user: { select: { name: true, phone: true } },
+      },
+    });
+  }
 
   if (!order) {
     return NextResponse.json({ ok: false, error: "Código inválido" }, { status: 404 });
@@ -61,6 +73,14 @@ export async function POST(req: Request) {
     data: updateData as any,
   });
 
+  if (newStatus === "COMPLETED") {
+    await sendTextNotification(order.userId, {
+      title: "Pedido entregado",
+      body: `Tu pedido en ${order.store.name} ha sido entregado.`,
+      type: "ORDER_COMPLETED",
+    });
+  }
+
   return NextResponse.json({
     ok: true,
     message,
@@ -80,22 +100,25 @@ export async function GET(req: Request) {
 
   const { searchParams } = new URL(req.url);
   const code = searchParams.get("code");
+  const type = searchParams.get("type") || "delivery";
 
   if (!code) {
     return NextResponse.json({ ok: false, error: "Código requerido" }, { status: 400 });
   }
 
   try {
-    let deliveryCode = code;
+    let rawCode = code;
     
     try {
       const data = JSON.parse(code);
-      deliveryCode = data.code;
+      rawCode = data.code;
     } catch {
     }
     
+    const codeField = type === "pickup" ? { pickupCode: rawCode } : { deliveryCode: rawCode };
+    
     const order = await prisma.order.findFirst({
-      where: { deliveryCode: deliveryCode },
+      where: codeField,
       select: {
         id: true,
         customerName: true,
@@ -104,6 +127,7 @@ export async function GET(req: Request) {
         status: true,
         totalCents: true,
         deliveryCode: true,
+        pickupCode: true,
         store: { select: { name: true, phone: true } },
       },
     });

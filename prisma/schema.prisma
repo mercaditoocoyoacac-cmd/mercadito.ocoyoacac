@@ -112,11 +112,28 @@ model Store {
   products     Product[]
   orders       Order[]
   subscription Subscription?
+  paymentMethods StorePaymentMethod[]
 
   @@index([ownerId])
   @@index([isActive, isPublished])
   @@index([slug])
   @@index([isApproved])
+}
+
+model StorePaymentMethod {
+  id          String   @id @default(cuid())
+  storeId     String
+  store       Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  processor   String   // MERCADO_PAGO, CLIP, BBVA, OPENPAY, CONEKTRA
+  label       String
+  credentials String   // encrypted JSON
+  isActive    Boolean  @default(true)
+  status      String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([storeId])
+  @@index([storeId, isActive])
 }
 
 model Subscription {
@@ -236,6 +253,7 @@ model Order {
   totalCents      Int
   currency        String          @default("MXN")
   deliveryCode    String?         @unique
+  pickupCode      String?         @unique
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 

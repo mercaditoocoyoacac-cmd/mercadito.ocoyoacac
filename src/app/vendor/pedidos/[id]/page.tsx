@@ -55,6 +55,8 @@ export default async function VendorPedidoPage({
 
   if (!order) notFound();
 
+  if (!order) notFound();
+
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10">
       <div className="flex items-center gap-3 mb-6">
@@ -158,22 +160,45 @@ export default async function VendorPedidoPage({
                 </div>
               ))}
             </div>
-            <div className="mt-3 pt-3 border-t border-[var(--border)] flex items-center justify-between">
-              <span className="font-semibold">Total</span>
-              <span className="font-semibold text-lg">
-                {formatMoney(order.totalCents, order.currency)}
-              </span>
+            <div className="mt-3 pt-3 border-t border-[var(--border)] space-y-1">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-[color:var(--muted)]">Subtotal</span>
+                <span>{formatMoney(order.subtotalCents, order.currency)}</span>
+              </div>
+              {order.fulfillmentType === "DELIVERY" && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-[color:var(--muted)]">Envío</span>
+                  <span>{formatMoney(order.deliveryCents, order.currency)}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between font-semibold pt-1">
+                <span>Total</span>
+                <span className="text-lg font-semibold">
+                  {formatMoney(order.totalCents, order.currency)}
+                </span>
+              </div>
             </div>
           </div>
 
-          {order.deliveryCode && (
-            <div className="rounded-lg bg-[var(--accent-soft)] px-4 py-3 text-center">
-              <div className="text-sm font-medium">Codigo de entrega</div>
+          {order.fulfillmentType === "DELIVERY" && order.deliveryCode && (
+            <div className="rounded-lg bg-blue-50 px-4 py-3 text-center">
+              <div className="text-sm font-medium">Código para el repartidor</div>
               <div className="text-2xl font-mono font-bold tracking-widest mt-1">
                 {order.deliveryCode}
               </div>
               <div className="text-xs text-[color:var(--muted)] mt-1">
-                El cliente debe presentar este codigo al recibir
+                Entrega este código al repartidor al recoger el pedido
+              </div>
+            </div>
+          )}
+          {order.pickupCode && (
+            <div className="rounded-lg bg-orange-50 px-4 py-3 text-center">
+              <div className="text-sm font-medium">Código de confirmación del cliente</div>
+              <div className="text-2xl font-mono font-bold tracking-widest mt-1">
+                {order.pickupCode}
+              </div>
+              <div className="text-xs text-[color:var(--muted)] mt-1">
+                El repartidor lo solicitará al cliente para confirmar la entrega
               </div>
             </div>
           )}
@@ -225,6 +250,22 @@ export default async function VendorPedidoPage({
             >
               <button className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700">
                 Enviar
+              </button>
+            </form>
+          )}
+          {order.status === "READY" && order.fulfillmentType === "PICKUP" && (
+            <form
+              action={async () => {
+                "use server";
+                await prisma.order.update({
+                  where: { id: order.id },
+                  data: { status: "COMPLETED" },
+                });
+                revalidatePath(`/vendor/pedidos/${order.id}`);
+              }}
+            >
+              <button className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700">
+                Completar
               </button>
             </form>
           )}

@@ -12,6 +12,16 @@ export default function DeliveryLoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  async function redirectByRole() {
+    const sessionRes = await fetch("/api/auth/session");
+    const session = await sessionRes.json();
+    const role = session?.user?.role;
+    if (role === "DELIVERY") router.push("/delivery");
+    else if (role === "VENDOR") router.push("/vendor");
+    else if (role === "ADMIN") router.push("/admin");
+    else router.push("/");
+  }
+
   return (
     <main className="mx-auto w-full max-w-md flex-1 px-4 py-10">
       <div className="mb-6">
@@ -31,14 +41,13 @@ export default function DeliveryLoginPage() {
             email,
             password,
             redirect: false,
-            callbackUrl: "/delivery",
           });
           setLoading(false);
           if (!res || res.error) {
             setError("Correo o contraseña incorrectos.");
             return;
           }
-          router.push(res.url ?? "/delivery");
+          await redirectByRole();
         }}
       >
         <label className="block">

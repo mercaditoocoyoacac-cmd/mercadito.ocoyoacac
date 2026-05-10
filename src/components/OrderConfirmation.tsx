@@ -14,7 +14,7 @@ type Props = {
   order: {
     id: string;
     status: string;
-    deliveryCode: string | null;
+    pickupCode: string | null;
     totalCents: number;
     currency: string;
   };
@@ -29,13 +29,13 @@ export default function OrderConfirmation({ order }: Props) {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    if (order.deliveryCode && order.status === "OUT_FOR_DELIVERY") {
+    if (order.pickupCode && order.status === "OUT_FOR_DELIVERY") {
       QRCode.toDataURL(
-        JSON.stringify({ orderId: order.id, code: order.deliveryCode }),
+        JSON.stringify({ orderId: order.id, code: order.pickupCode }),
         { width: 250, margin: 2 }
       ).then(setQrCode);
     }
-  }, [order.deliveryCode, order.id, order.status]);
+  }, [order.pickupCode, order.id, order.status]);
 
   if (order.status !== "OUT_FOR_DELIVERY") {
     return null;
@@ -99,11 +99,11 @@ export default function OrderConfirmation({ order }: Props) {
         </div>
       )}
 
-      {order.deliveryCode && (
+      {order.pickupCode && (
         <div className="mt-4 text-center">
-          <p className="text-xs text-orange-600">O muestra este código:</p>
+          <p className="text-xs text-orange-600">O muestra este código al repartidor:</p>
           <div className="mt-1 font-mono text-3xl font-bold tracking-widest text-orange-700">
-            {order.deliveryCode}
+            {order.pickupCode}
           </div>
         </div>
       )}

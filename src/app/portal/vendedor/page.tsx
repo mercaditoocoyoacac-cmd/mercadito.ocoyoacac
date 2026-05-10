@@ -131,6 +131,23 @@ function VendorLogin() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  async function redirectByRole() {
+    const sessionRes = await fetch("/api/auth/session");
+    const session = await sessionRes.json();
+    const role = session?.user?.role;
+    if (role === "VENDOR") {
+      const userRes = await fetch("/api/profile");
+      const userData = await userRes.json();
+      if (userData.ok && userData.user.storeId) {
+        router.push("/vendor");
+      } else {
+        router.push("/vendor/onboarding");
+      }
+    } else if (role === "ADMIN") router.push("/admin");
+    else if (role === "DELIVERY") router.push("/delivery");
+    else router.push("/");
+  }
+
   return (
     <main className="mx-auto w-full max-w-md flex-1 px-4 py-10">
       <Link href="/portal/vendedor" className="mb-4 inline-block text-sm text-emerald-600 hover:underline">
@@ -160,13 +177,7 @@ function VendorLogin() {
             setError("Correo o contraseña incorrectos.");
             return;
           }
-          const userRes = await fetch("/api/profile");
-          const userData = await userRes.json();
-          if (userData.ok && userData.user.storeId) {
-            router.push("/vendor");
-          } else {
-            router.push("/vendor/onboarding");
-          }
+          await redirectByRole();
         }}
       >
         <label className="block">

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
+import { formatDateInMexico } from "@/lib/dates";
 
 export const revalidate = 30;
 
@@ -75,7 +76,7 @@ export default async function AdminUsersPage() {
                     <div className="font-medium">{user.name || "Sin nombre"}</div>
                     <div className="text-sm text-[color:var(--muted)]">{user.email}</div>
                     <div className="text-xs text-[color:var(--muted)]">
-                      Registrado: {user.createdAt.toLocaleDateString("es-MX")}
+                      Registrado: {formatDateInMexico(user.createdAt)}
                     </div>
                   </div>
                   <div className="text-right">

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
+import { formatDateTimeInMexico } from "@/lib/dates";
 
 function formatMoney(cents: number, currency: string) {
   return new Intl.NumberFormat("es-MX", { style: "currency", currency }).format(
@@ -105,7 +106,7 @@ export default async function MisPedidosPage() {
                   </div>
                   <div className="mt-1 text-xs text-[color:var(--muted)]">
                     {order.fulfillmentType === "PICKUP" ? "📍 Recolección" : "🚚 Entrega"} en tienda ·{" "}
-                    {new Date(order.createdAt).toLocaleDateString("es-MX", {
+                    {formatDateTimeInMexico(order.createdAt, {
                       day: "numeric",
                       month: "short",
                       year: "numeric",

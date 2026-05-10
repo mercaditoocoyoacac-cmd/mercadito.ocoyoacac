@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
+import { formatDateInMexico } from "@/lib/dates";
 
 export const revalidate = 30;
 
@@ -101,8 +102,8 @@ export default async function AdminSubscriptionsPage() {
                     </div>
                   </div>
                   <div className="mt-2 text-xs text-[color:var(--muted)]">
-                    Inicio: {sub.startDate.toLocaleDateString("es-MX")} | 
-                    Fin: {sub.endDate.toLocaleDateString("es-MX")}
+                    Inicio: {formatDateInMexico(sub.startDate)} | 
+                    Fin: {formatDateInMexico(sub.endDate)}
                   </div>
                   <div className="mt-3 flex gap-2 flex-wrap">
                     {store.isPublished ? (
@@ -250,11 +251,11 @@ export default async function AdminSubscriptionsPage() {
                   )}
                   {sub && (
                     <div className="mt-2 text-xs text-[color:var(--muted)]">
-                      Inicio: {sub.startDate.toLocaleDateString("es-MX")} | 
-                      Fin: {sub.endDate.toLocaleDateString("es-MX")}
+                      Inicio: {formatDateInMexico(sub.startDate)} | 
+                      Fin: {formatDateInMexico(sub.endDate)}
                       {sub.contractSignedAt && (
                         <span className="ml-2">
-                          | Contrato: {sub.contractSignedAt.toLocaleDateString("es-MX")}
+                          | Contrato: {formatDateInMexico(sub.contractSignedAt)}
                         </span>
                       )}
                     </div>

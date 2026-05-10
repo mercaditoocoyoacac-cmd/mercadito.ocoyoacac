@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.mercadito.ocoyoacac.compras',
-  appName: 'Mercadito-Compras',
+  appId: 'com.mercadito.ocoyoacac.app',
+  appName: 'Mercadito Ocoyoacac',
   webDir: 'out',
   server: {
     url: 'https://mercadito-ocoyoacac.vercel.app',

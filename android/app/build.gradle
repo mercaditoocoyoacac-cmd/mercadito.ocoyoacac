@@ -4,7 +4,7 @@ android {
     namespace = "com.mercaditoocoyoacac.app"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.mercadito.ocoyoacac.app.compras"
+        applicationId "com.mercadito.ocoyoacac.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 2

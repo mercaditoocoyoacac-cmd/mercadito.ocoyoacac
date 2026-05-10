@@ -29,6 +29,7 @@ export default function DeliveryTracker({
   const [driverLat, setDriverLat] = useState<number | null>(null);
   const [driverLng, setDriverLng] = useState<number | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [completeCode, setCompleteCode] = useState<Record<string, string>>({});
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   function sendLocation(lat: number, lng: number) {
@@ -87,12 +88,43 @@ export default function DeliveryTracker({
     }
   }
 
+  async function confirmDelivery(orderId: string) {
+    const code = completeCode[orderId];
+    if (!code) {
+      alert("Ingresa el código de entrega del cliente.");
+      return;
+    }
+    const res = await fetch("/api/delivery/confirm", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ orderId, code }),
+    });
+    const data = (await res.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
+    if (res.ok && data?.ok) {
+      router.refresh();
+    } else {
+      alert(data?.error || "Código inválido.");
+    }
+  }
+
   function getDistanceToOrder(
     orderLat: number | null,
     orderLng: number | null,
   ): string | null {
     if (!driverLat || !driverLng || !orderLat || !orderLng) return null;
     return formatDistance(haversineDistance(driverLat, driverLng, orderLat, orderLng));
+  }
+
+  function getGoogleMapsUrl(lat: number | null, lng: number | null, address: string | null): string {
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile) {
+      if (lat && lng) return `geo:${lat},${lng}?q=${lat},${lng}`;
+      if (address) return `geo:0,0?q=${encodeURIComponent(address)}`;
+    } else {
+      if (lat && lng) return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+      if (address) return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
+    }
+    return "#";
   }
 
   const statusLabels: Record<string, string> = {
@@ -155,6 +187,37 @@ export default function DeliveryTracker({
                     📍 {order.customerAddress}
                   </div>
                 )}
+                <div className="mt-3 flex flex-col gap-2">
+                  {(order.customerLat || order.customerAddress) && (
+                    <a
+                      href={getGoogleMapsUrl(order.customerLat, order.customerLng, order.customerAddress)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 rounded-lg bg-blue-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-600"
+                    >
+                      <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                      </svg>
+                      Abrir en Google Maps
+                    </a>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      placeholder="Código del cliente"
+                      value={completeCode[order.id] || ""}
+                      onChange={(e) => setCompleteCode((prev) => ({ ...prev, [order.id]: e.target.value }))}
+                      className="flex-1 rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs outline-none focus:border-[var(--accent)]"
+                      maxLength={6}
+                    />
+                    <button
+                      onClick={() => confirmDelivery(order.id)}
+                      className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700"
+                    >
+                      Completar
+                    </button>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -183,6 +246,19 @@ export default function DeliveryTracker({
                       <div className="text-xs text-[color:var(--muted)]">
                         {order.store.name}
                       </div>
+                      {order.customerAddress && (
+                        <a
+                          href={getGoogleMapsUrl(order.customerLat, order.customerLng, order.customerAddress)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 mt-1 text-xs text-blue-600 hover:underline"
+                        >
+                          <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                          </svg>
+                          Ver ruta
+                        </a>
+                      )}
                     </div>
                     <div className="text-right">
                       <div className={`text-xs px-2 py-1 rounded-full ${

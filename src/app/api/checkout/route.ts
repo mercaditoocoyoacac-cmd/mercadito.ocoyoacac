@@ -143,9 +143,10 @@ export async function POST(req: Request) {
       sum + cartItem.quantity * cartItem.product.priceCents,
     0,
   );
-  const deliveryCents = 0;
+  const deliveryCents = parsed.data.fulfillmentType === "DELIVERY" ? 2500 : 0;
   const totalCents = subtotalCents + deliveryCents;
   const deliveryCode = generateDeliveryCode();
+  const pickupCode = generateDeliveryCode();
 
   const order = await prisma.order.create({
     data: {
@@ -164,6 +165,7 @@ export async function POST(req: Request) {
       totalCents,
       currency,
       deliveryCode,
+      pickupCode,
       items: {
         create: items.map((cartItem: typeof items[number]) => ({
           productId: cartItem.product.id,
@@ -240,15 +242,17 @@ export async function POST(req: Request) {
   let mpError: string | undefined;
 
   if (parsed.data.paymentMethod === "ONLINE") {
-    const store = await prisma.store.findUnique({
-      where: { id: storeId },
-      select: { mercadoPagoAccessToken: true, name: true, acceptsMercadoPago: true },
+    const paymentMethod = await prisma.storePaymentMethod.findFirst({
+      where: { storeId, processor: "MERCADO_PAGO", isActive: true, status: "APPROVED" },
+      select: { credentials: true },
     });
 
-    if (store?.mercadoPagoAccessToken) {
-      const encrypted = store.mercadoPagoAccessToken;
+    if (paymentMethod?.credentials) {
+      const encrypted = paymentMethod.credentials;
       const base64 = Buffer.from(encrypted, "hex").toString("utf8");
-      const accessToken = Buffer.from(base64, "base64").toString("utf8");
+      const json = Buffer.from(base64, "base64").toString("utf8");
+      const creds = JSON.parse(json);
+      const accessToken = creds.accessToken;
 
       try {
         const mpResponse = await fetch("https://api.mercadopago.com/checkout/preferences", {
@@ -258,12 +262,17 @@ export async function POST(req: Request) {
             Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify({
-            items: items.map((item: typeof items[number]) => ({
-              title: item.product.name,
-              quantity: item.quantity,
-              unit_price: item.product.priceCents / 100,
-              currency_id: "MXN",
-            })),
+            items: [
+              ...items.map((item: typeof items[number]) => ({
+                title: item.product.name,
+                quantity: item.quantity,
+                unit_price: item.product.priceCents / 100,
+                currency_id: "MXN",
+              })),
+              ...(deliveryCents > 0
+                ? [{ title: "Costo de envío", quantity: 1, unit_price: deliveryCents / 100, currency_id: "MXN" }]
+                : []),
+            ],
             back_urls: {
               success: `${process.env.NEXTAUTH_URL}/pedido/${order.id}`,
               failure: `${process.env.NEXTAUTH_URL}/carrito`,

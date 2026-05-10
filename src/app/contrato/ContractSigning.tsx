@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { formatDateInMexico } from "@/lib/dates";
 
 function formatMoney(cents: number) {
   return new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(
@@ -80,7 +81,7 @@ export default function ContractSigning({ store, subscription }: Props) {
 
   const precio = subscription?.monthlyPriceCents || 49600;
   const today = new Date();
-  const fecha = today.toLocaleDateString("es-MX", {
+  const fecha = formatDateInMexico(today, {
     year: "numeric",
     month: "long",
     day: "numeric",

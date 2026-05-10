@@ -13,14 +13,9 @@
     "cap:ios": "npx cap open ios",
     "cap:build:android": "npm run cap:sync && npx cap run android",
     "cap:build:ios": "npm run cap:sync && npx cap run ios",
-    "app:cliente": "node scripts/set-app.js cliente && npx cap sync",
-    "app:vendedor": "node scripts/set-app.js vendedor && npx cap sync",
-    "app:repartidor": "node scripts/set-app.js repartidor && npx cap sync",
-    "app:admin": "node scripts/set-app.js admin && npx cap sync",
-    "app:cliente:android": "node scripts/set-app.js cliente && npx cap sync && npx cap open android",
-    "app:vendedor:android": "node scripts/set-app.js vendedor && npx cap sync && npx cap open android",
-    "app:repartidor:android": "node scripts/set-app.js repartidor && npx cap sync && npx cap open android",
-    "app:admin:android": "node scripts/set-app.js admin && npx cap sync && npx cap open android"
+    "cap:build": "npx cap sync",
+    "cap:android:open": "npx cap sync && npx cap open android",
+    "cap:ios:open": "npx cap sync && npx cap open ios"
   },
   "dependencies": {
     "@aws-sdk/client-sns": "^3.1030.0",
@@ -43,6 +38,7 @@
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.9.0",
     "dotenv": "^17.4.1",
+    "firebase": "^12.13.0",
     "firebase-admin": "^13.8.0",
     "leaflet": "^1.9.4",
     "next": "16.2.2",
@@ -54,6 +50,7 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-leaflet": "^5.0.0",
+    "xlsx": "^0.18.5",
     "zod": "^4.3.6"
   },
   "devDependencies": {

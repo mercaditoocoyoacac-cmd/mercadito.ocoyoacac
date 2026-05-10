@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { StockToggle } from "@/components/StockToggle";
@@ -60,107 +61,132 @@ export default async function VendorProductosPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Productos</h1>
           <p className="mt-1 text-sm text-[color:var(--muted)]">
-            {store.name} ·{" "}
-            <Link className="underline" href={`/tienda/${store.slug}`}>
-              ver storefront
+            {store.name} ·
+            <Link className="underline ml-1" href={`/tienda/${store.slug}`}>
+              ver tienda
             </Link>
           </p>
         </div>
         <div className="flex gap-2">
           <Link
             href="/vendor/productos/importar"
-            className="inline-flex rounded-md border border-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent)] hover:bg-[var(--accent-soft)]"
+            className="inline-flex items-center gap-1.5 rounded-md border border-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent)] hover:bg-[var(--accent-soft)]"
           >
-            Importar CSV
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+            </svg>
+            Importar
           </Link>
           <Link
             href="/vendor/productos/nuevo"
-            className="inline-flex rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)]"
+            className="inline-flex items-center gap-1.5 rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)]"
           >
-            Nuevo producto
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Nuevo
           </Link>
         </div>
       </div>
 
       {products.length === 0 ? (
-        <div className="rounded-xl border border-[var(--border)] p-5">
-          <div className="font-medium">Aún no tienes productos</div>
+        <div className="rounded-xl border border-[var(--border)] p-8 text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--accent-soft)]">
+            <svg className="h-8 w-8 text-[var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+          </div>
+          <div className="mt-4 font-medium">Aún no tienes productos</div>
           <div className="mt-1 text-sm text-[color:var(--muted)]">
             Crea tu primer producto para empezar a vender.
           </div>
+          <div className="mt-6">
+            <Link
+              href="/vendor/productos/nuevo"
+              className="inline-flex items-center gap-1.5 rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)]"
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              Crear primer producto
+            </Link>
+          </div>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-[var(--border)]">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-[var(--accent-soft)]">
-              <tr>
-                <th className="px-4 py-3 font-medium">Producto</th>
-                <th className="px-4 py-3 font-medium">SKU</th>
-                <th className="px-4 py-3 font-medium">Precio</th>
-                <th className="px-4 py-3 font-medium">Exist.</th>
-                <th className="px-4 py-3 font-medium">Estado</th>
-                <th className="px-4 py-3 font-medium">Agotado</th>
-                <th className="px-4 py-3 font-medium"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((product: typeof products[number]) => (
-                <tr key={product.id} className="border-t border-[var(--border)]">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      {product.imageUrl && (
-                        <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md border border-[var(--border)]">
-                          <img
-                            src={product.imageUrl}
-                            alt={product.name}
-                            className="h-full w-full object-cover"
-                          />
-                        </div>
-                      )}
-                      <span className={!product.imageUrl ? "ml-10" : ""}>
-                        {product.name}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 font-mono text-xs text-[color:var(--muted)]">
-                    {product.sku || "-"}
-                  </td>
-                  <td className="px-4 py-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {products.map((product: typeof products[number]) => (
+            <Link
+              key={product.id}
+              href={`/vendor/productos/${product.id}`}
+              className="group rounded-xl border border-[var(--border)] bg-white p-4 transition-shadow hover:shadow-md"
+            >
+              <div className="flex items-start gap-4">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[var(--border)] bg-gray-50">
+                  {product.imageUrl ? (
+                    <Image
+                      src={product.imageUrl}
+                      alt={product.name}
+                      width={64}
+                      height={64}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <svg className="h-8 w-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-medium truncate group-hover:text-[var(--accent)]">
+                    {product.name}
+                  </div>
+                  <div className="mt-0.5 text-lg font-semibold">
                     {formatMoney(product.priceCents, product.currency)}
-                  </td>
-                  <td className="px-4 py-3">
-                    {product.stock === -1 ? (
-                      <span className="text-[color:var(--muted)]">Sin control</span>
-                    ) : product.stock === 0 ? (
-                      <span className="text-red-600 font-medium">Agotado</span>
-                    ) : product.stock !== null && product.stock <= 5 ? (
-                      <span className="text-amber-600 font-medium">{product.stock}</span>
-                    ) : (
-                      <span>{product.stock}</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    {product.isActive ? (
-                      <span className="text-green-600">Activo</span>
-                    ) : (
-                      <span className="text-red-600">Inactivo</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <StockToggle productId={product.id} initial={product.isUnavailable} />
-                  </td>
-                  <td className="px-4 py-3">
-                    <Link
-                      href={`/vendor/productos/${product.id}`}
-                      className="text-[color:var(--accent)] hover:underline"
-                    >
-                      Editar
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
+                  product.isActive
+                    ? "bg-green-50 text-green-700"
+                    : "bg-red-50 text-red-700"
+                }`}>
+                  <span className={`h-1.5 w-1.5 rounded-full ${
+                    product.isActive ? "bg-green-500" : "bg-red-500"
+                  }`} />
+                  {product.isActive ? "Activo" : "Inactivo"}
+                </span>
+                {product.stock === -1 ? (
+                  <span className="text-xs text-[color:var(--muted)]">Sin control</span>
+                ) : product.stock === 0 ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700">
+                    <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                    Agotado
+                  </span>
+                ) : product.stock <= 5 ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">
+                    {product.stock} uds
+                  </span>
+                ) : (
+                  <span className="text-xs text-[color:var(--muted)]">{product.stock} uds</span>
+                )}
+              </div>
+
+              {product.sku && (
+                <div className="mt-2 font-mono text-xs text-[color:var(--muted)]">
+                  SKU: {product.sku}
+                </div>
+              )}
+
+              <div className="mt-3 flex items-center justify-between border-t border-[var(--border)] pt-3" onClick={(e) => e.preventDefault()}>
+                <StockToggle productId={product.id} initial={product.isUnavailable} />
+                <span className="text-xs text-[var(--accent)] opacity-0 transition-opacity group-hover:opacity-100">
+                  Editar &rarr;
+                </span>
+              </div>
+            </Link>
+          ))}
         </div>
       )}
     </div>

@@ -18,7 +18,7 @@ type CartItem = {
     priceCents: number;
     currency: string;
     isUnavailable: boolean;
-    store: { id: string; name: string; slug: string; acceptsMercadoPago: boolean };
+    store: { id: string; name: string; slug: string; acceptsMercadoPago: boolean; hasOnlinePayment: boolean };
   };
 };
 
@@ -35,7 +35,7 @@ export default function CarritoPage() {
   const [loading, setLoading] = useState(true);
 
   const store = items?.[0]?.product.store;
-  const acceptsMercadoPago = store?.acceptsMercadoPago ?? false;
+  const hasOnlinePayment = store?.hasOnlinePayment ?? store?.acceptsMercadoPago ?? false;
   const currency = items?.[0]?.product.currency ?? "MXN";
   const subtotal = useMemo(
     () =>
@@ -240,17 +240,29 @@ export default function CarritoPage() {
                 </tbody>
               </table>
             </div>
-
-            <div className="mt-4 text-right text-sm">
-              <span className="text-[color:var(--muted)]">
-                Subtotal:
-              </span>{" "}
-              <span className="font-semibold">{formatMoney(subtotal, currency)}</span>
-            </div>
           </div>
 
           <div className="lg:col-span-2">
             <div className="rounded-xl border border-[var(--border)] p-5">
+              <div className="font-semibold">Resumen</div>
+              <div className="mt-3 space-y-1 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-[color:var(--muted)]">Productos</span>
+                  <span>{formatMoney(subtotal, currency)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[color:var(--muted)]">Envío</span>
+                  <span>{fulfillmentType === "DELIVERY" ? formatMoney(2500, currency) : "$0.00"}</span>
+                </div>
+                <hr className="border-[var(--border)]" />
+                <div className="flex justify-between text-base font-semibold">
+                  <span>Total</span>
+                  <span>{formatMoney(subtotal + (fulfillmentType === "DELIVERY" ? 2500 : 0), currency)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 rounded-xl border border-[var(--border)] p-5">
               <div className="font-semibold">Finalizar pedido</div>
               <div className="mt-4 space-y-3">
                 <label className="block">
@@ -327,7 +339,7 @@ export default function CarritoPage() {
                   />
                 </label>
 
-                {acceptsMercadoPago && (
+                {hasOnlinePayment && (
                   <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-3">
                     <div className="flex items-center gap-2">
                       <svg className="h-5 w-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -338,7 +350,7 @@ export default function CarritoPage() {
                   </div>
                 )}
 
-                {acceptsMercadoPago && (
+                {hasOnlinePayment && (
                   <label className="block">
                     <div className="text-sm font-medium">Método de pago</div>
                     <div className="mt-2 space-y-2">
@@ -367,7 +379,7 @@ export default function CarritoPage() {
                           className="h-4 w-4"
                         />
                         <label htmlFor="paymentOnline" className="text-sm">
-                          Pagar con tarjeta (MercadoPago)
+                          Pagar con tarjeta
                         </label>
                       </div>
                     </div>
@@ -423,7 +435,7 @@ export default function CarritoPage() {
                   {checkoutLoading ? "Creando pedido..." : "Confirmar pedido"}
                 </button>
                 <div className="text-xs text-[color:var(--muted)]">
-                  {acceptsMercadoPago 
+                  {hasOnlinePayment 
                     ? "Pago seguro con tarjeta al confirmar" 
                     : "Pago contraentrega / al recoger"}
                 </div>

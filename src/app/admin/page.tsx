@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
+import { formatDateTimeInMexico } from "@/lib/dates";
 
 function formatMoney(cents: number, currency: string) {
   return new Intl.NumberFormat("es-MX", { style: "currency", currency }).format(
@@ -172,7 +173,7 @@ export default async function AdminDashboard() {
                     {order.store.name} • {order.user.email}
                   </div>
                   <div className="text-xs text-[color:var(--muted)]">
-                    {new Date(order.createdAt).toLocaleDateString("es-MX", {
+                    {formatDateTimeInMexico(order.createdAt, {
                       year: "numeric",
                       month: "short",
                       day: "numeric",

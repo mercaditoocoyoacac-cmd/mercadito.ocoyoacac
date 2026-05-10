@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
+import { formatDateTimeInMexico } from "@/lib/dates";
 
 export const revalidate = 30;
 
@@ -60,7 +61,7 @@ export default async function DispositivosPage() {
                       IP: {device.ipAddress || "desconocida"}
                     </div>
                     <div className="text-xs text-[color:var(--muted)]">
-                      Último acceso: {device.lastSeen.toLocaleString("es-MX")}
+                      Último acceso: {formatDateTimeInMexico(device.lastSeen)}
                     </div>
                   </div>
                 </div>

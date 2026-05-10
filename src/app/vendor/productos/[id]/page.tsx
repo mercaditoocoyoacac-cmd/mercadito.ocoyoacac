@@ -3,6 +3,29 @@
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
+function HelpTip({ text }: { text: string }) {
+  const [show, setShow] = useState(false);
+  return (
+    <span className="relative inline-flex items-center">
+      <button
+        type="button"
+        onMouseEnter={() => setShow(true)}
+        onMouseLeave={() => setShow(false)}
+        onClick={() => setShow(!show)}
+        className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--muted)] text-[10px] text-[color:var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
+        aria-label="Ayuda"
+      >
+        ?
+      </button>
+      {show && (
+        <div className="absolute bottom-full left-1/2 mb-2 w-56 -translate-x-1/2 rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-xs text-[color:var(--muted)] shadow-lg z-10">
+          {text}
+        </div>
+      )}
+    </span>
+  );
+}
+
 interface Product {
   id: string;
   name: string;
@@ -32,6 +55,8 @@ export default function EditarProductoPage() {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [duplicating, setDuplicating] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -143,7 +168,7 @@ export default function EditarProductoPage() {
   async function handleDelete(e: React.FormEvent) {
     e.preventDefault();
     if (!confirm("¿Estás seguro de eliminar este producto?")) return;
-    
+
     setDeleting(true);
     const res = await fetch(`/api/vendor/products/${productId}`, {
       method: "DELETE",
@@ -155,6 +180,46 @@ export default function EditarProductoPage() {
       return;
     }
     router.push("/vendor/productos");
+  }
+
+  async function handleDuplicate() {
+    setDuplicating(true);
+    setError(null);
+
+    const priceNumber = Number(price);
+    if (!Number.isFinite(priceNumber) || priceNumber <= 0) {
+      setDuplicating(false);
+      setError("El precio debe ser mayor a 0.");
+      return;
+    }
+
+    const res = await fetch("/api/vendor/products", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        name: name + " (copia)",
+        description: description.trim() || undefined,
+        priceCents: Math.round(priceNumber * 100),
+        imageUrl: imageUrl || undefined,
+        sku: sku.trim() ? sku.trim() + "-COPIA" : undefined,
+        stock: stock.trim() === "" ? -1 : parseInt(stock) || 0,
+      }),
+    });
+
+    const data = (await res.json().catch(() => null)) as
+      | { ok: true; product: { id: string } }
+      | { ok: false; error?: string }
+      | null;
+
+    setDuplicating(false);
+
+    if (!res.ok || !data?.ok) {
+      const msg = data && "error" in data ? data.error : "No se pudo duplicar.";
+      setError(msg ?? "No se pudo duplicar.");
+      return;
+    }
+
+    router.push(`/vendor/productos/${data.product.id}`);
   }
 
   if (loadingProduct) {
@@ -181,48 +246,11 @@ export default function EditarProductoPage() {
       <h1 className="text-2xl font-semibold tracking-tight">Editar producto</h1>
 
       <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-        <div className="space-y-2">
-          <div className="text-sm font-medium">Imagen del producto</div>
-          <div className="flex items-center gap-4">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp,image/gif"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-              className="rounded-md border border-[var(--border)] px-4 py-2 text-sm font-medium hover:bg-[var(--accent-soft)] disabled:opacity-60"
-            >
-              {uploading ? "Subiendo..." : "Cambiar imagen"}
-            </button>
-            {imageUrl && (
-              <div className="relative h-16 w-16 overflow-hidden rounded-md border border-[var(--border)]">
-                <img
-                  src={imageUrl}
-                  alt="Vista previa"
-                  className="h-full w-full object-cover"
-                />
-                <button
-                  type="button"
-                  onClick={() => setImageUrl("")}
-                  className="absolute inset-0 flex items-center justify-center bg-black/50 text-white opacity-0 hover:opacity-100"
-                >
-                  ×
-                </button>
-              </div>
-            )}
-          </div>
-          <p className="text-xs text-[color:var(--muted)]">
-            JPG, PNG, WebP o GIF. Máx 5MB.
-          </p>
-        </div>
-
         <label className="block">
-          <div className="text-sm font-medium">Nombre</div>
+          <div className="text-sm font-medium">
+            Nombre del producto
+            <HelpTip text="Pon el nombre tal como lo conocen tus clientes." />
+          </div>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -232,7 +260,10 @@ export default function EditarProductoPage() {
         </label>
 
         <label className="block">
-          <div className="text-sm font-medium">Precio (MXN)</div>
+          <div className="text-sm font-medium">
+            Precio (MXN)
+            <HelpTip text="¿Cuánto cobras por este producto?" />
+          </div>
           <input
             value={price}
             onChange={(e) => setPrice(e.target.value)}
@@ -242,40 +273,113 @@ export default function EditarProductoPage() {
           />
         </label>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <label className="block">
-            <div className="text-sm font-medium">SKU / Codigo (opcional)</div>
-            <input
-              value={sku}
-              onChange={(e) => setSku(e.target.value)}
-              className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm font-mono outline-none focus:border-[var(--accent)]"
-              placeholder="Producto-SKU-001"
-            />
-          </label>
-          <label className="block">
-            <div className="text-sm font-medium">Existencias</div>
-            <input
-              value={stock}
-              onChange={(e) => setStock(e.target.value)}
-              inputMode="numeric"
-              className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-              placeholder="Dejar vacio = sin control"
-            />
-            <p className="mt-1 text-xs text-[color:var(--muted)]">
-              Vacio = sin control de inventario
-            </p>
-          </label>
-        </div>
+        <button
+          type="button"
+          onClick={() => setShowAdvanced(!showAdvanced)}
+          className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-[var(--border)] px-4 py-2 text-sm text-[color:var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
+        >
+          <svg
+            className={`h-4 w-4 transition-transform ${showAdvanced ? "rotate-90" : ""}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+          {showAdvanced ? "Ocultar opciones avanzadas" : "Mostrar más opciones (imagen, código, inventario)"}
+        </button>
 
-        <label className="block">
-          <div className="text-sm font-medium">Descripción (opcional)</div>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={4}
-            className="mt-1 w-full resize-none rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-          />
-        </label>
+        {showAdvanced && (
+          <div className="space-y-4 rounded-lg border border-[var(--border)] bg-[var(--accent-soft)]/30 p-4">
+            <div className="space-y-2">
+              <div className="text-sm font-medium">
+                Imagen del producto
+                <HelpTip text="Una foto ayuda a que los clientes reconozcan tu producto." />
+              </div>
+              <div className="flex items-center gap-4">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="rounded-md border border-[var(--border)] bg-white px-4 py-2 text-sm font-medium hover:bg-[var(--accent-soft)] disabled:opacity-60"
+                >
+                  {uploading ? "Subiendo..." : "Cambiar imagen"}
+                </button>
+                {imageUrl && (
+                  <div className="relative h-16 w-16 overflow-hidden rounded-md border border-[var(--border)]">
+                    <img
+                      src={imageUrl}
+                      alt="Vista previa"
+                      className="h-full w-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setImageUrl("")}
+                      className="absolute inset-0 flex items-center justify-center bg-black/50 text-white opacity-0 hover:opacity-100"
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
+              </div>
+              <p className="text-xs text-[color:var(--muted)]">
+                JPG, PNG, WebP o GIF. Máx 5MB.
+              </p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="block">
+                <div className="text-sm font-medium">
+                  SKU / Código (opcional)
+                  <HelpTip text="Si usas códigos propios para identificar tus productos." />
+                </div>
+                <input
+                  value={sku}
+                  onChange={(e) => setSku(e.target.value)}
+                  className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm font-mono outline-none focus:border-[var(--accent)]"
+                  placeholder="Ej: CON-001"
+                />
+              </label>
+              <label className="block">
+                <div className="text-sm font-medium">
+                  Existencias
+                  <HelpTip text="¿Cuántos tienes disponibles? Vacío = sin control." />
+                </div>
+                <input
+                  value={stock}
+                  onChange={(e) => setStock(e.target.value)}
+                  inputMode="numeric"
+                  className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                  placeholder="Vacío = sin control"
+                />
+                <p className="mt-1 text-xs text-[color:var(--muted)]">
+                  Vacío = sin control de inventario
+                </p>
+              </label>
+            </div>
+
+            <label className="block">
+              <div className="text-sm font-medium">
+                Descripción (opcional)
+                <HelpTip text="Describe ingredientes, tamaño, colores disponibles." />
+              </div>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={4}
+                className="mt-1 w-full resize-none rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                placeholder="Ej: Concha de vainilla espolvoreada con azúcar, 80g"
+              />
+            </label>
+          </div>
+        )}
 
         {error ? (
           <div className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700">
@@ -300,14 +404,22 @@ export default function EditarProductoPage() {
           </button>
         </div>
 
-        <div className="mt-4 pt-4 border-t border-[var(--border)]">
+        <div className="flex gap-3 pt-4 border-t border-[var(--border)]">
+          <button
+            type="button"
+            disabled={duplicating}
+            onClick={handleDuplicate}
+            className="flex-1 rounded-md border border-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent)] hover:bg-[var(--accent-soft)] disabled:opacity-60"
+          >
+            {duplicating ? "Duplicando..." : "Duplicar producto"}
+          </button>
           <button
             type="button"
             disabled={deleting}
             onClick={handleDelete}
-            className="w-full rounded-md border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-500/20 disabled:opacity-60"
+            className="flex-1 rounded-md border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-500/20 disabled:opacity-60"
           >
-            {deleting ? "Eliminando..." : "Eliminar producto"}
+            {deleting ? "Eliminando..." : "Eliminar"}
           </button>
         </div>
       </form>

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
+import { formatDateInMexico } from "@/lib/dates";
 
 export const revalidate = 30;
 
@@ -83,7 +84,7 @@ export default async function AdminContractsPage() {
                        sub.status === "ACTIVE" ? "Activa" : sub.status}
                     </div>
                     <p className="text-xs text-[color:var(--muted)] mt-1">
-                      Firmado: {sub.contractSignedAt?.toLocaleDateString("es-MX")}
+                      Firmado: {formatDateInMexico(sub.contractSignedAt)}
                     </p>
                   </div>
                 </div>

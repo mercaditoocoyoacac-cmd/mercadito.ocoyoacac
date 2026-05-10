@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import OrderConfirmation from "@/components/OrderConfirmation";
+import { OrderCancelButton } from "@/components/OrderCancelButton";
 
 function formatMoney(cents: number, currency: string) {
   return new Intl.NumberFormat("es-MX", { style: "currency", currency }).format(
@@ -29,10 +30,11 @@ export default async function PedidoPage({
       customerName: true,
       customerPhone: true,
       customerAddress: true,
-      deliveryCode: true,
+      pickupCode: true,
       notes: true,
       totalCents: true,
       subtotalCents: true,
+      deliveryCents: true,
       currency: true,
       createdAt: true,
       store: { select: { name: true, slug: true } },
@@ -117,12 +119,34 @@ export default async function PedidoPage({
         </table>
       </div>
 
-      <div className="mt-4 text-right text-sm">
-        <span className="text-[color:var(--muted)]">Subtotal:</span>{" "}
-        <span className="font-semibold">
-          {formatMoney(order.subtotalCents, order.currency)}
-        </span>
+      <div className="mt-4 space-y-1 text-right text-sm">
+        <div>
+          <span className="text-[color:var(--muted)]">Subtotal:</span>{" "}
+          <span className="font-semibold">
+            {formatMoney(order.subtotalCents, order.currency)}
+          </span>
+        </div>
+        {order.fulfillmentType === "DELIVERY" && (
+          <div>
+            <span className="text-[color:var(--muted)]">Envío:</span>{" "}
+            <span className="font-semibold">
+              {formatMoney(order.deliveryCents, order.currency)}
+            </span>
+          </div>
+        )}
+        <div className="text-base">
+          <span className="text-[color:var(--muted)]">Total:</span>{" "}
+          <span className="font-semibold">
+            {formatMoney(order.totalCents, order.currency)}
+          </span>
+        </div>
       </div>
+
+      {order.status === "PENDING" && (
+        <div className="mt-6">
+          <OrderCancelButton orderId={order.id} createdAt={order.createdAt.toISOString()} />
+        </div>
+      )}
 
       <OrderConfirmation order={order} />
     </main>

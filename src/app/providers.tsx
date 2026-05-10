@@ -2,73 +2,99 @@
 
 import { useEffect } from "react";
 import { SessionProvider } from "next-auth/react";
-import { App } from "@capacitor/app";
-import { PushNotifications } from "@capacitor/push-notifications";
+import { Capacitor } from "@capacitor/core";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    // 1. Manejo del botón atrás
-    const handleBackButton = async () => {
-      await App.addListener('backButton', ({ canGoBack }) => {
-        if (canGoBack) {
-          window.history.back();
-        } else {
-          App.exitApp();
-        }
-      });
-    };
+    const isNative = Capacitor.isNativePlatform();
 
-    // 2. Configuración de Notificaciones Push
-    const setupPush = async () => {
-      try {
-        // Pequeña espera para asegurar que el hardware esté listo
-        await new Promise(resolve => setTimeout(resolve, 1000));
+    if (isNative) {
+      initNativePush();
+    } else {
+      initWebPush();
+    }
 
-        // Pedir permisos de forma más directa
-        let perm = await PushNotifications.checkPermissions();
-
-        if (perm.receive !== 'granted') {
-          perm = await PushNotifications.requestPermissions();
-        }
-
-        if (perm.receive === 'granted') {
-          // Registrar el dispositivo en Firebase
-          await PushNotifications.register();
-          console.log('Permiso de notificaciones concedido');
-
-          // Escuchar el token de FCM y guardarlo
-          await PushNotifications.addListener('registration', async (token) => {
-            console.log('FCM Token:', token.value);
-            try {
-              const response = await fetch('/api/push-token', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pushToken: token.value }),
-              });
-              if (response.ok) {
-                console.log('Push token guardado');
-              }
-            } catch (err) {
-              console.error('Error guardando push token:', err);
-            }
-          });
-        } else {
-          console.log('Permiso de notificaciones denegado');
-        }
-      } catch (error) {
-        console.error('Error configurando Push:', error);
-      }
-    };
-
-    handleBackButton();
-    setupPush();
-
-    return () => {
-      App.removeAllListeners();
-      PushNotifications.removeAllListeners();
-    };
+    return () => {};
   }, []);
 
   return <SessionProvider>{children}</SessionProvider>;
+}
+
+async function initNativePush() {
+  const { App } = await import("@capacitor/app");
+  const { PushNotifications } = await import("@capacitor/push-notifications");
+
+  await App.addListener("backButton", ({ canGoBack }) => {
+    if (canGoBack) {
+      window.history.back();
+    } else {
+      App.exitApp();
+    }
+  });
+
+  try {
+    setTimeout(async () => {
+      let perm = await PushNotifications.checkPermissions();
+
+      if (perm.receive !== "granted") {
+        perm = await PushNotifications.requestPermissions();
+      }
+
+      if (perm.receive === "granted") {
+        await PushNotifications.register();
+
+        PushNotifications.addListener("registration", async (token) => {
+          try {
+            await fetch("/api/push-token", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ pushToken: token.value }),
+            });
+          } catch (err) {
+            console.error("Error guardando push token:", err);
+          }
+        });
+
+        PushNotifications.addListener("pushNotificationReceived", (n) => {
+          console.log("Notificación recibida (native):", n);
+        });
+
+        PushNotifications.addListener("pushNotificationActionPerformed", (n) => {
+          console.log("Usuario tocó notificación (native):", n);
+        });
+      }
+    }, 1000);
+  } catch (error) {
+    console.error("Error configurando Push nativo:", error);
+  }
+}
+
+async function initWebPush() {
+  try {
+    const { requestWebPushToken, onForegroundMessage } = await import(
+      "@/lib/firebase-web"
+    );
+
+    if (!("Notification" in window)) return;
+    if (Notification.permission === "denied") return;
+
+    const token = await requestWebPushToken();
+    if (token) {
+      await fetch("/api/push-token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pushToken: token }),
+      });
+    }
+
+    onForegroundMessage((payload) => {
+      const { title, body } = payload.notification || {};
+      if (title) {
+        new Notification(title, { body: body || "", icon: "/Logo MO.png" });
+      }
+    });
+  } catch (error) {
+    console.error("Error configurando Push web:", error);
+  }
 }
 

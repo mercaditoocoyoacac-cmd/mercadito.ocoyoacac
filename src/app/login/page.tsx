@@ -1,42 +1,33 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Suspense, useMemo, useState } from "react";
+import { useState } from "react";
 
 export default function LoginPage() {
-  return (
-    <Suspense
-      fallback={
-        <main className="mx-auto w-full max-w-md flex-1 px-4 py-10">
-          <div className="text-sm text-[color:var(--muted)]">
-            Cargando...
-          </div>
-        </main>
-      }
-    >
-      <LoginInner />
-    </Suspense>
-  );
-}
-
-function LoginInner() {
   const router = useRouter();
-  const search = useSearchParams();
-  const callbackUrl = useMemo(() => search.get("callbackUrl") ?? "/", [search]);
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  async function redirectByRole() {
+    const sessionRes = await fetch("/api/auth/session");
+    const session = await sessionRes.json();
+    const role = session?.user?.role;
+    if (role === "VENDOR") router.push("/vendor");
+    else if (role === "DELIVERY") router.push("/delivery");
+    else if (role === "ADMIN") router.push("/admin");
+    else router.push("/");
+  }
+
   return (
     <main className="mx-auto w-full max-w-md flex-1 px-4 py-10">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">Portal del Cliente</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Iniciar sesión</h1>
         <p className="mt-2 text-sm text-[color:var(--muted)]">
-          Entra para comprar en las tiendas de tu zona.
+          Accede con tu correo y contraseña.
         </p>
       </div>
 
@@ -50,14 +41,13 @@ function LoginInner() {
             email,
             password,
             redirect: false,
-            callbackUrl,
           });
           setLoading(false);
           if (!res || res.error) {
             setError("Correo o contraseña incorrectos.");
             return;
           }
-          router.push(res.url ?? callbackUrl);
+          await redirectByRole();
         }}
       >
         <label className="block">
@@ -106,10 +96,15 @@ function LoginInner() {
         </Link>
       </div>
 
-      <div className="mt-4 border-t border-[var(--border)] pt-4 text-sm text-[color:var(--muted)]">
-        ¿Eres vendedor?{" "}
+      <div className="mt-4 flex flex-col gap-2 border-t border-[var(--border)] pt-4 text-sm text-[color:var(--muted)]">
         <Link className="underline" href="/vendor/login">
-          Portal de vendedores
+          ¿Eres vendedor? Portal de vendedores
+        </Link>
+        <Link className="underline" href="/delivery/login">
+          ¿Eres repartidor? Portal de repartidores
+        </Link>
+        <Link className="underline" href="/admin/login">
+          ¿Eres administrador? Portal de administración
         </Link>
       </div>
     </main>

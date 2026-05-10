@@ -32,7 +32,7 @@ export default function BecomeVendorPage() {
     }
 
     await update();
-    router.push("/vendor/onboarding");
+    router.push("/vendor/registro");
   }
 
   if (!session) {

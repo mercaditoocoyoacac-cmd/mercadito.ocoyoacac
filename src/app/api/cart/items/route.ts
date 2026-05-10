@@ -31,13 +31,41 @@ export async function GET() {
           priceCents: true,
           currency: true,
           isUnavailable: true,
-          store: { select: { id: true, name: true, slug: true, acceptsMercadoPago: true } },
+          store: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              acceptsMercadoPago: true,
+              paymentMethods: {
+                where: { isActive: true, status: "APPROVED" },
+                select: { processor: true, label: true },
+              },
+            },
+          },
         },
       },
     },
   });
 
-  return NextResponse.json({ ok: true, items });
+  // Compute hasOnlinePayment from the new model
+  const hasOnlinePayment = items.some((item) =>
+    item.product.store.paymentMethods.length > 0,
+  );
+
+  const result = items.map((item) => ({
+    ...item,
+    product: {
+      ...item.product,
+      store: {
+        ...item.product.store,
+        paymentMethods: undefined,
+        hasOnlinePayment,
+      },
+    },
+  }));
+
+  return NextResponse.json({ ok: true, items: result });
 }
 
 export async function POST(req: Request) {

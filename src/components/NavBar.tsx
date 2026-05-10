@@ -287,15 +287,15 @@ export function NavBar() {
                         </div>
                       </button>
                       <button
-                        onClick={() => navigateTo("/vendor/mercado-pago")}
+                        onClick={() => navigateTo("/vendor/pagos")}
                         className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
                       >
                         <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                         </svg>
                         <div>
-                          <div className="font-medium">MercadoPago</div>
-                          <div className="text-xs text-[color:var(--muted)]">Configurar pagos</div>
+                          <div className="font-medium">Pagos</div>
+                          <div className="text-xs text-[color:var(--muted)]">Configurar métodos de pago</div>
                         </div>
                       </button>
                       <button
@@ -564,18 +564,20 @@ export function NavBar() {
               
               <div className="my-2 border-t border-[var(--border)]"></div>
               
-              {data?.user && !isVendor && (
+              {data?.user && (
                 <>
                   <div className="text-xs text-[color:var(--muted)]">
                     {data.user.email}
                   </div>
-                  <Link
-                    href="/vendor/upgrade"
-                    onClick={() => setMenuOpen(false)}
-                    className="rounded-lg px-4 py-3 text-sm font-medium text-[var(--accent)]"
-                  >
-                    Convertirme en vendedor
-                  </Link>
+                  {role !== "VENDOR" && role !== "ADMIN" && (
+                    <Link
+                      href="/vendor/upgrade"
+                      onClick={() => setMenuOpen(false)}
+                      className="rounded-lg px-4 py-3 text-sm font-medium text-[var(--accent)]"
+                    >
+                      Convertirme en vendedor
+                    </Link>
+                  )}
                   <button
                     type="button"
                     onClick={() => { setMenuOpen(false); signOut({ callbackUrl: "/" }); }}
