@@ -115,77 +115,78 @@ export default async function VendorProductosPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {products.map((product: typeof products[number]) => (
-            <Link
+            <div
               key={product.id}
-              href={`/vendor/productos/${product.id}`}
               className="group rounded-xl border border-[var(--border)] bg-white p-4 transition-shadow hover:shadow-md"
             >
-              <div className="flex items-start gap-4">
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[var(--border)] bg-gray-50">
-                  {product.imageUrl ? (
-                    <Image
-                      src={product.imageUrl}
-                      alt={product.name}
-                      width={64}
-                      height={64}
-                      className="h-full w-full object-cover"
-                    />
+              <Link href={`/vendor/productos/${product.id}`} className="block">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[var(--border)] bg-gray-50">
+                    {product.imageUrl ? (
+                      <Image
+                        src={product.imageUrl}
+                        alt={product.name}
+                        width={64}
+                        height={64}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <svg className="h-8 w-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                      </svg>
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium truncate group-hover:text-[var(--accent)]">
+                      {product.name}
+                    </div>
+                    <div className="mt-0.5 text-lg font-semibold">
+                      {formatMoney(product.priceCents, product.currency)}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
+                    product.isActive
+                      ? "bg-green-50 text-green-700"
+                      : "bg-red-50 text-red-700"
+                  }`}>
+                    <span className={`h-1.5 w-1.5 rounded-full ${
+                      product.isActive ? "bg-green-500" : "bg-red-500"
+                    }`} />
+                    {product.isActive ? "Activo" : "Inactivo"}
+                  </span>
+                  {product.stock === -1 ? (
+                    <span className="text-xs text-[color:var(--muted)]">Sin control</span>
+                  ) : product.stock === 0 ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700">
+                      <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                      Agotado
+                    </span>
+                  ) : product.stock <= 5 ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">
+                      {product.stock} uds
+                    </span>
                   ) : (
-                    <svg className="h-8 w-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                    </svg>
+                    <span className="text-xs text-[color:var(--muted)]">{product.stock} uds</span>
                   )}
                 </div>
-                <div className="min-w-0 flex-1">
-                  <div className="font-medium truncate group-hover:text-[var(--accent)]">
-                    {product.name}
-                  </div>
-                  <div className="mt-0.5 text-lg font-semibold">
-                    {formatMoney(product.priceCents, product.currency)}
-                  </div>
-                </div>
-              </div>
 
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
-                  product.isActive
-                    ? "bg-green-50 text-green-700"
-                    : "bg-red-50 text-red-700"
-                }`}>
-                  <span className={`h-1.5 w-1.5 rounded-full ${
-                    product.isActive ? "bg-green-500" : "bg-red-500"
-                  }`} />
-                  {product.isActive ? "Activo" : "Inactivo"}
-                </span>
-                {product.stock === -1 ? (
-                  <span className="text-xs text-[color:var(--muted)]">Sin control</span>
-                ) : product.stock === 0 ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700">
-                    <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
-                    Agotado
-                  </span>
-                ) : product.stock <= 5 ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">
-                    {product.stock} uds
-                  </span>
-                ) : (
-                  <span className="text-xs text-[color:var(--muted)]">{product.stock} uds</span>
+                {product.sku && (
+                  <div className="mt-2 font-mono text-xs text-[color:var(--muted)]">
+                    SKU: {product.sku}
+                  </div>
                 )}
-              </div>
+              </Link>
 
-              {product.sku && (
-                <div className="mt-2 font-mono text-xs text-[color:var(--muted)]">
-                  SKU: {product.sku}
-                </div>
-              )}
-
-              <div className="mt-3 flex items-center justify-between border-t border-[var(--border)] pt-3" onClick={(e) => e.preventDefault()}>
+              <div className="mt-3 flex items-center justify-between border-t border-[var(--border)] pt-3">
                 <StockToggle productId={product.id} initial={product.isUnavailable} />
-                <span className="text-xs text-[var(--accent)] opacity-0 transition-opacity group-hover:opacity-100">
+                <Link href={`/vendor/productos/${product.id}`} className="text-xs text-[var(--accent)] opacity-0 transition-opacity group-hover:opacity-100">
                   Editar &rarr;
-                </span>
+                </Link>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       )}
