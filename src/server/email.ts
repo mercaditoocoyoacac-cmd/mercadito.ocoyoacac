@@ -1,27 +1,12 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
-function getTransport() {
-  const host = process.env.SMTP_HOST;
-  const port = process.env.SMTP_PORT;
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
-
-  if (!host || !port || !user || !pass) return null;
-
-  return nodemailer.createTransport({
-    host,
-    port: Number(port),
-    secure: Number(port) === 465,
-    auth: { user, pass },
-  });
-}
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 export async function sendEmail(opts: { to: string; subject: string; html: string }) {
-  const transport = getTransport();
-  if (!transport) {
+  if (!resend) {
     console.log(`[EMAIL] Would send to ${opts.to}: ${opts.subject}`);
     return;
   }
-  const from = process.env.EMAIL_FROM || "noreply@mercadito.app";
-  await transport.sendMail({ from, to: opts.to, subject: opts.subject, html: opts.html });
+  const from = process.env.EMAIL_FROM || "Mercadito Ocoacac <noreply@mercadito.app>";
+  await resend.emails.send({ from, to: opts.to, subject: opts.subject, html: opts.html });
 }

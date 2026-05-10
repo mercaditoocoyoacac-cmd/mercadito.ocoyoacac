@@ -17,12 +17,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Enlace inválido o expirado" }, { status: 400 });
   }
 
+  const user = await prisma.user.findUnique({ where: { email: record.email } });
+  if (!user) {
+    return NextResponse.json({ ok: false, error: "Usuario no encontrado" }, { status: 400 });
+  }
+
   const passwordHash = await bcrypt.hash(password, 10);
 
   await prisma.$transaction([
     prisma.user.update({
-      where: { email: record.email },
-      data: { passwordHash },
+      where: { id: user.id },
+      data: { passwordHash, failedLoginAttempts: 0, lastFailedLoginAt: null, lockoutUntil: null },
     }),
     prisma.passwordResetToken.update({
       where: { id: record.id },

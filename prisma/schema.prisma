@@ -61,6 +61,10 @@ model User {
   emailVerified    Boolean @default(false)
   phoneVerified   Boolean @default(false)
 
+  failedLoginAttempts Int     @default(0)
+  lastFailedLoginAt   DateTime?
+  lockoutUntil        DateTime?
+
   ineFrontUrl    String?
   ineBackUrl     String?
   ineNumber      String?

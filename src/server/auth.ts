@@ -28,11 +28,33 @@ export const authOptions: NextAuthOptions = {
 
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user) return null;
-
         if (!user.isActive) return null;
 
+        if (user.lockoutUntil && user.lockoutUntil > new Date()) {
+          return null;
+        }
+
         const ok = await bcrypt.compare(password, user.passwordHash);
-        if (!ok) return null;
+        if (!ok) {
+          const now = new Date();
+          const attempts = (user.failedLoginAttempts || 0) + 1;
+          const updates: any = {
+            failedLoginAttempts: attempts,
+            lastFailedLoginAt: now,
+          };
+          if (attempts >= 5) {
+            updates.lockoutUntil = new Date(now.getTime() + 15 * 60 * 1000);
+          }
+          await prisma.user.update({ where: { id: user.id }, data: updates });
+          return null;
+        }
+
+        if (user.failedLoginAttempts > 0 || user.lockoutUntil) {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { failedLoginAttempts: 0, lastFailedLoginAt: null, lockoutUntil: null },
+          });
+        }
 
         const headersList = await headers();
         const userAgent = headersList.get("user-agent") || "unknown";
@@ -92,4 +114,3 @@ export const authOptions: NextAuthOptions = {
     },
   },
 };
-
