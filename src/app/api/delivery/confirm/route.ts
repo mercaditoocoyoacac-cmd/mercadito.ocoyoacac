@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
 import { sendTextNotification } from "@/server/notifications";
@@ -72,6 +73,10 @@ export async function POST(req: Request) {
     where: { id: orderId },
     data: updateData as any,
   });
+
+  revalidatePath(`/mis-pedidos/${orderId}`);
+  revalidatePath(`/vendor/pedidos/${orderId}`);
+  revalidatePath("/vendor/pedidos");
 
   if (newStatus === "COMPLETED") {
     await sendTextNotification(order.userId, {

@@ -42,7 +42,7 @@ function getStatusColor(status: string) {
   return colors[status] || "border-gray-500 bg-gray-50";
 }
 
-export const revalidate = 30;
+export const dynamic = "force-dynamic";
 
 export default async function PedidoDetallePage({
   params,

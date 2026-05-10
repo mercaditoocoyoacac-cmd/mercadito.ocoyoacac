@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
 import { rateLimit, getClientIP } from "@/server/rateLimit";
@@ -179,6 +180,8 @@ export async function POST(req: Request) {
   });
 
   await prisma.cartItem.deleteMany({ where: { userId: auth.userId } });
+
+  revalidatePath("/vendor/pedidos");
 
   for (const cartItem of items) {
     if (cartItem.product.stock !== -1 && cartItem.product.stock !== null) {

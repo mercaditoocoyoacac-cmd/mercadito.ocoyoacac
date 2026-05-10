@@ -4,7 +4,7 @@ import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { revalidatePath } from "next/cache";
 
-export const revalidate = 30;
+export const dynamic = "force-dynamic";
 
 const statusLabels: Record<string, string> = {
   PENDING: "Pendiente",
@@ -213,6 +213,7 @@ export default async function VendorPedidoPage({
                   where: { id: order.id },
                   data: { status: "CONFIRMED" },
                 });
+                revalidatePath("/vendor/pedidos");
                 revalidatePath(`/vendor/pedidos/${order.id}`);
               }}
             >
@@ -229,6 +230,7 @@ export default async function VendorPedidoPage({
                   where: { id: order.id },
                   data: { status: "READY" },
                 });
+                revalidatePath("/vendor/pedidos");
                 revalidatePath(`/vendor/pedidos/${order.id}`);
               }}
             >
@@ -245,6 +247,7 @@ export default async function VendorPedidoPage({
                   where: { id: order.id },
                   data: { status: "OUT_FOR_DELIVERY" },
                 });
+                revalidatePath("/vendor/pedidos");
                 revalidatePath(`/vendor/pedidos/${order.id}`);
               }}
             >
@@ -261,6 +264,7 @@ export default async function VendorPedidoPage({
                   where: { id: order.id },
                   data: { status: "COMPLETED" },
                 });
+                revalidatePath("/vendor/pedidos");
                 revalidatePath(`/vendor/pedidos/${order.id}`);
               }}
             >
@@ -277,6 +281,7 @@ export default async function VendorPedidoPage({
                   where: { id: order.id },
                   data: { status: "COMPLETED" },
                 });
+                revalidatePath("/vendor/pedidos");
                 revalidatePath(`/vendor/pedidos/${order.id}`);
               }}
             >
@@ -293,6 +298,7 @@ export default async function VendorPedidoPage({
                   where: { id: order.id },
                   data: { status: "CANCELLED" },
                 });
+                revalidatePath("/vendor/pedidos");
                 revalidatePath(`/vendor/pedidos/${order.id}`);
               }}
             >

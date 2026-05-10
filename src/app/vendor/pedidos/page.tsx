@@ -11,7 +11,7 @@ function formatMoney(cents: number, currency: string) {
   }).format(cents / 100);
 }
 
-export const revalidate = 30;
+export const dynamic = "force-dynamic";
 
 const statusLabels: Record<string, string> = {
   PENDING: "Pendiente",
@@ -193,6 +193,7 @@ export default async function VendorPedidosPage() {
                           body: JSON.stringify({ status: "CONFIRMED" }),
                         });
                         revalidatePath("/vendor/pedidos");
+                        revalidatePath(`/vendor/pedidos/${order.id}`);
                       }}
                     >
                       <button className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700">
@@ -211,6 +212,7 @@ export default async function VendorPedidosPage() {
                           body: JSON.stringify({ status: "READY" }),
                         });
                         revalidatePath("/vendor/pedidos");
+                        revalidatePath(`/vendor/pedidos/${order.id}`);
                       }}
                     >
                       <button className="rounded-lg bg-yellow-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-yellow-700">
@@ -229,6 +231,7 @@ export default async function VendorPedidosPage() {
                             data: { status: "OUT_FOR_DELIVERY" },
                           });
                           revalidatePath("/vendor/pedidos");
+                          revalidatePath(`/vendor/pedidos/${order.id}`);
                         }}
                       >
                         <button className="rounded-lg bg-orange-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-orange-700">
@@ -252,6 +255,7 @@ export default async function VendorPedidosPage() {
                           data: { status: "COMPLETED" },
                         });
                         revalidatePath("/vendor/pedidos");
+                        revalidatePath(`/vendor/pedidos/${order.id}`);
                       }}
                     >
                       <button className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700">
@@ -266,10 +270,11 @@ export default async function VendorPedidosPage() {
                           "use server";
                           await prisma.order.update({
                             where: { id: order.id },
-data: { status: "CANCELLED" },
-                        });
-                        revalidatePath("/vendor/pedidos");
-                      }}
+                            data: { status: "CANCELLED" },
+                          });
+                          revalidatePath("/vendor/pedidos");
+                          revalidatePath(`/vendor/pedidos/${order.id}`);
+                        }}
                       >
                         <button className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700">
                           Cancelar

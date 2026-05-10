@@ -34,7 +34,7 @@ function getStatusColor(status: string) {
   return colors[status] || "bg-gray-100 text-gray-800";
 }
 
-export const revalidate = 30;
+export const dynamic = "force-dynamic";
 
 export default async function MisPedidosPage() {
   const session = await getSession();

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
 
@@ -63,6 +64,9 @@ export async function POST(req: Request) {
   if (claimed.count === 0) {
     return NextResponse.json({ ok: false, error: "Otro repartidor tomó este pedido primero." }, { status: 409 });
   }
+
+  revalidatePath(`/vendor/pedidos/${parsed.data.orderId}`);
+  revalidatePath("/vendor/pedidos");
 
   return NextResponse.json({ ok: true, orderId: parsed.data.orderId });
 }

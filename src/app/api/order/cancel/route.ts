@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 
@@ -69,6 +70,9 @@ export async function POST(req: Request) {
       }
     }
   });
+
+  revalidatePath("/vendor/pedidos");
+  revalidatePath(`/vendor/pedidos/${orderId}`);
 
   return NextResponse.json({ ok: true });
 }
