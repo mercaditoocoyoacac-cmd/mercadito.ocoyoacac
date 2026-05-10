@@ -319,6 +319,18 @@ model Notification {
   @@index([read])
 }
 
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  email     String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([token])
+}
+
 model Verification {
   id        String   @id @default(cuid())
   type      String

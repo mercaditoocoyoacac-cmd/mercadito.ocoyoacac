@@ -74,6 +74,12 @@ export default function LoginPage() {
           />
         </label>
 
+        <div className="text-right">
+          <Link href="/recuperar-contrasena" className="text-xs text-[var(--accent)] hover:underline">
+            ¿Olvidaste tu contraseña?
+          </Link>
+        </div>
+
         {error ? (
           <div className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700">
             {error}
