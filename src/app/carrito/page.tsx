@@ -12,6 +12,8 @@ const LocationPicker = dynamic(
 
 type CartItem = {
   quantity: number;
+  variantId: string | null;
+  variant: { id: string; name: string; priceCents: number } | null;
   product: {
     id: string;
     name: string;
@@ -168,9 +170,12 @@ export default function CarritoPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {(items ?? []).map((item) => (
+                  {(items ?? []).map((item) => {
+                    const effectivePrice = item.variant?.priceCents ?? item.product.priceCents;
+                    const cartKey = `${item.product.id}-${item.variantId || ""}`;
+                    return (
                     <tr
-                      key={item.product.id}
+                      key={cartKey}
                       className={`border-t border-[var(--border)] ${
                         item.product.isUnavailable ? "bg-red-50" : ""
                       }`}
@@ -178,6 +183,11 @@ export default function CarritoPage() {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <div className="font-medium">{item.product.name}</div>
+                          {item.variant && (
+                            <span className="text-xs text-[color:var(--muted)]">
+                              ({item.variant.name})
+                            </span>
+                          )}
                           {item.product.isUnavailable && (
                             <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-medium text-red-700">
                               Agotado
@@ -185,7 +195,7 @@ export default function CarritoPage() {
                           )}
                         </div>
                         <div className="text-xs text-[color:var(--muted)]">
-                          {formatMoney(item.product.priceCents, item.product.currency)}
+                          {formatMoney(effectivePrice, item.product.currency)}
                         </div>
                       </td>
                       <td className="px-4 py-3">
@@ -201,6 +211,7 @@ export default function CarritoPage() {
                                 body: JSON.stringify({
                                   productId: item.product.id,
                                   quantity: next,
+                                  variantId: item.variantId || undefined,
                                 }),
                               });
                               await refresh();
@@ -220,6 +231,7 @@ export default function CarritoPage() {
                                 body: JSON.stringify({
                                   productId: item.product.id,
                                   quantity: next,
+                                  variantId: item.variantId || undefined,
                                 }),
                               });
                               await refresh();
@@ -231,12 +243,12 @@ export default function CarritoPage() {
                       </td>
                       <td className="px-4 py-3 font-medium">
                         {formatMoney(
-                          item.quantity * item.product.priceCents,
+                          item.quantity * effectivePrice,
                           item.product.currency,
                         )}
                       </td>
                     </tr>
-                  ))}
+                  );})}
                 </tbody>
               </table>
             </div>

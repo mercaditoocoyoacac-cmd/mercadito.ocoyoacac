@@ -51,6 +51,11 @@ export default async function StorefrontPage({
       currency: true,
       imageUrl: true,
       isUnavailable: true,
+      variants: {
+        where: { isActive: true },
+        select: { id: true, name: true, priceCents: true },
+        orderBy: { sortOrder: "asc" },
+      },
     },
   });
 
@@ -172,7 +177,9 @@ export default async function StorefrontPage({
                   )}
                 </div>
                 <div className="text-sm font-semibold text-[var(--accent)]">
-                  {formatMoney(product.priceCents, product.currency)}
+                  {(product as any).variants?.length > 0
+                    ? `Desde ${formatMoney(Math.min(...(product as any).variants.map((v: any) => v.priceCents), product.priceCents), product.currency)}`
+                    : formatMoney(product.priceCents, product.currency)}
                 </div>
                 <div className="mt-2">
                   {store.category === "SERVICIOS" ? (
@@ -197,6 +204,7 @@ export default async function StorefrontPage({
                   ) : (
                     <AddToCartButton
                       productId={product.id}
+                      variants={(product as any).variants}
                       disabled={!open || product.isUnavailable}
                       disabledLabel={product.isUnavailable ? "Agotado" : !open ? "Tienda cerrada" : undefined}
                     />

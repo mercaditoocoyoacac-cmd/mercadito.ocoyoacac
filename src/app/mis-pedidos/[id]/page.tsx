@@ -73,7 +73,7 @@ export default async function PedidoDetallePage({
       pickupCode: true,
       deliveryCode: true,
       store: { select: { name: true, slug: true, phone: true } },
-      items: { select: { id: true, name: true, priceCents: true, quantity: true } },
+      items: { select: { id: true, name: true, priceCents: true, quantity: true, variantName: true } },
     },
   });
 
@@ -215,7 +215,12 @@ export default async function PedidoDetallePage({
             {order.items.map((item) => (
               <div key={item.id} className="flex items-center justify-between px-6 py-4">
                 <div>
-                  <div className="font-medium">{item.name}</div>
+                  <div className="font-medium">
+                    {item.name}
+                    {item.variantName && (
+                      <span className="ml-1 text-xs text-[color:var(--muted)]">({item.variantName})</span>
+                    )}
+                  </div>
                   <div className="text-sm text-[color:var(--muted)]">
                     {item.quantity} x {formatMoney(item.priceCents, order.currency)}
                   </div>

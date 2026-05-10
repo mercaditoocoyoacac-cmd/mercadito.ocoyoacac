@@ -26,6 +26,13 @@ function HelpTip({ text }: { text: string }) {
   );
 }
 
+interface Variant {
+  id: string;
+  name: string;
+  priceCents: number;
+  sortOrder: number;
+}
+
 interface Product {
   id: string;
   name: string;
@@ -36,6 +43,14 @@ interface Product {
   isActive: boolean;
   sku: string | null;
   stock: number;
+  variants: Variant[];
+}
+
+interface VariantEntry {
+  key: string;
+  id?: string;
+  name: string;
+  price: string;
 }
 
 export default function EditarProductoPage() {
@@ -57,6 +72,7 @@ export default function EditarProductoPage() {
   const [deleting, setDeleting] = useState(false);
   const [duplicating, setDuplicating] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [variants, setVariants] = useState<VariantEntry[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -81,6 +97,14 @@ export default function EditarProductoPage() {
         setImageUrl(found.imageUrl ?? "");
         setSku(found.sku ?? "");
         setStock(found.stock === -1 ? "" : found.stock.toString());
+        setVariants(
+          found.variants.map((v) => ({
+            key: v.id,
+            id: v.id,
+            name: v.name,
+            price: (v.priceCents / 100).toString(),
+          })),
+        );
       } else {
         setError("Producto no encontrado.");
       }
@@ -125,6 +149,29 @@ export default function EditarProductoPage() {
     setImageUrl(data.url);
   }
 
+  function addVariant() {
+    setVariants([...variants, { key: crypto.randomUUID(), name: "", price: "0" }]);
+  }
+
+  function updateVariant(key: string, field: "name" | "price", value: string) {
+    setVariants(variants.map((v) => (v.key === key ? { ...v, [field]: value } : v)));
+  }
+
+  function removeVariant(key: string) {
+    setVariants(variants.filter((v) => v.key !== key));
+  }
+
+  function buildVariantsPayload() {
+    return variants
+      .filter((v) => v.name.trim())
+      .map((v, i) => ({
+        id: v.id,
+        name: v.name.trim(),
+        priceCents: Math.round(Number(v.price) * 100) || 0,
+        sortOrder: i,
+      }));
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
@@ -147,6 +194,7 @@ export default function EditarProductoPage() {
         imageUrl: imageUrl || null,
         sku: sku.trim() || null,
         stock: stock.trim() === "" ? -1 : parseInt(stock) || 0,
+        variants: buildVariantsPayload(),
       }),
     });
 
@@ -203,6 +251,7 @@ export default function EditarProductoPage() {
         imageUrl: imageUrl || undefined,
         sku: sku.trim() ? sku.trim() + "-COPIA" : undefined,
         stock: stock.trim() === "" ? -1 : parseInt(stock) || 0,
+        variants: buildVariantsPayload(),
       }),
     });
 
@@ -286,7 +335,7 @@ export default function EditarProductoPage() {
           >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
-          {showAdvanced ? "Ocultar opciones avanzadas" : "Mostrar más opciones (imagen, código, inventario)"}
+          {showAdvanced ? "Ocultar opciones avanzadas" : "Mostrar más opciones (imagen, código, inventario, variantes)"}
         </button>
 
         {showAdvanced && (
@@ -378,6 +427,57 @@ export default function EditarProductoPage() {
                 placeholder="Ej: Concha de vainilla espolvoreada con azúcar, 80g"
               />
             </label>
+
+            <div className="border-t border-[var(--border)] pt-4">
+              <div className="flex items-center justify-between">
+                <div className="text-sm font-medium">
+                  Variantes
+                  <HelpTip text="Si tu producto tiene versiones (ej: clásica, hawaiana, doble), el cliente podrá elegir desde una lista." />
+                </div>
+                <button
+                  type="button"
+                  onClick={addVariant}
+                  className="text-xs text-[var(--accent)] hover:underline"
+                >
+                  + Agregar variante
+                </button>
+              </div>
+              {variants.length === 0 && (
+                <p className="mt-2 text-xs text-[color:var(--muted)]">
+                  Sin variantes. El producto se venderá tal cual.
+                </p>
+              )}
+              <div className="mt-2 space-y-2">
+                {variants.map((v) => (
+                  <div key={v.key} className="flex items-start gap-2 rounded-md border border-[var(--border)] bg-white p-2">
+                    <div className="flex-1">
+                      <input
+                        value={v.name}
+                        onChange={(e) => updateVariant(v.key, "name", e.target.value)}
+                        placeholder="Ej: Clásica"
+                        className="w-full border-b border-transparent bg-transparent px-1 py-1 text-sm outline-none focus:border-[var(--accent)]"
+                      />
+                    </div>
+                    <div className="w-24">
+                      <input
+                        value={v.price}
+                        onChange={(e) => updateVariant(v.key, "price", e.target.value)}
+                        inputMode="decimal"
+                        placeholder="Precio"
+                        className="w-full border-b border-transparent bg-transparent px-1 py-1 text-sm outline-none focus:border-[var(--accent)]"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeVariant(v.key)}
+                      className="shrink-0 rounded p-1 text-xs text-red-500 hover:bg-red-50"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 

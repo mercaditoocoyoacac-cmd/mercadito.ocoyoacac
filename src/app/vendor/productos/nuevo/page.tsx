@@ -26,6 +26,12 @@ function HelpTip({ text }: { text: string }) {
   );
 }
 
+interface VariantEntry {
+  key: string;
+  name: string;
+  price: string;
+}
+
 export default function NuevoProductoPage() {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -38,7 +44,20 @@ export default function NuevoProductoPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [variants, setVariants] = useState<VariantEntry[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function addVariant() {
+    setVariants([...variants, { key: crypto.randomUUID(), name: "", price: "0" }]);
+  }
+
+  function updateVariant(key: string, field: "name" | "price", value: string) {
+    setVariants(variants.map((v) => (v.key === key ? { ...v, [field]: value } : v)));
+  }
+
+  function removeVariant(key: string) {
+    setVariants(variants.filter((v) => v.key !== key));
+  }
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -96,6 +115,14 @@ export default function NuevoProductoPage() {
             return;
           }
 
+          const variantsPayload = variants
+            .filter((v) => v.name.trim())
+            .map((v, i) => ({
+              name: v.name.trim(),
+              priceCents: Math.round(Number(v.price) * 100) || 0,
+              sortOrder: i,
+            }));
+
           const res = await fetch("/api/vendor/products", {
             method: "POST",
             headers: { "content-type": "application/json" },
@@ -106,6 +133,7 @@ export default function NuevoProductoPage() {
               imageUrl: imageUrl || undefined,
               sku: sku.trim() || undefined,
               stock: stock.trim() === "" ? -1 : parseInt(stock) || 0,
+              variants: variantsPayload.length > 0 ? variantsPayload : undefined,
             }),
           });
           const data = (await res.json().catch(() => null)) as
@@ -166,7 +194,7 @@ export default function NuevoProductoPage() {
           >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
-          {showAdvanced ? "Ocultar opciones avanzadas" : "Mostrar más opciones (imagen, código, inventario)"}
+          {showAdvanced ? "Ocultar opciones avanzadas" : "Mostrar más opciones (imagen, código, inventario, variantes)"}
         </button>
 
         {showAdvanced && (
@@ -258,6 +286,57 @@ export default function NuevoProductoPage() {
                 placeholder="Ej: Concha de vainilla espolvoreada con azúcar, 80g"
               />
             </label>
+
+            <div className="border-t border-[var(--border)] pt-4">
+              <div className="flex items-center justify-between">
+                <div className="text-sm font-medium">
+                  Variantes
+                  <HelpTip text="Si tu producto tiene versiones (ej: clásica, hawaiana, doble), agrégalas aquí. El cliente podrá elegir desde una lista." />
+                </div>
+                <button
+                  type="button"
+                  onClick={addVariant}
+                  className="text-xs text-[var(--accent)] hover:underline"
+                >
+                  + Agregar variante
+                </button>
+              </div>
+              {variants.length === 0 && (
+                <p className="mt-2 text-xs text-[color:var(--muted)]">
+                  Sin variantes. El producto se venderá tal cual.
+                </p>
+              )}
+              <div className="mt-2 space-y-2">
+                {variants.map((v) => (
+                  <div key={v.key} className="flex items-start gap-2 rounded-md border border-[var(--border)] bg-white p-2">
+                    <div className="flex-1">
+                      <input
+                        value={v.name}
+                        onChange={(e) => updateVariant(v.key, "name", e.target.value)}
+                        placeholder="Ej: Clásica"
+                        className="w-full border-b border-transparent bg-transparent px-1 py-1 text-sm outline-none focus:border-[var(--accent)]"
+                      />
+                    </div>
+                    <div className="w-24">
+                      <input
+                        value={v.price}
+                        onChange={(e) => updateVariant(v.key, "price", e.target.value)}
+                        inputMode="decimal"
+                        placeholder="Precio"
+                        className="w-full border-b border-transparent bg-transparent px-1 py-1 text-sm outline-none focus:border-[var(--accent)]"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeVariant(v.key)}
+                      className="shrink-0 rounded p-1 text-xs text-red-500 hover:bg-red-50"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 

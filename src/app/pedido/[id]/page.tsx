@@ -38,7 +38,7 @@ export default async function PedidoPage({
       currency: true,
       createdAt: true,
       store: { select: { name: true, slug: true } },
-      items: { select: { id: true, name: true, priceCents: true, quantity: true } },
+      items: { select: { id: true, name: true, priceCents: true, quantity: true, variantName: true } },
     },
   });
   if (!order) return notFound();
@@ -108,7 +108,12 @@ export default async function PedidoPage({
                 key={item.id}
                 className="border-t border-[var(--border)]"
               >
-                <td className="px-4 py-3">{item.name}</td>
+                <td className="px-4 py-3">
+                  {item.name}
+                  {item.variantName && (
+                    <span className="ml-1 text-xs text-[color:var(--muted)]">({item.variantName})</span>
+                  )}
+                </td>
                 <td className="px-4 py-3">{item.quantity}</td>
                 <td className="px-4 py-3 font-medium">
                   {formatMoney(item.priceCents * item.quantity, order.currency)}

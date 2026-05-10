@@ -7,11 +7,13 @@ import { isStoreOpen } from "@/lib/schedule";
 const AddSchema = z.object({
   productId: z.string().min(1),
   quantity: z.number().int().min(1).max(99).default(1),
+  variantId: z.string().optional(),
 });
 
 const UpdateSchema = z.object({
   productId: z.string().min(1),
   quantity: z.number().int().min(0).max(99),
+  variantId: z.string().optional(),
 });
 
 export async function GET() {
@@ -24,6 +26,10 @@ export async function GET() {
     select: {
       id: true,
       quantity: true,
+      variantId: true,
+      variant: {
+        select: { id: true, name: true, priceCents: true },
+      },
       product: {
         select: {
           id: true,
@@ -48,7 +54,6 @@ export async function GET() {
     },
   });
 
-  // Compute hasOnlinePayment from the new model
   const hasOnlinePayment = items.some((item) =>
     item.product.store.paymentMethods.length > 0,
   );
@@ -121,17 +126,31 @@ export async function POST(req: Request) {
     await prisma.cartItem.deleteMany({ where: { userId: auth.userId } });
   }
 
-  await prisma.cartItem.upsert({
-    where: { userId_productId: { userId: auth.userId, productId: product.id } },
-    create: {
-      userId: auth.userId,
-      productId: product.id,
-      quantity: parsed.data.quantity,
-    },
-    update: {
-      quantity: { increment: parsed.data.quantity },
-    },
-  });
+  const variantId = parsed.data.variantId || null;
+
+  const existingItem = variantId
+    ? await prisma.cartItem.findFirst({
+        where: { userId: auth.userId, productId: product.id, variantId },
+      })
+    : await prisma.cartItem.findFirst({
+        where: { userId: auth.userId, productId: product.id, variantId: null },
+      });
+
+  if (existingItem) {
+    await prisma.cartItem.update({
+      where: { id: existingItem.id },
+      data: { quantity: { increment: parsed.data.quantity } },
+    });
+  } else {
+    await prisma.cartItem.create({
+      data: {
+        userId: auth.userId,
+        productId: product.id,
+        variantId,
+        quantity: parsed.data.quantity,
+      },
+    });
+  }
 
   return NextResponse.json({ ok: true });
 }
@@ -149,15 +168,17 @@ export async function PUT(req: Request) {
     );
   }
 
+  const variantId = parsed.data.variantId || null;
+
   if (parsed.data.quantity === 0) {
     await prisma.cartItem.deleteMany({
-      where: { userId: auth.userId, productId: parsed.data.productId },
+      where: { userId: auth.userId, productId: parsed.data.productId, variantId },
     });
     return NextResponse.json({ ok: true });
   }
 
   await prisma.cartItem.updateMany({
-    where: { userId: auth.userId, productId: parsed.data.productId },
+    where: { userId: auth.userId, productId: parsed.data.productId, variantId },
     data: { quantity: parsed.data.quantity },
   });
 
@@ -170,7 +191,7 @@ export async function DELETE(req: Request) {
 
   const json = await req.json().catch(() => null);
   const parsed = z
-    .object({ productId: z.string().min(1) })
+    .object({ productId: z.string().min(1), variantId: z.string().optional() })
     .safeParse(json);
   if (!parsed.success) {
     return NextResponse.json(
@@ -179,10 +200,10 @@ export async function DELETE(req: Request) {
     );
   }
 
+  const variantId = parsed.data.variantId || null;
   await prisma.cartItem.deleteMany({
-    where: { userId: auth.userId, productId: parsed.data.productId },
+    where: { userId: auth.userId, productId: parsed.data.productId, variantId },
   });
 
   return NextResponse.json({ ok: true });
 }
-

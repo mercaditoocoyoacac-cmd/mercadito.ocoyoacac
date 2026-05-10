@@ -3,12 +3,21 @@ import { z } from "zod";
 import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
 
+const VariantSchema = z.object({
+  name: z.string().min(1).max(80),
+  priceCents: z.number().int().min(1),
+  sortOrder: z.number().int().default(0),
+});
+
 const CreateProductSchema = z.object({
   name: z.string().min(2).max(120),
   description: z.string().max(2000).optional(),
   priceCents: z.number().int().min(1),
   imageUrl: z.string().url().optional(),
   isActive: z.boolean().optional(),
+  sku: z.string().optional(),
+  stock: z.number().int().min(-1).optional(),
+  variants: z.array(VariantSchema).optional(),
 });
 
 export async function GET() {
@@ -32,6 +41,12 @@ export async function GET() {
       currency: true,
       isActive: true,
       imageUrl: true,
+      sku: true,
+      stock: true,
+      variants: {
+        select: { id: true, name: true, priceCents: true, sortOrder: true },
+        orderBy: { sortOrder: "asc" },
+      },
     },
   });
 
@@ -70,10 +85,14 @@ export async function POST(req: Request) {
       priceCents: parsed.data.priceCents,
       imageUrl: parsed.data.imageUrl ?? null,
       isActive: parsed.data.isActive ?? true,
+      sku: parsed.data.sku?.trim() || null,
+      stock: parsed.data.stock ?? -1,
+      variants: parsed.data.variants?.length
+        ? { create: parsed.data.variants }
+        : undefined,
     },
     select: { id: true },
   });
 
   return NextResponse.json({ ok: true, product });
 }
-

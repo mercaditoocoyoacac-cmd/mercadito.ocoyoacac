@@ -70,6 +70,10 @@ export async function POST(req: Request) {
     where: { userId: auth.userId },
     select: {
       quantity: true,
+      variantId: true,
+      variant: {
+        select: { id: true, name: true, priceCents: true },
+      },
       product: {
         select: {
           id: true,
@@ -140,8 +144,10 @@ export async function POST(req: Request) {
 
   const currency = items[0]!.product.currency;
   const subtotalCents = items.reduce(
-    (sum: number, cartItem: typeof items[number]) =>
-      sum + cartItem.quantity * cartItem.product.priceCents,
+    (sum: number, cartItem: typeof items[number]) => {
+      const price = cartItem.variant?.priceCents ?? cartItem.product.priceCents;
+      return sum + cartItem.quantity * price;
+    },
     0,
   );
   const deliveryCents = parsed.data.fulfillmentType === "DELIVERY" ? 2500 : 0;
@@ -171,8 +177,10 @@ export async function POST(req: Request) {
         create: items.map((cartItem: typeof items[number]) => ({
           productId: cartItem.product.id,
           name: cartItem.product.name,
-          priceCents: cartItem.product.priceCents,
+          priceCents: cartItem.variant?.priceCents ?? cartItem.product.priceCents,
           quantity: cartItem.quantity,
+          variantName: cartItem.variant?.name || null,
+          variantId: cartItem.variantId,
         })),
       },
     },
@@ -267,9 +275,9 @@ export async function POST(req: Request) {
           body: JSON.stringify({
             items: [
               ...items.map((item: typeof items[number]) => ({
-                title: item.product.name,
+                title: item.variant ? `${item.product.name} (${item.variant.name})` : item.product.name,
                 quantity: item.quantity,
-                unit_price: item.product.priceCents / 100,
+                unit_price: (item.variant?.priceCents ?? item.product.priceCents) / 100,
                 currency_id: "MXN",
               })),
               ...(deliveryCents > 0
