@@ -45,6 +45,7 @@ export async function POST(req: Request) {
               await sendTextNotification(store.ownerId, {
                 title: "Pago recibido",
                 body: `Nuevo pago aprobado para tu tienda ${store.name}. Pedido #${externalRef.slice(-8)}`,
+                url: "/vendor/pedidos",
               });
             }
           }

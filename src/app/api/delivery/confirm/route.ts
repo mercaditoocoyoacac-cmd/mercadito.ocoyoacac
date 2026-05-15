@@ -85,6 +85,7 @@ export async function POST(req: Request) {
       title: "Pedido entregado",
       body: `Tu pedido en ${order.store.name} ha sido entregado.`,
       type: "ORDER_COMPLETED",
+      url: `/mis-pedidos/${orderId}`,
     });
 
     const message = `🛵 ¡Tu pedido de ${order.store.name} ha llegado! El repartidor ya está en tu domicilio.`;

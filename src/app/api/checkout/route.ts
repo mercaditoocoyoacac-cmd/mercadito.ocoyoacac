@@ -217,6 +217,7 @@ export async function POST(req: Request) {
         title: "Nuevo pedido!",
         body: `${parsed.data.customerName} hizo un pedido de $${(totalCents / 100).toFixed(2)} ${currency}`,
         type: "NEW_ORDER",
+        url: "/vendor/pedidos",
       }),
     ];
 
@@ -225,6 +226,7 @@ export async function POST(req: Request) {
         sendPushNotification(storeForNotification.owner.pushToken, {
           title: "Nuevo pedido!",
           body: `${parsed.data.customerName} - $${(totalCents / 100).toFixed(2)} ${currency}`,
+          url: "/vendor/pedidos",
         }),
       );
     }

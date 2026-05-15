@@ -16,6 +16,8 @@ export default function DeliveryLoginPage() {
     const sessionRes = await fetch("/api/auth/session");
     const session = await sessionRes.json();
     const role = session?.user?.role;
+    const extra = session?.user?.additionalRoles;
+    if (extra) { router.push("/"); return; }
     if (role === "DELIVERY") router.push("/delivery");
     else if (role === "VENDOR") router.push("/vendor");
     else if (role === "ADMIN") router.push("/admin");

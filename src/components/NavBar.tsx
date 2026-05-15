@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
 export function NavBar() {
-  const { data } = useSession();
+  const { data, update } = useSession();
   const role = data?.user?.role;
   const pathname = usePathname();
   const router = useRouter();
@@ -18,6 +18,23 @@ export function NavBar() {
   const isVendor = role === "VENDOR" || role === "ADMIN";
   const isDelivery = role === "DELIVERY";
   const isAdmin = role === "ADMIN";
+
+  const additionalRoles = data?.user?.additionalRoles?.split(",").filter(Boolean) || [];
+
+  async function switchRole(newRole: string) {
+    const res = await fetch("/api/auth/switch-role", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ role: newRole }),
+    });
+    if (res.ok) {
+      await update();
+      if (newRole === "DELIVERY") router.push("/delivery");
+      else if (newRole === "CUSTOMER") router.push("/");
+      else if (newRole === "VENDOR") router.push("/vendor");
+      else if (newRole === "ADMIN") router.push("/admin");
+    }
+  }
 
   const navigateTo = (href: string) => {
     setVendorMenuOpen(false);
@@ -326,12 +343,59 @@ export function NavBar() {
                 Vender
               </Link>
             )}
+            {role && role !== "DELIVERY" && !additionalRoles.includes("DELIVERY") && (
+              <Link
+                href="/delivery/registro"
+                className="rounded-lg border border-orange-500 px-4 py-2 text-sm font-medium text-orange-600 transition-colors hover:bg-orange-50"
+              >
+                Repartir
+              </Link>
+            )}
+            {role && role !== "CUSTOMER" && !additionalRoles.includes("CUSTOMER") && (
+              <Link
+                href="/registro"
+                className="rounded-lg border border-rose-500 px-4 py-2 text-sm font-medium text-rose-600 transition-colors hover:bg-rose-50"
+              >
+                Comprar
+              </Link>
+            )}
             {data?.user ? (
               <div className="flex items-center gap-3">
                 <div className="text-right">
                   <div className="text-sm font-medium truncate max-w-[150px]">{data.user.email}</div>
                   <div className="text-xs text-[color:var(--muted)] capitalize">{role?.toLowerCase()}</div>
                 </div>
+                {additionalRoles.length > 0 && (
+                  <div className="flex flex-col gap-1">
+                    {additionalRoles.includes("DELIVERY") && role !== "DELIVERY" && (
+                      <button
+                        type="button"
+                        onClick={() => switchRole("DELIVERY")}
+                        className="rounded-lg bg-orange-500 px-2 py-1 text-xs font-medium text-white hover:bg-orange-600"
+                      >
+                        Repartidor
+                      </button>
+                    )}
+                    {additionalRoles.includes("CUSTOMER") && role !== "CUSTOMER" && (
+                      <button
+                        type="button"
+                        onClick={() => switchRole("CUSTOMER")}
+                        className="rounded-lg bg-rose-500 px-2 py-1 text-xs font-medium text-white hover:bg-rose-600"
+                      >
+                        Cliente
+                      </button>
+                    )}
+                    {additionalRoles.includes("VENDOR") && role !== "VENDOR" && (
+                      <button
+                        type="button"
+                        onClick={() => switchRole("VENDOR")}
+                        className="rounded-lg bg-emerald-500 px-2 py-1 text-xs font-medium text-white hover:bg-emerald-600"
+                      >
+                        Vendedor
+                      </button>
+                    )}
+                  </div>
+                )}
                 <button
                   type="button"
                   onClick={() => signOut({ callbackUrl: "/" })}
@@ -576,6 +640,24 @@ export function NavBar() {
                       className="rounded-lg px-4 py-3 text-sm font-medium text-[var(--accent)]"
                     >
                       Convertirme en vendedor
+                    </Link>
+                  )}
+                  {role !== "DELIVERY" && !additionalRoles.includes("DELIVERY") && (
+                    <Link
+                      href="/delivery/registro"
+                      onClick={() => setMenuOpen(false)}
+                      className="rounded-lg px-4 py-3 text-sm font-medium text-orange-600"
+                    >
+                      Quiero repartir
+                    </Link>
+                  )}
+                  {role !== "CUSTOMER" && !additionalRoles.includes("CUSTOMER") && (
+                    <Link
+                      href="/registro"
+                      onClick={() => setMenuOpen(false)}
+                      className="rounded-lg px-4 py-3 text-sm font-medium text-rose-600"
+                    >
+                      Quiero comprar
                     </Link>
                   )}
                   <button

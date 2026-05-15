@@ -201,7 +201,7 @@ export default async function AdminDashboard() {
         )}
       </div>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-3">
+      <div className="mt-8 grid gap-4 sm:grid-cols-4">
         <Link
           href="/admin/membresias"
           className="rounded-xl border border-[var(--border)] p-5 hover:bg-[var(--accent-soft)] transition-colors"
@@ -247,6 +247,22 @@ export default async function AdminDashboard() {
             <div>
               <div className="font-semibold">Pedidos</div>
               <div className="text-xs text-[color:var(--muted)]">Todos los pedidos</div>
+            </div>
+          </div>
+        </Link>
+        <Link
+          href="/admin/ranking"
+          className="rounded-xl border border-[var(--border)] p-5 hover:bg-[var(--accent-soft)] transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-[var(--accent-soft)] flex items-center justify-center">
+              <svg className="h-5 w-5 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>
+            </div>
+            <div>
+              <div className="font-semibold">Ranking</div>
+              <div className="text-xs text-[color:var(--muted)]">Calificaciones</div>
             </div>
           </div>
         </Link>

@@ -45,6 +45,7 @@ model User {
   name         String?
   passwordHash String
   role         Role     @default(CUSTOMER)
+  additionalRoles String?
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -278,6 +279,7 @@ model Order {
   currency        String          @default("MXN")
   deliveryCode    String?         @unique
   pickupCode      String?         @unique
+  arrivedAt       DateTime?
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
@@ -290,6 +292,7 @@ model Order {
   deliveryUser   User?   @relation("OrderDelivery", fields: [deliveryUserId], references: [id])
 
   items OrderItem[]
+  rating OrderRating?
 
   @@index([userId])
   @@index([storeId])
@@ -300,6 +303,19 @@ model Order {
   @@index([createdAt])
   @@index([customerLat])
   @@index([customerLng])
+}
+
+model OrderRating {
+  id            String   @id @default(cuid())
+  storeScore    Int
+  deliveryScore Int?
+  comment       String?
+  createdAt     DateTime @default(now())
+
+  orderId String @unique
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
 }
 
 model OrderItem {

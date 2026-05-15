@@ -1,12 +1,19 @@
 import { prisma } from "@/server/prisma";
+import { sendPushNotification } from "@/server/push";
 
 interface NotificationData {
   title: string;
   body: string;
   type?: string;
+  url?: string;
 }
 
 export async function sendTextNotification(userId: string, data: NotificationData) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { pushToken: true },
+  });
+
   await prisma.notification.create({
     data: {
       userId,
@@ -15,6 +22,10 @@ export async function sendTextNotification(userId: string, data: NotificationDat
       message: data.body,
     },
   });
+
+  if (user?.pushToken) {
+    await sendPushNotification(user.pushToken, { title: data.title, body: data.body, url: data.url });
+  }
 }
 
 export async function getUnreadNotifications(userId: string) {

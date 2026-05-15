@@ -61,6 +61,7 @@ export async function POST(
         title: "Nuevo pedido disponible",
         body: `${store.name} — ${order.customerName}${order.customerAddress ? ` | ${order.customerAddress}` : ""}`,
         type: "NEW_ORDER",
+        url: "/delivery",
       })
     );
 

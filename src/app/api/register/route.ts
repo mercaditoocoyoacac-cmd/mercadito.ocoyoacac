@@ -30,18 +30,24 @@ export async function POST(req: Request) {
 
     const exists = await prisma.user.findUnique({ where: { email: emailLower } });
     if (exists) {
-      if (role === "VENDOR") {
-        const updated = await prisma.user.update({
-          where: { email: emailLower },
-          data: { role: "VENDOR" },
-          select: { id: true, email: true },
-        });
-        return NextResponse.json({ ok: true, user: updated, upgraded: true });
+      const upgradeRole = role || "CUSTOMER";
+
+      if (exists.role === upgradeRole) {
+        return NextResponse.json(
+          { ok: false, error: `Ya tienes el rol de ${upgradeRole === "VENDOR" ? "vendedor" : upgradeRole === "DELIVERY" ? "repartidor" : "cliente"}.` },
+          { status: 409 },
+        );
       }
-      return NextResponse.json(
-        { ok: false, error: "Ese correo ya está registrado." },
-        { status: 409 },
-      );
+
+      const additional = [exists.role, ...(exists.additionalRoles ? exists.additionalRoles.split(",") : [])]
+        .filter((r) => r !== upgradeRole)
+        .join(",");
+      const updated = await prisma.user.update({
+        where: { email: emailLower },
+        data: { role: upgradeRole as any, additionalRoles: additional || null },
+        select: { id: true, email: true },
+      });
+      return NextResponse.json({ ok: true, user: updated, upgraded: true });
     }
 
     let userRole: "CUSTOMER" | "VENDOR" | "DELIVERY" | "ADMIN" = role ?? "CUSTOMER";

@@ -15,6 +15,7 @@ interface Order {
   totalCents: number;
   currency: string;
   createdAt: Date;
+  arrivedAt: Date | null;
   store: { name: string; phone: string | null; address: string | null };
 }
 
@@ -30,6 +31,7 @@ export default function DeliveryTracker({
   const [driverLng, setDriverLng] = useState<number | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [completeCode, setCompleteCode] = useState<Record<string, string>>({});
+  const [arriving, setArriving] = useState<Record<string, boolean>>({});
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   function sendLocation(lat: number, lng: number) {
@@ -85,6 +87,23 @@ export default function DeliveryTracker({
       router.refresh();
     } else {
       alert(data?.error || "No se pudo aceptar el pedido.");
+    }
+  }
+
+  async function notifyArrival(orderId: string) {
+    if (arriving[orderId]) return;
+    setArriving((prev) => ({ ...prev, [orderId]: true }));
+    const res = await fetch("/api/delivery/arrived", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ orderId }),
+    });
+    const data = (await res.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
+    if (res.ok && data?.ok) {
+      router.refresh();
+    } else {
+      alert(data?.error || "Error al notificar llegada.");
+      setArriving((prev) => ({ ...prev, [orderId]: false }));
     }
   }
 
@@ -200,6 +219,26 @@ export default function DeliveryTracker({
                       </svg>
                       Abrir en Google Maps
                     </a>
+                  )}
+                  {order.arrivedAt ? (
+                    <div className="flex items-center gap-2 rounded-lg bg-green-100 px-3 py-1.5 text-xs font-medium text-green-800">
+                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      Llegada notificada
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => notifyArrival(order.id)}
+                      disabled={arriving[order.id]}
+                      className="inline-flex items-center gap-2 rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-orange-600 disabled:opacity-50"
+                    >
+                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      {arriving[order.id] ? "Notificando..." : "Llegué"}
+                    </button>
                   )}
                   <div className="flex items-center gap-2">
                     <input

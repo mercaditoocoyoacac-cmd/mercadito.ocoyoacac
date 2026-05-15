@@ -1,12 +1,13 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
 
 export default function RegistroPage() {
   const router = useRouter();
+  const { data: session } = useSession();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,6 +18,10 @@ export default function RegistroPage() {
   const [sendingCode, setSendingCode] = useState(false);
   const [codeSent, setCodeSent] = useState(false);
   const [verifying, setVerifying] = useState(false);
+
+  const role = session?.user?.role;
+  const additionalRoles = session?.user?.additionalRoles?.split(",").filter(Boolean) || [];
+  const isLoggedInVendorOrDelivery = session?.user && role !== "CUSTOMER" && !additionalRoles.includes("CUSTOMER");
 
   async function sendPhoneCode() {
     if (!phone || phone.replace(/\D/g, "").length < 10) {
@@ -49,6 +54,27 @@ export default function RegistroPage() {
     setSendingCode(false);
   }
 
+  async function handleUpgrade() {
+    setLoading(true);
+    setError(null);
+    const res = await fetch("/api/register", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        email: session?.user?.email,
+        password: "placeholder",
+        role: "CUSTOMER",
+      }),
+    });
+    const data = await res.json().catch(() => null);
+    setLoading(false);
+    if (res.ok && data?.ok) {
+      router.push("/tiendas");
+    } else {
+      setError(data?.error || "Error al activar modo cliente");
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -78,6 +104,7 @@ export default function RegistroPage() {
         email,
         password,
         phone: phone,
+        role: "CUSTOMER",
       }),
     });
     const data = (await res.json().catch(() => null)) as
@@ -105,120 +132,146 @@ export default function RegistroPage() {
   return (
     <main className="mx-auto w-full max-w-md flex-1 px-4 py-10">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">Registro de Cliente</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {isLoggedInVendorOrDelivery ? "Ser cliente también" : "Registro de Cliente"}
+        </h1>
         <p className="mt-2 text-sm text-[color:var(--muted)]">
-          Crea una cuenta para comprar en las tiendas de tu zona.
+          {isLoggedInVendorOrDelivery
+            ? "Activa el modo cliente en tu cuenta para comprar en tiendas."
+            : "Crea una cuenta para comprar en las tiendas de tu zona."}
         </p>
       </div>
 
-      <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-        <label className="block">
-          <div className="text-sm font-medium">Nombre (opcional)</div>
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-            placeholder="Tu nombre"
-          />
-        </label>
-
-        <label className="block">
-          <div className="text-sm font-medium">Correo *</div>
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            type="email"
-            required
-            className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-            placeholder="tu@correo.com"
-          />
-        </label>
-
-        <label className="block">
-          <div className="text-sm font-medium">Contraseña *</div>
-          <input
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            type="password"
-            required
-            className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-            placeholder="Mínimo 8 caracteres"
-          />
-          <p className="mt-1 text-xs text-[color:var(--muted)]">
-            Debe tener: mayúscula, minúscula, número y carácter especial
-          </p>
-        </label>
-
-        <label className="block">
-          <div className="text-sm font-medium">Teléfono *</div>
-          <input
-            value={phone}
-            onChange={(e) => {
-              setPhone(e.target.value);
-              setCodeSent(false);
-            }}
-            type="tel"
-            required
-            disabled={codeSent}
-            className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)] disabled:opacity-50"
-            placeholder="55 1234 5678"
-          />
-          {!codeSent && (
-            <button
-              type="button"
-              onClick={sendPhoneCode}
-              disabled={sendingCode || !phone}
-              className="mt-2 rounded-md bg-[var(--accent)] px-3 py-1.5 text-xs font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-50"
-            >
-              {sendingCode ? "Enviando código..." : "Enviar código SMS"}
-            </button>
-          )}
-        </label>
-
-        {codeSent && (
-          <label className="block">
-            <div className="text-sm font-medium">Código de verificación *</div>
-            <input
-              value={phoneCode}
-              onChange={(e) => setPhoneCode(e.target.value)}
-              type="text"
-              required
-              maxLength={6}
-              className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-              placeholder="Código de 6 dígitos"
-            />
-            <p className="mt-1 text-xs text-green-600">✓ Código enviado al {phone}</p>
-          </label>
-        )}
-
-        {error ? (
-          <div className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700">
-            {error}
+      {isLoggedInVendorOrDelivery ? (
+        <div className="space-y-4">
+          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
+            Sesión iniciada como <strong>{session?.user?.email}</strong> ({role?.toLowerCase()})
           </div>
-        ) : null}
+          <button
+            onClick={handleUpgrade}
+            disabled={loading}
+            className="w-full rounded-md bg-rose-500 px-4 py-2 text-sm font-medium text-white hover:bg-rose-600 disabled:opacity-60"
+          >
+            {loading ? "Activando..." : "Activar modo cliente"}
+          </button>
+          <p className="text-xs text-[color:var(--muted)]">
+            Tu cuenta de {role === "VENDOR" ? "vendedor" : "repartidor"} se conservará. Podrás cambiar entre roles desde el menú.
+          </p>
+        </div>
+      ) : (
+        <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+          <label className="block">
+            <div className="text-sm font-medium">Nombre (opcional)</div>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+              placeholder="Tu nombre"
+            />
+          </label>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
-        >
-          {loading ? "Creando cuenta..." : "Crear cuenta"}
-        </button>
-      </form>
+          <label className="block">
+            <div className="text-sm font-medium">Correo *</div>
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              type="email"
+              required
+              className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+              placeholder="tu@correo.com"
+            />
+          </label>
 
-      <div className="mt-6 text-sm text-[color:var(--muted)]">
-        ¿Ya tienes cuenta?{" "}
-        <Link className="underline" href="/login">
-          Inicia sesión
-        </Link>
-      </div>
+          <label className="block">
+            <div className="text-sm font-medium">Contraseña *</div>
+            <input
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              type="password"
+              required
+              className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+              placeholder="Mínimo 8 caracteres"
+            />
+            <p className="mt-1 text-xs text-[color:var(--muted)]">
+              Debe tener: mayúscula, minúscula, número y carácter especial
+            </p>
+          </label>
 
-      <div className="mt-4 border-t border-[var(--border)] pt-4 text-sm text-[color:var(--muted)]">
-        ¿Quieres vender?{" "}
-        <Link className="underline" href="/vendor/registro">
-          Regístrate como vendedor
-        </Link>
-      </div>
+          <label className="block">
+            <div className="text-sm font-medium">Teléfono *</div>
+            <input
+              value={phone}
+              onChange={(e) => {
+                setPhone(e.target.value);
+                setCodeSent(false);
+              }}
+              type="tel"
+              required
+              disabled={codeSent}
+              className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)] disabled:opacity-50"
+              placeholder="55 1234 5678"
+            />
+            {!codeSent && (
+              <button
+                type="button"
+                onClick={sendPhoneCode}
+                disabled={sendingCode || !phone}
+                className="mt-2 rounded-md bg-[var(--accent)] px-3 py-1.5 text-xs font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-50"
+              >
+                {sendingCode ? "Enviando código..." : "Enviar código SMS"}
+              </button>
+            )}
+          </label>
+
+          {codeSent && (
+            <label className="block">
+              <div className="text-sm font-medium">Código de verificación *</div>
+              <input
+                value={phoneCode}
+                onChange={(e) => setPhoneCode(e.target.value)}
+                type="text"
+                required
+                maxLength={6}
+                className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                placeholder="Código de 6 dígitos"
+              />
+              <p className="mt-1 text-xs text-green-600">✓ Código enviado al {phone}</p>
+            </label>
+          )}
+
+          {error ? (
+            <div className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700">
+              {error}
+            </div>
+          ) : null}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
+          >
+            {loading ? "Creando cuenta..." : "Crear cuenta"}
+          </button>
+        </form>
+      )}
+
+      {!isLoggedInVendorOrDelivery && (
+        <>
+          <div className="mt-6 text-sm text-[color:var(--muted)]">
+            ¿Ya tienes cuenta?{" "}
+            <Link className="underline" href="/login">
+              Inicia sesión
+            </Link>
+          </div>
+
+          <div className="mt-4 border-t border-[var(--border)] pt-4 text-sm text-[color:var(--muted)]">
+            ¿Quieres vender?{" "}
+            <Link className="underline" href="/vendor/registro">
+              Regístrate como vendedor
+            </Link>
+          </div>
+        </>
+      )}
     </main>
   );
 }

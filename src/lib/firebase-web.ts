@@ -11,11 +11,25 @@ const firebaseConfig = {
   measurementId: "G-RXLQ2FBRQM",
 };
 
+const VAPID_KEY = "BICOYmtP5zDfdSVEgsZ5Ad2h0HyIIJ32HZKpSl9If-Cbq8Jx_zlvdQFtk2NIbjSwX27fje5Tf-TVmMaNN_sIrGQ";
+
+let swRegistration: ServiceWorkerRegistration | null = null;
+
 function getApp() {
   if (!getApps().length) {
     return initializeApp(firebaseConfig);
   }
   return getApps()[0];
+}
+
+async function ensureSWRegistration(): Promise<ServiceWorkerRegistration | null> {
+  if (swRegistration) return swRegistration;
+  try {
+    swRegistration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+    return swRegistration;
+  } catch {
+    return null;
+  }
 }
 
 export type PushPayload = MessagePayload;
@@ -29,10 +43,14 @@ export async function requestWebPushToken(): Promise<string | null> {
     const perm = await Notification.requestPermission();
     if (perm !== "granted") return null;
 
+    const reg = await ensureSWRegistration();
     const app = getApp();
     const messaging = getMessaging(app);
 
-    const token = await getToken(messaging);
+    const token = await getToken(messaging, {
+      vapidKey: VAPID_KEY,
+      serviceWorkerRegistration: reg || undefined,
+    });
 
     return token;
   } catch {

@@ -15,6 +15,12 @@ export default async function VendorDashboard() {
   const session = await getSession();
   const userId = session!.user.id;
 
+  const vendorUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true, additionalRoles: true },
+  });
+  const hasDeliveryAccess = vendorUser?.role === "DELIVERY" || vendorUser?.additionalRoles?.includes("DELIVERY");
+
   const store = await prisma.store.findFirst({
     where: { ownerId: userId },
     include: {
@@ -224,6 +230,14 @@ export default async function VendorDashboard() {
     _sum: { subtotalCents: true },
   });
 
+  const storeRatings = await prisma.orderRating.findMany({
+    where: { order: { storeId: store.id } },
+    select: { storeScore: true },
+  });
+  const avgStoreRating = storeRatings.length > 0
+    ? (storeRatings.reduce((a, r) => a + r.storeScore, 0) / storeRatings.length).toFixed(1)
+    : null;
+
   return (
     <main className="flex-1">
       {(!subscriptionActive || isTrial) && (
@@ -298,7 +312,7 @@ export default async function VendorDashboard() {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-8">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div className="rounded-xl border border-[var(--border)] bg-white p-6 shadow-sm">
             <div className="text-sm text-[color:var(--muted)]"> Productos</div>
             <div className="mt-1 text-3xl font-bold">{totalProducts}</div>
@@ -334,6 +348,31 @@ export default async function VendorDashboard() {
               {store.paymentMethods.length > 0
                 ? store.paymentMethods.map((m) => m.label).join(", ")
                 : "Configure en ajustes"}
+            </div>
+          </Link>
+          <div className="rounded-xl border border-[var(--border)] bg-white p-6 shadow-sm">
+            <div className="text-sm text-[color:var(--muted)]">Calificación</div>
+            <div className="mt-1 text-3xl font-bold">
+              {avgStoreRating ? (
+                <span className="text-yellow-500">{avgStoreRating} ★</span>
+              ) : (
+                "—"
+              )}
+            </div>
+            <div className="mt-1 text-xs text-[color:var(--muted)]">
+              {avgStoreRating ? `${storeRatings.length} opiniones` : "Sin calificaciones"}
+            </div>
+          </div>
+          <Link
+            href="/delivery/registro"
+            className={`block rounded-xl border p-6 shadow-sm transition hover:shadow-md ${hasDeliveryAccess ? "border-orange-300 bg-orange-50" : "border-[var(--border)] bg-white"}`}
+          >
+            <div className="text-sm text-[color:var(--muted)]">Repartidor</div>
+            <div className="mt-1 text-2xl font-bold">
+              {hasDeliveryAccess ? "✓ Activado" : " También quiero repartir"}
+            </div>
+            <div className="mt-1 text-xs text-[color:var(--muted)]">
+              {hasDeliveryAccess ? "Cambia a modo repartidor desde el menú" : "Regístrate como repartidor"}
             </div>
           </Link>
         </div>

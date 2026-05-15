@@ -9,9 +9,11 @@ export const revalidate = 30;
 export default async function Home() {
   const session = await getSession();
   const role = session?.user?.role;
-  if (role === "VENDOR") redirect("/vendor");
-  if (role === "DELIVERY") redirect("/delivery");
-  if (role === "ADMIN") redirect("/admin");
+  const additionalRoles = session?.user?.additionalRoles;
+  const hasExtraRoles = additionalRoles && additionalRoles.length > 0;
+  if (role === "VENDOR" && !hasExtraRoles) redirect("/vendor");
+  if (role === "DELIVERY" && !hasExtraRoles) redirect("/delivery");
+  if (role === "ADMIN" && !hasExtraRoles) redirect("/admin");
 
   const storeCount = await prisma.store.count({ where: { isActive: true, isPublished: true } });
   const productCount = await prisma.product.count({ where: { isActive: true } });

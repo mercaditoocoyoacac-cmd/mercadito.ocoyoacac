@@ -135,6 +135,8 @@ function VendorLogin() {
     const sessionRes = await fetch("/api/auth/session");
     const session = await sessionRes.json();
     const role = session?.user?.role;
+    const extra = session?.user?.additionalRoles;
+    if (extra) { router.push("/"); return; }
     if (role === "VENDOR") {
       const userRes = await fetch("/api/profile");
       const userData = await userRes.json();

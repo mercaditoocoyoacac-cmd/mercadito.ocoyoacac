@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import DeliveryTracker from "@/components/DeliveryTracker";
+import DeliveryRating from "@/components/DeliveryRating";
 
 export const dynamicParams = true;
 
@@ -27,6 +28,7 @@ export default async function DeliveryDashboard() {
       totalCents: true,
       currency: true,
       createdAt: true,
+      arrivedAt: true,
       store: { select: { name: true, phone: true, address: true } },
     },
   });
@@ -49,19 +51,23 @@ export default async function DeliveryDashboard() {
       totalCents: true,
       currency: true,
       createdAt: true,
+      arrivedAt: true,
       store: { select: { name: true, phone: true, address: true } },
     },
   });
 
   return (
     <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Panel de Repartidor
-        </h1>
-        <p className="mt-1 text-sm text-[color:var(--muted)]">
-          Bienvenido, {session.user.email}
-        </p>
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Panel de Repartidor
+          </h1>
+          <p className="mt-1 text-sm text-[color:var(--muted)]">
+            Bienvenido, {session.user.email}
+          </p>
+        </div>
+        <DeliveryRating deliveryUserId={session.user.id} />
       </div>
 
       <DeliveryTracker

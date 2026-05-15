@@ -77,11 +77,12 @@ export const authOptions: NextAuthOptions = {
           });
         } else if (!device.isApproved) {
           return {
-            id: user.id,
-            email: user.email,
-            name: user.name ?? undefined,
-            role: user.role,
-            needsDeviceApproval: true,
+          id: user.id,
+          email: user.email,
+          name: user.name ?? undefined,
+          role: user.role,
+          additionalRoles: user.additionalRoles || undefined,
+          needsDeviceApproval: true,
           };
         } else {
           await prisma.deviceAuthorization.update({
@@ -95,6 +96,7 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.name ?? undefined,
           role: user.role,
+          additionalRoles: user.additionalRoles || undefined,
         };
       },
     }),
@@ -103,6 +105,7 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.role = user.role;
+        token.additionalRoles = user.additionalRoles;
         token.needsDeviceApproval = (user as any).needsDeviceApproval;
       }
       return token;
@@ -110,6 +113,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (token.sub) session.user.id = token.sub;
       if (token.role) session.user.role = token.role;
+      if (token.additionalRoles) session.user.additionalRoles = token.additionalRoles;
       return session;
     },
   },

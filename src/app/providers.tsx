@@ -88,9 +88,12 @@ async function initWebPush() {
     }
 
     onForegroundMessage((payload) => {
-      const { title, body } = payload.notification || {};
+      const notification = payload.notification || {};
+      const data = payload.data || {};
+      const title = notification.title || data.title || "";
+      const body = notification.body || data.body || "";
       if (title) {
-        new Notification(title, { body: body || "", icon: "/Logo MO.png" });
+        new Notification(title, { body, icon: "/Logo MO.png" });
       }
     });
   } catch (error) {

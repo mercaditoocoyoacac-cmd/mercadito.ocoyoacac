@@ -18,13 +18,18 @@ function ensureInitialized() {
       credential: admin.credential.cert(serviceAccount),
     });
     initialized = true;
-    console.log("Firebase admin initialized successfully");
   } catch (error) {
     console.error("Firebase admin initialization failed:", error);
   }
 }
 
-export async function sendPushNotification(token: string, data: { title: string; body: string }) {
+interface PushData {
+  title: string;
+  body: string;
+  url?: string;
+}
+
+export async function sendPushNotification(token: string, data: PushData) {
   ensureInitialized();
   
   if (!initialized) {
@@ -33,12 +38,13 @@ export async function sendPushNotification(token: string, data: { title: string;
   }
 
   try {
-    const response = await admin.messaging().send({
+    await admin.messaging().send({
       token,
       notification: {
         title: data.title,
         body: data.body,
       },
+      data: data.url ? { url: data.url } : undefined,
       android: {
         notification: {
           channelId: "order_notifications",
@@ -53,13 +59,12 @@ export async function sendPushNotification(token: string, data: { title: string;
         },
       },
     });
-    console.log("Push sent successfully:", response);
   } catch (error) {
     console.error("Error sending push notification:", error);
   }
 }
 
-export async function sendPushToMultiple(tokens: string[], data: { title: string; body: string }) {
+export async function sendPushToMultiple(tokens: string[], data: PushData) {
   ensureInitialized();
   
   if (!initialized) {
@@ -76,6 +81,7 @@ export async function sendPushToMultiple(tokens: string[], data: { title: string
         title: data.title,
         body: data.body,
       },
+      data: data.url ? { url: data.url } : undefined,
       android: {
         notification: {
           channelId: "order_notifications",
@@ -92,7 +98,6 @@ export async function sendPushToMultiple(tokens: string[], data: { title: string
     }));
 
     const response = await admin.messaging().sendEach(messages);
-    console.log(`Push notifications sent: ${response.successCount} succeeded, ${response.failureCount} failed`);
     if (response.failureCount > 0) {
       response.responses.forEach((r, i) => {
         if (r.error) {

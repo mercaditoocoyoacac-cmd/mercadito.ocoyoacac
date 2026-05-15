@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { OrderCancelButton } from "@/components/OrderCancelButton";
+import OrderRatingForm from "@/components/OrderRatingForm";
 
 function formatMoney(cents: number, currency: string) {
   return new Intl.NumberFormat("es-MX", { style: "currency", currency }).format(
@@ -72,6 +73,8 @@ export default async function PedidoDetallePage({
       updatedAt: true,
       pickupCode: true,
       deliveryCode: true,
+      arrivedAt: true,
+      rating: { select: { id: true } },
       store: { select: { name: true, slug: true, phone: true } },
       items: { select: { id: true, name: true, priceCents: true, quantity: true, variantName: true } },
     },
@@ -193,6 +196,16 @@ export default async function PedidoDetallePage({
           </div>
         </div>
 
+        {order.arrivedAt && order.status === "OUT_FOR_DELIVERY" && (
+          <div className="rounded-xl border border-green-300 bg-green-50 p-6 text-center animate-pulse">
+            <div className="text-3xl mb-2">🛵</div>
+            <div className="text-lg font-semibold text-green-800">¡El repartidor está aquí!</div>
+            <div className="mt-1 text-sm text-green-700">
+              El repartidor ya llegó a tu domicilio. Sal a recibir tu pedido.
+            </div>
+          </div>
+        )}
+
         {(order.status === "OUT_FOR_DELIVERY" || order.status === "READY" || order.status === "CONFIRMED") && order.pickupCode && (
           <div className="rounded-xl border border-orange-200 bg-orange-50 p-6 text-center">
             <div className="text-sm font-medium text-orange-700">Tu código de entrega</div>
@@ -251,6 +264,14 @@ export default async function PedidoDetallePage({
           </div>
         </div>
       </div>
+
+      {order.status === "COMPLETED" && (
+        <OrderRatingForm
+          orderId={order.id}
+          fulfillmentType={order.fulfillmentType}
+          hasExistingRating={!!order.rating}
+        />
+      )}
     </main>
   );
 }
