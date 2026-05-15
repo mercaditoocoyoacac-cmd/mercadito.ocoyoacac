@@ -304,7 +304,19 @@ export function NavBar() {
                         </div>
                       </button>
                       <button
-                        onClick={() => navigateTo("/vendor/pagos")}
+                        onClick={() => navigateTo("/admin/productos")}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
+                      >
+                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                        <div>
+                          <div className="font-medium">Productos</div>
+                          <div className="text-xs text-[color:var(--muted)]">Agregar a tiendas</div>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => navigateTo("/admin/mercado-pago")}
                         className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
                       >
                         <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -613,6 +625,15 @@ export function NavBar() {
                     }`}
 >
                     Pedidos
+                  </Link>
+                  <Link
+                    href="/admin/productos"
+                    onClick={() => setMenuOpen(false)}
+                    className={`rounded-lg px-4 py-3 text-sm font-medium ${
+                      pathname === "/admin/productos" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                    }`}
+                  >
+                    Productos
                   </Link>
                   <Link
                     href="/admin/mercado-pago"

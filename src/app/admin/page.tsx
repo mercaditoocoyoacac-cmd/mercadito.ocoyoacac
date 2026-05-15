@@ -201,7 +201,7 @@ export default async function AdminDashboard() {
         )}
       </div>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-4">
+      <div className="mt-8 grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
         <Link
           href="/admin/membresias"
           className="rounded-xl border border-[var(--border)] p-5 hover:bg-[var(--accent-soft)] transition-colors"
@@ -231,6 +231,22 @@ export default async function AdminDashboard() {
             <div>
               <div className="font-semibold">Usuarios</div>
               <div className="text-xs text-[color:var(--muted)]">Clientes y vendedores</div>
+            </div>
+          </div>
+        </Link>
+        <Link
+          href="/admin/productos"
+          className="rounded-xl border border-[var(--border)] p-5 hover:bg-[var(--accent-soft)] transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-[var(--accent-soft)] flex items-center justify-center">
+              <svg className="h-5 w-5 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+            </div>
+            <div>
+              <div className="font-semibold">Productos</div>
+              <div className="text-xs text-[color:var(--muted)]">Administrar productos</div>
             </div>
           </div>
         </Link>
