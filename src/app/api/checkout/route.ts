@@ -70,6 +70,7 @@ export async function POST(req: Request) {
     where: { userId: auth.userId },
     select: {
       quantity: true,
+      weightGrams: true,
       variantId: true,
       variant: {
         select: { id: true, name: true, priceCents: true },
@@ -80,6 +81,9 @@ export async function POST(req: Request) {
           name: true,
           priceCents: true,
           currency: true,
+          sellByWeight: true,
+          minWeightGrams: true,
+          maxWeightGrams: true,
           storeId: true,
           isActive: true,
           isUnavailable: true,
@@ -124,12 +128,20 @@ export async function POST(req: Request) {
   }
 
   const outOfStock = items.find(
-    (cartItem: typeof items[number]) =>
-      cartItem.product.stock !== -1 && cartItem.product.stock !== null && cartItem.product.stock < cartItem.quantity,
+    (cartItem: typeof items[number]) => {
+      if (cartItem.product.stock === -1 || cartItem.product.stock === null) return false;
+      if (cartItem.product.sellByWeight) {
+        return cartItem.product.stock < cartItem.weightGrams! * cartItem.quantity;
+      }
+      return cartItem.product.stock < cartItem.quantity;
+    },
   );
   if (outOfStock) {
+    const detail = outOfStock.product.sellByWeight
+      ? `solo tiene ${outOfStock.product.stock}g disponibles.`
+      : `solo tiene ${outOfStock.product.stock} unidades disponibles.`;
     return NextResponse.json(
-      { ok: false, error: `El producto "${outOfStock.product.name}" solo tiene ${outOfStock.product.stock} unidades disponibles.` },
+      { ok: false, error: `El producto "${outOfStock.product.name}" ${detail}` },
       { status: 400 },
     );
   }
@@ -146,6 +158,9 @@ export async function POST(req: Request) {
   const subtotalCents = items.reduce(
     (sum: number, cartItem: typeof items[number]) => {
       const price = cartItem.variant?.priceCents ?? cartItem.product.priceCents;
+      if (cartItem.product.sellByWeight && cartItem.weightGrams) {
+        return sum + Math.round((cartItem.weightGrams / 1000) * price) * cartItem.quantity;
+      }
       return sum + cartItem.quantity * price;
     },
     0,
@@ -179,6 +194,7 @@ export async function POST(req: Request) {
           name: cartItem.product.name,
           priceCents: cartItem.variant?.priceCents ?? cartItem.product.priceCents,
           quantity: cartItem.quantity,
+          weightGrams: cartItem.weightGrams || null,
           variantName: cartItem.variant?.name || null,
           variantId: cartItem.variantId,
         })),
@@ -193,9 +209,12 @@ export async function POST(req: Request) {
 
   for (const cartItem of items) {
     if (cartItem.product.stock !== -1 && cartItem.product.stock !== null) {
+      const decrement = cartItem.product.sellByWeight && cartItem.weightGrams
+        ? cartItem.weightGrams * cartItem.quantity
+        : cartItem.quantity;
       await prisma.product.update({
         where: { id: cartItem.product.id },
-        data: { stock: { decrement: cartItem.quantity } },
+        data: { stock: { decrement } },
       });
     }
   }
@@ -276,12 +295,24 @@ export async function POST(req: Request) {
           },
           body: JSON.stringify({
             items: [
-              ...items.map((item: typeof items[number]) => ({
-                title: item.variant ? `${item.product.name} (${item.variant.name})` : item.product.name,
-                quantity: item.quantity,
-                unit_price: (item.variant?.priceCents ?? item.product.priceCents) / 100,
-                currency_id: "MXN",
-              })),
+              ...items.map((item: typeof items[number]) => {
+                const basePrice = item.variant?.priceCents ?? item.product.priceCents;
+                if (item.product.sellByWeight && item.weightGrams) {
+                  const totalPrice = Math.round((item.weightGrams / 1000) * basePrice) * item.quantity;
+                  return {
+                    title: `${item.product.name} (${item.weightGrams}g)`,
+                    quantity: 1,
+                    unit_price: totalPrice / 100,
+                    currency_id: "MXN",
+                  };
+                }
+                return {
+                  title: item.variant ? `${item.product.name} (${item.variant.name})` : item.product.name,
+                  quantity: item.quantity,
+                  unit_price: basePrice / 100,
+                  currency_id: "MXN",
+                };
+              }),
               ...(deliveryCents > 0
                 ? [{ title: "Costo de envío", quantity: 1, unit_price: deliveryCents / 100, currency_id: "MXN" }]
                 : []),

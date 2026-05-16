@@ -12,6 +12,7 @@ const LocationPicker = dynamic(
 
 type CartItem = {
   quantity: number;
+  weightGrams: number | null;
   variantId: string | null;
   variant: { id: string; name: string; priceCents: number } | null;
   product: {
@@ -19,6 +20,7 @@ type CartItem = {
     name: string;
     priceCents: number;
     currency: string;
+    sellByWeight: boolean;
     isUnavailable: boolean;
     store: { id: string; name: string; slug: string; acceptsMercadoPago: boolean; hasOnlinePayment: boolean };
   };
@@ -42,7 +44,13 @@ export default function CarritoPage() {
   const subtotal = useMemo(
     () =>
       (items ?? []).reduce(
-        (sum, item) => sum + item.quantity * item.product.priceCents,
+        (sum, item) => {
+          const price = item.variant?.priceCents ?? item.product.priceCents;
+          if (item.product.sellByWeight && item.weightGrams) {
+            return sum + Math.round((item.weightGrams / 1000) * price) * item.quantity;
+          }
+          return sum + item.quantity * price;
+        },
         0,
       ),
     [items],
@@ -188,6 +196,11 @@ export default function CarritoPage() {
                               ({item.variant.name})
                             </span>
                           )}
+                          {item.weightGrams && (
+                            <span className="text-xs text-[color:var(--muted)]">
+                              {item.weightGrams}g
+                            </span>
+                          )}
                           {item.product.isUnavailable && (
                             <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-medium text-red-700">
                               Agotado
@@ -195,7 +208,9 @@ export default function CarritoPage() {
                           )}
                         </div>
                         <div className="text-xs text-[color:var(--muted)]">
-                          {formatMoney(effectivePrice, item.product.currency)}
+                          {item.product.sellByWeight
+                            ? `${formatMoney(effectivePrice, item.product.currency)} / kg`
+                            : formatMoney(effectivePrice, item.product.currency)}
                         </div>
                       </td>
                       <td className="px-4 py-3">
@@ -243,7 +258,9 @@ export default function CarritoPage() {
                       </td>
                       <td className="px-4 py-3 font-medium">
                         {formatMoney(
-                          item.quantity * effectivePrice,
+                          item.product.sellByWeight && item.weightGrams
+                            ? Math.round((item.weightGrams / 1000) * effectivePrice) * item.quantity
+                            : item.quantity * effectivePrice,
                           item.product.currency,
                         )}
                       </td>

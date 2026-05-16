@@ -43,6 +43,9 @@ export default function NuevoProductoPage() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [sellByWeight, setSellByWeight] = useState(false);
+  const [minWeightGrams, setMinWeightGrams] = useState("100");
+  const [maxWeightGrams, setMaxWeightGrams] = useState("5000");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [variants, setVariants] = useState<VariantEntry[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -133,6 +136,9 @@ export default function NuevoProductoPage() {
               imageUrl: imageUrl || undefined,
               sku: sku.trim() || undefined,
               stock: stock.trim() === "" ? -1 : parseInt(stock) || 0,
+              sellByWeight,
+              minWeightGrams: sellByWeight ? parseInt(minWeightGrams) || 100 : undefined,
+              maxWeightGrams: sellByWeight ? parseInt(maxWeightGrams) || 5000 : undefined,
               variants: variantsPayload.length > 0 ? variantsPayload : undefined,
             }),
           });
@@ -168,8 +174,8 @@ export default function NuevoProductoPage() {
 
         <label className="block">
           <div className="text-sm font-medium">
-            Precio (MXN)
-            <HelpTip text="¿Cuánto cobras por este producto? Solo números, ej: 25.00" />
+            Precio {sellByWeight ? "por kg (MXN)" : "(MXN)"}
+            <HelpTip text={sellByWeight ? "Precio por kilogramo. Ej: 150 = $150/kg" : "¿Cuánto cobras por este producto? Solo números, ej: 25.00"} />
           </div>
           <input
             value={price}
@@ -177,9 +183,47 @@ export default function NuevoProductoPage() {
             required
             inputMode="decimal"
             className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-            placeholder="Ej: 25.00"
+            placeholder={sellByWeight ? "Ej: 150.00 (precio por kg)" : "Ej: 25.00"}
           />
         </label>
+
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="sellByWeight"
+            checked={sellByWeight}
+            onChange={(e) => setSellByWeight(e.target.checked)}
+            className="rounded border-[var(--border)]"
+          />
+          <label htmlFor="sellByWeight" className="text-sm cursor-pointer">
+            Venta por peso / gramo (carnicería, pollería, verdulería, etc.)
+          </label>
+        </div>
+
+        {sellByWeight && (
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block">
+              <div className="text-sm font-medium">Peso mínimo (gramos)</div>
+              <input
+                value={minWeightGrams}
+                onChange={(e) => setMinWeightGrams(e.target.value)}
+                inputMode="numeric"
+                className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                placeholder="Ej: 100"
+              />
+            </label>
+            <label className="block">
+              <div className="text-sm font-medium">Peso máximo (gramos)</div>
+              <input
+                value={maxWeightGrams}
+                onChange={(e) => setMaxWeightGrams(e.target.value)}
+                inputMode="numeric"
+                className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                placeholder="Ej: 5000"
+              />
+            </label>
+          </div>
+        )}
 
         <button
           type="button"

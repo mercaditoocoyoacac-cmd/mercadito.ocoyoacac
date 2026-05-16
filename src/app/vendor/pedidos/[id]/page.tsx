@@ -146,19 +146,24 @@ export default async function VendorPedidoPage({
           <div>
             <div className="text-sm font-medium mb-2">Productos</div>
             <div className="space-y-1">
-              {order.items.map((item) => (
+              {order.items.map((item) => {
+                const isWeight = !!(item as any).weightGrams;
+                const lineTotal = isWeight
+                  ? Math.round(((item as any).weightGrams / 1000) * item.priceCents) * item.quantity
+                  : item.priceCents * item.quantity;
+                return (
                 <div
                   key={item.id}
                   className="flex items-center justify-between text-sm"
                 >
                   <span>
-                    {item.quantity}x {item.name}
+                    {isWeight ? `${(item as any).weightGrams}g` : `${item.quantity}x`} {item.name}
                   </span>
                   <span className="font-medium">
-                    {formatMoney(item.priceCents * item.quantity, order.currency)}
+                    {formatMoney(lineTotal, order.currency)}
                   </span>
                 </div>
-              ))}
+              )})}
             </div>
             <div className="mt-3 pt-3 border-t border-[var(--border)] space-y-1">
               <div className="flex items-center justify-between text-sm">

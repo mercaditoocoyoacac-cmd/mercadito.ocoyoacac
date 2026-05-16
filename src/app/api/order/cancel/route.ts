@@ -20,7 +20,7 @@ export async function POST(req: Request) {
       id: true,
       status: true,
       createdAt: true,
-      items: { select: { productId: true, quantity: true } },
+      items: { select: { productId: true, quantity: true, weightGrams: true } },
     },
   });
 
@@ -63,9 +63,12 @@ export async function POST(req: Request) {
       });
 
       if (product && product.stock !== null && product.stock !== -1) {
+        const increment = item.weightGrams
+          ? item.weightGrams * item.quantity
+          : item.quantity;
         await tx.product.update({
           where: { id: item.productId },
-          data: { stock: { increment: item.quantity } },
+          data: { stock: { increment } },
         });
       }
     }

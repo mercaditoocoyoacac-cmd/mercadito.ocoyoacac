@@ -51,6 +51,9 @@ export default async function StorefrontPage({
       currency: true,
       imageUrl: true,
       isUnavailable: true,
+      sellByWeight: true,
+      minWeightGrams: true,
+      maxWeightGrams: true,
       variants: {
         where: { isActive: true },
         select: { id: true, name: true, priceCents: true },
@@ -177,7 +180,9 @@ export default async function StorefrontPage({
                   )}
                 </div>
                 <div className="text-sm font-semibold text-[var(--accent)]">
-                  {(product as any).variants?.length > 0
+                  {(product as any).sellByWeight
+                    ? `${formatMoney(product.priceCents, product.currency)} / kg`
+                    : (product as any).variants?.length > 0
                     ? `Desde ${formatMoney(Math.min(...(product as any).variants.map((v: any) => v.priceCents), product.priceCents), product.currency)}`
                     : formatMoney(product.priceCents, product.currency)}
                 </div>
@@ -205,6 +210,10 @@ export default async function StorefrontPage({
                     <AddToCartButton
                       productId={product.id}
                       variants={(product as any).variants}
+                      sellByWeight={(product as any).sellByWeight}
+                      minWeightGrams={(product as any).minWeightGrams}
+                      maxWeightGrams={(product as any).maxWeightGrams}
+                      priceCents={product.priceCents}
                       disabled={!open || product.isUnavailable}
                       disabledLabel={product.isUnavailable ? "Agotado" : !open ? "Tienda cerrada" : undefined}
                     />

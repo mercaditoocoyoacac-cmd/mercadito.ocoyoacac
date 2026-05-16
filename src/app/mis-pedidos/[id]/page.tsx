@@ -76,7 +76,7 @@ export default async function PedidoDetallePage({
       arrivedAt: true,
       rating: { select: { id: true } },
       store: { select: { name: true, slug: true, phone: true } },
-      items: { select: { id: true, name: true, priceCents: true, quantity: true, variantName: true } },
+      items: { select: { id: true, name: true, priceCents: true, quantity: true, weightGrams: true, variantName: true } },
     },
   });
 
@@ -225,7 +225,12 @@ export default async function PedidoDetallePage({
             <h3 className="font-medium">Productos</h3>
           </div>
           <div className="divide-y divide-[var(--border)]">
-            {order.items.map((item) => (
+            {order.items.map((item) => {
+              const isWeight = !!item.weightGrams;
+              const lineTotal = isWeight
+                ? Math.round((item.weightGrams! / 1000) * item.priceCents) * item.quantity
+                : item.priceCents * item.quantity;
+              return (
               <div key={item.id} className="flex items-center justify-between px-6 py-4">
                 <div>
                   <div className="font-medium">
@@ -233,16 +238,21 @@ export default async function PedidoDetallePage({
                     {item.variantName && (
                       <span className="ml-1 text-xs text-[color:var(--muted)]">({item.variantName})</span>
                     )}
+                    {isWeight && (
+                      <span className="ml-1 text-xs text-[color:var(--muted)]">({item.weightGrams}g)</span>
+                    )}
                   </div>
                   <div className="text-sm text-[color:var(--muted)]">
-                    {item.quantity} x {formatMoney(item.priceCents, order.currency)}
+                    {isWeight
+                      ? `${item.weightGrams}g x ${item.quantity}`
+                      : `${item.quantity} x ${formatMoney(item.priceCents, order.currency)}`}
                   </div>
                 </div>
                 <div className="font-medium">
-                  {formatMoney(item.priceCents * item.quantity, order.currency)}
+                  {formatMoney(lineTotal, order.currency)}
                 </div>
               </div>
-            ))}
+            )})}
           </div>
           <div className="space-y-1 px-6 py-3 bg-gray-50 text-sm">
             <div className="flex justify-between">

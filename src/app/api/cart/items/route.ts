@@ -8,12 +8,14 @@ const AddSchema = z.object({
   productId: z.string().min(1),
   quantity: z.number().int().min(1).max(99).default(1),
   variantId: z.string().optional(),
+  weightGrams: z.number().int().min(1).optional(),
 });
 
 const UpdateSchema = z.object({
   productId: z.string().min(1),
   quantity: z.number().int().min(0).max(99),
   variantId: z.string().optional(),
+  weightGrams: z.number().int().min(1).optional(),
 });
 
 export async function GET() {
@@ -26,6 +28,7 @@ export async function GET() {
     select: {
       id: true,
       quantity: true,
+      weightGrams: true,
       variantId: true,
       variant: {
         select: { id: true, name: true, priceCents: true },
@@ -36,6 +39,7 @@ export async function GET() {
           name: true,
           priceCents: true,
           currency: true,
+          sellByWeight: true,
           isUnavailable: true,
           store: {
             select: {
@@ -127,14 +131,11 @@ export async function POST(req: Request) {
   }
 
   const variantId = parsed.data.variantId || null;
+  const weightGrams = parsed.data.weightGrams || null;
 
-  const existingItem = variantId
-    ? await prisma.cartItem.findFirst({
-        where: { userId: auth.userId, productId: product.id, variantId },
-      })
-    : await prisma.cartItem.findFirst({
-        where: { userId: auth.userId, productId: product.id, variantId: null },
-      });
+  const existingItem = await prisma.cartItem.findFirst({
+    where: { userId: auth.userId, productId: product.id, variantId, weightGrams },
+  });
 
   if (existingItem) {
     await prisma.cartItem.update({
@@ -147,6 +148,7 @@ export async function POST(req: Request) {
         userId: auth.userId,
         productId: product.id,
         variantId,
+        weightGrams,
         quantity: parsed.data.quantity,
       },
     });
@@ -169,16 +171,17 @@ export async function PUT(req: Request) {
   }
 
   const variantId = parsed.data.variantId || null;
+  const weightGrams = parsed.data.weightGrams || null;
 
   if (parsed.data.quantity === 0) {
     await prisma.cartItem.deleteMany({
-      where: { userId: auth.userId, productId: parsed.data.productId, variantId },
+      where: { userId: auth.userId, productId: parsed.data.productId, variantId, weightGrams },
     });
     return NextResponse.json({ ok: true });
   }
 
   await prisma.cartItem.updateMany({
-    where: { userId: auth.userId, productId: parsed.data.productId, variantId },
+    where: { userId: auth.userId, productId: parsed.data.productId, variantId, weightGrams },
     data: { quantity: parsed.data.quantity },
   });
 
@@ -191,7 +194,7 @@ export async function DELETE(req: Request) {
 
   const json = await req.json().catch(() => null);
   const parsed = z
-    .object({ productId: z.string().min(1), variantId: z.string().optional() })
+    .object({ productId: z.string().min(1), variantId: z.string().optional(), weightGrams: z.number().int().min(1).optional() })
     .safeParse(json);
   if (!parsed.success) {
     return NextResponse.json(
@@ -201,8 +204,9 @@ export async function DELETE(req: Request) {
   }
 
   const variantId = parsed.data.variantId || null;
+  const weightGrams = parsed.data.weightGrams || null;
   await prisma.cartItem.deleteMany({
-    where: { userId: auth.userId, productId: parsed.data.productId, variantId },
+    where: { userId: auth.userId, productId: parsed.data.productId, variantId, weightGrams },
   });
 
   return NextResponse.json({ ok: true });

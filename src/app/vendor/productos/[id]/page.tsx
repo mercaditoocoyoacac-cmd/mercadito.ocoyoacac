@@ -43,6 +43,9 @@ interface Product {
   isActive: boolean;
   sku: string | null;
   stock: number;
+  sellByWeight: boolean;
+  minWeightGrams: number;
+  maxWeightGrams: number;
   variants: Variant[];
 }
 
@@ -71,6 +74,9 @@ export default function EditarProductoPage() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [duplicating, setDuplicating] = useState(false);
+  const [sellByWeight, setSellByWeight] = useState(false);
+  const [minWeightGrams, setMinWeightGrams] = useState("100");
+  const [maxWeightGrams, setMaxWeightGrams] = useState("5000");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [variants, setVariants] = useState<VariantEntry[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -97,6 +103,9 @@ export default function EditarProductoPage() {
         setImageUrl(found.imageUrl ?? "");
         setSku(found.sku ?? "");
         setStock(found.stock === -1 ? "" : found.stock.toString());
+        setSellByWeight(found.sellByWeight || false);
+        setMinWeightGrams(found.minWeightGrams?.toString() || "100");
+        setMaxWeightGrams(found.maxWeightGrams?.toString() || "5000");
         setVariants(
           found.variants.map((v) => ({
             key: v.id,
@@ -194,6 +203,9 @@ export default function EditarProductoPage() {
         imageUrl: imageUrl || null,
         sku: sku.trim() || null,
         stock: stock.trim() === "" ? -1 : parseInt(stock) || 0,
+        sellByWeight,
+        minWeightGrams: sellByWeight ? parseInt(minWeightGrams) || 100 : undefined,
+        maxWeightGrams: sellByWeight ? parseInt(maxWeightGrams) || 5000 : undefined,
         variants: buildVariantsPayload(),
       }),
     });
@@ -251,6 +263,9 @@ export default function EditarProductoPage() {
         imageUrl: imageUrl || undefined,
         sku: sku.trim() ? sku.trim() + "-COPIA" : undefined,
         stock: stock.trim() === "" ? -1 : parseInt(stock) || 0,
+        sellByWeight,
+        minWeightGrams: sellByWeight ? parseInt(minWeightGrams) || 100 : undefined,
+        maxWeightGrams: sellByWeight ? parseInt(maxWeightGrams) || 5000 : undefined,
         variants: buildVariantsPayload(),
       }),
     });
@@ -310,8 +325,8 @@ export default function EditarProductoPage() {
 
         <label className="block">
           <div className="text-sm font-medium">
-            Precio (MXN)
-            <HelpTip text="¿Cuánto cobras por este producto?" />
+            Precio {sellByWeight ? "por kg (MXN)" : "(MXN)"}
+            <HelpTip text={sellByWeight ? "Precio por kilogramo. Ej: 150 = $150/kg" : "¿Cuánto cobras por este producto?"} />
           </div>
           <input
             value={price}
@@ -319,8 +334,47 @@ export default function EditarProductoPage() {
             required
             inputMode="decimal"
             className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+            placeholder={sellByWeight ? "Ej: 150.00 (precio por kg)" : "Ej: 25.00"}
           />
         </label>
+
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="sellByWeight"
+            checked={sellByWeight}
+            onChange={(e) => setSellByWeight(e.target.checked)}
+            className="rounded border-[var(--border)]"
+          />
+          <label htmlFor="sellByWeight" className="text-sm cursor-pointer">
+            Venta por peso / gramo (carnicería, pollería, verdulería, etc.)
+          </label>
+        </div>
+
+        {sellByWeight && (
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block">
+              <div className="text-sm font-medium">Peso mínimo (gramos)</div>
+              <input
+                value={minWeightGrams}
+                onChange={(e) => setMinWeightGrams(e.target.value)}
+                inputMode="numeric"
+                className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                placeholder="Ej: 100"
+              />
+            </label>
+            <label className="block">
+              <div className="text-sm font-medium">Peso máximo (gramos)</div>
+              <input
+                value={maxWeightGrams}
+                onChange={(e) => setMaxWeightGrams(e.target.value)}
+                inputMode="numeric"
+                className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                placeholder="Ej: 5000"
+              />
+            </label>
+          </div>
+        )}
 
         <button
           type="button"

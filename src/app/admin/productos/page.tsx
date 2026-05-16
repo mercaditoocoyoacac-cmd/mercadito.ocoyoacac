@@ -32,6 +32,7 @@ interface Product {
   sku: string | null;
   stock: number;
   isUnavailable: boolean;
+  sellByWeight: boolean;
   variants: Variant[];
 }
 
@@ -43,6 +44,9 @@ interface ProductFormData {
   sku: string;
   stock: string;
   isActive: boolean;
+  sellByWeight: boolean;
+  minWeightGrams: string;
+  maxWeightGrams: string;
 }
 
 function ProductForm({
@@ -61,6 +65,9 @@ function ProductForm({
   const [sku, setSku] = useState(initial?.sku ?? "");
   const [stock, setStock] = useState(initial?.stock ?? "");
   const [isActive, setIsActive] = useState(initial?.isActive ?? true);
+  const [sellByWeight, setSellByWeight] = useState(initial?.sellByWeight ?? false);
+  const [minWeightGrams, setMinWeightGrams] = useState(initial?.minWeightGrams ?? "100");
+  const [maxWeightGrams, setMaxWeightGrams] = useState(initial?.maxWeightGrams ?? "5000");
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -110,6 +117,7 @@ function ProductForm({
     // Map back with key removed for the parent
     await onSave({
       name, price, description, imageUrl, sku, stock, isActive,
+      sellByWeight, minWeightGrams, maxWeightGrams,
       variants: variantsPayload,
     });
     setSaving(false);
@@ -125,10 +133,10 @@ function ProductForm({
       </label>
 
       <label className="block">
-        <div className="text-sm font-medium">Precio (MXN)</div>
+        <div className="text-sm font-medium">Precio {sellByWeight ? "por kg (MXN)" : "(MXN)"}</div>
         <input value={price} onChange={(e) => setPrice(e.target.value)} required inputMode="decimal"
           className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-          placeholder="Ej: 25.00" />
+          placeholder={sellByWeight ? "Ej: 150.00 (precio por kg)" : "Ej: 25.00"} />
       </label>
 
       <div className="flex items-center gap-2">
@@ -138,6 +146,32 @@ function ProductForm({
           <span className="text-sm">Producto activo</span>
         </label>
       </div>
+
+      <div className="flex items-center gap-2">
+        <input type="checkbox" id="sellByWeight" checked={sellByWeight}
+          onChange={(e) => setSellByWeight(e.target.checked)}
+          className="rounded border-[var(--border)]" />
+        <label htmlFor="sellByWeight" className="text-sm cursor-pointer">
+          Venta por peso / gramo
+        </label>
+      </div>
+
+      {sellByWeight && (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className="block">
+            <div className="text-sm font-medium">Peso mínimo (gramos)</div>
+            <input value={minWeightGrams} onChange={(e) => setMinWeightGrams(e.target.value)} inputMode="numeric"
+              className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+              placeholder="Ej: 100" />
+          </label>
+          <label className="block">
+            <div className="text-sm font-medium">Peso máximo (gramos)</div>
+            <input value={maxWeightGrams} onChange={(e) => setMaxWeightGrams(e.target.value)} inputMode="numeric"
+              className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+              placeholder="Ej: 5000" />
+          </label>
+        </div>
+      )}
 
       <button type="button" onClick={() => setShowAdvanced(!showAdvanced)}
         className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-[var(--border)] px-4 py-2 text-sm text-[color:var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]">
@@ -288,6 +322,9 @@ export default function AdminProductosPage() {
         isActive: data.isActive,
         sku: data.sku.trim() || undefined,
         stock: data.stock.trim() === "" ? -1 : parseInt(data.stock) || 0,
+        sellByWeight: data.sellByWeight,
+        minWeightGrams: data.sellByWeight ? parseInt(data.minWeightGrams) || 100 : undefined,
+        maxWeightGrams: data.sellByWeight ? parseInt(data.maxWeightGrams) || 5000 : undefined,
         variants: data.variants.length > 0
           ? data.variants.map((v, i) => ({ name: v.name, priceCents: Math.round(Number(v.price) * 100) || 0, sortOrder: i }))
           : undefined,
@@ -319,6 +356,9 @@ export default function AdminProductosPage() {
         isActive: data.isActive,
         sku: data.sku.trim() || undefined,
         stock: data.stock.trim() === "" ? -1 : parseInt(data.stock) || 0,
+        sellByWeight: data.sellByWeight,
+        minWeightGrams: data.sellByWeight ? parseInt(data.minWeightGrams) || 100 : undefined,
+        maxWeightGrams: data.sellByWeight ? parseInt(data.maxWeightGrams) || 5000 : undefined,
         variants: data.variants.length > 0
           ? data.variants.map((v, i) => ({ name: v.name, priceCents: Math.round(Number(v.price) * 100) || 0, sortOrder: i }))
           : [],
@@ -379,6 +419,9 @@ export default function AdminProductosPage() {
               sku: product.sku ?? "",
               stock: product.stock === -1 ? "" : product.stock.toString(),
               isActive: product.isActive,
+              sellByWeight: product.sellByWeight ?? false,
+              minWeightGrams: (product as any).minWeightGrams?.toString() ?? "100",
+              maxWeightGrams: (product as any).maxWeightGrams?.toString() ?? "5000",
             } : null}
             onSave={product ? handleUpdate : handleCreate}
             onCancel={() => { setShowForm(false); setEditingProduct(null); setError(null); }}

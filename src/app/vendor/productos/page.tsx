@@ -52,6 +52,7 @@ export default async function VendorProductosPage() {
       sku: true,
       stock: true,
       isUnavailable: true,
+      sellByWeight: true,
     },
   });
 
@@ -143,6 +144,9 @@ export default async function VendorProductosPage() {
                     <div className="mt-0.5 text-lg font-semibold">
                       {formatMoney(product.priceCents, product.currency)}
                     </div>
+                    {(product as any).sellByWeight && (
+                      <div className="text-xs text-[color:var(--muted)]">/ kg · venta por peso</div>
+                    )}
                   </div>
                 </div>
 

@@ -18,6 +18,9 @@ const CreateProductSchema = z.object({
   isActive: z.boolean().optional(),
   sku: z.string().optional(),
   stock: z.number().int().min(-1).optional(),
+  sellByWeight: z.boolean().optional(),
+  minWeightGrams: z.number().int().min(1).default(100),
+  maxWeightGrams: z.number().int().min(1).default(5000),
   variants: z.array(VariantSchema).optional(),
 });
 
@@ -47,6 +50,7 @@ export async function GET(req: Request) {
       sku: true,
       stock: true,
       isUnavailable: true,
+      sellByWeight: true,
       variants: {
         select: { id: true, name: true, priceCents: true, sortOrder: true },
         orderBy: { sortOrder: "asc" },
@@ -93,6 +97,9 @@ export async function POST(req: Request) {
       isActive: parsed.data.isActive ?? true,
       sku: parsed.data.sku?.trim() || null,
       stock: parsed.data.stock ?? -1,
+      sellByWeight: parsed.data.sellByWeight ?? false,
+      minWeightGrams: parsed.data.minWeightGrams,
+      maxWeightGrams: parsed.data.maxWeightGrams,
       variants: parsed.data.variants?.length
         ? { create: parsed.data.variants }
         : undefined,

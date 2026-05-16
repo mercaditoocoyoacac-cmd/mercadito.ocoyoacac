@@ -18,6 +18,9 @@ const UpdateProductSchema = z.object({
   isActive: z.boolean().optional(),
   sku: z.string().nullable().optional(),
   stock: z.number().int().min(-1).optional(),
+  sellByWeight: z.boolean().optional(),
+  minWeightGrams: z.number().int().min(1).optional(),
+  maxWeightGrams: z.number().int().min(1).optional(),
   variants: z.array(VariantSchema).optional(),
 });
 
@@ -63,6 +66,9 @@ export async function PUT(
       isActive: parsed.data.isActive,
       sku: parsed.data.sku,
       stock: parsed.data.stock,
+      sellByWeight: parsed.data.sellByWeight,
+      minWeightGrams: parsed.data.minWeightGrams,
+      maxWeightGrams: parsed.data.maxWeightGrams,
     },
   });
 
