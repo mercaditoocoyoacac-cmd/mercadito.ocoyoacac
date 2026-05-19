@@ -4,7 +4,7 @@ import { getSession } from "@/server/session";
 import DeliveryTracker from "@/components/DeliveryTracker";
 import DeliveryRating from "@/components/DeliveryRating";
 
-export const dynamicParams = true;
+export const dynamic = "force-dynamic";
 
 export default async function DeliveryDashboard() {
   const session = await getSession();
@@ -29,6 +29,13 @@ export default async function DeliveryDashboard() {
       currency: true,
       createdAt: true,
       arrivedAt: true,
+      arrivalConfirmedAt: true,
+      notes: true,
+      paymentMethod: true,
+      userId: true,
+      items: {
+        select: { name: true, quantity: true, priceCents: true, weightGrams: true, variantName: true },
+      },
       store: { select: { name: true, phone: true, address: true } },
     },
   });
@@ -52,6 +59,13 @@ export default async function DeliveryDashboard() {
       currency: true,
       createdAt: true,
       arrivedAt: true,
+      arrivalConfirmedAt: true,
+      notes: true,
+      paymentMethod: true,
+      userId: true,
+      items: {
+        select: { name: true, quantity: true, priceCents: true, weightGrams: true, variantName: true },
+      },
       store: { select: { name: true, phone: true, address: true } },
     },
   });

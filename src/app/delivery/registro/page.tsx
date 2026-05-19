@@ -11,6 +11,7 @@ export default function DeliveryRegistroPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -42,6 +43,7 @@ export default function DeliveryRegistroPage() {
         name: name.trim() || undefined,
         email,
         password,
+        phone,
         role: "DELIVERY",
       }),
     });
@@ -117,6 +119,18 @@ export default function DeliveryRegistroPage() {
               required
               className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
               placeholder="repartidor@mercadito.com"
+            />
+          </label>
+
+          <label className="block">
+            <div className="text-sm font-medium">Teléfono</div>
+            <input
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              type="tel"
+              required
+              className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+              placeholder="722..."
             />
           </label>
 

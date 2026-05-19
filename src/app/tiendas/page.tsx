@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/server/prisma";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 const STORES_PER_PAGE = 12;
 

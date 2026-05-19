@@ -79,6 +79,7 @@ model User {
   devices      DeviceAuthorization[]
   notifications Notification[]
   verifications Verification[]
+  chatMessages  ChatMessage[]
 
   @@index([role])
   @@index([isActive])
@@ -284,7 +285,8 @@ model Order {
   currency        String          @default("MXN")
   deliveryCode    String?         @unique
   pickupCode      String?         @unique
-  arrivedAt       DateTime?
+  arrivedAt              DateTime?
+  arrivalConfirmedAt     DateTime?
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
@@ -298,6 +300,7 @@ model Order {
 
   items OrderItem[]
   rating OrderRating?
+  messages ChatMessage[]
 
   @@index([userId])
   @@index([storeId])
@@ -394,4 +397,19 @@ model Verification {
 
   @@index([userId])
   @@index([target])
+}
+
+model ChatMessage {
+  id         String   @id @default(cuid())
+  orderId    String
+  senderId   String
+  senderRole String
+  message    String
+  createdAt  DateTime @default(now())
+
+  order  Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  sender User  @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId, createdAt])
+  @@index([orderId])
 }

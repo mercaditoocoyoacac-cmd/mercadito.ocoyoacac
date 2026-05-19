@@ -42,7 +42,7 @@ export default function OrderRatingForm({
   if (done) {
     return (
       <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-center text-sm text-green-800">
-        {hasExistingRating ? "Ya calificaste este pedido." : "Gracias por tu calificación."}
+        {hasExistingRating && !submitting ? "Ya calificaste este pedido." : "Gracias por tu calificación."}
       </div>
     );
   }

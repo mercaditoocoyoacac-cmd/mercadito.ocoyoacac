@@ -3,10 +3,14 @@
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
+
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const captchaRef = useRef<ReCAPTCHA>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -24,6 +28,32 @@ export default function AdminLoginPage() {
     else router.push("/");
   }
 
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+
+    const captchaToken = captchaRef.current?.getValue() || "";
+    if (RECAPTCHA_SITE_KEY && !captchaToken) {
+      setError("Confirma que no eres un robot.");
+      return;
+    }
+
+    setLoading(true);
+    const res = await signIn("credentials", {
+      email,
+      password,
+      captchaToken,
+      redirect: false,
+    });
+    setLoading(false);
+    if (!res || res.error) {
+      captchaRef.current?.reset();
+      setError("Correo o contraseña incorrectos.");
+      return;
+    }
+    await redirectByRole();
+  }
+
   return (
     <main className="mx-auto w-full max-w-md flex-1 px-4 py-10">
       <div className="mb-6">
@@ -33,25 +63,7 @@ export default function AdminLoginPage() {
         </p>
       </div>
 
-      <form
-        className="mt-6 space-y-4"
-        onSubmit={async (e) => {
-          e.preventDefault();
-          setLoading(true);
-          setError(null);
-          const res = await signIn("credentials", {
-            email,
-            password,
-            redirect: false,
-          });
-          setLoading(false);
-          if (!res || res.error) {
-            setError("Correo o contraseña incorrectos.");
-            return;
-          }
-          await redirectByRole();
-        }}
-      >
+      <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
         <label className="block">
           <div className="text-sm font-medium">Correo</div>
           <input
@@ -81,6 +93,12 @@ export default function AdminLoginPage() {
             ¿Olvidaste tu contraseña?
           </Link>
         </div>
+
+        {RECAPTCHA_SITE_KEY ? (
+          <div className="flex justify-center">
+            <ReCAPTCHA ref={captchaRef} sitekey={RECAPTCHA_SITE_KEY} />
+          </div>
+        ) : null}
 
         {error ? (
           <div className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700">

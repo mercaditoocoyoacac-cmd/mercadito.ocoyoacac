@@ -28,6 +28,7 @@ export default function VendorRegistroPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
 
   // Step 1 fields
   const [storeName, setStoreName] = useState("");
@@ -35,7 +36,7 @@ export default function VendorRegistroPage() {
   const [slug, setSlug] = useState("");
   const [category, setCategory] = useState("CANASTA_BASICA");
   const [storeDescription, setStoreDescription] = useState("");
-  const [phone, setPhone] = useState("");
+  const [storePhone, setStorePhone] = useState("");
   const [address, setAddress] = useState("");
   const [imageUrl, setImageUrl] = useState("");
 
@@ -71,7 +72,7 @@ export default function VendorRegistroPage() {
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ name: name.trim() || undefined, email, password, role: "VENDOR" }),
+        body: JSON.stringify({ name: name.trim() || undefined, email, password, phone, role: "VENDOR" }),
       });
       const data = await res.json().catch(() => null) as any;
       setLoading(false);
@@ -96,7 +97,7 @@ export default function VendorRegistroPage() {
           slug: (slug || autoSlug).trim(),
           category,
           description: storeDescription.trim() || undefined,
-          phone: phone.trim() || undefined,
+          phone: storePhone.trim() || undefined,
           address: address.trim() || undefined,
           imageUrl: imageUrl || undefined,
         }),
@@ -176,6 +177,10 @@ export default function VendorRegistroPage() {
               <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" required className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]" placeholder="tu@negocio.com" />
             </label>
             <label className="block">
+              <div className="text-sm font-medium">Teléfono</div>
+              <input value={phone} onChange={(e) => setPhone(e.target.value)} type="tel" required className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]" placeholder="722..." />
+            </label>
+            <label className="block">
               <div className="text-sm font-medium">Contraseña</div>
               <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" required minLength={8} className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]" placeholder="Mínimo 8 caracteres" />
             </label>
@@ -250,8 +255,8 @@ export default function VendorRegistroPage() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block">
-                <div className="text-sm font-medium">Teléfono (opcional)</div>
-                <input value={phone} onChange={(e) => setPhone(e.target.value)} className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]" placeholder="722..." />
+                <div className="text-sm font-medium">Teléfono de la tienda (opcional)</div>
+                <input value={storePhone} onChange={(e) => setStorePhone(e.target.value)} className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]" placeholder="722..." />
               </label>
               <label className="block">
                 <div className="text-sm font-medium">Dirección (opcional)</div>

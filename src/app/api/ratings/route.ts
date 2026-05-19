@@ -43,6 +43,8 @@ export async function POST(req: Request) {
 
   revalidatePath(`/mis-pedidos/${orderId}`);
   revalidatePath(`/admin/ranking`);
+  revalidatePath(`/vendor`);
+  revalidatePath(`/delivery`);
 
   return NextResponse.json({ ok: true });
 }

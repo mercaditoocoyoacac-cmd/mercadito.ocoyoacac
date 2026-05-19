@@ -4,6 +4,22 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { headers } from "next/headers";
 import { prisma } from "@/server/prisma";
 
+const RECAPTCHA_SECRET_KEY = process.env.RECAPTCHA_SECRET_KEY || "";
+
+async function verifyCaptcha(token: string): Promise<boolean> {
+  try {
+    const res = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+      method: "POST",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      body: `secret=${RECAPTCHA_SECRET_KEY}&response=${token}`,
+    });
+    const data = await res.json();
+    return data.success === true;
+  } catch {
+    return false;
+  }
+}
+
 function getDeviceId(userAgent: string, ip: string): string {
   const crypto = require("crypto");
   return crypto.createHash("sha256").update(`${userAgent}-${ip}`).digest("hex").slice(0, 32);
@@ -20,11 +36,17 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: "Correo", type: "email" },
         password: { label: "Contraseña", type: "password" },
+        captchaToken: { label: "Captcha", type: "hidden" },
       },
       async authorize(credentials) {
         const email = credentials?.email?.toLowerCase().trim();
         const password = credentials?.password ?? "";
         if (!email || !password) return null;
+
+        if (RECAPTCHA_SECRET_KEY) {
+          if (!credentials?.captchaToken) return null;
+          if (!(await verifyCaptcha(credentials.captchaToken))) return null;
+        }
 
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user) return null;

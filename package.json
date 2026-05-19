@@ -7,6 +7,10 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:utils": "vitest run src/__tests__/utils",
+    "test:db": "vitest run src/__tests__/db",
     "postinstall": "prisma generate",
     "cap:sync": "npx cap sync",
     "cap:android": "npx cap open android",
@@ -50,6 +54,7 @@
     "qrcode": "^1.5.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "react-google-recaptcha": "^3.1.0",
     "react-leaflet": "^5.0.0",
     "resend": "^6.12.3",
     "xlsx": "^0.18.5",
@@ -63,9 +68,12 @@
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/react-google-recaptcha": "^2.1.9",
+    "@vitejs/plugin-react": "^6.0.2",
     "eslint": "^9",
     "eslint-config-next": "16.2.2",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.6"
   }
 }

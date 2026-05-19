@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 
-export const revalidate = 30;
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const session = await getSession();

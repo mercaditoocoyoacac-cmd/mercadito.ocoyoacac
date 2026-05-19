@@ -4,6 +4,8 @@ import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { OrderCancelButton } from "@/components/OrderCancelButton";
 import OrderRatingForm from "@/components/OrderRatingForm";
+import DeliveryChat from "@/components/DeliveryChat";
+import { ArrivalConfirmButton } from "@/components/ArrivalConfirmButton";
 
 function formatMoney(cents: number, currency: string) {
   return new Intl.NumberFormat("es-MX", { style: "currency", currency }).format(
@@ -74,6 +76,7 @@ export default async function PedidoDetallePage({
       pickupCode: true,
       deliveryCode: true,
       arrivedAt: true,
+      arrivalConfirmedAt: true,
       rating: { select: { id: true } },
       store: { select: { name: true, slug: true, phone: true } },
       items: { select: { id: true, name: true, priceCents: true, quantity: true, weightGrams: true, variantName: true } },
@@ -173,7 +176,7 @@ export default async function PedidoDetallePage({
             <div>
               <h3 className="text-sm font-medium text-[color:var(--muted)]">Tipo de entrega</h3>
               <p className="mt-1 font-medium">
-                {order.fulfillmentType === "PICKUP" ? "📍 Recolección en tienda" : "🚚 Entrega a domicilio"}
+                {order.fulfillmentType === "PICKUP" ? "📍 Recoger en tienda" : "🚚 Entrega a domicilio"}
               </p>
             </div>
             {order.fulfillmentType === "DELIVERY" && order.customerAddress && (
@@ -197,12 +200,21 @@ export default async function PedidoDetallePage({
         </div>
 
         {order.arrivedAt && order.status === "OUT_FOR_DELIVERY" && (
-          <div className="rounded-xl border border-green-300 bg-green-50 p-6 text-center animate-pulse">
+          <div className={`rounded-xl border p-6 text-center ${
+            order.arrivalConfirmedAt
+              ? "border-green-300 bg-green-50"
+              : "border-orange-300 bg-orange-50 animate-pulse"
+          }`}>
             <div className="text-3xl mb-2">🛵</div>
             <div className="text-lg font-semibold text-green-800">¡El repartidor está aquí!</div>
             <div className="mt-1 text-sm text-green-700">
-              El repartidor ya llegó a tu domicilio. Sal a recibir tu pedido.
+              {order.arrivalConfirmedAt
+                ? "Confirmaste que estás enterado. Sal a recibir tu pedido."
+                : "El repartidor ya llegó a tu domicilio."}
             </div>
+            {!order.arrivalConfirmedAt && (
+              <ArrivalConfirmButton orderId={order.id} />
+            )}
           </div>
         )}
 
@@ -218,6 +230,10 @@ export default async function PedidoDetallePage({
                 : "Proporciona este código al recoger tu pedido en la tienda"}
             </div>
           </div>
+        )}
+
+        {order.status === "OUT_FOR_DELIVERY" && (
+          <DeliveryChat orderId={order.id} currentUserId={session.user.id} currentUserRole="CUSTOMER" />
         )}
 
         <div className="rounded-xl border border-[var(--border)] overflow-hidden">

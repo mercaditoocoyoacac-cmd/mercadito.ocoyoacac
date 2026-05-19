@@ -105,7 +105,7 @@ export default async function MisPedidosPage() {
                     <span className="font-medium">{order.store.name}</span>
                   </div>
                   <div className="mt-1 text-xs text-[color:var(--muted)]">
-                    {order.fulfillmentType === "PICKUP" ? "📍 Recolección" : "🚚 Entrega"} en tienda ·{" "}
+                    {order.fulfillmentType === "PICKUP" ? "📍 Recoger en tienda" : "🚚 Entrega a domicilio"} ·{" "}
                     {formatDateTimeInMexico(order.createdAt, {
                       day: "numeric",
                       month: "short",

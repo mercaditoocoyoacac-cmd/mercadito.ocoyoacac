@@ -4,6 +4,8 @@ import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { formatDateInMexico, formatDateTimeInMexico } from "@/lib/dates";
 
+export const dynamic = "force-dynamic";
+
 function formatMoney(cents: number, currency: string) {
   return new Intl.NumberFormat("es-MX", {
     style: "currency",

@@ -61,7 +61,7 @@ export default async function PedidoPage({
               Modalidad
             </div>
             <div className="font-medium">
-              {order.fulfillmentType === "DELIVERY" ? "Entrega" : "Recolección"}
+              {order.fulfillmentType === "DELIVERY" ? "Entrega" : "Recoger en tienda"}
             </div>
           </div>
           <div>
