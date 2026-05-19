@@ -460,7 +460,7 @@ export default function CarritoPage() {
                 <div className="flex justify-between items-center">
                   <span className="text-[color:var(--muted)]">Envío</span>
                   <span className={deliveryFee > 0 ? "font-medium" : "text-green-600 font-medium"}>
-                    {deliveryFee > 0 ? formatMoney(deliveryFee, currency) : "Gratis"}
+                    {deliveryFee > 0 ? formatMoney(deliveryFee, currency) : "No aplica"}
                   </span>
                 </div>
                 <hr className="border-[var(--border)]" />
