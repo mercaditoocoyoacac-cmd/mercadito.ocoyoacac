@@ -4,17 +4,9 @@ import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { revalidatePath } from "next/cache";
 import { formatMoney } from "@/lib/format";
+import { getStatusLabel } from "@/lib/labels";
 
 export const dynamic = "force-dynamic";
-
-const statusLabels: Record<string, string> = {
-  PENDING: "Pendiente",
-  CONFIRMED: "Confirmado",
-  READY: "Listo",
-  OUT_FOR_DELIVERY: "En camino",
-  COMPLETED: "Entregado",
-  CANCELLED: "Cancelado",
-};
 
 export default async function VendorPedidosPage() {
   const session = await getSession();
@@ -162,7 +154,7 @@ export default async function VendorPedidosPage() {
                           : "bg-blue-100 text-blue-800"
                       }`}
                     >
-                      {statusLabels[order.status]}
+                      {getStatusLabel(order.status)}
                     </div>
                     <div className="text-xs mt-1">
                       {order.fulfillmentType === "DELIVERY" ? "📦 Entrega" : "🏪 Recoger"}

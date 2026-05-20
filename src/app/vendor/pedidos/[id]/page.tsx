@@ -4,22 +4,9 @@ import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { revalidatePath } from "next/cache";
 import { formatMoney } from "@/lib/format";
+import { getStatusLabel, FULFILLMENT_LABELS } from "@/lib/labels";
 
 export const dynamic = "force-dynamic";
-
-const statusLabels: Record<string, string> = {
-  PENDING: "Pendiente",
-  CONFIRMED: "Confirmado",
-  READY: "Listo para entrega",
-  OUT_FOR_DELIVERY: "En camino",
-  COMPLETED: "Entregado",
-  CANCELLED: "Cancelado",
-};
-
-const fulfillmentLabels: Record<string, string> = {
-  PICKUP: "Recoger en tienda",
-  DELIVERY: "Entrega a domicilio",
-};
 
 export default async function VendorPedidoPage({
   params,
@@ -96,10 +83,10 @@ export default async function VendorPedidoPage({
                   : "bg-blue-100 text-blue-800"
               }`}
             >
-              {statusLabels[order.status]}
+              {getStatusLabel(order.status) === "Listo" ? "Listo para entrega" : getStatusLabel(order.status)}
             </div>
             <div className="text-xs text-[color:var(--muted)] mt-1">
-              {fulfillmentLabels[order.fulfillmentType]}
+              {FULFILLMENT_LABELS[order.fulfillmentType]}
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { formatMoney } from "@/lib/format";
+import { getStatusLabel } from "@/lib/labels";
 
 export const revalidate = 30;
 
@@ -27,15 +28,6 @@ export default async function AdminOrdersPage() {
     },
     take: 100,
   });
-
-  const statusLabels: Record<string, string> = {
-    PENDING: "Pendiente",
-    CONFIRMED: "Confirmado",
-    READY: "Listo",
-    OUT_FOR_DELIVERY: "En camino",
-    COMPLETED: "Entregado",
-    CANCELLED: "Cancelado",
-  };
 
   return (
     <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
@@ -127,7 +119,7 @@ export default async function AdminOrdersPage() {
                       order.status === "OUT_FOR_DELIVERY" ? "bg-orange-100 text-orange-800" :
                       "bg-blue-100 text-blue-800"
                     }`}>
-                      {statusLabels[order.status]}
+                      {getStatusLabel(order.status)}
                     </div>
                     <div className={`text-xs mt-1 ${
                       order.fulfillmentType === "DELIVERY" ? "text-purple-600" : "text-gray-600"

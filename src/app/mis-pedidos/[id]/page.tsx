@@ -7,6 +7,7 @@ import OrderRatingForm from "@/components/OrderRatingForm";
 import DeliveryChat from "@/components/DeliveryChat";
 import { ArrivalConfirmButton } from "@/components/ArrivalConfirmButton";
 import { formatMoney } from "@/lib/format";
+import { getStatusLabel } from "@/lib/labels";
 
 const statusSteps = [
   { status: "PENDING", label: "Pedido recibido", icon: "📋" },
@@ -15,18 +16,6 @@ const statusSteps = [
   { status: "OUT_FOR_DELIVERY", label: "En camino", icon: "🚚" },
   { status: "COMPLETED", label: "Entregado", icon: "🎉" },
 ];
-
-function getStatusLabel(status: string) {
-  const labels: Record<string, string> = {
-    PENDING: "Pendiente",
-    CONFIRMED: "Confirmado",
-    READY: "Listo",
-    OUT_FOR_DELIVERY: "En camino",
-    COMPLETED: "Entregado",
-    CANCELLED: "Cancelado",
-  };
-  return labels[status] || status;
-}
 
 function getStatusColor(status: string) {
   const colors: Record<string, string> = {

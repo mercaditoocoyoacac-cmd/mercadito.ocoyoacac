@@ -4,6 +4,7 @@ import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { formatDateTimeInMexico } from "@/lib/dates";
 import { formatMoney } from "@/lib/format";
+import { getStatusLabel } from "@/lib/labels";
 
 export const revalidate = 30;
 
@@ -61,15 +62,6 @@ export default async function AdminDashboard() {
       },
     }),
   ]);
-
-  const statusLabels: Record<string, string> = {
-    PENDING: "Pendiente",
-    CONFIRMED: "Confirmado",
-    READY: "Listo",
-    OUT_FOR_DELIVERY: "En camino",
-    COMPLETED: "Entregado",
-    CANCELLED: "Cancelado",
-  };
 
   return (
     <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
@@ -187,7 +179,7 @@ export default async function AdminDashboard() {
                     order.status === "CANCELLED" ? "text-red-600" :
                     "text-blue-600"
                   }`}>
-                    {statusLabels[order.status]}
+                    {getStatusLabel(order.status)}
                   </div>
                 </div>
               </div>

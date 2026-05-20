@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { haversineDistance, formatDistance } from "@/lib/geo";
 import DeliveryChat from "@/components/DeliveryChat";
+import { getStatusLabel } from "@/lib/labels";
 
 interface OrderItem {
   name: string;
@@ -163,15 +164,6 @@ export default function DeliveryTracker({
     if (isMobile) return `geo:0,0?q=${encodeURIComponent(address)}`;
     return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
   }
-
-  const statusLabels: Record<string, string> = {
-    PENDING: "Pendiente",
-    CONFIRMED: "Confirmado",
-    READY: "Listo",
-    OUT_FOR_DELIVERY: "En camino",
-    COMPLETED: "Entregado",
-    CANCELLED: "Cancelado",
-  };
 
   const activeDeliveries = myDeliveries.filter(
     (o) => o.status === "OUT_FOR_DELIVERY",
@@ -516,7 +508,7 @@ export default function DeliveryTracker({
                         ? "bg-orange-100 text-orange-800"
                         : "bg-gray-100 text-gray-800"
                     }`}>
-                      {statusLabels[order.status]}
+                      {getStatusLabel(order.status)}
                     </div>
                     {order.arrivedAt && (
                       <div className={`text-[10px] px-2 py-0.5 rounded-full ${

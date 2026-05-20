@@ -4,18 +4,7 @@ import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { formatDateTimeInMexico } from "@/lib/dates";
 import { formatMoney } from "@/lib/format";
-
-function getStatusLabel(status: string) {
-  const labels: Record<string, string> = {
-    PENDING: "Pendiente",
-    CONFIRMED: "Confirmado",
-    READY: "Listo",
-    OUT_FOR_DELIVERY: "En camino",
-    COMPLETED: "Entregado",
-    CANCELLED: "Cancelado",
-  };
-  return labels[status] || status;
-}
+import { getStatusLabel } from "@/lib/labels";
 
 function getStatusColor(status: string) {
   const colors: Record<string, string> = {
