@@ -6,12 +6,7 @@ import { OrderCancelButton } from "@/components/OrderCancelButton";
 import OrderRatingForm from "@/components/OrderRatingForm";
 import DeliveryChat from "@/components/DeliveryChat";
 import { ArrivalConfirmButton } from "@/components/ArrivalConfirmButton";
-
-function formatMoney(cents: number, currency: string) {
-  return new Intl.NumberFormat("es-MX", { style: "currency", currency }).format(
-    cents / 100,
-  );
-}
+import { formatMoney } from "@/lib/format";
 
 const statusSteps = [
   { status: "PENDING", label: "Pedido recibido", icon: "📋" },

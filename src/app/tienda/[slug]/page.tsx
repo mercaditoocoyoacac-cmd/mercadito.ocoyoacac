@@ -5,14 +5,9 @@ import { prisma } from "@/server/prisma";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { ProductImageModal } from "@/components/ProductImageModal";
 import { isStoreOpen } from "@/lib/schedule";
+import { formatMoney } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
-
-function formatMoney(cents: number, currency: string) {
-  return new Intl.NumberFormat("es-MX", { style: "currency", currency }).format(
-    cents / 100,
-  );
-}
 
 export default async function StorefrontPage({
   params,

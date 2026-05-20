@@ -2,12 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-
-function formatMoney(cents: number) {
-  return new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(
-    cents / 100,
-  );
-}
+import { formatMoney } from "@/lib/format";
 
 const TERMS_TITLE = "AUTORIZACIÓN DE USO DE DATOS Y CONTRATO DE SERVICIO";
 

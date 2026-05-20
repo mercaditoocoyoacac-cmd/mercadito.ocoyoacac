@@ -1,10 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
-function formatMoney(cents: number) {
-  return new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(cents / 100);
-}
+import { formatMoney } from "@/lib/format";
 
 interface Variant {
   id: string;

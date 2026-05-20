@@ -3,12 +3,7 @@ import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import VendorContractForm from "./VendorContractForm";
 import { formatDateInMexico } from "@/lib/dates";
-
-function formatMoney(cents: number) {
-  return new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(
-    cents / 100,
-  );
-}
+import { formatMoney } from "@/lib/format";
 
 export default async function ContratoPage() {
   const session = await getSession();

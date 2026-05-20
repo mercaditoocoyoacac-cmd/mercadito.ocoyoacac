@@ -3,12 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatDateInMexico } from "@/lib/dates";
-
-function formatMoney(cents: number) {
-  return new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(
-    cents / 100,
-  );
-}
+import { formatMoney } from "@/lib/format";
 
 const CONTRACT_TERMS = `
 CONTRATO DE PRESTACIÓN DE SERVICIOS DE COMERCIO ELECTRÓNICO

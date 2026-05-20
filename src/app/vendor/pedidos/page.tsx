@@ -3,13 +3,7 @@ import { cookies } from "next/headers";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { revalidatePath } from "next/cache";
-
-function formatMoney(cents: number, currency: string) {
-  return new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency,
-  }).format(cents / 100);
-}
+import { formatMoney } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 

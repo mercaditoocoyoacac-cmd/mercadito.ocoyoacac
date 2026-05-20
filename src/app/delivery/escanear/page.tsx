@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { formatMoney } from "@/lib/format";
 
 interface OrderInfo {
   id: string;
@@ -22,13 +23,6 @@ export default function DeliveryScanPage() {
   const [scanning, setScanning] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  function formatMoney(cents: number) {
-    return new Intl.NumberFormat("es-MX", {
-      style: "currency",
-      currency: "MXN",
-    }).format(cents / 100);
-  }
 
   async function lookupCode(code: string) {
     setLoading(true);

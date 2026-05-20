@@ -3,13 +3,7 @@ import Image from "next/image";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { StockToggle } from "@/components/StockToggle";
-
-function formatMoney(cents: number, currency: string) {
-  return new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency,
-  }).format(cents / 100);
-}
+import { formatMoney } from "@/lib/format";
 
 export default async function VendorProductosPage() {
   const session = await getSession();

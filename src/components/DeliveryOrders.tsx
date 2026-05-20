@@ -2,12 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import LocationViewer from "@/components/LocationViewer";
-
-function formatMoney(cents: number, currency: string) {
-  return new Intl.NumberFormat("es-MX", { style: "currency", currency }).format(
-    cents / 100,
-  );
-}
+import { formatMoney } from "@/lib/format";
 
 type DeliveryOrder = {
   id: string;

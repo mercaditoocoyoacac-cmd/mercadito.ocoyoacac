@@ -1,12 +1,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
-
-function formatMoney(cents: number, currency: string) {
-  return new Intl.NumberFormat("es-MX", { style: "currency", currency }).format(
-    cents / 100,
-  );
-}
+import { formatMoney } from "@/lib/format";
 
 export const revalidate = 30;
 

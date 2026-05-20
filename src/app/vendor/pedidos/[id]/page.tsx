@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { revalidatePath } from "next/cache";
+import { formatMoney } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -19,13 +20,6 @@ const fulfillmentLabels: Record<string, string> = {
   PICKUP: "Recoger en tienda",
   DELIVERY: "Entrega a domicilio",
 };
-
-function formatMoney(cents: number, currency: string) {
-  return new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency,
-  }).format(cents / 100);
-}
 
 export default async function VendorPedidoPage({
   params,

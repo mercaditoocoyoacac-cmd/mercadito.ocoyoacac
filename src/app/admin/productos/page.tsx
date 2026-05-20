@@ -3,10 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-
-function formatMoney(cents: number, currency: string) {
-  return new Intl.NumberFormat("es-MX", { style: "currency", currency }).format(cents / 100);
-}
+import { formatMoney } from "@/lib/format";
 
 interface Store {
   id: string;

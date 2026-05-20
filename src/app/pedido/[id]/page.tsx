@@ -4,12 +4,7 @@ import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import OrderConfirmation from "@/components/OrderConfirmation";
 import { OrderCancelButton } from "@/components/OrderCancelButton";
-
-function formatMoney(cents: number, currency: string) {
-  return new Intl.NumberFormat("es-MX", { style: "currency", currency }).format(
-    cents / 100,
-  );
-}
+import { formatMoney } from "@/lib/format";
 
 export default async function PedidoPage({
   params,

@@ -26,9 +26,7 @@ type CartItem = {
   };
 };
 
-function formatMoney(cents: number, currency: string) {
-  return new Intl.NumberFormat("es-MX", { style: "currency", currency }).format(cents / 100);
-}
+import { formatMoney } from "@/lib/format";
 
 function calcDeliveryFeeCents(distanceKm: number): number {
   const BASE_FEE = 2500;
