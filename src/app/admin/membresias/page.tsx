@@ -157,7 +157,7 @@ export default async function AdminSubscriptionsPage() {
                     <form action={async () => {
                       "use server";
                       const trialEnd = new Date();
-                      trialEnd.setDate(trialEnd.getDate() + 15);
+                      trialEnd.setDate(trialEnd.getDate() + 30);
                       await prisma.subscription.update({
                         where: { storeId: store.id },
                         data: {
@@ -246,7 +246,7 @@ export default async function AdminSubscriptionsPage() {
                   {store.owner.trialUsed && (
                     <div className="mt-2 flex items-center gap-2 text-xs px-2 py-1 rounded-lg bg-amber-50 border border-amber-200">
                       <span className="text-amber-600">⚠️</span>
-                      <span className="text-amber-700 font-medium">Ya utilizó su período de prueba de 15 días</span>
+                      <span className="text-amber-700 font-medium">Ya utilizó su período de prueba de 30 días</span>
                     </div>
                   )}
                   {sub && (
@@ -321,7 +321,7 @@ data: { isPublished: true },
                       <form action={async () => {
                         "use server";
                         const trialEnd = new Date();
-                        trialEnd.setDate(trialEnd.getDate() + 15);
+                    trialEnd.setDate(trialEnd.getDate() + 30);
                         await prisma.subscription.upsert({
                           where: { storeId: store.id },
                           create: {

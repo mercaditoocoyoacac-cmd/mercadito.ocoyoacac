@@ -119,7 +119,7 @@ export default async function VendorDashboard() {
           <div className="mx-auto max-w-2xl text-center">
             <h1 className="text-3xl font-bold">Período de prueba finalizado</h1>
             <p className="mt-4 text-lg text-white/90">
-              Ya utilizaste tu prueba gratuita de 15 días.
+              Ya utilizaste tu prueba gratuita de 30 días.
             </p>
             <p className="mt-2 text-white/70">
               Para continuar usando la plataforma, debes firmar el contrato o contactar a un administrador.

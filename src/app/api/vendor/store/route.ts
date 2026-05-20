@@ -111,7 +111,7 @@ export async function POST(req: Request) {
     });
 
     const trialEnd = new Date();
-    trialEnd.setDate(trialEnd.getDate() + 15);
+    trialEnd.setDate(trialEnd.getDate() + 30);
 
     await prisma.subscription.create({
       data: {
