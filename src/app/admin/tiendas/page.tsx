@@ -1,6 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
+
+const LocationPicker = dynamic(
+  () => import("@/components/LocationPicker"),
+  { ssr: false, loading: () => <div className="h-64 w-full bg-gray-100 animate-pulse rounded-xl" /> }
+);
 
 const DAYS = [
   { key: "MONDAY", label: "Lunes" },
@@ -21,6 +27,8 @@ interface Store {
   phone: string | null;
   address: string | null;
   imageUrl: string | null;
+  latitude: number | null;
+  longitude: number | null;
   isActive: boolean;
   isPublished: boolean;
   openTime: string | null;
@@ -42,6 +50,8 @@ function StoreForm({
   const [phone, setPhone] = useState(store.phone ?? "");
   const [address, setAddress] = useState(store.address ?? "");
   const [imageUrl, setImageUrl] = useState(store.imageUrl ?? "");
+  const [latitude, setLatitude] = useState<number | null>(store.latitude);
+  const [longitude, setLongitude] = useState<number | null>(store.longitude);
   const [openTime, setOpenTime] = useState(store.openTime ?? "");
   const [closeTime, setCloseTime] = useState(store.closeTime ?? "");
   const [scheduleDays, setScheduleDays] = useState<string[]>(
@@ -92,6 +102,8 @@ function StoreForm({
         phone: phone.trim() || undefined,
         address: address.trim() || undefined,
         imageUrl: imageUrl || null,
+        latitude: latitude,
+        longitude: longitude,
         openTime: openTime || null,
         closeTime: closeTime || null,
         scheduleDays,
@@ -179,6 +191,32 @@ function StoreForm({
           <input value={address} onChange={(e) => setAddress(e.target.value)}
             className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]" />
         </label>
+      </div>
+
+      <div className="rounded-xl border border-[var(--border)] bg-white p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <svg className="h-5 w-5 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <div className="text-sm font-semibold">Ubicación de la tienda</div>
+        </div>
+        <p className="text-xs text-[color:var(--muted)] mb-4">
+          Marca en el mapa la ubicación de la tienda para calcular el costo de envío.
+        </p>
+        <LocationPicker
+          latitude={latitude}
+          longitude={longitude}
+          onLocationChange={(lat, lng) => { setLatitude(lat); setLongitude(lng); }}
+        />
+        {latitude && longitude && (
+          <p className="mt-1.5 flex items-center gap-1 text-xs text-green-600 font-medium">
+            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+            </svg>
+            Ubicación guardada
+          </p>
+        )}
       </div>
 
       <div className="rounded-xl border border-[var(--border)] bg-white p-5">

@@ -18,6 +18,8 @@ export async function GET() {
       description: true,
       phone: true,
       address: true,
+      latitude: true,
+      longitude: true,
       imageUrl: true,
       isActive: true,
       isPublished: true,

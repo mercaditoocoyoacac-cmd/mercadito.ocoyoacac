@@ -8,6 +8,7 @@ import { isStoreOpen } from "@/lib/schedule";
 import { sendTextNotification } from "@/server/notifications";
 import { notifyVendorNewOrder } from "@/server/whatsapp";
 import { sendPushNotification } from "@/server/push";
+import { calcDeliveryFeeCents, haversineDistance } from "@/lib/geo";
 
 function generateDeliveryCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -88,7 +89,7 @@ export async function POST(req: Request) {
           isActive: true,
           isUnavailable: true,
           stock: true,
-          store: { select: { isActive: true, openTime: true, closeTime: true, scheduleDays: true, category: true } },
+          store: { select: { isActive: true, openTime: true, closeTime: true, scheduleDays: true, category: true, latitude: true, longitude: true } },
         },
       },
     },
@@ -165,7 +166,19 @@ export async function POST(req: Request) {
     },
     0,
   );
-  const deliveryCents = parsed.data.fulfillmentType === "DELIVERY" ? 2500 : 0;
+  let deliveryCents = 0;
+  if (parsed.data.fulfillmentType === "DELIVERY") {
+    const storeLat = store.latitude;
+    const storeLng = store.longitude;
+    const customerLat = parsed.data.customerLat;
+    const customerLng = parsed.data.customerLng;
+    if (storeLat && storeLng && customerLat && customerLng) {
+      const distance = haversineDistance(storeLat, storeLng, customerLat, customerLng);
+      deliveryCents = calcDeliveryFeeCents(distance);
+    } else {
+      deliveryCents = 2500;
+    }
+  }
   const totalCents = subtotalCents + deliveryCents;
   const deliveryCode = generateDeliveryCode();
   const pickupCode = generateDeliveryCode();

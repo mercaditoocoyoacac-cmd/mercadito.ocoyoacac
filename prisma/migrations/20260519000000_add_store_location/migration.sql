@@ -1,0 +1,2 @@
+ALTER TABLE "public"."Store" ADD COLUMN "latitude" DOUBLE PRECISION;
+ALTER TABLE "public"."Store" ADD COLUMN "longitude" DOUBLE PRECISION;

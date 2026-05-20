@@ -96,6 +96,8 @@ model Store {
   description String?
   phone      String?
   address    String?
+  latitude   Float?
+  longitude  Float?
   imageUrl   String?
   isActive   Boolean  @default(true)
   isPublished Boolean @default(false)

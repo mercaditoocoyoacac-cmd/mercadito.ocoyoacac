@@ -22,7 +22,7 @@ type CartItem = {
     currency: string;
     sellByWeight: boolean;
     isUnavailable: boolean;
-    store: { id: string; name: string; slug: string; acceptsMercadoPago: boolean; hasOnlinePayment: boolean };
+    store: { id: string; name: string; slug: string; acceptsMercadoPago: boolean; hasOnlinePayment: boolean; latitude: number | null; longitude: number | null };
   };
 };
 
@@ -30,7 +30,24 @@ function formatMoney(cents: number, currency: string) {
   return new Intl.NumberFormat("es-MX", { style: "currency", currency }).format(cents / 100);
 }
 
-const DELIVERY_FEE_CENTS = 2500;
+function calcDeliveryFeeCents(distanceKm: number): number {
+  const BASE_FEE = 2500;
+  const EXTRA_FEE = 1000;
+  const BASE_KM = 2;
+  const SEGMENT_KM = 2;
+  if (distanceKm <= 0) return BASE_FEE;
+  if (distanceKm <= BASE_KM) return BASE_FEE;
+  const extraSegments = Math.ceil((distanceKm - BASE_KM) / SEGMENT_KM);
+  return BASE_FEE + extraSegments * EXTRA_FEE;
+}
+
+function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
 
 function Skeleton() {
   return (
@@ -199,7 +216,17 @@ export default function CarritoPage() {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [updatingQty, setUpdatingQty] = useState<Record<string, boolean>>({});
 
-  const deliveryFee = fulfillmentType === "DELIVERY" ? DELIVERY_FEE_CENTS : 0;
+  const deliveryFee = useMemo(() => {
+    if (fulfillmentType !== "DELIVERY") return 0;
+    const storeItem = items?.[0];
+    const storeLat = storeItem?.product.store.latitude;
+    const storeLng = storeItem?.product.store.longitude;
+    if (storeLat && storeLng && customerLat && customerLng) {
+      const dist = haversineDistance(storeLat, storeLng, customerLat, customerLng);
+      return calcDeliveryFeeCents(dist);
+    }
+    return 2500;
+  }, [fulfillmentType, items, customerLat, customerLng]);
   const total = subtotal + deliveryFee;
 
   const refresh = useCallback(async () => {

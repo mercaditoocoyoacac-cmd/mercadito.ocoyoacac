@@ -41,12 +41,14 @@ export async function GET() {
           currency: true,
           sellByWeight: true,
           isUnavailable: true,
-          store: {
+           store: {
             select: {
               id: true,
               name: true,
               slug: true,
               acceptsMercadoPago: true,
+              latitude: true,
+              longitude: true,
               paymentMethods: {
                 where: { isActive: true, status: "APPROVED" },
                 select: { processor: true, label: true },
