@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
+import { updateStoreSchema as UpdateStoreSchema } from "@/lib/schemas";
 
 const StoreSchema = z.object({
   name: z.string().min(2).max(80),
@@ -15,20 +16,6 @@ const StoreSchema = z.object({
   phone: z.string().max(40).optional(),
   address: z.string().max(140).optional(),
   imageUrl: z.string().url().optional(),
-});
-
-const UpdateStoreSchema = z.object({
-  name: z.string().min(2).max(80).optional(),
-  category: z.enum(["CANASTA_BASICA", "HERRAMIENTAS", "FLORERIAS", "POSTRES", "COMIDA_PREPARADA", "FRUTAS_VERDURAS", "FARMACIAS", "SERVICIOS"]).optional(),
-  description: z.string().max(280).optional(),
-  phone: z.string().max(40).optional(),
-  address: z.string().max(140).optional(),
-  imageUrl: z.string().url().nullable().optional(),
-  latitude: z.number().min(-90).max(90).nullable().optional(),
-  longitude: z.number().min(-180).max(180).nullable().optional(),
-  openTime: z.string().regex(/^([01]?\d|2[0-3]):[0-5]\d$/).nullable().optional(),
-  closeTime: z.string().regex(/^([01]?\d|2[0-3]):[0-5]\d$/).nullable().optional(),
-  scheduleDays: z.array(z.enum(["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"])).min(1).optional(),
 });
 
 export async function GET() {

@@ -1,28 +1,7 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
-
-const VariantSchema = z.object({
-  id: z.string().optional(),
-  name: z.string().min(1).max(80),
-  priceCents: z.number().int().min(1),
-  sortOrder: z.number().int().default(0),
-});
-
-const UpdateProductSchema = z.object({
-  name: z.string().min(2).max(120).optional(),
-  description: z.string().max(2000).optional(),
-  priceCents: z.number().int().min(1).optional(),
-  imageUrl: z.string().url().nullable().optional(),
-  isActive: z.boolean().optional(),
-  sku: z.string().nullable().optional(),
-  stock: z.number().int().min(-1).optional(),
-  sellByWeight: z.boolean().optional(),
-  minWeightGrams: z.number().int().min(1).optional(),
-  maxWeightGrams: z.number().int().min(1).optional(),
-  variants: z.array(VariantSchema).optional(),
-});
+import { productUpdateSchema as UpdateProductSchema } from "@/lib/schemas";
 
 export async function PUT(
   req: Request,
