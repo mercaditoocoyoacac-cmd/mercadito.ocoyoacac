@@ -1,19 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/server/prisma";
-import { requireUser } from "@/server/requireUser";
+import { requireRole } from "@/server/requireUser";
 
 export async function POST(req: Request) {
-  const auth = await requireUser();
+  const auth = await requireRole("ADMIN");
   if (!auth.ok) return auth.res;
-
-  const user = await prisma.user.findUnique({
-    where: { id: auth.userId },
-    select: { role: true },
-  });
-
-  if (user?.role !== "ADMIN") {
-    return NextResponse.json({ ok: false, error: "No autorizado" }, { status: 403 });
-  }
 
   const json = await req.json().catch(() => null);
   const { storeId, action } = json || {};
@@ -47,17 +38,8 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
-  const auth = await requireUser();
+  const auth = await requireRole("ADMIN");
   if (!auth.ok) return auth.res;
-
-  const user = await prisma.user.findUnique({
-    where: { id: auth.userId },
-    select: { role: true },
-  });
-
-  if (user?.role !== "ADMIN") {
-    return NextResponse.json({ ok: false, error: "No autorizado" }, { status: 403 });
-  }
 
   const { searchParams } = new URL(req.url);
   const storeId = searchParams.get("storeId");

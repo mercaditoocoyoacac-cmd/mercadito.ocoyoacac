@@ -1,16 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/server/prisma";
-import { getSession } from "@/server/session";
+import { requireRole } from "@/server/requireUser";
 import { productUpdateSchema as UpdateProductSchema } from "@/lib/schemas";
 
 export async function PUT(
   req: Request,
   ctx: { params: Promise<{ id: string }> },
 ) {
-  const session = await getSession();
-  if (!session?.user?.id || session.user.role !== "ADMIN") {
-    return NextResponse.json({ ok: false, error: "No autorizado" }, { status: 403 });
-  }
+  const auth = await requireRole("ADMIN");
+  if (!auth.ok) return auth.res;
   const { id } = await ctx.params;
 
   const json = await req.json().catch(() => null);
@@ -90,10 +88,8 @@ export async function DELETE(
   _req: Request,
   ctx: { params: Promise<{ id: string }> },
 ) {
-  const session = await getSession();
-  if (!session?.user?.id || session.user.role !== "ADMIN") {
-    return NextResponse.json({ ok: false, error: "No autorizado" }, { status: 403 });
-  }
+  const auth = await requireRole("ADMIN");
+  if (!auth.ok) return auth.res;
   const { id } = await ctx.params;
 
   const product = await prisma.product.findUnique({
@@ -110,10 +106,8 @@ export async function PATCH(
   _req: Request,
   ctx: { params: Promise<{ id: string }> },
 ) {
-  const session = await getSession();
-  if (!session?.user?.id || session.user.role !== "ADMIN") {
-    return NextResponse.json({ ok: false, error: "No autorizado" }, { status: 403 });
-  }
+  const auth = await requireRole("ADMIN");
+  if (!auth.ok) return auth.res;
   const { id } = await ctx.params;
 
   const product = await prisma.product.findUnique({

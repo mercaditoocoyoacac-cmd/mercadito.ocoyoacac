@@ -1,12 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/server/prisma";
-import { getSession } from "@/server/session";
+import { requireUser } from "@/server/requireUser";
 
 export async function POST(req: Request) {
-  const session = await getSession();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
+  const auth = await requireUser();
+  if (!auth.ok) return auth.res;
 
   try {
     const body = await req.json();
@@ -17,7 +15,7 @@ export async function POST(req: Request) {
     }
 
     await prisma.user.update({
-      where: { id: session.user.id },
+      where: { id: auth.userId },
       data: { pushToken },
     });
 

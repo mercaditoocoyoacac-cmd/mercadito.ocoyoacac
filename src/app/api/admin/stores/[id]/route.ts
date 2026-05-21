@@ -1,14 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/server/prisma";
-import { getSession } from "@/server/session";
+import { requireRole } from "@/server/requireUser";
 import { updateStoreSchemaAdmin as UpdateStoreSchema } from "@/lib/schemas";
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await getSession();
-    if (!session?.user?.id || session.user.role !== "ADMIN") {
-      return NextResponse.json({ ok: false, error: "No autorizado" }, { status: 403 });
-    }
+    const auth = await requireRole("ADMIN");
+    if (!auth.ok) return auth.res;
 
     const { id } = await params;
 

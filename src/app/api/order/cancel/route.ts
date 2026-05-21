@@ -1,13 +1,11 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
-import { getSession } from "@/server/session";
+import { requireUser } from "@/server/requireUser";
 
 export async function POST(req: Request) {
-  const session = await getSession();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
+  const auth = await requireUser();
+  if (!auth.ok) return auth.res;
 
   const { orderId } = await req.json().catch(() => ({}));
   if (!orderId || typeof orderId !== "string") {
@@ -15,7 +13,7 @@ export async function POST(req: Request) {
   }
 
   const order = await prisma.order.findFirst({
-    where: { id: orderId, userId: session.user.id },
+    where: { id: orderId, userId: auth.userId },
     select: {
       id: true,
       status: true,

@@ -1,13 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/server/prisma";
-import { getSession } from "@/server/session";
+import { requireRole } from "@/server/requireUser";
 import { productCreateSchema as CreateProductSchema } from "@/lib/schemas";
 
 export async function GET(req: Request) {
-  const session = await getSession();
-  if (!session?.user?.id || session.user.role !== "ADMIN") {
-    return NextResponse.json({ ok: false, error: "No autorizado" }, { status: 403 });
-  }
+  const auth = await requireRole("ADMIN");
+  if (!auth.ok) return auth.res;
 
   const { searchParams } = new URL(req.url);
   const storeId = searchParams.get("storeId");
@@ -41,10 +39,8 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const session = await getSession();
-  if (!session?.user?.id || session.user.role !== "ADMIN") {
-    return NextResponse.json({ ok: false, error: "No autorizado" }, { status: 403 });
-  }
+  const auth = await requireRole("ADMIN");
+  if (!auth.ok) return auth.res;
 
   const json = await req.json().catch(() => null);
   const parsed = CreateProductSchema.safeParse(json);

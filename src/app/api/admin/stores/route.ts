@@ -1,12 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/server/prisma";
-import { getSession } from "@/server/session";
+import { requireRole } from "@/server/requireUser";
 
 export async function GET() {
-  const session = await getSession();
-  if (!session?.user?.id || session.user.role !== "ADMIN") {
-    return NextResponse.json({ ok: false, error: "No autorizado" }, { status: 403 });
-  }
+  const auth = await requireRole("ADMIN");
+  if (!auth.ok) return auth.res;
 
   const stores = await prisma.store.findMany({
     orderBy: { name: "asc" },

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/server/prisma";
-import { getSession } from "@/server/session";
+import { requireUser } from "@/server/requireUser";
 import { sendTextNotification } from "@/server/notifications";
 import { sendPushToMultiple } from "@/server/push";
 
@@ -13,10 +13,8 @@ export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await getSession();
-  if (!session?.user?.id) {
-    return NextResponse.json({ ok: false, error: "No autorizado." }, { status: 401 });
-  }
+  const auth = await requireUser();
+  if (!auth.ok) return auth.res;
 
   const { id } = await params;
   const json = await req.json().catch(() => null);
@@ -26,7 +24,7 @@ export async function POST(
   }
 
   const store = await prisma.store.findFirst({
-    where: { ownerId: session.user.id },
+    where: { ownerId: auth.userId },
     select: { id: true, name: true, address: true },
   });
   if (!store) {
