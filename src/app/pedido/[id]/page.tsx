@@ -2,8 +2,8 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
-import OrderConfirmation from "@/components/OrderConfirmation";
-import { OrderCancelButton } from "@/components/OrderCancelButton";
+import OrderConfirmation from "@/components/orders/OrderConfirmation";
+import { OrderCancelButton } from "@/components/orders/OrderCancelButton";
 import { formatMoney } from "@/lib/format";
 
 export default async function PedidoPage({

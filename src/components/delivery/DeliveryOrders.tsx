@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import LocationViewer from "@/components/LocationViewer";
+import LocationViewer from "@/components/maps/LocationViewer";
 import { formatMoney } from "@/lib/format";
 
 type DeliveryOrder = {

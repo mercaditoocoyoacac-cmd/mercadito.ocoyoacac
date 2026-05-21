@@ -2,10 +2,10 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
-import { OrderCancelButton } from "@/components/OrderCancelButton";
-import OrderRatingForm from "@/components/OrderRatingForm";
-import DeliveryChat from "@/components/DeliveryChat";
-import { ArrivalConfirmButton } from "@/components/ArrivalConfirmButton";
+import { OrderCancelButton } from "@/components/orders/OrderCancelButton";
+import OrderRatingForm from "@/components/orders/OrderRatingForm";
+import DeliveryChat from "@/components/chat/DeliveryChat";
+import { ArrivalConfirmButton } from "@/components/orders/ArrivalConfirmButton";
 import { formatMoney } from "@/lib/format";
 import { getStatusLabel } from "@/lib/labels";
 

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { haversineDistance, formatDistance } from "@/lib/geo";
-import DeliveryChat from "@/components/DeliveryChat";
+import DeliveryChat from "@/components/chat/DeliveryChat";
 import { getStatusLabel } from "@/lib/labels";
 
 interface OrderItem {

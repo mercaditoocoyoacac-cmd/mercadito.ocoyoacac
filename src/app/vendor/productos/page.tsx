@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
-import { StockToggle } from "@/components/StockToggle";
+import { StockToggle } from "@/components/storefront/StockToggle";
 import { formatMoney } from "@/lib/format";
 
 export default async function VendorProductosPage() {

@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
-import DeliveryTracker from "@/components/DeliveryTracker";
-import DeliveryRating from "@/components/DeliveryRating";
+import DeliveryTracker from "@/components/orders/DeliveryTracker";
+import DeliveryRating from "@/components/delivery/DeliveryRating";
 
 export const dynamic = "force-dynamic";
 

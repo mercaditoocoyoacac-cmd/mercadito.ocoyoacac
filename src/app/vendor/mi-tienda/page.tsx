@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import dynamic from "next/dynamic";
 
 const LocationPicker = dynamic(
-  () => import("@/components/LocationPicker"),
+  () => import("@/components/maps/LocationPicker"),
   { ssr: false, loading: () => <div className="h-64 w-full bg-gray-100 animate-pulse rounded-xl" /> }
 );
 
