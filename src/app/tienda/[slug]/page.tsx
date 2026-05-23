@@ -37,7 +37,7 @@ export default async function StorefrontPage({
 
   const products = await prisma.product.findMany({
     where: { storeId: store.id, isActive: true },
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
     select: {
       id: true,
       name: true,
