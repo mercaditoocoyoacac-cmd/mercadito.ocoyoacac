@@ -3,9 +3,13 @@ import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
 import { productCreateSchemaBase as CreateProductSchema } from "@/lib/schemas";
 
-export async function GET() {
+export async function GET(req: Request) {
   const auth = await requireUser();
   if (!auth.ok) return auth.res;
+
+  const { searchParams } = new URL(req.url);
+  const sort = searchParams.get("sort") || "date";
+  const dir = searchParams.get("dir") || "desc";
 
   const store = await prisma.store.findFirst({
     where: { ownerId: auth.userId },
@@ -13,9 +17,15 @@ export async function GET() {
   });
   if (!store) return NextResponse.json({ ok: true, products: [] });
 
+  function getOrderBy(s: string, d: "asc" | "desc"): Record<string, "asc" | "desc"> {
+    if (s === "name") return { name: d };
+    if (s === "manual") return { sortOrder: d };
+    return { createdAt: d };
+  }
+
   const products = await prisma.product.findMany({
     where: { storeId: store.id },
-    orderBy: { createdAt: "desc" },
+    orderBy: getOrderBy(sort, dir === "asc" ? "asc" : "desc"),
     select: {
       id: true,
       name: true,

@@ -3,7 +3,7 @@ import Image from "next/image";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { StockToggle } from "@/components/storefront/StockToggle";
-import { SortControls } from "@/components/storefront/SortControls";
+import { VendorSortControlsWrapper } from "./SortControlsWrapper";
 import { formatMoney } from "@/lib/format";
 import { ReorderForm } from "./ReorderForm";
 
@@ -104,7 +104,7 @@ export default async function VendorProductosPage({
         </div>
       </div>
 
-      <SortControls mode={sortParam} dir={dirParam} isManual={isManual} />
+      <VendorSortControlsWrapper mode={sortParam} dir={dirParam} isManual={isManual} />
 
       {isManual ? (
         <ReorderForm products={products as any} />

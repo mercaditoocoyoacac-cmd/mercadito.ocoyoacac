@@ -483,7 +483,22 @@ function AdminProductosPage() {
       )}
 
       {selectedStoreId && (
-        <SortControls mode={sortParam} dir={dirParam} isManual={isManual} />
+        <SortControls
+          mode={sortParam} dir={dirParam} isManual={isManual}
+          onChangeSort={async (newMode: "date" | "name" | "manual", newDir?: "asc" | "desc") => {
+            if (newMode === "manual") return;
+            const dirParam = newDir || "desc";
+            const res = await fetch(`/api/admin/products?storeId=${selectedStoreId}&sort=${newMode}&dir=${dirParam}`);
+            const data = await res.json();
+            if (!data.ok || !data.products?.length) return;
+            const orders = data.products.map((p: { id: string }, i: number) => ({ id: p.id, sortOrder: i + 1 }));
+            await fetch("/api/admin/products/reorder", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ storeId: selectedStoreId, orders }),
+            });
+          }}
+        />
       )}
 
       {!selectedStoreId ? (

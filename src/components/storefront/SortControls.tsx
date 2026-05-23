@@ -10,23 +10,28 @@ export function SortControls({
   mode,
   dir,
   isManual,
+  onChangeSort,
 }: {
   mode: SortMode;
   dir: SortDir;
   isManual: boolean;
+  onChangeSort?: (newMode: SortMode, newDir?: SortDir) => Promise<void>;
 }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const navigate = useCallback(
-    (newMode: SortMode, newDir?: SortDir) => {
+    async (newMode: SortMode, newDir?: SortDir) => {
+      if (onChangeSort && newMode !== "manual") {
+        await onChangeSort(newMode, newDir);
+      }
       const params = new URLSearchParams(searchParams.toString());
       params.set("sort", newMode);
       if (newDir) params.set("dir", newDir);
       router.push(`${pathname}?${params.toString()}`);
     },
-    [router, pathname, searchParams]
+    [router, pathname, searchParams, onChangeSort]
   );
 
   return (
