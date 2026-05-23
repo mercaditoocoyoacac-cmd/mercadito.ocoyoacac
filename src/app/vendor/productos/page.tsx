@@ -47,10 +47,10 @@ export default async function VendorProductosPage({
   }
 
   const orderBy = isManual
-    ? { sortOrder: "asc" as const }
+    ? { sortOrder: dirParam }
     : sortParam === "name"
     ? { name: dirParam }
-    : { createdAt: dirParam };
+    : { createdAt: dirParam } as const;
 
   const products = await prisma.product.findMany({
     where: { storeId: store.id },
