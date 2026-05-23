@@ -46,15 +46,15 @@ export default async function VendorProductosPage({
     );
   }
 
-  const orderBy = isManual
-    ? { sortOrder: dirParam }
-    : sortParam === "name"
-    ? { name: dirParam }
-    : { createdAt: dirParam } as const;
+  function getOrderBy(s: SortMode, d: "asc" | "desc") {
+    if (s === "manual") return { sortOrder: d } as const;
+    if (s === "name") return { name: d } as const;
+    return { createdAt: d } as const;
+  }
 
   const products = await prisma.product.findMany({
     where: { storeId: store.id },
-    orderBy,
+    orderBy: getOrderBy(sortParam, dirParam === "asc" ? "asc" : "desc"),
     select: {
       id: true,
       name: true,
