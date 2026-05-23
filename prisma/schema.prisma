@@ -199,6 +199,7 @@ model Product {
   sellByWeight   Boolean @default(false)
   minWeightGrams Int     @default(100)
   maxWeightGrams Int     @default(5000)
+  sortOrder      Int     @default(0)
 
   storeId String
   store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
