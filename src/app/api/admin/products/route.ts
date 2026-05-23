@@ -13,9 +13,18 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: false, products: [] });
   }
 
+  const sort = searchParams.get("sort") || "date";
+  const dir = searchParams.get("dir") === "asc" ? "asc" : "desc";
+
+  function getOrderBy(s: string, d: "asc" | "desc") {
+    if (s === "manual") return { sortOrder: d } as const;
+    if (s === "name") return { name: d } as const;
+    return { createdAt: d } as const;
+  }
+
   const products = await prisma.product.findMany({
     where: { storeId },
-    orderBy: { createdAt: "desc" },
+    orderBy: getOrderBy(sort, dir),
     select: {
       id: true,
       name: true,
@@ -28,6 +37,7 @@ export async function GET(req: Request) {
       stock: true,
       isUnavailable: true,
       sellByWeight: true,
+      sortOrder: true,
       variants: {
         select: { id: true, name: true, priceCents: true, sortOrder: true },
         orderBy: { sortOrder: "asc" },

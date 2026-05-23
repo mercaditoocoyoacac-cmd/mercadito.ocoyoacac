@@ -1,9 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { formatMoney } from "@/lib/format";
+import { SortControls } from "@/components/storefront/SortControls";
 
 interface Store {
   id: string;
@@ -30,6 +31,7 @@ interface Product {
   stock: number;
   isUnavailable: boolean;
   sellByWeight: boolean;
+  sortOrder: number;
   variants: Variant[];
 }
 
@@ -271,8 +273,23 @@ function ProductForm({
   );
 }
 
-export default function AdminProductosPage() {
+import { Suspense } from "react";
+
+export default function AdminProductosPageWrapper() {
+  return (
+    <Suspense fallback={<div className="text-center py-8 text-sm text-[color:var(--muted)]">Cargando...</div>}>
+      <AdminProductosPage />
+    </Suspense>
+  );
+}
+
+function AdminProductosPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const sortParam = (searchParams.get("sort") || "date") as "date" | "name" | "manual";
+  const dirParam = searchParams.get("dir") === "asc" ? "asc" : "desc";
+  const isManual = sortParam === "manual";
+
   const [stores, setStores] = useState<Store[]>([]);
   const [selectedStoreId, setSelectedStoreId] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
@@ -281,6 +298,21 @@ export default function AdminProductosPage() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
+
+  const loadProducts = useCallback(
+    (storeId: string, sort: string, dir: string) => {
+      if (!storeId) { setProducts([]); return; }
+      setLoading(true);
+      fetch(`/api/admin/products?storeId=${storeId}&sort=${sort}&dir=${dir}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.ok) setProducts(data.products);
+          setLoading(false);
+        })
+        .catch(() => setLoading(false));
+    },
+    []
+  );
 
   useEffect(() => {
     fetch("/api/admin/stores")
@@ -292,19 +324,8 @@ export default function AdminProductosPage() {
   }, []);
 
   useEffect(() => {
-    if (!selectedStoreId) {
-      setProducts([]);
-      return;
-    }
-    setLoading(true);
-    fetch(`/api/admin/products?storeId=${selectedStoreId}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.ok) setProducts(data.products);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, [selectedStoreId]);
+    loadProducts(selectedStoreId, sortParam, dirParam);
+  }, [selectedStoreId, sortParam, dirParam, loadProducts]);
 
   async function handleCreate(data: ProductFormData & { variants: { name: string; price: string }[] }) {
     const res = await fetch("/api/admin/products", {
@@ -334,10 +355,7 @@ export default function AdminProductosPage() {
     }
     setShowForm(false);
     setError(null);
-    // Reload products
-    const reload = await fetch(`/api/admin/products?storeId=${selectedStoreId}`);
-    const reloadData = await reload.json();
-    if (reloadData.ok) setProducts(reloadData.products);
+    loadProducts(selectedStoreId, sortParam, dirParam);
   }
 
   async function handleUpdate(data: ProductFormData & { variants: { name: string; price: string }[] }) {
@@ -368,9 +386,7 @@ export default function AdminProductosPage() {
     }
     setEditingProduct(null);
     setError(null);
-    const reload = await fetch(`/api/admin/products?storeId=${selectedStoreId}`);
-    const reloadData = await reload.json();
-    if (reloadData.ok) setProducts(reloadData.products);
+    loadProducts(selectedStoreId, sortParam, dirParam);
   }
 
   async function handleDelete(productId: string) {
@@ -382,16 +398,12 @@ export default function AdminProductosPage() {
       setError("Error al eliminar producto");
       return;
     }
-    const reload = await fetch(`/api/admin/products?storeId=${selectedStoreId}`);
-    const reloadData = await reload.json();
-    if (reloadData.ok) setProducts(reloadData.products);
+    loadProducts(selectedStoreId, sortParam, dirParam);
   }
 
   async function handleToggleUnavailable(productId: string) {
     await fetch(`/api/admin/products/${productId}`, { method: "PATCH" });
-    const reload = await fetch(`/api/admin/products?storeId=${selectedStoreId}`);
-    const reloadData = await reload.json();
-    if (reloadData.ok) setProducts(reloadData.products);
+    loadProducts(selectedStoreId, sortParam, dirParam);
   }
 
   const selectedStore = stores.find((s) => s.id === selectedStoreId);
@@ -470,6 +482,10 @@ export default function AdminProductosPage() {
         <div className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700">{error}</div>
       )}
 
+      {selectedStoreId && (
+        <SortControls mode={sortParam} dir={dirParam} isManual={isManual} />
+      )}
+
       {!selectedStoreId ? (
         <div className="rounded-xl border border-[var(--border)] p-8 text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--accent-soft)]">
@@ -484,6 +500,8 @@ export default function AdminProductosPage() {
         </div>
       ) : loading ? (
         <div className="text-center py-8 text-sm text-[color:var(--muted)]">Cargando productos...</div>
+      ) : isManual ? (
+        <AdminReorderForm products={products} storeId={selectedStoreId} onEdit={setEditingProduct} onDelete={handleDelete} />
       ) : products.length === 0 ? (
         <div className="rounded-xl border border-[var(--border)] p-8 text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--accent-soft)]">
@@ -588,6 +606,86 @@ export default function AdminProductosPage() {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function AdminReorderForm({ products, storeId, onEdit, onDelete }: { products: Product[]; storeId: string; onEdit: (p: Product) => void; onDelete: (id: string) => void }) {
+  const router = useRouter();
+  const [orders, setOrders] = useState<Record<string, number>>(() => {
+    const map: Record<string, number> = {};
+    products.forEach((p, i) => { map[p.id] = p.sortOrder || i + 1; });
+    return map;
+  });
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const sorted = [...products].sort((a, b) => (orders[a.id] ?? 0) - (orders[b.id] ?? 0));
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch("/api/admin/products/reorder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ storeId, orders: Object.entries(orders).map(([id, sortOrder]) => ({ id, sortOrder })) }),
+      });
+      if (res.ok) {
+        setSaved(true);
+        router.refresh();
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      {sorted.map(product => (
+        <div key={product.id} className="group flex items-center gap-3 rounded-xl border border-[var(--border)] bg-white px-3 py-2 transition-shadow hover:shadow-sm">
+          <div className="flex w-10 shrink-0 items-center justify-center">
+            <input
+              aria-label={`Orden de ${product.name}`}
+              type="number" min={0}
+              value={orders[product.id] ?? 0}
+              onChange={e => {
+                const num = parseInt(e.target.value, 10);
+                if (!isNaN(num) && num >= 0) {
+                  setOrders(prev => ({ ...prev, [product.id]: num }));
+                  setSaved(false);
+                }
+              }}
+              className="w-full rounded border border-[var(--border)] px-1.5 py-1 text-center text-xs font-mono tabular-nums [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            />
+          </div>
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[var(--border)] bg-gray-50">
+              {product.imageUrl ? (
+                <Image src={product.imageUrl} alt={product.name} width={40} height={40} className="h-full w-full object-cover" />
+              ) : (
+                <svg className="h-5 w-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+              )}
+            </div>
+            <div className="min-w-0">
+              <div className="truncate text-sm font-medium">{product.name}</div>
+              <div className="text-xs text-[color:var(--muted)]">{formatMoney(product.priceCents, product.currency)}</div>
+            </div>
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
+            <button onClick={() => onEdit(product)} className="text-xs text-[var(--accent)] hover:underline">Editar</button>
+            <button onClick={() => onDelete(product.id)} className="text-xs text-red-500 hover:underline">Eliminar</button>
+          </div>
+        </div>
+      ))}
+      <div className="flex items-center gap-3 pt-2">
+        <button onClick={handleSave} disabled={saving}
+          className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--accent)] px-5 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-50">
+          {saving ? "Guardando..." : "Guardar orden"}
+        </button>
+        {saved && <span className="text-sm text-green-600">Orden guardado</span>}
+      </div>
     </div>
   );
 }
