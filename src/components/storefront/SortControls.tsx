@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 
 type SortMode = "date" | "name" | "manual";
@@ -16,6 +16,7 @@ export function SortControls({
   isManual: boolean;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const navigate = useCallback(
@@ -23,9 +24,9 @@ export function SortControls({
       const params = new URLSearchParams(searchParams.toString());
       params.set("sort", newMode);
       if (newDir) params.set("dir", newDir);
-      router.push(`/vendor/productos?${params.toString()}`);
+      router.push(`${pathname}?${params.toString()}`);
     },
-    [router, searchParams]
+    [router, pathname, searchParams]
   );
 
   return (
