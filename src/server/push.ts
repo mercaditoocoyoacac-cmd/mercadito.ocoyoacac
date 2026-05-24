@@ -23,6 +23,8 @@ function ensureInitialized() {
   }
 }
 
+const LOGO_URL = "https://mercadito-ocoyoacac.vercel.app/Logo%20MO.png";
+
 interface PushData {
   title: string;
   body: string;
@@ -49,6 +51,7 @@ export async function sendPushNotification(token: string, data: PushData) {
         notification: {
           channelId: "order_notifications",
           sound: "default",
+          imageUrl: LOGO_URL,
         },
       },
       apns: {
@@ -86,6 +89,7 @@ export async function sendPushToMultiple(tokens: string[], data: PushData) {
         notification: {
           channelId: "order_notifications",
           sound: "default",
+          imageUrl: LOGO_URL,
         },
       },
       apns: {
