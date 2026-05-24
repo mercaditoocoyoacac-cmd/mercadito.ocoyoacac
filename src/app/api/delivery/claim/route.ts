@@ -41,8 +41,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Pedido no disponible." }, { status: 404 });
   }
 
-  if (order.status !== "CONFIRMED" && order.status !== "READY") {
-    return NextResponse.json({ ok: false, error: "El pedido no está listo para entrega." }, { status: 400 });
+  if (order.status !== "PENDING" && order.status !== "CONFIRMED" && order.status !== "READY") {
+    return NextResponse.json({ ok: false, error: "El pedido no está disponible para entrega." }, { status: 400 });
   }
 
   if (order.deliveryUserId) {
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
     where: {
       id: parsed.data.orderId,
       deliveryUserId: null,
-      status: { in: ["CONFIRMED", "READY"] },
+      status: { in: ["PENDING", "CONFIRMED", "READY"] },
     },
     data: {
       deliveryUserId: user.id,

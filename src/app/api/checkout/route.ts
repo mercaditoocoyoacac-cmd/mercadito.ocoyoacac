@@ -7,7 +7,7 @@ import { rateLimit, getClientIP } from "@/server/rateLimit";
 import { isStoreOpen } from "@/lib/schedule";
 import { sendTextNotification } from "@/server/notifications";
 import { notifyVendorNewOrder } from "@/server/whatsapp";
-import { sendPushNotification } from "@/server/push";
+import { sendPushNotification, sendPushToMultiple } from "@/server/push";
 import { calcDeliveryFeeCents, haversineDistance } from "@/lib/geo";
 
 function generateDeliveryCode(): string {
@@ -281,6 +281,34 @@ export async function POST(req: Request) {
     }
 
     await Promise.allSettled(notifications);
+  }
+
+  if (parsed.data.fulfillmentType === "DELIVERY") {
+    const drivers = await prisma.user.findMany({
+      where: { role: "DELIVERY", isActive: true },
+      select: { id: true, pushToken: true },
+    });
+    if (drivers.length > 0) {
+      const driverNotifyPromises = drivers.map((d) =>
+        sendTextNotification(d.id, {
+          title: "Nuevo pedido disponible",
+          body: `${storeForNotification?.name || "Tienda"} — ${parsed.data.customerName.trim()}${parsed.data.customerAddress ? ` | ${parsed.data.customerAddress.trim()}` : ""}`,
+          type: "NEW_ORDER",
+          url: "/delivery",
+        }),
+      );
+      const driverTokens = drivers.map((d) => d.pushToken).filter((t): t is string => Boolean(t));
+      if (driverTokens.length > 0) {
+        driverNotifyPromises.push(
+          sendPushToMultiple(driverTokens, {
+            title: "Nuevo pedido disponible",
+            body: `${storeForNotification?.name || "Tienda"} — ${parsed.data.customerName.trim()}`,
+            url: "/delivery",
+          }),
+        );
+      }
+      await Promise.allSettled(driverNotifyPromises);
+    }
   }
 
   let paymentUrl: string | undefined;
