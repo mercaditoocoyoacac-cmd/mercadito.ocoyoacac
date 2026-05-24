@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { Html5Qrcode } from "html5-qrcode";
 import { formatMoney } from "@/lib/format";
 
 interface OrderInfo {
@@ -14,15 +15,15 @@ interface OrderInfo {
 }
 
 export default function DeliveryScanPage() {
-  const [mode, setMode] = useState<"qr" | "code">("code");
+  const [mode, setMode] = useState<"qr" | "code">("qr");
   const [manualCode, setManualCode] = useState("");
   const [orderInfo, setOrderInfo] = useState<OrderInfo | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
   const [scanning, setScanning] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const scannerRef = useRef<Html5Qrcode | null>(null);
+  const scannerId = "qr-scanner";
 
   async function lookupCode(code: string) {
     setLoading(true);
@@ -35,15 +36,60 @@ export default function DeliveryScanPage() {
 
       if (data.ok) {
         setOrderInfo(data.order);
+        stopScanner();
       } else {
         setError(data.error || "Código no encontrado");
       }
-    } catch (e) {
+    } catch {
       setError("Error al buscar el código");
     } finally {
       setLoading(false);
     }
   }
+
+  const stopScanner = useCallback(async () => {
+    if (scannerRef.current) {
+      try { await scannerRef.current.stop(); } catch {}
+      scannerRef.current = null;
+    }
+    setScanning(false);
+  }, []);
+
+  async function startScanner() {
+    setError(null);
+    setScanning(true);
+
+    try {
+      const scanner = new Html5Qrcode(scannerId);
+      scannerRef.current = scanner;
+
+      await scanner.start(
+        { facingMode: "environment" },
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+        },
+        (decodedText) => {
+          const code = decodedText.trim().toUpperCase();
+          if (code.length >= 4 && code.length <= 10) {
+            stopScanner();
+            lookupCode(code);
+          }
+        },
+        () => {}
+      );
+    } catch (err: any) {
+      setError(err?.message || "No se pudo acceder a la cámara. Usa el código manual.");
+      setScanning(false);
+    }
+  }
+
+  useEffect(() => {
+    if (mode === "qr" && !scannerRef.current && !orderInfo) {
+      startScanner();
+    }
+    return () => { stopScanner(); };
+  }, [mode, orderInfo, stopScanner]);
 
   async function confirmPickup() {
     if (!orderInfo) return;
@@ -67,7 +113,7 @@ export default function DeliveryScanPage() {
       } else {
         setError(data.error || "Error al confirmar");
       }
-    } catch (e) {
+    } catch {
       setError("Error al confirmar");
     } finally {
       setConfirming(false);
@@ -77,8 +123,7 @@ export default function DeliveryScanPage() {
   function handleManualSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (manualCode.trim()) {
-      const code = JSON.stringify({ orderId: orderInfo?.id || "", code: manualCode.trim() });
-      lookupCode(code);
+      lookupCode(manualCode.trim());
     }
   }
 
@@ -91,15 +136,18 @@ export default function DeliveryScanPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold">Escanear / Codigo</h1>
-          <p className="mt-1 text-sm text-gray-500">Escaneá el codigo QR o ingresalo manualmente</p>
+          <h1 className="text-2xl font-bold">Escanear / Código</h1>
+          <p className="mt-1 text-sm text-gray-500">Escanea el código QR o ingrésalo manualmente</p>
         </div>
 
         {!orderInfo ? (
           <>
             <div className="mb-4">
               <button
-                onClick={() => setMode(mode === "qr" ? "code" : "qr")}
+                onClick={async () => {
+                  await stopScanner();
+                  setMode(mode === "qr" ? "code" : "qr");
+                }}
                 className="w-full rounded-xl border-2 border-orange-500 py-3 font-semibold text-orange-600 transition-colors hover:bg-orange-50"
               >
                 {mode === "qr" ? (
@@ -107,7 +155,7 @@ export default function DeliveryScanPage() {
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
-                    Cambiar a codigo manual
+                    Cambiar a código manual
                   </span>
                 ) : (
                   <span className="flex items-center justify-center gap-2">
@@ -122,24 +170,19 @@ export default function DeliveryScanPage() {
 
             <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
               {mode === "qr" ? (
-                <div className="text-center">
-                  <div className="mb-6 flex h-48 items-center justify-center rounded-xl bg-gray-100">
-                    <div className="text-center">
-                      <svg className="mx-auto mb-2 h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      <p className="text-sm text-gray-500">Escanea el codigo QR del paquete</p>
-                      <p className="mt-2 text-xs text-gray-400">(Pronto disponible con camara)</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-500">Usa el codigo manual por ahora</p>
+                <div>
+                  <div id={scannerId} className="w-full overflow-hidden rounded-xl bg-gray-100" style={{ minHeight: 280 }} />
+                  {scanning && (
+                    <p className="mt-3 text-center text-sm text-gray-500">
+                      Apunta la cámara al código QR del paquete
+                    </p>
+                  )}
                 </div>
               ) : (
                 <form onSubmit={handleManualSubmit} className="space-y-4">
                   <div>
                     <label className="mb-2 block text-sm font-medium text-gray-700">
-                      Codigo de entrega
+                      Código de entrega
                     </label>
                     <input
                       type="text"
@@ -181,12 +224,12 @@ export default function DeliveryScanPage() {
                 <span className="font-semibold">{orderInfo.customerName}</span>
               </div>
               <div className="flex justify-between rounded-lg bg-gray-50 p-3">
-                <span className="text-gray-500">Telefono</span>
+                <span className="text-gray-500">Teléfono</span>
                 <span className="font-semibold">{orderInfo.customerPhone}</span>
               </div>
               {orderInfo.customerAddress && (
                 <div className="flex justify-between rounded-lg bg-gray-50 p-3">
-                  <span className="text-gray-500">Direccion</span>
+                  <span className="text-gray-500">Dirección</span>
                   <span className="text-right text-sm">{orderInfo.customerAddress}</span>
                 </div>
               )}
@@ -227,9 +270,6 @@ export default function DeliveryScanPage() {
           </a>
         </div>
       </div>
-
-      <canvas ref={canvasRef} className="hidden" />
-      <video ref={videoRef} className="hidden" />
     </main>
   );
 }
