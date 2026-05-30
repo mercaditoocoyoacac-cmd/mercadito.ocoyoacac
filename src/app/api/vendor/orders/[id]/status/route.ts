@@ -39,7 +39,7 @@ export async function POST(
     return NextResponse.json({ ok: false, error: "Pedido no encontrado." }, { status: 404 });
   }
 
-  const updated = await prisma.order.update({
+  await prisma.order.update({
     where: { id },
     data: { status: parsed.data.status },
   });

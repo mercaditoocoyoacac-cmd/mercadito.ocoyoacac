@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 import { Html5Qrcode } from "html5-qrcode";
 import { formatMoney } from "@/lib/format";
 
@@ -78,8 +79,8 @@ export default function DeliveryScanPage() {
         },
         () => {}
       );
-    } catch (err: any) {
-      setError(err?.message || "No se pudo acceder a la cámara. Usa el código manual.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "No se pudo acceder a la cámara. Usa el código manual.");
       setScanning(false);
     }
   }
@@ -108,7 +109,7 @@ export default function DeliveryScanPage() {
       const data = await res.json();
 
       if (data.ok) {
-        alert("✓ Producto recogido - ¡En camino!");
+        toast.success("✓ Producto recogido - ¡En camino!");
         window.location.href = "/delivery";
       } else {
         setError(data.error || "Error al confirmar");

@@ -27,7 +27,7 @@ async function addRole(userId: string, role: string) {
     select: { role: true, additionalRoles: true },
   });
   if (!user) return;
-  if (user.role === role as any) return;
+  if (user.role === role) return;
 
   const allRoles = [user.role, ...(user.additionalRoles ? user.additionalRoles.split(",") : [])];
   if (allRoles.includes(role)) return;
@@ -57,7 +57,7 @@ async function removeRole(userId: string, role: string) {
   await prisma.user.update({
     where: { id: userId },
     data: {
-      role: newPrimary as any,
+      role: newPrimary as "CUSTOMER" | "VENDOR" | "DELIVERY" | "ADMIN",
       additionalRoles: newAdditional || null,
     },
   });

@@ -60,8 +60,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true });
     }
 
-    console.log(`[SMS MOCK] Phone: ${cleanPhone}, Code: ${code}`);
-    return NextResponse.json({ ok: true, mockCode: code });
+    console.log(`[SMS MOCK] Phone: ${cleanPhone} (auto-verified)`);
+    return NextResponse.json({ ok: true, autoVerified: true });
   } catch (error) {
     console.error("[send-verification] Error:", error);
     return NextResponse.json({ ok: false, error: "Error al conectar con el servidor" }, { status: 500 });

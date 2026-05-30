@@ -149,7 +149,7 @@ export async function PUT(req: Request) {
       );
     }
 
-    const updated = await prisma.store.update({
+    await prisma.store.update({
       where: { id: store.id },
       data: {
         name: parsed.data.name?.trim(),

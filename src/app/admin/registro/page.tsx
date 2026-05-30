@@ -1,7 +1,6 @@
 "use client";
 
 import { signIn, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -18,8 +17,6 @@ function generateSecurePassword() {
 }
 
 export default function AdminRegistroPage() {
-  const router = useRouter();
-  const { data: session, update } = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");

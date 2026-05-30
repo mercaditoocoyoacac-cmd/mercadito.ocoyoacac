@@ -63,17 +63,12 @@ export async function POST(req: Request) {
     message = "Producto recogido - En camino";
   }
 
-  const updateData: Record<string, string> = {
-    status: newStatus,
-  };
-
-  if (user?.role === "DELIVERY" && !order.deliveryUserId) {
-    updateData.deliveryUserId = userId;
-  }
-
   await prisma.order.update({
     where: { id: orderId },
-    data: updateData as any,
+    data: {
+      status: newStatus as "COMPLETED" | "OUT_FOR_DELIVERY",
+      ...(user?.role === "DELIVERY" && !order.deliveryUserId ? { deliveryUserId: userId } : {}),
+    },
   });
 
   revalidatePath(`/mis-pedidos/${orderId}`);

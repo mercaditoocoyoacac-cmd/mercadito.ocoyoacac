@@ -27,7 +27,6 @@ function PortalLoading() {
 }
 
 function PortalContent() {
-  const router = useRouter();
   const search = useSearchParams();
   const mode = search.get("mode");
 

@@ -86,6 +86,7 @@ export function ProductImageModal({ src, alt, children }: { src: string; alt: st
         >
           <button
             type="button"
+            aria-label="Cerrar imagen"
             className="absolute right-4 top-4 rounded-full bg-white/20 p-2 text-white hover:bg-white/30"
             onClick={() => setFull(false)}
           >

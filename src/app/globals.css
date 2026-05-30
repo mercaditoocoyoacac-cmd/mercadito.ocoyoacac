@@ -10,6 +10,34 @@
   --accent-soft: #e9f6ef;
   --gold: #d4af37;
   --gold-muted: color-mix(in oklab, var(--gold) 72%, transparent);
+  --danger: #dc2626;
+  --danger-soft: #fef2f2;
+  --warning: #d97706;
+  --warning-soft: #fffbeb;
+  --success: #16a34a;
+  --success-soft: #f0fdf4;
+  --info: #2563eb;
+  --info-soft: #eff6ff;
+}
+
+.dark {
+  --background: #0f0f0f;
+  --foreground: #e5e5e5;
+  --muted: #9f9f9f;
+  --border: #2a2a2a;
+  --accent: #2ecc71;
+  --accent-hover: #27ae60;
+  --accent-soft: #0a2e1a;
+  --gold: #f0c040;
+  --gold-muted: color-mix(in oklab, var(--gold) 60%, transparent);
+  --danger: #ef4444;
+  --danger-soft: #2d0a0a;
+  --warning: #f59e0b;
+  --warning-soft: #2d1f00;
+  --success: #22c55e;
+  --success-soft: #052e14;
+  --info: #3b82f6;
+  --info-soft: #0c1f3d;
 }
 
 @theme inline {
@@ -19,13 +47,35 @@
   --font-mono: var(--font-geist-mono);
 }
 
+@media (prefers-color-scheme: dark) {
+  .auto-dark {
+    --background: #0f0f0f;
+    --foreground: #e5e5e5;
+    --muted: #9f9f9f;
+    --border: #2a2a2a;
+    --accent: #2ecc71;
+    --accent-hover: #27ae60;
+    --accent-soft: #0a2e1a;
+    --gold: #f0c040;
+    --gold-muted: color-mix(in oklab, var(--gold) 60%, transparent);
+    --danger: #ef4444;
+    --danger-soft: #2d0a0a;
+    --warning: #f59e0b;
+    --warning-soft: #2d1f00;
+    --success: #22c55e;
+    --success-soft: #052e14;
+    --info: #3b82f6;
+    --info-soft: #0c1f3d;
+  }
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* Links */
 a {
   color: var(--foreground);
   text-decoration-color: color-mix(in oklab, var(--accent) 60%, transparent);
@@ -34,18 +84,15 @@ a:hover {
   color: var(--accent);
 }
 
-/* Subtle separators by default */
 hr {
   border-color: var(--border);
 }
 
-/* Clean focus treatment (inputs/buttons/links) */
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
-/* Black sections must use gold typography */
 .black-section {
   background: #000000;
   color: var(--gold);
@@ -69,3 +116,86 @@ hr {
 .text-gold {
   color: var(--gold);
 }
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+.dark .shimmer {
+  background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes staggerIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.stagger-1 { animation: staggerIn 0.3s ease-out both; }
+.stagger-2 { animation: staggerIn 0.3s ease-out 0.05s both; }
+.stagger-3 { animation: staggerIn 0.3s ease-out 0.1s both; }
+.stagger-4 { animation: staggerIn 0.3s ease-out 0.15s both; }
+.stagger-5 { animation: staggerIn 0.3s ease-out 0.2s both; }
+.stagger-6 { animation: staggerIn 0.3s ease-out 0.25s both; }
+.stagger-7 { animation: staggerIn 0.3s ease-out 0.3s both; }
+.stagger-8 { animation: staggerIn 0.3s ease-out 0.35s both; }
+.stagger-9 { animation: staggerIn 0.3s ease-out 0.4s both; }
+.stagger-10 { animation: staggerIn 0.3s ease-out 0.45s both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+button:active {
+  transform: scale(0.97);
+}
+.card-hover {
+  transition: all 0.2s ease;
+}
+.card-hover:hover {
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.02);
+  transform: translateY(-2px);
+}
+.dark .card-hover:hover {
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
+}
+
+#nprogress .bar {
+  background: var(--accent) !important;
+  height: 3px !important;
+}
+#nprogress .peg {
+  box-shadow: 0 0 10px var(--accent), 0 0 5px var(--accent) !important;
+}
+#nprogress .spinner-icon {
+  border-top-color: var(--accent) !important;
+  border-left-color: var(--accent) !important;
+}
+
+.dark .text-red-700, .dark .text-red-600, .dark .text-red-500 { color: #fca5a5; }
+.dark .text-green-700, .dark .text-green-600, .dark .text-green-500 { color: #86efac; }
+.dark .text-yellow-800, .dark .text-yellow-700, .dark .text-yellow-600 { color: #fde68a; }
+.dark .text-blue-800, .dark .text-blue-700, .dark .text-blue-600 { color: #93c5fd; }
+.dark .bg-red-50, .dark .bg-red-500\/10 { background: #2d0a0a; }
+.dark .bg-green-50, .dark .bg-green-500\/10 { background: #052e14; }
+.dark .bg-yellow-50, .dark .bg-yellow-500\/10 { background: #2d1f00; }
+.dark .bg-blue-50, .dark .bg-blue-500\/10 { background: #0c1f3d; }
+.dark .border-red-200, .dark .border-red-500\/30 { border-color: #450a0a; }
+.dark .border-red-300 { border-color: #7f1d1d; }
+.dark .bg-orange-50 { background: #2d0f00; }
+.dark .border-orange-500 { border-color: #9a3412; }

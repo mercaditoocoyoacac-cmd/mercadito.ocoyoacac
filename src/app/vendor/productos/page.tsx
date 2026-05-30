@@ -94,6 +94,7 @@ export default async function VendorProductosPage({
           </Link>
           <Link
             href="/vendor/productos/nuevo"
+            data-coach="new-product"
             className="inline-flex items-center gap-1.5 rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)]"
           >
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -107,7 +108,7 @@ export default async function VendorProductosPage({
       <VendorSortControlsWrapper mode={sortParam} dir={dirParam} isManual={isManual} />
 
       {isManual ? (
-        <ReorderForm products={products as any} />
+        <ReorderForm products={products as unknown as Parameters<typeof ReorderForm>[0]["products"]} />
       ) : products.length === 0 ? (
         <div className="rounded-xl border border-[var(--border)] p-8 text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--accent-soft)]">
@@ -134,10 +135,11 @@ export default async function VendorProductosPage({
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {products.map((product: typeof products[number]) => (
+            {products.map((product: typeof products[number], i: number) => (
               <div
                 key={product.id}
-                className="group rounded-xl border border-[var(--border)] bg-white p-4 transition-shadow hover:shadow-md"
+                style={{ animationDelay: `${i * 60}ms` }}
+                className="group rounded-xl border border-[var(--border)] bg-white p-4 card-hover fade-in"
               >
                 <Link href={`/vendor/productos/${product.id}`} className="block">
                   <div className="flex items-start gap-4">
@@ -163,7 +165,7 @@ export default async function VendorProductosPage({
                       <div className="mt-0.5 text-lg font-semibold">
                         {formatMoney(product.priceCents, product.currency)}
                       </div>
-                      {(product as any).sellByWeight && (
+                      {(product as { sellByWeight?: boolean }).sellByWeight && (
                         <div className="text-xs text-[color:var(--muted)]">/ kg · venta por peso</div>
                       )}
                     </div>

@@ -1,25 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export type AppType = "CLIENTE" | "VENDOR" | "DELIVERY" | "ADMIN" | "WEB";
 
 export function useAppType(): AppType {
-  const [appType, setAppType] = useState<AppType>("WEB");
-
-  useEffect(() => {
-    const ua = navigator.userAgent || "";
-    if (ua.includes("MercaditoCliente")) {
-      setAppType("CLIENTE");
-    } else if (ua.includes("MercaditoVendedor")) {
-      setAppType("VENDOR");
-    } else if (ua.includes("MercaditoRepartidor")) {
-      setAppType("DELIVERY");
-    } else if (ua.includes("MercaditoAdmin")) {
-      setAppType("ADMIN");
-    } else {
-      setAppType("WEB");
-    }
-  }, []);
-
+  const [appType] = useState<AppType>(() => {
+    if (typeof navigator === "undefined") return "WEB";
+    return getAppTypeFromUA(navigator.userAgent || "");
+  });
   return appType;
 }
 

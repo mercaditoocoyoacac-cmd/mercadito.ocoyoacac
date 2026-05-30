@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { MapContainer, TileLayer, Marker, Circle, useMapEvents, useMap, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -168,11 +168,9 @@ function SearchBox({ onSelect }: { onSelect: (lat: number, lng: number, displayN
 export default function LocationPicker({
   latitude, longitude, onLocationChange, centerLat = 19.2886, centerLng = -99.4498,
 }: LocationPickerProps) {
-  const [mounted, setMounted] = useState(false);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number; accuracy: number } | null>(null);
   const [locating, setLocating] = useState(false);
-
-  useEffect(() => { setMounted(true); }, []);
+  const mounted = useSyncExternalStore(() => () => {}, () => true, () => false);
 
   const locateMe = () => {
     if (!("geolocation" in navigator)) return;
@@ -235,7 +233,7 @@ export default function LocationPicker({
 
       {/* Top controls */}
       <div className="absolute top-2 left-2 right-2 flex items-start gap-2 z-[400]">
-        <SearchBox onSelect={(lat, lng, _) => onLocationChange(lat, lng)} />
+        <SearchBox onSelect={(lat, lng) => onLocationChange(lat, lng)} />
         <LocateButton onClick={locateMe} loading={locating} />
       </div>
 

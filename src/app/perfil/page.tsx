@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import dynamic from "next/dynamic";
 
 const LocationPicker = dynamic(
@@ -27,7 +27,6 @@ interface ProfileData {
 }
 
 export default function ProfilePage() {
-  const router = useRouter();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -76,7 +75,7 @@ export default function ProfilePage() {
           setLocation({ lat: data.user.latitude, lng: data.user.longitude });
         }
       }
-    } catch (e) {
+    } catch (_e) {
       setError("Error al cargar perfil");
     } finally {
       setLoading(false);
@@ -106,7 +105,7 @@ export default function ProfilePage() {
       } else {
         setError(data.error || "Error al guardar");
       }
-    } catch (e) {
+    } catch (_e) {
       setError("Error al guardar");
     } finally {
       setSaving(false);
@@ -126,11 +125,11 @@ export default function ProfilePage() {
       const data = await res.json();
       if (data.ok) {
         setVerifyModal({ open: true, type, target: data.target });
-        alert(`Código enviado a ${data.target}`);
+        toast.success(`Código enviado a ${data.target}`);
       } else {
         setError(data.error || "Error al enviar código");
       }
-    } catch (e) {
+    } catch (_e) {
       setError("Error al enviar código");
     } finally {
       setSendingCode(false);
@@ -156,7 +155,7 @@ export default function ProfilePage() {
         setVerifyModal({ open: false, type: "", target: "" });
         setVerifyCode("");
         fetchProfile();
-        alert("Verificación exitosa");
+        toast.success("Verificación exitosa");
       } else {
         setError(data.error || "Código incorrecto");
       }
@@ -169,7 +168,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-10">
+      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-10 fade-in">
         <div className="animate-pulse space-y-4">
           <div className="h-8 w-48 rounded bg-gray-200"></div>
           <div className="h-64 rounded-xl bg-gray-200"></div>
@@ -180,14 +179,14 @@ export default function ProfilePage() {
 
   if (!profile) {
     return (
-      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-10">
+      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-10 fade-in">
         <p className="text-red-600">Error al cargar el perfil</p>
       </main>
     );
   }
 
   return (
-    <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-10">
+    <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-10 fade-in">
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold">Mi Perfil</h1>

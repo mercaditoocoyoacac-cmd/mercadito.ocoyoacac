@@ -5,14 +5,6 @@ import { getSession } from "@/server/session";
 
 export const revalidate = 30;
 
-const PROCESSOR_LABELS: Record<string, string> = {
-  MERCADO_PAGO: "Mercado Pago",
-  CLIP: "Clip",
-  BBVA: "BBVA",
-  OPENPAY: "OpenPay",
-  CONEKTRA: "Conekta",
-};
-
 async function approvePaymentMethod(methodId: string, storeId: string) {
   "use server";
   const session = await getSession();

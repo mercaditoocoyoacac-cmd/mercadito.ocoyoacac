@@ -4,6 +4,7 @@ import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import { DarkModeToggle } from "@/components/ui/DarkModeToggle";
 
 export function NavBar() {
   const { data, update } = useSession();
@@ -450,10 +451,12 @@ export function NavBar() {
                 </Link>
               </div>
             )}
+            <DarkModeToggle />
           </div>
 
           <button
             type="button"
+            aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
             className="md:hidden rounded-lg p-2 text-[color:var(--muted)] hover:bg-gray-100"
             onClick={() => setMenuOpen(!menuOpen)}
           >
@@ -747,6 +750,10 @@ export function NavBar() {
                   </Link>
                 </>
               )}
+              <div className="my-2 border-t border-[var(--border)]"></div>
+              <div className="px-4 py-2">
+                <DarkModeToggle />
+              </div>
             </nav>
           </div>
         )}

@@ -33,13 +33,6 @@ function parseCSV(text: string): string[][] {
   return result;
 }
 
-function detectDelimiter(headers: string[]): string {
-  const firstLine = headers.join("");
-  if (firstLine.includes("\t")) return "\t";
-  if (headers.some((h) => h.includes(";"))) return ";";
-  return ",";
-}
-
 function normalizeHeader(h: string): string {
   return h
     .toLowerCase()

@@ -40,7 +40,7 @@ export default async function MisPedidosPage() {
   });
 
   return (
-    <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-10">
+    <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-10 fade-in">
       <h1 className="text-2xl font-semibold tracking-tight">Mis Pedidos</h1>
       <p className="mt-2 text-sm text-[color:var(--muted)]">
         Historial de tus compras en Mercadito Ocoyoacac.
@@ -68,11 +68,12 @@ export default async function MisPedidosPage() {
         </div>
       ) : (
         <div className="mt-6 space-y-4">
-          {orders.map((order) => (
+          {orders.map((order, i: number) => (
             <Link
               key={order.id}
+              style={{ animationDelay: `${i * 60}ms` }}
               href={`/mis-pedidos/${order.id}`}
-              className="block rounded-xl border border-[var(--border)] bg-white p-5 transition-all hover:shadow-md hover:border-[var(--accent)]"
+              className="block rounded-xl border border-[var(--border)] bg-white p-5 transition-all hover:shadow-md hover:border-[var(--accent)] fade-in"
             >
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>

@@ -4,6 +4,7 @@ import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
+import { RegistroTutorial } from "@/components/ui/RegistroTutorial";
 
 const STEPS = ["Cuenta", "Tu tienda", "Primer producto"];
 
@@ -33,7 +34,7 @@ export default function VendorRegistroPage() {
   // Step 1 fields
   const [storeName, setStoreName] = useState("");
   const autoSlug = useMemo(() => slugify(storeName), [storeName]);
-  const [slug, setSlug] = useState("");
+  const [slug] = useState("");
   const [category, setCategory] = useState("CANASTA_BASICA");
   const [storeDescription, setStoreDescription] = useState("");
   const [storePhone, setStorePhone] = useState("");
@@ -74,7 +75,7 @@ export default function VendorRegistroPage() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ name: name.trim() || undefined, email, password, phone, role: "VENDOR" }),
       });
-      const data = await res.json().catch(() => null) as any;
+      const data = await res.json().catch(() => null) as { ok: boolean; error?: string; upgraded?: boolean } | null;
       setLoading(false);
       if (!res.ok || !data?.ok) { setError(data?.error || "No se pudo registrar."); return; }
       if (data.upgraded) {
@@ -103,7 +104,7 @@ export default function VendorRegistroPage() {
         }),
       });
       const text = await res.text().catch(() => "");
-      let data: any = null;
+      let data: { ok: boolean; error?: string } | null = null;
       try { data = JSON.parse(text); } catch {}
       setLoading(false);
       if (!res.ok || !data?.ok) { setError(data?.error || "No se pudo crear la tienda."); return; }
@@ -135,6 +136,7 @@ export default function VendorRegistroPage() {
 
   return (
     <div className="mx-auto max-w-xl">
+      <RegistroTutorial formStep={step} />
       {/* Progress bar */}
       <div className="mb-8">
         <div className="flex items-center justify-between">

@@ -47,7 +47,6 @@ export async function POST(req: Request) {
   if (!auth.ok) return auth.res;
 
   const userId = auth.userId;
-  const session = auth.session;
 
   const json = await req.json().catch(() => null);
   const { orderId, message } = json || {};

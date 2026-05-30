@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 
 export default function MercadoPagoSettingsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const confirm = useConfirm();
   const [accessToken, setAccessToken] = useState("");
   const [publicKey, setPublicKey] = useState("");
   const [accountId, setAccountId] = useState("");
@@ -41,7 +43,7 @@ export default function MercadoPagoSettingsPage() {
 
   async function handleDisconnect(e: React.FormEvent) {
     e.preventDefault();
-    if (!confirm("¿Estás seguro de desconectar MercadoPago?")) return;
+    if (!(await confirm({ message: "¿Estás seguro de desconectar MercadoPago?", variant: "danger", confirmText: "Desconectar", title: "Desconectar MercadoPago" }))) return;
 
     setLoading(true);
     const res = await fetch("/api/vendor/mercado-pago", { method: "DELETE" });

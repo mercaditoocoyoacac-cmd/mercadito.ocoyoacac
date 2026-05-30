@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import * as XLSX from "xlsx";
 
@@ -31,7 +30,6 @@ function HelpTip({ text }: { text: string }) {
 }
 
 export default function VendorImportPage() {
-  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [csvContent, setCsvContent] = useState<string | null>(null);

@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -21,7 +22,6 @@ async function verifyCaptcha(token: string): Promise<boolean> {
 }
 
 function getDeviceId(userAgent: string, ip: string): string {
-  const crypto = require("crypto");
   return crypto.createHash("sha256").update(`${userAgent}-${ip}`).digest("hex").slice(0, 32);
 }
 
@@ -60,7 +60,7 @@ export const authOptions: NextAuthOptions = {
         if (!ok) {
           const now = new Date();
           const attempts = (user.failedLoginAttempts || 0) + 1;
-          const updates: any = {
+          const updates: Record<string, unknown> = {
             failedLoginAttempts: attempts,
             lastFailedLoginAt: now,
           };
@@ -128,7 +128,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.role = user.role;
         token.additionalRoles = user.additionalRoles;
-        token.needsDeviceApproval = (user as any).needsDeviceApproval;
+        token.needsDeviceApproval = (user as { needsDeviceApproval?: boolean }).needsDeviceApproval;
       }
       return token;
     },

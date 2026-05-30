@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 import { formatMoney } from "@/lib/format";
 import { SortControls } from "@/components/storefront/SortControls";
 
@@ -31,6 +32,8 @@ interface Product {
   stock: number;
   isUnavailable: boolean;
   sellByWeight: boolean;
+  minWeightGrams?: number | null;
+  maxWeightGrams?: number | null;
   sortOrder: number;
   variants: Variant[];
 }
@@ -284,11 +287,11 @@ export default function AdminProductosPageWrapper() {
 }
 
 function AdminProductosPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const sortParam = (searchParams.get("sort") || "date") as "date" | "name" | "manual";
   const dirParam = searchParams.get("dir") === "asc" ? "asc" : "desc";
   const isManual = sortParam === "manual";
+  const confirm = useConfirm();
 
   const [stores, setStores] = useState<Store[]>([]);
   const [selectedStoreId, setSelectedStoreId] = useState("");
@@ -299,20 +302,18 @@ function AdminProductosPage() {
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
 
-  const loadProducts = useCallback(
-    (storeId: string, sort: string, dir: string) => {
-      if (!storeId) { setProducts([]); return; }
-      setLoading(true);
-      fetch(`/api/admin/products?storeId=${storeId}&sort=${sort}&dir=${dir}`)
-        .then((r) => r.json())
-        .then((data) => {
-          if (data.ok) setProducts(data.products);
-          setLoading(false);
-        })
-        .catch(() => setLoading(false));
-    },
-    []
-  );
+  function loadProducts() {
+    const storeId = selectedStoreId;
+    if (!storeId) { setProducts([]); return; }
+    setLoading(true);
+    fetch(`/api/admin/products?storeId=${storeId}&sort=${sortParam}&dir=${dirParam}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.ok) setProducts(data.products);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }
 
   useEffect(() => {
     fetch("/api/admin/stores")
@@ -324,8 +325,17 @@ function AdminProductosPage() {
   }, []);
 
   useEffect(() => {
-    loadProducts(selectedStoreId, sortParam, dirParam);
-  }, [selectedStoreId, sortParam, dirParam, loadProducts]);
+    const storeId = selectedStoreId;
+    if (!storeId) return;
+    queueMicrotask(() => setLoading(true));
+    fetch(`/api/admin/products?storeId=${storeId}&sort=${sortParam}&dir=${dirParam}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.ok) setProducts(data.products);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [selectedStoreId, sortParam, dirParam]);
 
   async function handleCreate(data: ProductFormData & { variants: { name: string; price: string }[] }) {
     const res = await fetch("/api/admin/products", {
@@ -355,7 +365,7 @@ function AdminProductosPage() {
     }
     setShowForm(false);
     setError(null);
-    loadProducts(selectedStoreId, sortParam, dirParam);
+    loadProducts();
   }
 
   async function handleUpdate(data: ProductFormData & { variants: { name: string; price: string }[] }) {
@@ -386,11 +396,11 @@ function AdminProductosPage() {
     }
     setEditingProduct(null);
     setError(null);
-    loadProducts(selectedStoreId, sortParam, dirParam);
+    loadProducts();
   }
 
   async function handleDelete(productId: string) {
-    if (!confirm("¿Eliminar este producto?")) return;
+    if (!(await confirm({ message: "¿Eliminar este producto?", variant: "danger", confirmText: "Eliminar", title: "Eliminar producto" }))) return;
     setDeleting(productId);
     const res = await fetch(`/api/admin/products/${productId}`, { method: "DELETE" });
     setDeleting(null);
@@ -398,12 +408,12 @@ function AdminProductosPage() {
       setError("Error al eliminar producto");
       return;
     }
-    loadProducts(selectedStoreId, sortParam, dirParam);
+    loadProducts();
   }
 
   async function handleToggleUnavailable(productId: string) {
     await fetch(`/api/admin/products/${productId}`, { method: "PATCH" });
-    loadProducts(selectedStoreId, sortParam, dirParam);
+    loadProducts();
   }
 
   const selectedStore = stores.find((s) => s.id === selectedStoreId);
@@ -429,8 +439,8 @@ function AdminProductosPage() {
               stock: product.stock === -1 ? "" : product.stock.toString(),
               isActive: product.isActive,
               sellByWeight: product.sellByWeight ?? false,
-              minWeightGrams: (product as any).minWeightGrams?.toString() ?? "100",
-              maxWeightGrams: (product as any).maxWeightGrams?.toString() ?? "5000",
+              minWeightGrams: product.minWeightGrams?.toString() ?? "100",
+              maxWeightGrams: product.maxWeightGrams?.toString() ?? "5000",
             } : null}
             onSave={product ? handleUpdate : handleCreate}
             onCancel={() => { setShowForm(false); setEditingProduct(null); setError(null); }}
@@ -540,8 +550,8 @@ function AdminProductosPage() {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {products.map((product) => (
-            <div key={product.id} className="group rounded-xl border border-[var(--border)] bg-white p-4 transition-shadow hover:shadow-md">
+          {products.map((product, i: number) => (
+            <div key={product.id} style={{ animationDelay: `${i * 60}ms` }} className="group rounded-xl border border-[var(--border)] bg-white p-4 card-hover fade-in">
               <div className="flex items-start gap-4">
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[var(--border)] bg-gray-50">
                   {product.imageUrl ? (
@@ -657,7 +667,7 @@ function AdminReorderForm({ products, storeId, onEdit, onDelete }: { products: P
   return (
     <div className="space-y-3">
       {sorted.map(product => (
-        <div key={product.id} className="group flex items-center gap-3 rounded-xl border border-[var(--border)] bg-white px-3 py-2 transition-shadow hover:shadow-sm">
+        <div key={product.id} className="group flex items-center gap-3 rounded-xl border border-[var(--border)] bg-white px-3 py-2 card-hover">
           <div className="flex w-10 shrink-0 items-center justify-center">
             <input
               aria-label={`Orden de ${product.name}`}

@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { prisma } from "@/server/prisma";
@@ -5,7 +6,6 @@ import { requireUser } from "@/server/requireUser";
 import { revalidatePath } from "next/cache";
 
 function getDeviceId(userAgent: string, ip: string): string {
-  const crypto = require("crypto");
   return crypto.createHash("sha256").update(`${userAgent}-${ip}`).digest("hex").slice(0, 32);
 }
 
@@ -13,8 +13,6 @@ export async function GET() {
   const auth = await requireUser();
   if (!auth.ok) return auth.res;
   const headersList = await headers();
-  const userAgent = headersList.get("user-agent") || "unknown";
-  const ip = headersList.get("x-forwarded-for")?.split(",")[0] || "unknown";
 
   const devices = await prisma.deviceAuthorization.findMany({
     where: { userId: auth.userId },

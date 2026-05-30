@@ -4,6 +4,7 @@ import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { formatDateInMexico, formatDateTimeInMexico } from "@/lib/dates";
 import { formatMoney } from "@/lib/format";
+import { VendorCoachMarks } from "@/components/ui/VendorCoachMarks";
 
 export const dynamic = "force-dynamic";
 
@@ -235,7 +236,9 @@ export default async function VendorDashboard() {
     : null;
 
   return (
-    <main className="flex-1">
+    <>
+      <VendorCoachMarks />
+      <main className="flex-1">
       {(!subscriptionActive || isTrial) && (
         <div className={`mx-4 mt-4 rounded-lg border px-4 py-3 ${isTrial ? "border-emerald-500/30 bg-emerald-500/10" : "border-yellow-500/30 bg-yellow-500/10"}`}>
           <div className="flex items-center gap-3">
@@ -464,5 +467,6 @@ export default async function VendorDashboard() {
         </div>
       </section>
     </main>
+    </>
   );
 }

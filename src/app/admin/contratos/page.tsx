@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { formatDateInMexico } from "@/lib/dates";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 export const revalidate = 30;
 
@@ -56,9 +57,15 @@ export default async function AdminContractsPage() {
       </div>
 
       {stores.length === 0 ? (
-        <div className="rounded-xl border border-[var(--border)] p-8 text-center">
-          <div className="text-lg font-medium">No hay contratos firmados</div>
-        </div>
+        <EmptyState
+          icon={
+            <svg className="h-8 w-8 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          }
+          title="No hay contratos firmados"
+          description="Los contratos aparecerán aquí cuando los vendedores los firmen."
+        />
       ) : (
         <div className="space-y-6">
           {stores.map((store) => {

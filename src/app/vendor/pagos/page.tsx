@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 
 type ProcessorDef = {
   label: string;
@@ -19,8 +19,8 @@ type PaymentMethod = {
 };
 
 export default function PaymentMethodsPage() {
-  const router = useRouter();
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
+  const confirm = useConfirm();
   const [processors, setProcessors] = useState<Record<string, ProcessorDef>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
@@ -38,7 +38,18 @@ export default function PaymentMethodsPage() {
     setLoading(false);
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    (async () => {
+      queueMicrotask(() => setLoading(true));
+      const res = await fetch("/api/vendor/payment-methods");
+      const data = await res.json();
+      if (data.ok) {
+        setMethods(data.methods);
+        setProcessors(data.processors);
+      }
+      setLoading(false);
+    })();
+  }, []);
 
   async function save(processor: string, credentials: Record<string, string>) {
     setSaving(processor);
@@ -59,7 +70,7 @@ export default function PaymentMethodsPage() {
   }
 
   async function disconnect(id: string) {
-    if (!confirm("¿Desconectar este método de pago?")) return;
+    if (!(await confirm({ message: "¿Desconectar este método de pago?", variant: "danger", confirmText: "Desconectar", title: "Desconectar método de pago" }))) return;
     await fetch(`/api/vendor/payment-methods?id=${id}`, { method: "DELETE" });
     await load();
   }
@@ -197,7 +208,7 @@ export default function PaymentMethodsPage() {
 }
 
 function ProcessorForm({
-  processor,
+  processor: _processor,
   def,
   initial,
   saving,

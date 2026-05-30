@@ -282,7 +282,6 @@ export default function AdminTiendasPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
     fetch("/api/admin/stores")
       .then((r) => r.json())
       .then((data) => {

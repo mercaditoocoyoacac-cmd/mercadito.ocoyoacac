@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import OrderConfirmation from "@/components/orders/OrderConfirmation";
+import { OrderAutoRefresh } from "@/components/orders/OrderAutoRefresh";
 import { OrderCancelButton } from "@/components/orders/OrderCancelButton";
 import { formatMoney } from "@/lib/format";
 
@@ -154,6 +155,8 @@ export default async function PedidoPage({
       )}
 
       <OrderConfirmation order={order} />
+
+      <OrderAutoRefresh status={order.status} />
     </main>
   );
 }

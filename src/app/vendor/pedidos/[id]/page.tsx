@@ -128,9 +128,10 @@ export default async function VendorPedidoPage({
             <div className="text-sm font-medium mb-2">Productos</div>
             <div className="space-y-1">
               {order.items.map((item) => {
-                const isWeight = !!(item as any).weightGrams;
+                const wg = (item as { weightGrams?: number | null }).weightGrams;
+                const isWeight = !!wg;
                 const lineTotal = isWeight
-                  ? Math.round(((item as any).weightGrams / 1000) * item.priceCents) * item.quantity
+                  ? Math.round((wg / 1000) * item.priceCents) * item.quantity
                   : item.priceCents * item.quantity;
                 return (
                 <div
@@ -138,7 +139,7 @@ export default async function VendorPedidoPage({
                   className="flex items-center justify-between text-sm"
                 >
                   <span>
-                    {isWeight ? `${(item as any).weightGrams}g` : `${item.quantity}x`} {item.name}
+                    {isWeight ? `${wg}g` : `${item.quantity}x`} {item.name}
                   </span>
                   <span className="font-medium">
                     {formatMoney(lineTotal, order.currency)}
@@ -190,6 +191,20 @@ export default async function VendorPedidoPage({
           )}
         </div>
 
+        {order.status !== "CANCELLED" && order.status !== "COMPLETED" && (
+          <div className="border-t border-[var(--border)] px-5 py-3 bg-gray-50/50">
+            <div className="flex flex-wrap gap-1 text-[11px] text-[color:var(--muted)]">
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-yellow-100 text-yellow-800">📋 Pendiente</span>
+              <span className="text-[color:var(--muted)]">→</span>
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-blue-100 text-blue-800">✅ Confirmado</span>
+              <span className="text-[color:var(--muted)]">→</span>
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-purple-100 text-purple-800">📦 Listo</span>
+              {order.fulfillmentType === "DELIVERY" && <><span className="text-[color:var(--muted)]">→</span><span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-orange-100 text-orange-800">🚚 En camino</span></>}
+              <span className="text-[color:var(--muted)]">→</span>
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-100 text-green-800">🎉 Entregado</span>
+            </div>
+          </div>
+        )}
         <div className="border-t border-[var(--border)] px-5 py-4 flex gap-2 flex-wrap">
           {order.status === "PENDING" && (
             <form
@@ -203,7 +218,7 @@ export default async function VendorPedidoPage({
                 revalidatePath(`/vendor/pedidos/${order.id}`);
               }}
             >
-              <button className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+              <button title="Acepta el pedido y notifica al cliente que lo prepararás" className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
                 Confirmar pedido
               </button>
             </form>
@@ -220,7 +235,7 @@ export default async function VendorPedidoPage({
                 revalidatePath(`/vendor/pedidos/${order.id}`);
               }}
             >
-              <button className="rounded-lg bg-yellow-600 px-4 py-2 text-sm font-medium text-white hover:bg-yellow-700">
+              <button title="Marca el pedido como preparado y listo para entregar" className="rounded-lg bg-yellow-600 px-4 py-2 text-sm font-medium text-white hover:bg-yellow-700">
                 Marcar listo
               </button>
             </form>
@@ -237,8 +252,8 @@ export default async function VendorPedidoPage({
                 revalidatePath(`/vendor/pedidos/${order.id}`);
               }}
             >
-              <button className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700">
-                Enviar
+              <button title="Entrega el pedido al repartidor para que lo lleve al cliente" className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700">
+                Entregar a repartidor
               </button>
             </form>
           )}
@@ -254,8 +269,8 @@ export default async function VendorPedidoPage({
                 revalidatePath(`/vendor/pedidos/${order.id}`);
               }}
             >
-              <button className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700">
-                Completar
+              <button title="El cliente ya recogió el pedido en la tienda. Marca como entregado." className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700">
+                Cliente recogió
               </button>
             </form>
           )}
@@ -271,7 +286,7 @@ export default async function VendorPedidoPage({
                 revalidatePath(`/vendor/pedidos/${order.id}`);
               }}
             >
-              <button className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700">
+              <button title="El repartidor confirmó la entrega. Marca como completado." className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700">
                 Completar
               </button>
             </form>
@@ -288,7 +303,7 @@ export default async function VendorPedidoPage({
                 revalidatePath(`/vendor/pedidos/${order.id}`);
               }}
             >
-              <button className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
+              <button title="Cancela este pedido. El cliente será notificado." className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
                 Cancelar
               </button>
             </form>

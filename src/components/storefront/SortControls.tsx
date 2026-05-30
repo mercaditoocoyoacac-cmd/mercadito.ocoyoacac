@@ -95,7 +95,7 @@ export function SortControls({
       )}
       {isManual && (
         <span className="text-xs text-[color:var(--muted)]">
-          Escribe el n&uacute;mero de orden y presiona "Guardar orden"
+          Escribe el n&uacute;mero de orden y presiona Guardar orden
         </span>
       )}
     </div>

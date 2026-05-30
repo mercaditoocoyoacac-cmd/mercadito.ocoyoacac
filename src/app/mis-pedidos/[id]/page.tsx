@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { OrderCancelButton } from "@/components/orders/OrderCancelButton";
+import { OrderAutoRefresh } from "@/components/orders/OrderAutoRefresh";
 import OrderRatingForm from "@/components/orders/OrderRatingForm";
 import DeliveryChat from "@/components/chat/DeliveryChat";
 import { ArrivalConfirmButton } from "@/components/orders/ArrivalConfirmButton";
@@ -282,6 +283,8 @@ export default async function PedidoDetallePage({
           hasExistingRating={!!order.rating}
         />
       )}
+
+      <OrderAutoRefresh status={order.status} />
     </main>
   );
 }

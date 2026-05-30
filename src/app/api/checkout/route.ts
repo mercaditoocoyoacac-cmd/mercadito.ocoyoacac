@@ -32,7 +32,7 @@ const CheckoutSchema = z.object({
 
 export async function POST(req: Request) {
   const ip = getClientIP(req);
-  const { success, remaining } = rateLimit(`checkout:${ip}`);
+  const { success } = rateLimit(`checkout:${ip}`);
   
   if (!success) {
     return NextResponse.json(

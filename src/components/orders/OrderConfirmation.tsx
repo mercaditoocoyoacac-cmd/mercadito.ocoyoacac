@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import QRCode from "qrcode";
-import { formatMoney } from "@/lib/format";
-
 type Props = {
   order: {
     id: string;
@@ -16,9 +13,7 @@ type Props = {
 };
 
 export default function OrderConfirmation({ order }: Props) {
-  const router = useRouter();
   const [qrCode, setQrCode] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);

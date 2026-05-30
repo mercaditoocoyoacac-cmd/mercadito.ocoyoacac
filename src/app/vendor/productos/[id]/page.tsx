@@ -2,6 +2,8 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
+import { ProductoTutorial } from "@/components/ui/ProductoTutorial";
 
 function HelpTip({ text }: { text: string }) {
   const [show, setShow] = useState(false);
@@ -60,6 +62,7 @@ export default function EditarProductoPage() {
   const router = useRouter();
   const pathname = usePathname();
   const productId = pathname.split("/").pop()!;
+  const confirm = useConfirm();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loadingProduct, setLoadingProduct] = useState(true);
@@ -82,46 +85,44 @@ export default function EditarProductoPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    fetchProduct();
-  }, []);
-
-  async function fetchProduct() {
-    try {
-      const res = await fetch("/api/vendor/products");
-      if (!res.ok) {
-        setError("No se pudo cargar el producto.");
-        setLoadingProduct(false);
-        return;
+    (async () => {
+      try {
+        const res = await fetch("/api/vendor/products");
+        if (!res.ok) {
+          setError("No se pudo cargar el producto.");
+          setLoadingProduct(false);
+          return;
+        }
+        const data = (await res.json()) as { ok: true; products: Product[] };
+        const found = data.products?.find((p) => p.id === productId);
+        if (found) {
+          setProduct(found);
+          setName(found.name);
+          setPrice((found.priceCents / 100).toString());
+          setDescription(found.description ?? "");
+          setImageUrl(found.imageUrl ?? "");
+          setSku(found.sku ?? "");
+          setStock(found.stock === -1 ? "" : found.stock.toString());
+          setSellByWeight(found.sellByWeight || false);
+          setMinWeightGrams(found.minWeightGrams?.toString() || "100");
+          setMaxWeightGrams(found.maxWeightGrams?.toString() || "5000");
+          setVariants(
+            found.variants.map((v) => ({
+              key: v.id,
+              id: v.id,
+              name: v.name,
+              price: (v.priceCents / 100).toString(),
+            })),
+          );
+        } else {
+          setError("Producto no encontrado.");
+        }
+      } catch {
+        setError("Error de conexion.");
       }
-      const data = (await res.json()) as { ok: true; products: Product[] };
-      const found = data.products?.find((p) => p.id === productId);
-      if (found) {
-        setProduct(found);
-        setName(found.name);
-        setPrice((found.priceCents / 100).toString());
-        setDescription(found.description ?? "");
-        setImageUrl(found.imageUrl ?? "");
-        setSku(found.sku ?? "");
-        setStock(found.stock === -1 ? "" : found.stock.toString());
-        setSellByWeight(found.sellByWeight || false);
-        setMinWeightGrams(found.minWeightGrams?.toString() || "100");
-        setMaxWeightGrams(found.maxWeightGrams?.toString() || "5000");
-        setVariants(
-          found.variants.map((v) => ({
-            key: v.id,
-            id: v.id,
-            name: v.name,
-            price: (v.priceCents / 100).toString(),
-          })),
-        );
-      } else {
-        setError("Producto no encontrado.");
-      }
-    } catch {
-      setError("Error de conexion.");
-    }
-    setLoadingProduct(false);
-  }
+      setLoadingProduct(false);
+    })();
+  }, [productId]);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -227,7 +228,7 @@ export default function EditarProductoPage() {
 
   async function handleDelete(e: React.FormEvent) {
     e.preventDefault();
-    if (!confirm("¿Estás seguro de eliminar este producto?")) return;
+    if (!(await confirm({ message: "¿Estás seguro de eliminar este producto?", variant: "danger", confirmText: "Eliminar", title: "Eliminar producto" }))) return;
 
     setDeleting(true);
     const res = await fetch(`/api/vendor/products/${productId}`, {
@@ -307,6 +308,7 @@ export default function EditarProductoPage() {
 
   return (
     <div className="mx-auto max-w-xl">
+      <ProductoTutorial show={true} />
       <h1 className="text-2xl font-semibold tracking-tight">Editar producto</h1>
 
       <form className="mt-6 space-y-4" onSubmit={handleSubmit}>

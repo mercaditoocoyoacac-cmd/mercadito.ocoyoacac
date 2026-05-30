@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import { FieldError } from "@/components/ui/FieldError";
+import { ProductoTutorial } from "@/components/ui/ProductoTutorial";
 
 function HelpTip({ text }: { text: string }) {
   const [show, setShow] = useState(false);
@@ -42,6 +44,7 @@ export default function NuevoProductoPage() {
   const [stock, setStock] = useState("");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [sellByWeight, setSellByWeight] = useState(false);
   const [minWeightGrams, setMinWeightGrams] = useState("100");
@@ -99,6 +102,7 @@ export default function NuevoProductoPage() {
 
   return (
     <div className="mx-auto max-w-xl">
+      <ProductoTutorial show={true} />
       <h1 className="text-2xl font-semibold tracking-tight">Nuevo producto</h1>
       <p className="mt-2 text-sm text-[color:var(--muted)]">
         Publica un producto para tu tienda.
@@ -110,11 +114,20 @@ export default function NuevoProductoPage() {
           e.preventDefault();
           setLoading(true);
           setError(null);
+          setFieldErrors({});
 
+          const errors: Record<string, string> = {};
+          if (!name.trim()) errors.name = "El nombre es obligatorio";
           const priceNumber = Number(price);
-          if (!Number.isFinite(priceNumber) || priceNumber <= 0) {
+          if (!Number.isFinite(priceNumber) || priceNumber <= 0) errors.price = "El precio debe ser mayor a 0";
+          variants.forEach((v, _i) => {
+            if (v.name.trim() && (!Number.isFinite(Number(v.price)) || Number(v.price) <= 0)) {
+              errors[`variant_${v.key}_price`] = `El precio de "${v.name}" debe ser mayor a 0`;
+            }
+          });
+          if (Object.keys(errors).length > 0) {
+            setFieldErrors(errors);
             setLoading(false);
-            setError("El precio debe ser mayor a 0.");
             return;
           }
 
@@ -165,11 +178,19 @@ export default function NuevoProductoPage() {
           </div>
           <input
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              setName(e.target.value);
+              if (fieldErrors.name) setFieldErrors((prev) => ({ ...prev, name: "" }));
+            }}
+            onBlur={() => {
+              if (!name.trim()) setFieldErrors((prev) => ({ ...prev, name: "El nombre es obligatorio" }));
+              else setFieldErrors((prev) => ({ ...prev, name: "" }));
+            }}
             required
             className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
             placeholder="Ej: Concha de vainilla"
           />
+          <FieldError message={fieldErrors.name} />
         </label>
 
         <label className="block">
@@ -179,12 +200,21 @@ export default function NuevoProductoPage() {
           </div>
           <input
             value={price}
-            onChange={(e) => setPrice(e.target.value)}
+            onChange={(e) => {
+              setPrice(e.target.value);
+              if (fieldErrors.price) setFieldErrors((prev) => ({ ...prev, price: "" }));
+            }}
+            onBlur={() => {
+              const n = Number(price);
+              if (!Number.isFinite(n) || n <= 0) setFieldErrors((prev) => ({ ...prev, price: "El precio debe ser mayor a 0" }));
+              else setFieldErrors((prev) => ({ ...prev, price: "" }));
+            }}
             required
             inputMode="decimal"
             className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
             placeholder={sellByWeight ? "Ej: 150.00 (precio por kg)" : "Ej: 25.00"}
           />
+          <FieldError message={fieldErrors.price} />
         </label>
 
         <div className="flex items-center gap-2">
@@ -369,6 +399,7 @@ export default function NuevoProductoPage() {
                         placeholder="Precio"
                         className="w-full border-b border-transparent bg-transparent px-1 py-1 text-sm outline-none focus:border-[var(--accent)]"
                       />
+                      <FieldError message={fieldErrors[`variant_${v.key}_price`]} />
                     </div>
                     <button
                       type="button"

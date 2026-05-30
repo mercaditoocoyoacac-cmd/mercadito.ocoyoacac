@@ -26,7 +26,7 @@ export async function POST(req: Request) {
 
   const allRoles = [user.role, ...(user.additionalRoles ? user.additionalRoles.split(",") : [])];
 
-  if (!allRoles.includes(role as any)) {
+  if (!allRoles.includes(role as typeof validRoles[number])) {
     return NextResponse.json({ ok: false, error: "No tienes ese rol" }, { status: 403 });
   }
 

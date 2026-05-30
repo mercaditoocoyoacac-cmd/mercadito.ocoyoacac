@@ -1,8 +1,6 @@
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { redirect } from "next/navigation";
-import { formatMoney } from "@/lib/format";
-
 function Stars({ score }: { score: number }) {
   return (
     <span className="text-yellow-500">

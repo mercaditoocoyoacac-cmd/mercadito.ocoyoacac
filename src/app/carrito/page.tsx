@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 import dynamic from "next/dynamic";
 
 const LocationPicker = dynamic(
@@ -158,6 +160,7 @@ function QtyControl({ value, onMinus, onPlus, disabled }: { value: number; onMin
         type="button"
         onClick={onMinus}
         disabled={disabled || value <= 1}
+        aria-label="Disminuir cantidad"
         className="flex h-9 w-9 items-center justify-center text-[color:var(--muted)] hover:bg-gray-100 disabled:opacity-30 transition-colors"
       >
         <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -171,6 +174,7 @@ function QtyControl({ value, onMinus, onPlus, disabled }: { value: number; onMin
         type="button"
         onClick={onPlus}
         disabled={disabled || value >= 99}
+        aria-label="Aumentar cantidad"
         className="flex h-9 w-9 items-center justify-center text-[color:var(--muted)] hover:bg-gray-100 disabled:opacity-30 transition-colors"
       >
         <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -186,7 +190,8 @@ export default function CarritoPage() {
   const [items, setItems] = useState<CartItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [step, setStep] = useState(1);
+  const [step] = useState(1);
+  const confirm = useConfirm();
 
   const store = items?.[0]?.product.store;
   const hasOnlinePayment = store?.hasOnlinePayment ?? store?.acceptsMercadoPago ?? false;
@@ -227,8 +232,8 @@ export default function CarritoPage() {
   }, [fulfillmentType, items, customerLat, customerLng]);
   const total = subtotal + deliveryFee;
 
-  const refresh = useCallback(async () => {
-    setLoading(true);
+  async function refresh() {
+    queueMicrotask(() => setLoading(true));
     setError(null);
 
     const [cartRes, profileRes] = await Promise.all([
@@ -263,9 +268,33 @@ export default function CarritoPage() {
     }
 
     setLoading(false);
-  }, [router]);
+  }
 
-  useEffect(() => { void refresh(); }, [refresh]);
+  useEffect(() => {
+    (async () => {
+      queueMicrotask(() => setLoading(true));
+      const [cartRes, profileRes] = await Promise.all([
+        fetch("/api/cart/items"),
+        fetch("/api/profile").catch(() => null),
+      ]);
+      if (cartRes.status === 401) { router.push("/login?callbackUrl=/carrito"); return; }
+      const cartData = await cartRes.json().catch(() => null);
+      if (!cartRes.ok || !cartData?.ok) { setError("No se pudo cargar tu carrito."); setLoading(false); return; }
+      setItems(cartData.items);
+      if (profileRes?.ok) {
+        const profileData = await profileRes.json();
+        if (profileData.ok && profileData.user) {
+          setCustomerName(profileData.user.name || "");
+          setCustomerPhone(profileData.user.phone || "");
+          const addr = [profileData.user.address, profileData.user.city, profileData.user.state, profileData.user.zipCode].filter(Boolean).join(", ");
+          setCustomerAddress(addr);
+          setCustomerLat(profileData.user.latitude);
+          setCustomerLng(profileData.user.longitude);
+        }
+      }
+      setLoading(false);
+    })();
+  }, []);
 
   const updateQuantity = async (item: CartItem, delta: number) => {
     const next = Math.max(0, Math.min(99, item.quantity + delta));
@@ -293,7 +322,7 @@ export default function CarritoPage() {
   };
 
   const handleClearCart = async () => {
-    if (!confirm("¿Vaciar todo el carrito?")) return;
+    if (!(await confirm({ message: "¿Vaciar todo el carrito?", variant: "danger", confirmText: "Vaciar", title: "Vaciar carrito" }))) return;
     const itemsCopy = [...(items ?? [])];
     for (const item of itemsCopy) {
       await fetch("/api/cart/items", {
@@ -329,7 +358,7 @@ export default function CarritoPage() {
       return;
     }
     if (data.error && paymentMethod === "ONLINE") {
-      alert(data.error + ". Volvé al carrito para cambiar el método de pago.");
+      toast.error(data.error + ". Volvé al carrito para cambiar el método de pago.");
       router.push("/carrito");
       return;
     }
@@ -343,7 +372,7 @@ export default function CarritoPage() {
   if (loading) return <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10"><Skeleton /></main>;
 
   return (
-    <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 fade-in">
       <StepIndicator current={step} />
 
       <div className="mb-6 flex items-center justify-between">
@@ -406,7 +435,7 @@ export default function CarritoPage() {
               const isUpdating = updatingQty[cartKey];
 
               return (
-                <div key={cartKey} className={`group relative rounded-xl border transition-all hover:shadow-md ${item.product.isUnavailable ? "border-red-200 bg-red-50/50" : "border-[var(--border)] bg-white"}`}>
+                <div key={cartKey} className={`group relative rounded-xl border card-hover ${item.product.isUnavailable ? "border-red-200 bg-red-50/50" : "border-[var(--border)] bg-white"}`}>
                   <div className="flex items-start gap-4 p-4 sm:p-5">
                     {/* Product image placeholder */}
                     <div className="hidden sm:flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-[var(--accent-soft)]">

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
+import { FieldError } from "@/components/ui/FieldError";
 
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
 
@@ -14,6 +15,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
   async function redirectByRole() {
@@ -31,6 +33,15 @@ export default function LoginPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setFieldErrors({});
+
+    const errors: Record<string, string> = {};
+    if (!email.trim()) errors.email = "Ingresa tu correo";
+    if (!password) errors.password = "Ingresa tu contraseña";
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      return;
+    }
 
     const captchaToken = captchaRef.current?.getValue() || "";
     if (RECAPTCHA_SITE_KEY && !captchaToken) {
@@ -55,7 +66,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-md flex-1 px-4 py-10">
+    <main className="mx-auto w-full max-w-md flex-1 px-4 py-10 fade-in">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold tracking-tight">Iniciar sesión</h1>
         <p className="mt-2 text-sm text-[color:var(--muted)]">
@@ -68,24 +79,40 @@ export default function LoginPage() {
           <div className="text-sm font-medium">Correo</div>
           <input
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (fieldErrors.email) setFieldErrors((prev) => ({ ...prev, email: "" }));
+            }}
+            onBlur={() => {
+              if (!email.trim()) setFieldErrors((prev) => ({ ...prev, email: "Ingresa tu correo" }));
+              else setFieldErrors((prev) => ({ ...prev, email: "" }));
+            }}
             type="email"
             required
             className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
             placeholder="tu@correo.com"
           />
+          <FieldError message={fieldErrors.email} />
         </label>
 
         <label className="block">
           <div className="text-sm font-medium">Contraseña</div>
           <input
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              if (fieldErrors.password) setFieldErrors((prev) => ({ ...prev, password: "" }));
+            }}
+            onBlur={() => {
+              if (!password) setFieldErrors((prev) => ({ ...prev, password: "Ingresa tu contraseña" }));
+              else setFieldErrors((prev) => ({ ...prev, password: "" }));
+            }}
             type="password"
             required
             className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
             placeholder="********"
           />
+          <FieldError message={fieldErrors.password} />
         </label>
 
         <div className="text-right">

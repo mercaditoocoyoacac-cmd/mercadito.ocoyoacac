@@ -44,13 +44,13 @@ export async function POST(req: Request) {
         .join(",");
       const updated = await prisma.user.update({
         where: { email: emailLower },
-        data: { role: upgradeRole as any, additionalRoles: additional || null },
+        data: { role: upgradeRole as "CUSTOMER" | "VENDOR" | "DELIVERY" | "ADMIN", additionalRoles: additional || null },
         select: { id: true, email: true },
       });
       return NextResponse.json({ ok: true, user: updated, upgraded: true });
     }
 
-    let userRole: "CUSTOMER" | "VENDOR" | "DELIVERY" | "ADMIN" = role ?? "CUSTOMER";
+    const userRole: "CUSTOMER" | "VENDOR" | "DELIVERY" | "ADMIN" = role ?? "CUSTOMER";
 
     if (userRole === "ADMIN" && adminKey !== ADMIN_SECRET_KEY) {
       return NextResponse.json(

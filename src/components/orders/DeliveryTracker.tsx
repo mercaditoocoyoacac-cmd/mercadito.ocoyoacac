@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 import { haversineDistance, formatDistance } from "@/lib/geo";
 import DeliveryChat from "@/components/chat/DeliveryChat";
 import { getStatusLabel } from "@/lib/labels";
@@ -51,6 +52,7 @@ export default function DeliveryTracker({
   const [completeCode, setCompleteCode] = useState<Record<string, string>>({});
   const [arriving, setArriving] = useState<Record<string, boolean>>({});
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const hasGeo = useSyncExternalStore(() => () => {}, () => 'geolocation' in navigator, () => false);
 
   function sendLocation(lat: number, lng: number) {
     setDriverLat(lat);
@@ -63,10 +65,7 @@ export default function DeliveryTracker({
   }
 
   useEffect(() => {
-    if (!navigator.geolocation) {
-      setLocationError("Geolocalización no disponible en este navegador.");
-      return;
-    }
+    if (!hasGeo) return;
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -104,7 +103,7 @@ export default function DeliveryTracker({
     if (res.ok && data?.ok) {
       router.refresh();
     } else {
-      alert(data?.error || "No se pudo aceptar el pedido.");
+      toast.error(data?.error || "No se pudo aceptar el pedido.");
     }
   }
 
@@ -120,7 +119,7 @@ export default function DeliveryTracker({
     if (res.ok && data?.ok) {
       router.refresh();
     } else {
-      alert(data?.error || "Error al notificar llegada.");
+      toast.error(data?.error || "Error al notificar llegada.");
       setArriving((prev) => ({ ...prev, [orderId]: false }));
     }
   }
@@ -128,7 +127,7 @@ export default function DeliveryTracker({
   async function confirmDelivery(orderId: string) {
     const code = completeCode[orderId];
     if (!code) {
-      alert("Ingresa el código de entrega del cliente.");
+      toast.error("Ingresa el código de entrega del cliente.");
       return;
     }
     const res = await fetch("/api/delivery/confirm", {
@@ -140,7 +139,7 @@ export default function DeliveryTracker({
     if (res.ok && data?.ok) {
       router.refresh();
     } else {
-      alert(data?.error || "Código inválido.");
+      toast.error(data?.error || "Código inválido.");
     }
   }
 
@@ -171,7 +170,12 @@ export default function DeliveryTracker({
 
   return (
     <>
-      {locationError && (
+      {!hasGeo && (
+        <div className="mb-4 rounded-lg bg-yellow-50 border border-yellow-200 px-4 py-3 text-sm text-yellow-800">
+          Geolocalización no disponible en este navegador.
+        </div>
+      )}
+      {hasGeo && locationError && (
         <div className="mb-4 rounded-lg bg-yellow-50 border border-yellow-200 px-4 py-3 text-sm text-yellow-800">
           {locationError}
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import { formatMoney } from "@/lib/format";
 
 interface Variant {
@@ -9,7 +9,7 @@ interface Variant {
   priceCents: number;
 }
 
-export function AddToCartButton({
+export const AddToCartButton = memo(function AddToCartButton({
   productId,
   variants,
   disabled,
@@ -129,4 +129,4 @@ export function AddToCartButton({
       </div>
     </div>
   );
-}
+});

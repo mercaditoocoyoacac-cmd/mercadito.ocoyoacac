@@ -17,7 +17,6 @@ export default function RegistroPage() {
   const [loading, setLoading] = useState(false);
   const [sendingCode, setSendingCode] = useState(false);
   const [codeSent, setCodeSent] = useState(false);
-  const [verifying, setVerifying] = useState(false);
 
   const role = session?.user?.role;
   const additionalRoles = session?.user?.additionalRoles?.split(",").filter(Boolean) || [];
@@ -41,9 +40,8 @@ export default function RegistroPage() {
       
       if (data.ok) {
         setCodeSent(true);
-        if (data.mockCode) {
-          setPhoneCode(data.mockCode);
-          setError(`SMS no configurado. Código de prueba: ${data.mockCode}`);
+        if (data.autoVerified) {
+          setPhoneCode("auto");
         }
       } else {
         setError(data.error || "Error al enviar código");
@@ -223,7 +221,7 @@ export default function RegistroPage() {
             )}
           </label>
 
-          {codeSent && (
+          {codeSent && phoneCode !== "auto" && (
             <label className="block">
               <div className="text-sm font-medium">Código de verificación *</div>
               <input
@@ -237,6 +235,9 @@ export default function RegistroPage() {
               />
               <p className="mt-1 text-xs text-green-600">✓ Código enviado al {phone}</p>
             </label>
+          )}
+          {codeSent && phoneCode === "auto" && (
+            <p className="text-sm text-green-600 font-medium">✓ Teléfono verificado</p>
           )}
 
           {error ? (

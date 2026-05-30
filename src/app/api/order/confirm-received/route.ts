@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
+import { revalidatePath } from "next/cache";
 
 export async function POST(req: Request) {
   const auth = await requireUser();
@@ -36,6 +37,10 @@ export async function POST(req: Request) {
     where: { id: order.id },
     data: { status: "COMPLETED" },
   });
+
+  revalidatePath(`/mis-pedidos/${order.id}`);
+  revalidatePath(`/vendor/pedidos/${order.id}`);
+  revalidatePath("/vendor/pedidos");
 
   return NextResponse.json({ ok: true, orderId: order.id });
 }

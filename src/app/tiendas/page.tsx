@@ -6,6 +6,8 @@ export const dynamic = "force-dynamic";
 
 const STORES_PER_PAGE = 12;
 
+type CategoryKey = "CANASTA_BASICA" | "HERRAMIENTAS" | "FLORERIAS" | "POSTRES" | "COMIDA_PREPARADA" | "FRUTAS_VERDURAS" | "FARMACIAS" | "SERVICIOS";
+
 const CATEGORIES = [
   { key: "", label: "Todas" },
   { key: "CANASTA_BASICA", label: "Canasta básica" },
@@ -46,7 +48,7 @@ export default async function TiendasPage({
       where: {
         isActive: true,
         isPublished: true,
-        ...(validCategory ? { category: validCategory as any } : {}),
+        ...(validCategory ? { category: validCategory as CategoryKey } : {}),
       },
       orderBy: { createdAt: "desc" },
       take: STORES_PER_PAGE,
@@ -69,7 +71,7 @@ export default async function TiendasPage({
       where: {
         isActive: true,
         isPublished: true,
-        ...(validCategory ? { category: validCategory as any } : {}),
+        ...(validCategory ? { category: validCategory as CategoryKey } : {}),
       },
     }),
   ]);
@@ -77,7 +79,7 @@ export default async function TiendasPage({
   const totalPages = Math.ceil(total / STORES_PER_PAGE);
 
   return (
-    <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
+    <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 fade-in">
       <div className="mb-8 text-center">
         <h1 className="text-3xl font-bold tracking-tight">
           Tiendas en Ocoyoacac
@@ -131,8 +133,9 @@ export default async function TiendasPage({
           {stores.map((store: typeof stores[number], i: number) => (
             <Link
               key={store.id}
+              style={{ animationDelay: `${i * 60}ms` }}
               href={`/tienda/${store.slug}`}
-              className="group rounded-2xl border border-[var(--border)] bg-white overflow-hidden shadow-sm transition-all hover:shadow-lg hover:-translate-y-1"
+              className="group rounded-2xl border border-[var(--border)] bg-white overflow-hidden shadow-sm transition-all hover:shadow-lg hover:-translate-y-1 fade-in"
             >
               <div className="relative aspect-video bg-gradient-to-br from-[var(--accent-soft)] to-[var(--accent)] flex items-center justify-center">
                 {store.imageUrl ? (
@@ -171,7 +174,7 @@ export default async function TiendasPage({
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
-                    {store.products.length} productos
+                    {(store as { products: { id: string }[] }).products.length} productos
                   </div>
                   {store.address ? (
                     <div className="flex items-center gap-1 text-xs text-[color:var(--muted)]">

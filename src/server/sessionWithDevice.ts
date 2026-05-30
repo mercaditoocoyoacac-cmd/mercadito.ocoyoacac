@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth";
 
@@ -15,7 +16,6 @@ export async function getSessionWithDevice() {
   const headers = (await import("next/headers")).headers;
 
   function getDeviceId(userAgent: string, ip: string): string {
-    const crypto = require("crypto");
     return crypto.createHash("sha256").update(`${userAgent}-${ip}`).digest("hex").slice(0, 32);
   }
 

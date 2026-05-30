@@ -3,6 +3,7 @@ import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { formatDateInMexico } from "@/lib/dates";
 import { formatMoney } from "@/lib/format";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 export const revalidate = 30;
 
@@ -220,12 +221,15 @@ export default async function AdminAprobarVendedoresPage() {
       )}
 
       {pendingStores.length === 0 && (
-        <div className=" rounded-xl border border-[var(--border)] p-8 text-center">
-          <div className="text-lg font-medium">No hay solicitudes pendientes</div>
-          <p className="mt-1 text-sm text-[color:var(--muted)]">
-            Los nuevos vendedores aparecerán aquí después de firmar el contrato
-          </p>
-        </div>
+        <EmptyState
+          icon={
+            <svg className="h-8 w-8 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          }
+          title="No hay solicitudes pendientes"
+          description="Los nuevos vendedores aparecerán aquí después de firmar el contrato."
+        />
       )}
 
       {approvedStores.length > 0 && (

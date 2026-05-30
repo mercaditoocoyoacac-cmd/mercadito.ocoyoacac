@@ -147,7 +147,8 @@ export default async function StorefrontPage({
           {products.map((product: typeof products[number], i: number) => (
             <div
               key={product.id}
-              className={`rounded-xl border border-[var(--border)] overflow-hidden bg-white ${
+              style={{ animationDelay: `${i * 60}ms` }}
+              className={`rounded-xl border border-[var(--border)] overflow-hidden bg-white card-hover fade-in ${
                 product.isUnavailable ? "opacity-60" : ""
               }`}
             >
@@ -175,10 +176,10 @@ export default async function StorefrontPage({
                   )}
                 </div>
                 <div className="text-sm font-semibold text-[var(--accent)]">
-                  {(product as any).sellByWeight
+                  {product.sellByWeight
                     ? `${formatMoney(product.priceCents, product.currency)} / kg`
-                    : (product as any).variants?.length > 0
-                    ? `Desde ${formatMoney(Math.min(...(product as any).variants.map((v: any) => v.priceCents), product.priceCents), product.currency)}`
+                    : product.variants?.length > 0
+                    ? `Desde ${formatMoney(Math.min(...product.variants.map((v) => v.priceCents), product.priceCents), product.currency)}`
                     : formatMoney(product.priceCents, product.currency)}
                 </div>
                 <div className="mt-2">
@@ -204,10 +205,10 @@ export default async function StorefrontPage({
                   ) : (
                     <AddToCartButton
                       productId={product.id}
-                      variants={(product as any).variants}
-                      sellByWeight={(product as any).sellByWeight}
-                      minWeightGrams={(product as any).minWeightGrams}
-                      maxWeightGrams={(product as any).maxWeightGrams}
+                      variants={product.variants}
+                      sellByWeight={product.sellByWeight}
+                      minWeightGrams={product.minWeightGrams}
+                      maxWeightGrams={product.maxWeightGrams}
                       priceCents={product.priceCents}
                       disabled={!open || product.isUnavailable}
                       disabledLabel={product.isUnavailable ? "Agotado" : !open ? "Tienda cerrada" : undefined}

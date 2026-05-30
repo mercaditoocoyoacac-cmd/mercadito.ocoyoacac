@@ -9,18 +9,10 @@ const credentialSchema = z.object({
   accountId: z.string().optional(),
 });
 
-const CREDENTIAL_SECRET = process.env.CREDENTIAL_SECRET || "fallback-secret-change-me";
-
 function encrypt(text: string): string {
   const buffer = Buffer.from(text);
   const base64 = buffer.toString("base64");
   return Buffer.from(base64).toString("hex");
-}
-
-function decrypt(hex: string): string {
-  const buffer = Buffer.from(hex, "hex");
-  const base64 = buffer.toString("base64");
-  return Buffer.from(base64, "base64").toString("utf8");
 }
 
 export async function GET() {

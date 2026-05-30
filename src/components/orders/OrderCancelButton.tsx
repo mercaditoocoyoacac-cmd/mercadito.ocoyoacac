@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 
 interface Props {
   orderId: string;
@@ -13,6 +14,7 @@ export function OrderCancelButton({ orderId, createdAt }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
+  const confirm = useConfirm();
 
   const createdAtMs = new Date(createdAt).getTime();
   const nowMs = Date.now();
@@ -21,7 +23,7 @@ export function OrderCancelButton({ orderId, createdAt }: Props) {
   const canCancel = minutesSince < 10 || minutesSince > 30;
 
   const handleCancel = async () => {
-    if (!confirm("¿Estás seguro de cancelar este pedido?")) return;
+    if (!(await confirm({ message: "¿Estás seguro de cancelar este pedido?", variant: "danger", confirmText: "Cancelar pedido", title: "Cancelar pedido" }))) return;
 
     setLoading(true);
     setError("");
