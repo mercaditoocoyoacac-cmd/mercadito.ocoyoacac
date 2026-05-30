@@ -35,3 +35,20 @@ export function calcDeliveryFeeCents(distanceKm: number): number {
   const extraSegments = Math.ceil((distanceKm - BASE_DISTANCE_KM) / SEGMENT_KM);
   return BASE_FEE_CENTS + extraSegments * EXTRA_FEE_PER_SEGMENT_CENTS;
 }
+
+export function getMapsUrl(lat: number | null | undefined, lng: number | null | undefined, address: string | null | undefined): string {
+  if (lat && lng) return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+  if (address) return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
+  return "https://www.google.com/maps";
+}
+
+export function openMapsUrl(url: string): void {
+  const win = window as Record<string, unknown>;
+  const capacitor = win.Capacitor as Record<string, unknown> | undefined;
+  const isCapacitor = typeof capacitor?.isNative === "function" && (capacitor.isNative as () => boolean)();
+  if (isCapacitor) {
+    window.open(url, "_system");
+  } else {
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+}

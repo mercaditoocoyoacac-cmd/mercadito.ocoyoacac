@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
-import { haversineDistance, formatDistance } from "@/lib/geo";
+import { haversineDistance, formatDistance, getMapsUrl, openMapsUrl } from "@/lib/geo";
 import DeliveryChat from "@/components/chat/DeliveryChat";
 import { getStatusLabel } from "@/lib/labels";
 
@@ -151,17 +151,11 @@ export default function DeliveryTracker({
     return formatDistance(haversineDistance(driverLat, driverLng, orderLat, orderLng));
   }
 
-  function getGoogleMapsUrl(lat: number | null, lng: number | null, address: string | null): string {
-    if (lat && lng) return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
-    if (address) return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
-    return "#";
-  }
-
-  function getStoreDirectionsUrl(address: string): string {
-    if (typeof navigator === "undefined") return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    if (isMobile) return `geo:0,0?q=${encodeURIComponent(address)}`;
-    return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
+  function handleOpenMapsUrl(url: string) {
+    return (e: React.MouseEvent) => {
+      e.preventDefault();
+      openMapsUrl(url);
+    };
   }
 
   const activeDeliveries = myDeliveries.filter(
@@ -224,9 +218,8 @@ export default function DeliveryTracker({
                   )}
                   {order.store.address && (
                     <a
-                      href={getStoreDirectionsUrl(order.store.address)}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      href={getMapsUrl(null, null, order.store.address)}
+                      onClick={handleOpenMapsUrl(getMapsUrl(null, null, order.store.address))}
                       className="inline-flex items-center gap-1 mt-1.5 text-xs font-medium text-blue-600 hover:underline"
                     >
                       <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24">
@@ -281,9 +274,8 @@ export default function DeliveryTracker({
                 <div className="mt-3 flex flex-col gap-2">
                   {(order.customerLat || order.customerAddress) && (
                     <a
-                      href={getGoogleMapsUrl(order.customerLat, order.customerLng, order.customerAddress)}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      href={getMapsUrl(order.customerLat, order.customerLng, order.customerAddress)}
+                      onClick={handleOpenMapsUrl(getMapsUrl(order.customerLat, order.customerLng, order.customerAddress))}
                       className="inline-flex items-center gap-2 rounded-lg bg-blue-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-600"
                     >
                       <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
@@ -375,9 +367,8 @@ export default function DeliveryTracker({
                         {order.store.address && <> · {order.store.address}</>}
                         {order.store.address && (
                           <a
-                            href={getStoreDirectionsUrl(order.store.address)}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                            href={getMapsUrl(null, null, order.store.address)}
+                            onClick={handleOpenMapsUrl(getMapsUrl(null, null, order.store.address))}
                             className="ml-2 text-blue-600 hover:underline"
                           >
                             Ver en mapa
@@ -454,9 +445,8 @@ export default function DeliveryTracker({
                     </div>
                     {order.store.address && (
                       <a
-                        href={getStoreDirectionsUrl(order.store.address)}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        href={getMapsUrl(null, null, order.store.address)}
+                        onClick={handleOpenMapsUrl(getMapsUrl(null, null, order.store.address))}
                         className="inline-flex items-center gap-1 mt-1 text-xs text-blue-600 hover:underline"
                       >
                         <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
@@ -492,9 +482,8 @@ export default function DeliveryTracker({
                     )}
                     {order.customerAddress && (
                       <a
-                        href={getGoogleMapsUrl(order.customerLat, order.customerLng, order.customerAddress)}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        href={getMapsUrl(order.customerLat, order.customerLng, order.customerAddress)}
+                        onClick={handleOpenMapsUrl(getMapsUrl(order.customerLat, order.customerLng, order.customerAddress))}
                         className="inline-flex items-center gap-1 mt-1 text-xs text-blue-600 hover:underline"
                       >
                         <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
