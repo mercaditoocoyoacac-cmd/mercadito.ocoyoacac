@@ -54,6 +54,16 @@ export async function sendWhatsAppMessage(
   }
 }
 
+export async function sendVerificationWhatsApp(
+  toPhone: string,
+  code: string
+): Promise<{ ok: boolean; error?: string }> {
+  return sendWhatsAppMessage(
+    toPhone,
+    `🔐 *Mercadito Ocoyoacac*\n\nTu codigo de verificacion es:\n\n*${code}*\n\nExpira en 15 minutos. Si no solicitaste este codigo, ignora este mensaje.`
+  );
+}
+
 export async function notifyVendorNewOrder(params: {
   vendorPhone: string;
   storeName: string;

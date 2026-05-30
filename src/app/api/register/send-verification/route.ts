@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/server/prisma";
 import { sendVerificationSMS } from "@/server/sns";
+import { sendVerificationWhatsApp } from "@/server/whatsapp";
 
 function generateCode(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -8,6 +9,10 @@ function generateCode(): string {
 
 const HAS_AWS_CREDS = !!(
   process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY
+);
+
+const HAS_WHATSAPP_CREDS = !!(
+  process.env.WHATSAPP_ACCESS_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID
 );
 
 export async function POST(req: Request) {
@@ -49,6 +54,15 @@ export async function POST(req: Request) {
       },
     });
 
+    if (HAS_WHATSAPP_CREDS) {
+      const sent = await sendVerificationWhatsApp(cleanPhone, code);
+      if (!sent.ok) {
+        console.error("[send-verification] WhatsApp error:", sent.error);
+      } else {
+        return NextResponse.json({ ok: true });
+      }
+    }
+
     if (HAS_AWS_CREDS) {
       const sent = await sendVerificationSMS(cleanPhone, code);
       if (!sent) {
@@ -60,7 +74,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true });
     }
 
-    console.log(`[SMS MOCK] Phone: ${cleanPhone} (auto-verified)`);
     return NextResponse.json({ ok: true, autoVerified: true });
   } catch (error) {
     console.error("[send-verification] Error:", error);
