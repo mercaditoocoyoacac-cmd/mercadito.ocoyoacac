@@ -5,6 +5,7 @@ import { getSession } from "@/server/session";
 import { formatDateTimeInMexico } from "@/lib/dates";
 import { formatMoney } from "@/lib/format";
 import { getStatusLabel } from "@/lib/labels";
+import { PullToRefreshWrapper } from "@/components/ui/PullToRefreshWrapper";
 
 function getStatusColor(status: string) {
   const colors: Record<string, string> = {
@@ -40,6 +41,7 @@ export default async function MisPedidosPage() {
   });
 
   return (
+    <PullToRefreshWrapper>
     <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-10 fade-in">
       <h1 className="text-2xl font-semibold tracking-tight">Mis Pedidos</h1>
       <p className="mt-2 text-sm text-[color:var(--muted)]">
@@ -112,5 +114,6 @@ export default async function MisPedidosPage() {
         </div>
       )}
     </main>
+    </PullToRefreshWrapper>
   );
 }

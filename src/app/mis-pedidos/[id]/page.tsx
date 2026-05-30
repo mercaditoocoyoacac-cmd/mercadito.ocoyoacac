@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { OrderCancelButton } from "@/components/orders/OrderCancelButton";
+import { PullToRefreshWrapper } from "@/components/ui/PullToRefreshWrapper";
 import { OrderAutoRefresh } from "@/components/orders/OrderAutoRefresh";
 import OrderRatingForm from "@/components/orders/OrderRatingForm";
 import DeliveryChat from "@/components/chat/DeliveryChat";
@@ -74,6 +75,7 @@ export default async function PedidoDetallePage({
   const isCancelled = order.status === "CANCELLED";
 
   return (
+    <PullToRefreshWrapper>
     <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-10">
       <div className="mb-6">
         <Link href="/mis-pedidos" className="text-sm text-[var(--accent)] hover:underline">
@@ -286,5 +288,6 @@ export default async function PedidoDetallePage({
 
       <OrderAutoRefresh status={order.status} />
     </main>
+    </PullToRefreshWrapper>
   );
 }

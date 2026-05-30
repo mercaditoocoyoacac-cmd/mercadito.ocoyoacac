@@ -3,6 +3,7 @@ import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import DeliveryTracker from "@/components/orders/DeliveryTracker";
 import DeliveryRating from "@/components/delivery/DeliveryRating";
+import { PullToRefreshWrapper } from "@/components/ui/PullToRefreshWrapper";
 
 export const dynamic = "force-dynamic";
 
@@ -71,6 +72,7 @@ export default async function DeliveryDashboard() {
   });
 
   return (
+    <PullToRefreshWrapper>
     <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
       <div className="mb-8 flex items-start justify-between">
         <div>
@@ -89,5 +91,6 @@ export default async function DeliveryDashboard() {
         availableDeliveries={availableDeliveries}
       />
     </main>
+    </PullToRefreshWrapper>
   );
 }

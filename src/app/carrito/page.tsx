@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useConfirm } from "@/components/ui/ConfirmDialog";
+import { PullToRefresh } from "@/components/ui/PullToRefresh";
 import dynamic from "next/dynamic";
 
 const LocationPicker = dynamic(
@@ -369,9 +370,10 @@ export default function CarritoPage() {
     }
   };
 
-  if (loading) return <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10"><Skeleton /></main>;
+  if (loading) return <PullToRefresh><main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10"><Skeleton /></main></PullToRefresh>;
 
   return (
+    <PullToRefresh>
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 fade-in">
       <StepIndicator current={step} />
 
@@ -693,5 +695,6 @@ export default function CarritoPage() {
         </div>
       )}
     </main>
+    </PullToRefresh>
   );
 }

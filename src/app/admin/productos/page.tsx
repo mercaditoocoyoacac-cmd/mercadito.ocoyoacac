@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useConfirm } from "@/components/ui/ConfirmDialog";
+import { PullToRefresh } from "@/components/ui/PullToRefresh";
 import { formatMoney } from "@/lib/format";
 import { SortControls } from "@/components/storefront/SortControls";
 
@@ -451,6 +452,7 @@ function AdminProductosPage() {
   }
 
   return (
+    <PullToRefresh>
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Productos por tienda</h1>
@@ -632,6 +634,7 @@ function AdminProductosPage() {
         </div>
       )}
     </div>
+    </PullToRefresh>
   );
 }
 
