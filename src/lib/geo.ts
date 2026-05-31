@@ -43,7 +43,7 @@ export function getMapsUrl(lat: number | null | undefined, lng: number | null | 
 }
 
 export function openMapsUrl(url: string): void {
-  const win = window as Record<string, unknown>;
+  const win = window as unknown as Record<string, unknown>;
   const capacitor = win.Capacitor as Record<string, unknown> | undefined;
   const isCapacitor = typeof capacitor?.isNative === "function" && (capacitor.isNative as () => boolean)();
   if (isCapacitor) {

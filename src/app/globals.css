@@ -199,3 +199,14 @@ button:active {
 .dark .border-red-300 { border-color: #7f1d1d; }
 .dark .bg-orange-50 { background: #2d0f00; }
 .dark .border-orange-500 { border-color: #9a3412; }
+
+.dark .bg-white, .dark .bg-white\/95 { background: var(--background); }
+.dark .bg-gray-50, .dark .bg-gray-100 { background: #1a1a1a; }
+.dark .bg-gray-200, .dark .bg-gray-300 { background: #2a2a2a; }
+
+.dark .text-gray-900, .dark .text-gray-800, .dark .text-gray-700 { color: var(--foreground); }
+.dark .text-gray-600, .dark .text-gray-500, .dark .text-gray-400 { color: var(--muted); }
+
+.dark .hover\:bg-gray-50:hover, .dark .hover\:bg-gray-100:hover { background: #1a1a1a; }
+
+.dark .border-gray-100, .dark .border-gray-200, .dark .border-gray-300, .dark .border-gray-500 { border-color: var(--border); }
