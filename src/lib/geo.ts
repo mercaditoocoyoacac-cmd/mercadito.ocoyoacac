@@ -37,18 +37,11 @@ export function calcDeliveryFeeCents(distanceKm: number): number {
 }
 
 export function getMapsUrl(lat: number | null | undefined, lng: number | null | undefined, address: string | null | undefined): string {
-  if (lat && lng) return `https://maps.google.com/maps?daddr=${lat},${lng}`;
-  if (address) return `https://maps.google.com/maps?daddr=${encodeURIComponent(address)}`;
-  return "https://maps.google.com";
+  if (lat && lng) return `geo:${lat},${lng}?q=${lat},${lng}`;
+  if (address) return `geo:0,0?q=${encodeURIComponent(address)}`;
+  return "geo:0,0?q=Mercadito+Ocoyoacac";
 }
 
 export function openMapsUrl(url: string): void {
-  const a = document.createElement("a");
-  a.href = url;
-  a.target = "_blank";
-  a.rel = "noopener noreferrer";
-  a.style.display = "none";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  window.open(url, "_system");
 }
