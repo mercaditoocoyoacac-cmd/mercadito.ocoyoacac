@@ -217,16 +217,16 @@ export default function DeliveryTracker({
                     <div className="text-xs text-[color:var(--muted)]">📍 {order.store.address}</div>
                   )}
                   {order.store.address && (
-                    <a
-                      href={getMapsUrl(null, null, order.store.address)}
+                    <button
+                      type="button"
                       onClick={handleOpenMapsUrl(getMapsUrl(null, null, order.store.address))}
-                      className="inline-flex items-center gap-1 mt-1.5 text-xs font-medium text-blue-600 hover:underline"
+                      className="inline-flex items-center gap-1 mt-1.5 text-xs font-medium text-blue-600 hover:underline bg-transparent border-none p-0 cursor-pointer"
                     >
                       <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                       </svg>
                       Cómo llegar a la tienda
-                    </a>
+                    </button>
                   )}
                 </div>
 
@@ -273,16 +273,16 @@ export default function DeliveryTracker({
 
                 <div className="mt-3 flex flex-col gap-2">
                   {(order.customerLat || order.customerAddress) && (
-                    <a
-                      href={getMapsUrl(order.customerLat, order.customerLng, order.customerAddress)}
+                    <button
+                      type="button"
                       onClick={handleOpenMapsUrl(getMapsUrl(order.customerLat, order.customerLng, order.customerAddress))}
-                      className="inline-flex items-center gap-2 rounded-lg bg-blue-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-600"
+                      className="inline-flex items-center gap-2 rounded-lg bg-blue-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-600 border-none cursor-pointer"
                     >
                       <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                       </svg>
                       Ruta al cliente
-                    </a>
+                    </button>
                   )}
                   {order.arrivedAt ? (
                     <div className="flex items-center gap-2 rounded-lg bg-green-100 px-3 py-1.5 text-xs font-medium text-green-800">
@@ -365,15 +365,15 @@ export default function DeliveryTracker({
                       <div className="text-xs mt-1 text-[color:var(--muted)]">
                         🏪 {order.store.name}
                         {order.store.address && <> · {order.store.address}</>}
-                        {order.store.address && (
-                          <a
-                            href={getMapsUrl(null, null, order.store.address)}
-                            onClick={handleOpenMapsUrl(getMapsUrl(null, null, order.store.address))}
-                            className="ml-2 text-blue-600 hover:underline"
-                          >
-                            Ver en mapa
-                          </a>
-                        )}
+                          {order.store.address && (
+                            <button
+                              type="button"
+                              onClick={handleOpenMapsUrl(getMapsUrl(null, null, order.store.address))}
+                              className="ml-2 text-blue-600 hover:underline bg-transparent border-none p-0 cursor-pointer"
+                            >
+                              Ver en mapa
+                            </button>
+                          )}
                       </div>
 
                       <div className="font-medium mt-1">{order.customerName}</div>
@@ -444,16 +444,16 @@ export default function DeliveryTracker({
                       {order.store.address && <> · {order.store.address}</>}
                     </div>
                     {order.store.address && (
-                      <a
-                        href={getMapsUrl(null, null, order.store.address)}
+                      <button
+                        type="button"
                         onClick={handleOpenMapsUrl(getMapsUrl(null, null, order.store.address))}
-                        className="inline-flex items-center gap-1 mt-1 text-xs text-blue-600 hover:underline"
+                        className="inline-flex items-center gap-1 mt-1 text-xs text-blue-600 hover:underline bg-transparent border-none p-0 cursor-pointer"
                       >
                         <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                         </svg>
                         Cómo llegar a la tienda
-                      </a>
+                      </button>
                     )}
                     {order.items.length > 0 && (
                       <div className="mt-1.5 text-xs text-[color:var(--muted)]">
@@ -481,16 +481,16 @@ export default function DeliveryTracker({
                       </div>
                     )}
                     {order.customerAddress && (
-                      <a
-                        href={getMapsUrl(order.customerLat, order.customerLng, order.customerAddress)}
+                      <button
+                        type="button"
                         onClick={handleOpenMapsUrl(getMapsUrl(order.customerLat, order.customerLng, order.customerAddress))}
-                        className="inline-flex items-center gap-1 mt-1 text-xs text-blue-600 hover:underline"
+                        className="inline-flex items-center gap-1 mt-1 text-xs text-blue-600 hover:underline bg-transparent border-none p-0 cursor-pointer"
                       >
                         <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                         </svg>
                         Ruta al cliente
-                      </a>
+                      </button>
                     )}
                   </div>
                     <div className="text-right flex flex-col items-end gap-1">
