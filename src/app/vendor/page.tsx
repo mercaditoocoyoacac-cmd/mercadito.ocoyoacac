@@ -241,6 +241,52 @@ export default async function VendorDashboard() {
       <VendorCoachMarks />
       <PullToRefreshWrapper>
       <main className="flex-1">
+      {totalProducts === 0 ? (
+        <div className="mx-4 mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-4">
+          <div className="flex items-start gap-3">
+            <span className="mt-0.5 text-xl">📢</span>
+            <div className="flex-1">
+              <div className="font-medium text-amber-800">No tienes productos aún</div>
+              <div className="mt-1 text-sm text-amber-700">
+                Los clientes no pueden comprarte si no ven productos.{ " " }
+                <Link href="/vendor/productos/nuevo" className="font-semibold underline hover:no-underline">
+                  Agrega tu primer producto ahora
+                </Link>{" "}
+                y empieza a generar ventas.
+              </div>
+            </div>
+            <Link
+              href="/vendor/productos/nuevo"
+              className="shrink-0 rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700"
+            >
+              Agregar
+            </Link>
+          </div>
+        </div>
+      ) : totalProducts < 5 ? (
+        <div className="mx-4 mt-4 rounded-lg border border-blue-500/30 bg-blue-500/10 px-4 py-4">
+          <div className="flex items-start gap-3">
+            <span className="mt-0.5 text-xl">💡</span>
+            <div className="flex-1">
+              <div className="font-medium text-blue-800">Tienes solo {totalProducts} producto{totalProducts === 1 ? "" : "s"}</div>
+              <div className="mt-1 text-sm text-blue-700">
+                Las tiendas con más productos generan hasta 3x más ventas.{" "}
+                <Link href="/vendor/productos/nuevo" className="font-semibold underline hover:no-underline">
+                  Agrega más productos
+                </Link>{" "}
+                para ofrecer más opciones a tus clientes.
+              </div>
+            </div>
+            <Link
+              href="/vendor/productos/nuevo"
+              className="shrink-0 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            >
+              Agregar
+            </Link>
+          </div>
+        </div>
+      ) : null}
+
       {(!subscriptionActive || isTrial) && (
         <div className={`mx-4 mt-4 rounded-lg border px-4 py-3 ${isTrial ? "border-emerald-500/30 bg-emerald-500/10" : "border-yellow-500/30 bg-yellow-500/10"}`}>
           <div className="flex items-center gap-3">
