@@ -37,18 +37,25 @@ export function calcDeliveryFeeCents(distanceKm: number): number {
 }
 
 export function getMapsUrl(lat: number | null | undefined, lng: number | null | undefined, address: string | null | undefined): string {
-  if (lat && lng) return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
-  if (address) return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
-  return "https://www.google.com/maps";
+  if (lat && lng) return `https://maps.google.com/maps?daddr=${lat},${lng}`;
+  if (address) return `https://maps.google.com/maps?daddr=${encodeURIComponent(address)}`;
+  return "https://maps.google.com";
 }
 
 export function openMapsUrl(url: string): void {
-  const win = window as unknown as Record<string, unknown>;
-  const capacitor = win.Capacitor as Record<string, unknown> | undefined;
-  const isCapacitor = typeof capacitor?.isNative === "function" && (capacitor.isNative as () => boolean)();
-  if (isCapacitor) {
+  try {
+    const c = (window as unknown as Record<string, unknown>).Capacitor as Record<string, unknown> | undefined;
+    if (c) {
+      const app = (c.Plugins as Record<string, unknown> | undefined)?.App as { openUrl?: (opts: { url: string }) => Promise<void> } | undefined;
+      if (app?.openUrl) {
+        app.openUrl({ url });
+        return;
+      }
+    }
+  } catch {}
+  try {
     window.open(url, "_system");
-  } else {
-    window.open(url, "_blank", "noopener,noreferrer");
-  }
+    return;
+  } catch {}
+  window.open(url, "_blank", "noopener,noreferrer");
 }
