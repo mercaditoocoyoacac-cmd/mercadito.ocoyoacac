@@ -1,20 +1,21 @@
 "use client";
 
 const PHONE = "527227624850";
-const TEXT = "Hola, necesito ayuda con la aplicación";
+const TEXT = encodeURIComponent("Hola, necesito ayuda con la aplicación");
 
 export function WhatsAppButton() {
   const handleClick = () => {
-    if (navigator.share) {
-      navigator.share({ title: "Mercadito Ocoyoacac", text: TEXT, url: `https://wa.me/${PHONE}` });
+    const nativeUrl = `whatsapp://send?phone=${PHONE}&text=${TEXT}`;
+    const webUrl = `https://api.whatsapp.com/send?phone=${PHONE}&text=${TEXT}`;
+    const isCapacitor = typeof (window as any).Capacitor !== "undefined";
+
+    if (isCapacitor) {
+      window.open(nativeUrl, "_system");
+      setTimeout(() => { window.open(webUrl, "_system"); }, 3000);
+    } else if (navigator.share) {
+      navigator.share({ title: "Mercadito Ocoyoacac", text: decodeURIComponent(TEXT), url: `https://wa.me/${PHONE}` });
     } else {
-      const a = document.createElement("a");
-      a.href = `https://api.whatsapp.com/send?phone=${PHONE}&text=${encodeURIComponent(TEXT)}`;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      window.open(webUrl, "_blank");
     }
   };
 
