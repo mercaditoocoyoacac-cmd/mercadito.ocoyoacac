@@ -1,13 +1,14 @@
 "use client";
 
 const PHONE = "527227624850";
-const TEXT = "Hola, necesito ayuda con la aplicación";
-const WA_URL = `https://api.whatsapp.com/send?phone=${PHONE}&text=${encodeURIComponent(TEXT)}`;
+const TEXT = encodeURIComponent("Hola, necesito ayuda con la aplicación");
+const WA_URL = `https://api.whatsapp.com/send?phone=${PHONE}&text=${TEXT}`;
 
 export function WhatsAppButton() {
-  const handleClick = () => {
-    if (navigator.share) {
-      navigator.share({ title: "Mercadito Ocoyoacac", text: TEXT, url: `https://wa.me/${PHONE}` });
+  const handleClick = async () => {
+    const c = (window as any).Capacitor;
+    if (c?.Plugins?.AppLauncher) {
+      await c.Plugins.AppLauncher.openUrl({ url: WA_URL });
     } else {
       window.open(WA_URL, "_system");
     }
