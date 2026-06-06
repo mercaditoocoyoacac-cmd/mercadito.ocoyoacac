@@ -27,6 +27,7 @@ export default async function DeliveryDashboard() {
       customerLat: true,
       customerLng: true,
       totalCents: true,
+      deliveryCents: true,
       currency: true,
       createdAt: true,
       arrivedAt: true,
@@ -40,6 +41,26 @@ export default async function DeliveryDashboard() {
       store: { select: { name: true, phone: true, address: true } },
     },
   });
+
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const weekStart = new Date(todayStart.getTime() - todayStart.getDay() * 86400000);
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const completed = myDeliveries.filter(o => o.status === "COMPLETED");
+  const earnings = {
+    day: completed
+      .filter(o => o.createdAt >= todayStart)
+      .reduce((s, o) => s + o.deliveryCents, 0),
+    week: completed
+      .filter(o => o.createdAt >= weekStart)
+      .reduce((s, o) => s + o.deliveryCents, 0),
+    month: completed
+      .filter(o => o.createdAt >= monthStart)
+      .reduce((s, o) => s + o.deliveryCents, 0),
+    total: completed.reduce((s, o) => s + o.deliveryCents, 0),
+    completedCount: completed.length,
+  };
 
   const availableDeliveries = await prisma.order.findMany({
     where: {
@@ -57,6 +78,7 @@ export default async function DeliveryDashboard() {
       customerLat: true,
       customerLng: true,
       totalCents: true,
+      deliveryCents: true,
       currency: true,
       createdAt: true,
       arrivedAt: true,
@@ -89,6 +111,7 @@ export default async function DeliveryDashboard() {
       <DeliveryTracker
         myDeliveries={myDeliveries}
         availableDeliveries={availableDeliveries}
+        earnings={earnings}
       />
     </main>
     </PullToRefreshWrapper>

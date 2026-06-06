@@ -17,6 +17,14 @@ interface OrderItem {
   variantName: string | null;
 }
 
+interface EarningsData {
+  day: number;
+  week: number;
+  month: number;
+  total: number;
+  completedCount: number;
+}
+
 interface Order {
   id: string;
   status: string;
@@ -26,6 +34,7 @@ interface Order {
   customerLat: number | null;
   customerLng: number | null;
   totalCents: number;
+  deliveryCents: number;
   currency: string;
   createdAt: Date;
   arrivedAt: Date | null;
@@ -85,9 +94,11 @@ function CashBadge({ totalCents }: { totalCents: number }) {
 export default function DeliveryTracker({
   myDeliveries,
   availableDeliveries,
+  earnings,
 }: {
   myDeliveries: Order[];
   availableDeliveries: Order[];
+  earnings?: EarningsData;
 }) {
   const router = useRouter();
   const { data: session } = useSession();
@@ -291,6 +302,33 @@ export default function DeliveryTracker({
             <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
           </span>
           Ubicación activa — recibiendo pedidos cercanos
+        </div>
+      )}
+
+      {/* Earnings analysis */}
+      {earnings && earnings.completedCount > 0 && (
+        <div className="mb-6 rounded-xl border border-[var(--border)] p-5">
+          <h2 className="text-base font-bold mb-3 flex items-center gap-2">
+            <svg className="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Mis ingresos
+            <span className="text-xs font-normal text-[color:var(--muted)] ml-auto">{earnings.completedCount} entregas completadas</span>
+          </h2>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="rounded-xl bg-green-50 border border-green-200 p-4 text-center">
+              <div className="text-xs font-semibold uppercase tracking-wide text-green-600 mb-1">Hoy</div>
+              <div className="text-xl font-bold text-green-800">${(earnings.day / 100).toFixed(2)}</div>
+            </div>
+            <div className="rounded-xl bg-blue-50 border border-blue-200 p-4 text-center">
+              <div className="text-xs font-semibold uppercase tracking-wide text-blue-600 mb-1">Semana</div>
+              <div className="text-xl font-bold text-blue-800">${(earnings.week / 100).toFixed(2)}</div>
+            </div>
+            <div className="rounded-xl bg-purple-50 border border-purple-200 p-4 text-center">
+              <div className="text-xs font-semibold uppercase tracking-wide text-purple-600 mb-1">Mes</div>
+              <div className="text-xl font-bold text-purple-800">${(earnings.month / 100).toFixed(2)}</div>
+            </div>
+          </div>
         </div>
       )}
 
