@@ -210,3 +210,46 @@ button:active {
 .dark .hover\:bg-gray-50:hover, .dark .hover\:bg-gray-100:hover { background: #1a1a1a; }
 
 .dark .border-gray-100, .dark .border-gray-200, .dark .border-gray-300, .dark .border-gray-500 { border-color: var(--border); }
+
+/* ===== Delivery dashboard animations ===== */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideUpSmall {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes pulseSoft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+.animate-slide-up { animation: slideUp 0.4s ease-out both; }
+.animate-slide-up-sm { animation: slideUpSmall 0.35s ease-out both; }
+.animate-fade-in { animation: fadeIn 0.3s ease-out both; }
+.animate-scale-in { animation: scaleIn 0.3s ease-out both; }
+.animate-pulse-soft { animation: pulseSoft 2s ease-in-out infinite; }
+
+.animate-stagger-1 { animation-delay: 0.05s; }
+.animate-stagger-2 { animation-delay: 0.10s; }
+.animate-stagger-3 { animation-delay: 0.15s; }
+.animate-stagger-4 { animation-delay: 0.20s; }
+.animate-stagger-5 { animation-delay: 0.25s; }
+.animate-stagger-6 { animation-delay: 0.30s; }
+
+.card-pueblo {
+  background: linear-gradient(135deg, #fffaf0 0%, #fff5e6 100%);
+  border-color: #e8d5c4;
+}
+.dark .card-pueblo {
+  background: linear-gradient(135deg, #1a1410 0%, #1f1812 100%);
+  border-color: #3a2a1a;
+}
