@@ -44,7 +44,7 @@ export default async function DeliveryDashboard() {
   const availableDeliveries = await prisma.order.findMany({
     where: {
       fulfillmentType: "DELIVERY",
-      status: { in: ["PENDING", "CONFIRMED", "READY"] },
+      status: { in: ["CONFIRMED", "READY"] },
       deliveryUserId: null,
     },
     orderBy: { createdAt: "asc" },
