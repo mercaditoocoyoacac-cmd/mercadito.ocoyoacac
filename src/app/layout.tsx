@@ -62,11 +62,10 @@ export default function RootLayout({
             <FooterWithPrivacy />
             <Toaster position="top-right" richColors closeButton />
             {/* Floating support button */}
-            <a
-              href="https://api.whatsapp.com/send?phone=527227624850&text=Hola%2C%20necesito%20ayuda%20con%20la%20aplicaci%C3%B3n"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-green-500 text-white shadow-xl transition-all duration-300 hover:bg-green-600 hover:scale-110 active:scale-95 animate-slide-up-sm"
+            <button
+              type="button"
+              onClick={() => { window.location.href = "https://api.whatsapp.com/send?phone=527227624850&text=Hola%2C%20necesito%20ayuda%20con%20la%20aplicaci%C3%B3n"; }}
+              className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-green-500 text-white shadow-xl transition-all duration-300 hover:bg-green-600 hover:scale-110 active:scale-95 animate-slide-up-sm border-none cursor-pointer"
               aria-label="Contactar a soporte por WhatsApp"
             >
               <svg className="h-7 w-7" fill="currentColor" viewBox="0 0 24 24">
