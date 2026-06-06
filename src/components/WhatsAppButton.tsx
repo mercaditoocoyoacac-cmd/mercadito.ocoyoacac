@@ -1,23 +1,13 @@
 "use client";
 
-import { useCallback } from "react";
-
 const PHONE = "527227624850";
 const TEXT = encodeURIComponent("Hola, necesito ayuda con la aplicación");
 
 export function WhatsAppButton() {
-  const handleClick = useCallback(() => {
-    const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    const webUrl = `https://api.whatsapp.com/send?phone=${PHONE}&text=${TEXT}`;
-
-    if (isMobile) {
-      const nativeUrl = `whatsapp://send?phone=${PHONE}&text=${TEXT}`;
-      window.location.href = nativeUrl;
-      setTimeout(() => { window.location.href = webUrl; }, 2000);
-    } else {
-      window.open(webUrl, "_blank", "noopener,noreferrer");
-    }
-  }, []);
+  const handleClick = () => {
+    const url = `https://api.whatsapp.com/send?phone=${PHONE}&text=${TEXT}`;
+    window.open(url, "_system");
+  };
 
   return (
     <button
