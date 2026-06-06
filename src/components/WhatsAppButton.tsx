@@ -5,10 +5,10 @@ const TEXT = encodeURIComponent("Hola, necesito ayuda con la aplicación");
 const WA_URL = `https://api.whatsapp.com/send?phone=${PHONE}&text=${TEXT}`;
 
 export function WhatsAppButton() {
-  const handleClick = async () => {
-    const c = (window as any).Capacitor;
-    if (c?.Plugins?.AppLauncher) {
-      await c.Plugins.AppLauncher.openUrl({ url: WA_URL });
+  const handleClick = () => {
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    if (isAndroid) {
+      window.location.href = `intent://send?phone=${PHONE}&text=${TEXT}#Intent;scheme=whatsapp;package=com.whatsapp;S.browser_fallback_url=${encodeURIComponent(WA_URL)};end`;
     } else {
       window.open(WA_URL, "_system");
     }
