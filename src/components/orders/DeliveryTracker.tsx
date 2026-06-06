@@ -48,15 +48,15 @@ interface Order {
 
 function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
-    COMPLETED: "bg-emerald-100 text-emerald-800 border-emerald-300",
-    OUT_FOR_DELIVERY: "bg-amber-100 text-amber-800 border-amber-300",
-    READY: "bg-teal-100 text-teal-800 border-teal-300",
-    CONFIRMED: "bg-indigo-100 text-indigo-800 border-indigo-300",
-    PENDING: "bg-amber-100 text-amber-800 border-amber-300",
-    CANCELLED: "bg-rose-100 text-rose-800 border-rose-300",
+    COMPLETED: "bg-green-100 text-green-800",
+    OUT_FOR_DELIVERY: "bg-orange-100 text-orange-800",
+    READY: "bg-blue-100 text-blue-800",
+    CONFIRMED: "bg-purple-100 text-purple-800",
+    PENDING: "bg-yellow-100 text-yellow-800",
+    CANCELLED: "bg-red-100 text-red-800",
   };
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-semibold animate-scale-in ${colors[status] || "bg-stone-100 text-stone-800 border-stone-300"}`}>
+    <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-semibold ${colors[status] || "bg-gray-100 text-gray-800"}`}>
       {status === "COMPLETED" && "✅"}
       {status === "OUT_FOR_DELIVERY" && "🚚"}
       {status === "READY" && "📦"}
@@ -73,7 +73,7 @@ function MapsButton({ url, label }: { url: string | null; label: string }) {
     <button
       type="button"
       onClick={(e) => { e.preventDefault(); openMapsUrl(url!); }}
-      className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-600 px-4 py-3 text-base font-semibold text-white shadow-lg active:scale-[0.97] transition-all duration-200 hover:bg-amber-700 hover:shadow-xl border-none cursor-pointer w-full"
+      className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 text-base font-semibold text-white shadow-md active:scale-95 transition-transform hover:bg-blue-700 border-none cursor-pointer w-full"
     >
       <svg className="h-5 w-5 shrink-0" fill="currentColor" viewBox="0 0 24 24">
         <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
@@ -85,7 +85,7 @@ function MapsButton({ url, label }: { url: string | null; label: string }) {
 
 function CashBadge({ totalCents }: { totalCents: number }) {
   return (
-    <div className="inline-flex items-center gap-2 rounded-xl bg-amber-50 border-2 border-amber-300 px-4 py-2 text-base font-bold text-amber-800 shadow-sm">
+    <div className="inline-flex items-center gap-2 rounded-lg bg-green-100 px-4 py-2 text-base font-bold text-green-800 border-2 border-green-300">
       💵 Cobrar ${(totalCents / 100).toFixed(2)}
     </div>
   );
@@ -139,7 +139,7 @@ export default function DeliveryTracker({
         setLocationError(null);
       },
       () => {
-        setLocationError("Activa la ubicación para recibir pedidos cercanos.");
+        setLocationError("Activa la ubicacion para recibir pedidos cercanos.");
       },
       { enableHighAccuracy: true, timeout: 10000 },
     );
@@ -286,20 +286,20 @@ export default function DeliveryTracker({
     <>
       {/* Location status bar */}
       {!hasGeo && (
-        <div className="mb-5 rounded-xl border-2 border-amber-300 bg-amber-50/80 px-5 py-4 text-base font-medium text-amber-800 animate-slide-up backdrop-blur-sm">
+        <div className="mb-4 rounded-xl bg-yellow-50 border-2 border-yellow-300 px-5 py-4 text-base font-medium text-yellow-800">
           📡 Geolocalización no disponible en este navegador.
         </div>
       )}
       {hasGeo && locationError && (
-        <div className="mb-5 rounded-xl border-2 border-amber-300 bg-amber-50/80 px-5 py-4 text-base font-medium text-amber-800 animate-slide-up backdrop-blur-sm">
+        <div className="mb-4 rounded-xl bg-yellow-50 border-2 border-yellow-300 px-5 py-4 text-base font-medium text-yellow-800">
           {locationError}
         </div>
       )}
       {driverLat && (
-        <div className="mb-5 rounded-xl border-2 border-emerald-300 bg-emerald-50/80 px-5 py-4 text-base font-medium text-emerald-800 animate-slide-up flex items-center gap-3 backdrop-blur-sm">
+        <div className="mb-4 rounded-xl bg-green-50 border-2 border-green-300 px-5 py-4 text-base font-medium text-green-800 flex items-center gap-3">
           <span className="relative flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
           </span>
           Ubicación activa — recibiendo pedidos cercanos
         </div>
@@ -307,26 +307,26 @@ export default function DeliveryTracker({
 
       {/* Earnings analysis */}
       {earnings && earnings.completedCount > 0 && (
-        <div className="mb-6 animate-slide-up card-pueblo rounded-xl border p-5 shadow-sm">
-          <h2 className="text-base font-bold mb-4 flex items-center gap-2 text-stone-800">
-            <svg className="h-5 w-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="mb-6 rounded-xl border border-[var(--border)] p-5">
+          <h2 className="text-base font-bold mb-3 flex items-center gap-2">
+            <svg className="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             Mis ingresos
-            <span className="text-xs font-normal text-stone-500 ml-auto">{earnings.completedCount} entregas completadas</span>
+            <span className="text-xs font-normal text-[color:var(--muted)] ml-auto">{earnings.completedCount} entregas completadas</span>
           </h2>
           <div className="grid grid-cols-3 gap-3">
-            <div className="rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 p-4 text-center animate-slide-up-sm animate-stagger-1 shadow-sm">
-              <div className="text-xs font-bold uppercase tracking-wider text-amber-700 mb-1">Hoy</div>
-              <div className="text-xl font-bold text-stone-800">${(earnings.day / 100).toFixed(2)}</div>
+            <div className="rounded-xl bg-green-50 border border-green-200 p-4 text-center">
+              <div className="text-xs font-semibold uppercase tracking-wide text-green-600 mb-1">Hoy</div>
+              <div className="text-xl font-bold text-green-800">${(earnings.day / 100).toFixed(2)}</div>
             </div>
-            <div className="rounded-xl bg-gradient-to-br from-teal-50 to-emerald-50 border border-teal-200 p-4 text-center animate-slide-up-sm animate-stagger-2 shadow-sm">
-              <div className="text-xs font-bold uppercase tracking-wider text-teal-700 mb-1">Semana</div>
-              <div className="text-xl font-bold text-stone-800">${(earnings.week / 100).toFixed(2)}</div>
+            <div className="rounded-xl bg-blue-50 border border-blue-200 p-4 text-center">
+              <div className="text-xs font-semibold uppercase tracking-wide text-blue-600 mb-1">Semana</div>
+              <div className="text-xl font-bold text-blue-800">${(earnings.week / 100).toFixed(2)}</div>
             </div>
-            <div className="rounded-xl bg-gradient-to-br from-rose-50 to-amber-50 border border-rose-200 p-4 text-center animate-slide-up-sm animate-stagger-3 shadow-sm">
-              <div className="text-xs font-bold uppercase tracking-wider text-rose-700 mb-1">Mes</div>
-              <div className="text-xl font-bold text-stone-800">${(earnings.month / 100).toFixed(2)}</div>
+            <div className="rounded-xl bg-purple-50 border border-purple-200 p-4 text-center">
+              <div className="text-xs font-semibold uppercase tracking-wide text-purple-600 mb-1">Mes</div>
+              <div className="text-xl font-bold text-purple-800">${(earnings.month / 100).toFixed(2)}</div>
             </div>
           </div>
         </div>
@@ -334,20 +334,20 @@ export default function DeliveryTracker({
 
       {/* Mis entregas - collapsible */}
       {(activeDeliveries.length > 0 || nonCompletedMyDeliveries.length > 0) && (
-        <div className="mb-6 animate-slide-up rounded-xl border-2 border-amber-200 bg-white shadow-md overflow-hidden">
+        <div className="mb-6 rounded-xl border-2 border-orange-200 bg-white shadow-md overflow-hidden">
           <button
             type="button"
             onClick={() => setShowMyDeliveries(!showMyDeliveries)}
-            className="w-full flex items-center justify-between px-5 py-4 bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 border-none cursor-pointer transition-all duration-200"
+            className="w-full flex items-center justify-between px-5 py-4 bg-orange-50 hover:bg-orange-100 border-none cursor-pointer"
           >
-            <h2 className="text-lg font-bold flex items-center gap-2 text-stone-800">
+            <h2 className="text-lg font-bold flex items-center gap-2">
               🛵 Mis entregas
-              <span className="rounded-full bg-amber-200 text-amber-800 text-sm px-3 py-0.5 font-bold">
+              <span className="rounded-full bg-orange-200 text-orange-800 text-sm px-3 py-0.5 font-bold">
                 {activeDeliveries.length + nonCompletedMyDeliveries.length}
               </span>
             </h2>
             <div className="flex items-center gap-3">
-              <svg className={`h-6 w-6 text-amber-600 transition-all duration-300 ${showMyDeliveries ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className={`h-6 w-6 text-orange-600 transition-transform ${showMyDeliveries ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </div>
@@ -356,32 +356,32 @@ export default function DeliveryTracker({
             <>
               {/* Active deliveries */}
               {activeDeliveries.length > 0 && (
-                <div className="p-4 animate-fade-in">
+                <div className="p-4">
                   <div className="flex items-center gap-2 mb-3">
                     <span className="relative flex h-3 w-3">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-orange-500"></span>
                     </span>
-                    <h3 className="text-base font-bold text-amber-800">En curso</h3>
-                    <span className="rounded-full bg-amber-100 text-amber-800 text-xs px-2 py-0.5 font-bold">{activeDeliveries.length}</span>
+                    <h3 className="text-base font-bold text-orange-800">En curso</h3>
+                    <span className="rounded-full bg-orange-100 text-orange-800 text-xs px-2 py-0.5 font-bold">{activeDeliveries.length}</span>
                   </div>
                   <div className="grid gap-4 sm:grid-cols-2">
-                    {activeDeliveries.map((order, idx) => (
-                      <div key={order.id} className={`rounded-xl border-2 border-amber-200 bg-white p-5 shadow-md animate-slide-up-sm animate-stagger-${Math.min(idx + 1, 6)} transition-all duration-200 hover:shadow-lg hover:border-amber-300`}>
+                    {activeDeliveries.map((order) => (
+                      <div key={order.id} className="rounded-xl border-2 border-orange-200 bg-white p-5 shadow-md">
                         {/* Order header */}
                         <div className="flex items-center justify-between mb-3">
-                          <div className="font-mono text-lg font-bold tracking-wider text-stone-800">
+                          <div className="font-mono text-lg font-bold tracking-wider">
                             #{order.id.slice(-8).toUpperCase()}
                           </div>
                           <StatusBadge status={order.status} />
                         </div>
 
                         {/* Store info */}
-                        <div className="rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 p-4 mb-3">
-                          <div className="text-xs font-bold uppercase tracking-wide text-amber-700 mb-1">🏪 Tienda</div>
-                          <div className="text-lg font-bold text-stone-800">{order.store.name}</div>
+                        <div className="rounded-xl bg-blue-50 border border-blue-200 p-4 mb-3">
+                          <div className="text-xs font-bold uppercase tracking-wide text-blue-600 mb-1">🏪 Tienda</div>
+                          <div className="text-lg font-bold">{order.store.name}</div>
                           {order.store.address && (
-                            <div className="text-sm text-stone-600 mt-1">📍 {order.store.address}</div>
+                            <div className="text-sm text-blue-700 mt-1">📍 {order.store.address}</div>
                           )}
                           {order.store.address && (
                             <div className="mt-2">
@@ -392,11 +392,11 @@ export default function DeliveryTracker({
 
                         {/* Customer info */}
                         <div className="mb-3">
-                          <div className="text-xs font-bold uppercase tracking-wide text-stone-500 mb-1">👤 Cliente</div>
-                          <div className="text-lg font-bold text-stone-800">{order.customerName}</div>
-                          <a href={`tel:${order.customerPhone}`} className="text-base text-amber-600 font-medium hover:text-amber-700 hover:underline block transition-colors">{order.customerPhone}</a>
+                          <div className="text-xs font-bold uppercase tracking-wide text-[var(--muted)] mb-1">👤 Cliente</div>
+                          <div className="text-lg font-bold">{order.customerName}</div>
+                          <a href={`tel:${order.customerPhone}`} className="text-base text-blue-600 font-medium hover:underline block">{order.customerPhone}</a>
                           {order.customerAddress && (
-                            <div className="text-sm text-stone-500 mt-1">📍 {order.customerAddress}</div>
+                            <div className="text-sm text-[var(--muted)] mt-1">📍 {order.customerAddress}</div>
                           )}
                           {(order.customerLat || order.customerAddress) && (
                             <div className="mt-2">
@@ -410,17 +410,17 @@ export default function DeliveryTracker({
 
                         {/* Items */}
                         {order.items.length > 0 && (
-                          <div className="border-t border-amber-100 pt-3 mb-3">
-                            <div className="text-xs font-bold uppercase tracking-wide text-stone-500 mb-2">Productos</div>
+                          <div className="border-t border-gray-200 pt-3 mb-3">
+                            <div className="text-xs font-bold uppercase tracking-wide text-[var(--muted)] mb-2">Productos</div>
                             <div className="space-y-1.5">
                               {order.items.map((item, i) => (
                                 <div key={i} className="flex items-center justify-between text-base">
-                                  <span className="font-medium text-stone-700">
+                                  <span className="font-medium">
                                     {item.quantity}x {item.name}
-                                    {item.variantName && <span className="text-sm text-stone-500"> ({item.variantName})</span>}
-                                    {item.weightGrams && <span className="text-sm text-stone-500"> · {item.weightGrams}g</span>}
+                                    {item.variantName && <span className="text-sm text-[var(--muted)]"> ({item.variantName})</span>}
+                                    {item.weightGrams && <span className="text-sm text-[var(--muted)]"> · {item.weightGrams}g</span>}
                                   </span>
-                                  <span className="font-semibold text-stone-800">${(item.priceCents * item.quantity / 100).toFixed(2)}</span>
+                                  <span className="font-semibold">${(item.priceCents * item.quantity / 100).toFixed(2)}</span>
                                 </div>
                               ))}
                             </div>
@@ -429,7 +429,7 @@ export default function DeliveryTracker({
 
                         {/* Notes */}
                         {order.notes && (
-                          <div className="rounded-xl bg-amber-50/80 border border-amber-200 px-4 py-3 text-sm font-medium text-amber-800 mb-3">
+                          <div className="rounded-xl bg-yellow-50 border border-yellow-200 px-4 py-3 text-sm font-medium text-yellow-800 mb-3">
                             📝 {order.notes}
                           </div>
                         )}
@@ -439,16 +439,16 @@ export default function DeliveryTracker({
                           {order.paymentMethod === "CASH" ? (
                             <CashBadge totalCents={order.totalCents} />
                           ) : (
-                            <div className="inline-flex items-center gap-2 rounded-xl bg-teal-50 border border-teal-200 px-4 py-2 text-base font-semibold text-teal-800">
+                            <div className="inline-flex items-center gap-2 rounded-lg bg-blue-100 px-4 py-2 text-base font-semibold text-blue-800">
                               💳 Pagó con tarjeta
                             </div>
                           )}
                         </div>
 
                         {/* Actions */}
-                        <div className="flex flex-col gap-3 border-t border-amber-100 pt-3">
+                        <div className="flex flex-col gap-3 border-t border-gray-200 pt-3">
                           {order.arrivedAt ? (
-                            <div className="flex items-center gap-2 rounded-xl bg-emerald-50 border-2 border-emerald-300 px-4 py-3 text-base font-bold text-emerald-800">
+                            <div className="flex items-center gap-2 rounded-xl bg-green-100 px-4 py-3 text-base font-bold text-green-800 border-2 border-green-300">
                               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                               </svg>
@@ -458,7 +458,7 @@ export default function DeliveryTracker({
                             <button
                               onClick={() => notifyArrival(order.id)}
                               disabled={arriving[order.id]}
-                              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 px-5 py-4 text-lg font-bold text-white shadow-md active:scale-[0.97] transition-all duration-200 hover:from-amber-700 hover:to-orange-700 hover:shadow-lg disabled:opacity-50 border-none cursor-pointer"
+                              className="inline-flex items-center justify-center gap-2 rounded-xl bg-orange-500 px-5 py-4 text-lg font-bold text-white shadow-md active:scale-95 transition-transform hover:bg-orange-600 disabled:opacity-50 border-none cursor-pointer"
                             >
                               <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -474,12 +474,12 @@ export default function DeliveryTracker({
                               placeholder="Código del cliente"
                               value={completeCode[order.id] || ""}
                               onChange={(e) => setCompleteCode((prev) => ({ ...prev, [order.id]: e.target.value }))}
-                              className="flex-1 rounded-xl border-2 border-stone-300 px-4 py-3 text-lg font-bold text-center outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 uppercase tracking-widest transition-all duration-200 [font-size:16px] sm:[font-size:1.125rem]"
+                              className="flex-1 rounded-xl border-2 border-gray-300 px-4 py-3 text-lg font-bold text-center outline-none focus:border-[var(--accent)] uppercase tracking-widest [font-size:16px] sm:[font-size:1.125rem]"
                               maxLength={6}
                             />
                             <button
                               onClick={() => confirmDelivery(order.id)}
-                              className="rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 px-6 py-3 text-lg font-bold text-white hover:from-emerald-700 hover:to-green-700 shadow-md active:scale-[0.97] transition-all duration-200 border-none cursor-pointer"
+                              className="rounded-xl bg-green-600 px-6 py-3 text-lg font-bold text-white hover:bg-green-700 shadow-md active:scale-95 transition-transform border-none cursor-pointer"
                             >
                               Completar
                             </button>
@@ -495,29 +495,29 @@ export default function DeliveryTracker({
 
               {/* Non-completed my deliveries (CONFIRMED, READY) — with inline pickup scanner */}
               {nonCompletedMyDeliveries.length > 0 && (
-                <div className="border-t border-amber-200">
-                  <div className="px-5 py-3 bg-gradient-to-r from-amber-50/50 to-orange-50/50">
-                    <h3 className="text-base font-bold flex items-center gap-2 text-rose-800">
+                <div className="border-t border-orange-200">
+                  <div className="px-5 py-3 bg-orange-50/50">
+                    <h3 className="text-base font-bold flex items-center gap-2 text-purple-800">
                       📋 Pendientes ({nonCompletedMyDeliveries.length})
                     </h3>
                   </div>
                   <div className="grid gap-3 p-4">
-                    {nonCompletedMyDeliveries.map((order, idx) => (
-                      <div key={order.id} className={`rounded-xl border-2 border-rose-200 bg-white p-4 shadow-sm animate-slide-up-sm animate-stagger-${Math.min(idx + 1, 6)} transition-all duration-200 hover:shadow-md`}>
+                    {nonCompletedMyDeliveries.map((order) => (
+                      <div key={order.id} className="rounded-xl border-2 border-purple-200 bg-white p-4 shadow-sm">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-mono text-base font-bold text-stone-800">#{order.id.slice(-8).toUpperCase()}</span>
+                            <span className="font-mono text-base font-bold">#{order.id.slice(-8).toUpperCase()}</span>
                             <StatusBadge status={order.status} />
                           </div>
-                          <span className="text-sm font-semibold text-stone-700">${(order.totalCents / 100).toFixed(2)}</span>
+                          <span className="text-sm font-semibold">${(order.totalCents / 100).toFixed(2)}</span>
                         </div>
-                        <div className="text-base font-semibold text-stone-800">{order.customerName}</div>
-                        <div className="text-sm text-stone-500">🏪 {order.store.name}</div>
+                        <div className="text-base font-semibold">{order.customerName}</div>
+                        <div className="text-sm text-[var(--muted)]">🏪 {order.store.name}</div>
                         {order.store.address && (
                           <button
                             type="button"
                             onClick={(e) => { e.preventDefault(); openMapsUrl(getMapsUrl(null, null, order.store.address)); }}
-                            className="inline-flex items-center gap-1 mt-1 text-sm font-medium text-amber-600 hover:text-amber-700 hover:underline bg-transparent border-none p-0 cursor-pointer transition-colors"
+                            className="inline-flex items-center gap-1 mt-1 text-sm font-medium text-blue-600 hover:underline bg-transparent border-none p-0 cursor-pointer"
                           >
                             📍 Cómo llegar a la tienda
                           </button>
@@ -530,9 +530,9 @@ export default function DeliveryTracker({
 
                         <div className="mt-3 flex flex-col gap-2">
                           {pickupOrderId === order.id ? (
-                            <div className="rounded-xl border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 to-green-50 p-4 animate-scale-in">
+                            <div className="rounded-xl border-2 border-green-200 bg-green-50 p-4">
                               <div className="flex items-center justify-between mb-3">
-                                <span className="text-sm font-bold text-emerald-800 flex items-center gap-1">
+                                <span className="text-sm font-bold text-green-800 flex items-center gap-1">
                                   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
                                   </svg>
@@ -541,51 +541,53 @@ export default function DeliveryTracker({
                                 <button
                                   type="button"
                                   onClick={() => { setPickupOrderId(null); setPickupCode(""); setPickupError(null); stopScanner(); }}
-                                  className="text-xs font-medium text-stone-500 hover:text-stone-700 bg-transparent border-none p-0 cursor-pointer transition-colors"
+                                  className="text-xs font-medium text-gray-500 hover:text-gray-700 bg-transparent border-none p-0 cursor-pointer"
                                 >
                                   Cancelar
                                 </button>
                               </div>
 
-                              <div id={scannerId} className="w-full overflow-hidden rounded-lg bg-stone-200 mb-3" style={{ minHeight: 200 }} />
+                              {/* QR scanner */}
+                              <div id={scannerId} className="w-full overflow-hidden rounded-lg bg-gray-200 mb-3" style={{ minHeight: 200 }} />
 
                               {!pickupScanning && !pickupCode && (
                                 <button
                                   type="button"
                                   onClick={startPickupScanner}
-                                  className="w-full rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 py-2.5 text-sm font-bold text-white hover:from-amber-700 hover:to-orange-700 mb-3 shadow-sm active:scale-[0.97] transition-all duration-200 border-none cursor-pointer"
+                                  className="w-full rounded-lg bg-blue-600 py-2 text-sm font-bold text-white hover:bg-blue-700 mb-3 border-none cursor-pointer"
                                 >
                                   📷 Activar cámara
                                 </button>
                               )}
 
                               {pickupScanning && (
-                                <p className="text-xs text-center text-stone-500 mb-3">
+                                <p className="text-xs text-center text-gray-500 mb-3">
                                   Apunta al código QR de la tienda
                                 </p>
                               )}
 
+                              {/* Manual code */}
                               <div className="flex items-center gap-2">
                                 <input
                                   type="text"
                                   value={pickupCode}
                                   onChange={(e) => setPickupCode(e.target.value.toUpperCase())}
                                   placeholder="Código de recogida"
-                                  className="flex-1 rounded-xl border-2 border-stone-300 px-3 py-2.5 text-base font-bold text-center outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 uppercase tracking-widest transition-all duration-200 [font-size:16px]"
+                                  className="flex-1 rounded-lg border-2 border-gray-300 px-3 py-2 text-base font-bold text-center outline-none focus:border-green-500 uppercase tracking-widest [font-size:16px]"
                                   maxLength={10}
                                 />
                                 <button
                                   type="button"
                                   onClick={() => handlePickup(order.id)}
                                   disabled={pickupLoading || !pickupCode.trim()}
-                                  className="rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 px-5 py-2.5 text-base font-bold text-white hover:from-emerald-700 hover:to-green-700 disabled:opacity-50 shadow-sm active:scale-[0.97] transition-all duration-200 border-none cursor-pointer"
+                                  className="rounded-lg bg-green-600 px-5 py-2 text-base font-bold text-white hover:bg-green-700 disabled:opacity-50 border-none cursor-pointer"
                                 >
                                   {pickupLoading ? "..." : "Recoger"}
                                 </button>
                               </div>
 
                               {pickupError && (
-                                <div className="mt-2 rounded-xl bg-rose-50 border border-rose-200 px-3 py-2.5 text-sm text-rose-700 animate-scale-in">
+                                <div className="mt-2 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-600">
                                   {pickupError}
                                 </div>
                               )}
@@ -599,7 +601,7 @@ export default function DeliveryTracker({
                                 setPickupError(null);
                                 setTimeout(() => startPickupScanner(), 300);
                               }}
-                              className="w-full rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 py-3 text-base font-bold text-white hover:from-emerald-700 hover:to-green-700 shadow-md active:scale-[0.97] transition-all duration-200 border-none cursor-pointer flex items-center justify-center gap-2"
+                              className="w-full rounded-xl bg-green-600 py-3 text-base font-bold text-white hover:bg-green-700 shadow-sm active:scale-95 transition-transform border-none cursor-pointer flex items-center justify-center gap-2"
                             >
                               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -622,54 +624,54 @@ export default function DeliveryTracker({
       )}
 
       {/* Available deliveries */}
-      <div className="mb-6 animate-slide-up rounded-xl border-2 border-teal-200 bg-white shadow-md overflow-hidden">
-        <div className="border-b border-teal-200 bg-gradient-to-r from-teal-50 to-emerald-50 px-5 py-4">
-          <h2 className="flex items-center gap-2 text-lg font-bold text-stone-800">
+      <div className="mb-6 rounded-xl border-2 border-blue-200 bg-white shadow-md">
+        <div className="border-b border-gray-200 bg-blue-50 px-5 py-4">
+          <h2 className="flex items-center gap-2 text-lg font-bold">
             <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-teal-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
             </span>
             Pedidos disponibles
-            <span className="rounded-full bg-teal-100 text-teal-800 text-sm px-3 py-0.5 font-bold">{availableDeliveries.length}</span>
+            <span className="rounded-full bg-blue-100 text-blue-800 text-sm px-3 py-0.5 font-bold">{availableDeliveries.length}</span>
           </h2>
         </div>
         {availableDeliveries.length === 0 ? (
-          <div className="p-8 text-center animate-fade-in">
+          <div className="p-8 text-center">
             <div className="text-4xl mb-3">🛵</div>
-            <div className="text-lg font-medium text-stone-500">No hay pedidos disponibles</div>
-            <div className="text-sm text-stone-400 mt-1">Los nuevos pedidos aparecerán aquí automáticamente</div>
+            <div className="text-lg font-medium text-[var(--muted)]">No hay pedidos disponibles</div>
+            <div className="text-sm text-[var(--muted)] mt-1">Los nuevos pedidos aparecerán aquí automáticamente</div>
           </div>
         ) : (
-          <div className="divide-y divide-teal-100">
-            {availableDeliveries.map((order, idx) => {
+          <div className="divide-y divide-gray-200">
+            {availableDeliveries.map((order) => {
               const distance = getDistanceToOrder(order.customerLat, order.customerLng);
               return (
-                <div key={order.id} className={`px-5 py-4 animate-slide-up-sm animate-stagger-${Math.min(idx + 1, 6)} transition-all duration-200 hover:bg-teal-50/30`}>
+                <div key={order.id} className="px-5 py-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-mono text-lg font-bold text-stone-800">#{order.id.slice(-8).toUpperCase()}</span>
+                        <span className="font-mono text-lg font-bold">#{order.id.slice(-8).toUpperCase()}</span>
                         {distance && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-teal-100 text-teal-800 px-3 py-1 text-sm font-bold">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 text-blue-800 px-3 py-1 text-sm font-bold">
                             📍 {distance}
                           </span>
                         )}
                       </div>
 
-                      <div className="text-base font-semibold mt-2 text-stone-800">{order.customerName}</div>
-                      <a href={`tel:${order.customerPhone}`} className="text-sm text-amber-600 font-medium hover:text-amber-700 hover:underline block transition-colors">{order.customerPhone}</a>
+                      <div className="text-base font-semibold mt-2">{order.customerName}</div>
+                      <a href={`tel:${order.customerPhone}`} className="text-sm text-blue-600 font-medium hover:underline block">{order.customerPhone}</a>
                       {order.customerAddress && (
-                        <div className="text-sm text-stone-500">📍 {order.customerAddress}</div>
+                        <div className="text-sm text-[var(--muted)]">📍 {order.customerAddress}</div>
                       )}
 
-                      <div className="text-sm text-stone-500 mt-1">
+                      <div className="text-sm text-[var(--muted)] mt-1">
                         🏪 {order.store.name}
                         {order.store.address && <> · {order.store.address}</>}
                         {order.store.address && (
                           <button
                             type="button"
                             onClick={(e) => { e.preventDefault(); openMapsUrl(getMapsUrl(null, null, order.store.address)); }}
-                            className="ml-2 text-amber-600 font-medium hover:text-amber-700 hover:underline bg-transparent border-none p-0 cursor-pointer transition-colors"
+                            className="ml-2 text-blue-600 font-medium hover:underline bg-transparent border-none p-0 cursor-pointer"
                           >
                             Ver en mapa
                           </button>
@@ -677,7 +679,7 @@ export default function DeliveryTracker({
                       </div>
 
                       {order.items.length > 0 && (
-                        <div className="mt-1.5 text-sm text-stone-500">
+                        <div className="mt-1.5 text-sm text-[var(--muted)]">
                           {order.items.map((item, i) => (
                             <span key={i}>
                               {i > 0 && <span className="mx-1">·</span>}
@@ -691,7 +693,7 @@ export default function DeliveryTracker({
                         {order.paymentMethod === "CASH" ? (
                           <CashBadge totalCents={order.totalCents} />
                         ) : (
-                          <div className="inline-flex items-center gap-1 rounded-xl bg-teal-50 border border-teal-200 px-3 py-1.5 text-sm font-semibold text-teal-800">
+                          <div className="inline-flex items-center gap-1 rounded-lg bg-blue-100 px-3 py-1.5 text-sm font-semibold text-blue-800">
                             💳 Pagó con tarjeta
                           </div>
                         )}
@@ -699,7 +701,7 @@ export default function DeliveryTracker({
                     </div>
                     <button
                       onClick={() => acceptOrder(order.id)}
-                      className="shrink-0 rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 px-6 py-4 text-base font-bold text-white hover:from-emerald-700 hover:to-green-700 shadow-md active:scale-[0.97] transition-all duration-200 border-none cursor-pointer"
+                      className="shrink-0 rounded-xl bg-emerald-600 px-6 py-4 text-base font-bold text-white hover:bg-emerald-700 shadow-md active:scale-95 transition-transform border-none cursor-pointer"
                     >
                       Aceptar
                     </button>
@@ -713,36 +715,36 @@ export default function DeliveryTracker({
 
       {/* Completed deliveries - collapsible */}
       {completedDeliveries.length > 0 && (
-        <div className="animate-slide-up rounded-xl border border-stone-200 bg-white shadow-sm overflow-hidden">
+        <div className="rounded-xl border-2 border-gray-200 bg-white shadow-sm">
           <button
             type="button"
             onClick={() => setShowDelivered(!showDelivered)}
-            className="w-full flex items-center justify-between px-5 py-4 bg-stone-50 hover:bg-stone-100 border-none cursor-pointer transition-all duration-200"
+            className="w-full flex items-center justify-between px-5 py-4 bg-gray-50 hover:bg-gray-100 border-none cursor-pointer rounded-t-xl"
           >
-            <h2 className="text-lg font-bold flex items-center gap-2 text-stone-700">
+            <h2 className="text-lg font-bold flex items-center gap-2">
               ✅ Entregados
-              <span className="rounded-full bg-stone-200 text-stone-600 text-sm px-3 py-0.5 font-bold">{completedDeliveries.length}</span>
+              <span className="rounded-full bg-gray-200 text-gray-700 text-sm px-3 py-0.5 font-bold">{completedDeliveries.length}</span>
             </h2>
-            <svg className={`h-6 w-6 text-stone-500 transition-all duration-300 ${showDelivered ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className={`h-6 w-6 text-gray-500 transition-transform ${showDelivered ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </button>
           {showDelivered && (
-            <div className="divide-y divide-stone-100 animate-fade-in">
+            <div className="divide-y divide-gray-200">
               {completedDeliveries.map((order) => (
-                <div key={order.id} className="px-5 py-4 transition-colors hover:bg-stone-50/50">
+                <div key={order.id} className="px-5 py-4">
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-sm font-bold text-stone-700">#{order.id.slice(-8).toUpperCase()}</span>
-                        <span className="text-xs text-stone-400">
+                        <span className="font-mono text-sm font-bold">#{order.id.slice(-8).toUpperCase()}</span>
+                        <span className="text-xs text-gray-500">
                           {new Date(order.createdAt).toLocaleDateString("es-MX", { day: "numeric", month: "short" })}
                         </span>
                       </div>
-                      <div className="text-sm font-medium text-stone-700 mt-0.5">{order.customerName}</div>
-                      <div className="text-xs text-stone-500">🏪 {order.store.name}</div>
+                      <div className="text-sm font-medium mt-0.5">{order.customerName}</div>
+                      <div className="text-xs text-[var(--muted)]">🏪 {order.store.name}</div>
                     </div>
-                    <div className="text-sm font-bold text-emerald-700">
+                    <div className="text-sm font-bold text-green-700">
                       ${(order.totalCents / 100).toFixed(2)}
                     </div>
                   </div>
