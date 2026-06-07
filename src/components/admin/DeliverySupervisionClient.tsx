@@ -18,6 +18,9 @@ interface Driver {
   name: string | null;
   email: string;
   phone: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  updatedAt: string;
 }
 
 interface OrderData {
@@ -406,6 +409,51 @@ export default function DeliverySupervisionClient() {
           </button>
         ))}
       </div>
+
+      {/* Active drivers */}
+      {data && (
+        <div className="rounded-xl border border-green-200 bg-green-50/50 p-4">
+          <h3 className="text-sm font-bold text-green-800 mb-3 flex items-center gap-2">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+            </span>
+            Repartidores activos
+            <span className="text-xs font-normal text-green-600 ml-auto">
+              {data.drivers.filter((d) => Date.now() - new Date(d.updatedAt).getTime() < 120000).length} en línea
+            </span>
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+            {data.drivers.filter((d) => Date.now() - new Date(d.updatedAt).getTime() < 120000).length === 0 && (
+              <div className="text-xs text-green-600 col-span-full">No hay repartidores activos</div>
+            )}
+            {data.drivers
+              .filter((d) => Date.now() - new Date(d.updatedAt).getTime() < 120000)
+              .map((d) => (
+                <div key={d.id} className="flex items-center gap-3 rounded-lg bg-white border border-green-200 px-3 py-2">
+                  <span className="relative flex h-2 w-2 shrink-0">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-medium truncate">{d.name || d.email}</div>
+                    {d.latitude && d.longitude && (
+                      <button
+                        onClick={() => openMapsUrl(getMapsUrl(d.latitude!, d.longitude!, d.name || ""))}
+                        className="text-[11px] text-blue-600 underline"
+                      >
+                        Ver en mapa
+                      </button>
+                    )}
+                  </div>
+                  {d.latitude && d.longitude && (
+                    <span className="text-[10px] text-green-600 shrink-0">📍</span>
+                  )}
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3">

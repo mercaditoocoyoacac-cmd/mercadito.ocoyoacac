@@ -61,7 +61,7 @@ export async function GET() {
 
   const drivers = await prisma.user.findMany({
     where: { role: "DELIVERY", isActive: true },
-    select: { id: true, name: true, email: true, phone: true },
+    select: { id: true, name: true, email: true, phone: true, latitude: true, longitude: true, updatedAt: true },
     orderBy: { name: "asc" },
   });
 
@@ -74,6 +74,9 @@ export async function GET() {
       arrivedAt: o.arrivedAt?.toISOString() ?? null,
       arrivalConfirmedAt: o.arrivalConfirmedAt?.toISOString() ?? null,
     })),
-    drivers,
+    drivers: drivers.map((d) => ({
+      ...d,
+      updatedAt: d.updatedAt.toISOString(),
+    })),
   });
 }
