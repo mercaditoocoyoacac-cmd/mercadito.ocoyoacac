@@ -3,6 +3,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
+import { appendStatusTimestamp } from "@/lib/statusTimestamps";
 
 const ClaimSchema = z.object({
   orderId: z.string().min(1),
@@ -33,6 +34,7 @@ export async function POST(req: Request) {
       status: true,
       fulfillmentType: true,
       deliveryUserId: true,
+      statusTimestamps: true,
       store: { select: { name: true } },
     },
   });
@@ -49,6 +51,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Este pedido ya fue asignado a otro repartidor." }, { status: 409 });
   }
 
+  const currentTs = order.statusTimestamps as Record<string, string> | null;
+
   const claimed = await prisma.order.updateMany({
     where: {
       id: parsed.data.orderId,
@@ -58,6 +62,7 @@ export async function POST(req: Request) {
     data: {
       deliveryUserId: user.id,
       status: "READY",
+      statusTimestamps: appendStatusTimestamp(currentTs, "READY"),
     },
   });
 

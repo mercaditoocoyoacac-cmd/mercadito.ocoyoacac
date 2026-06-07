@@ -288,6 +288,7 @@ model Order {
   currency        String          @default("MXN")
   deliveryCode    String?         @unique
   pickupCode      String?         @unique
+  statusTimestamps Json?          @default("{}")
   arrivedAt              DateTime?
   arrivalConfirmedAt     DateTime?
   createdAt       DateTime        @default(now())

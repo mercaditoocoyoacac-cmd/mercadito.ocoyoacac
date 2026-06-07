@@ -16,7 +16,7 @@ export function NavBar() {
   const menuRef = useRef<HTMLDivElement>(null);
 
   const isActive = (path: string) => pathname === path;
-  const isVendor = role === "VENDOR" || role === "ADMIN";
+  const isVendor = role === "VENDOR";
   const isDelivery = role === "DELIVERY";
   const isAdmin = role === "ADMIN";
 
@@ -81,7 +81,7 @@ export function NavBar() {
               Carrito
             </Link>
             
-            {data?.user && !isVendor && (
+            {data?.user && !isVendor && role !== "ADMIN" && (
               <Link
                 href="/mis-pedidos"
                 className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
@@ -130,7 +130,150 @@ export function NavBar() {
               </div>
             )}
             
-            {isVendor ? (
+            {isAdmin ? (
+              <div className="relative" ref={menuRef}>
+                <button
+                  type="button"
+                  onClick={() => setVendorMenuOpen(!vendorMenuOpen)}
+                  className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
+                    pathname.startsWith("/admin")
+                      ? "bg-[var(--accent)] text-white"
+                      : "bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-white"
+                  }`}
+                >
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  Admin
+                  <svg className={`h-4 w-4 transition-transform ${vendorMenuOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                
+                {vendorMenuOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-[-1]"
+                      onClick={() => setVendorMenuOpen(false)}
+                    />
+                    <div className="absolute right-0 mt-2 w-56 rounded-xl border border-[var(--border)] bg-white py-2 shadow-lg z-50">
+                      <div className="px-4 py-2 border-b border-[var(--border)]">
+                        <div className="text-xs font-semibold text-[color:var(--muted)] uppercase tracking-wide">Administración</div>
+                      </div>
+                      <button
+                        onClick={() => navigateTo("/admin")}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
+                      >
+                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                        <div>
+                          <div className="font-medium">Dashboard</div>
+                          <div className="text-xs text-[color:var(--muted)]">Estadísticas generales</div>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => navigateTo("/admin/envios")}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
+                      >
+                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        <div>
+                          <div className="font-medium">Envíos</div>
+                          <div className="text-xs text-[color:var(--muted)]">Supervisión de entregas</div>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => navigateTo("/admin/membresias")}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
+                      >
+                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                        <div>
+                          <div className="font-medium">Membresías</div>
+                          <div className="text-xs text-[color:var(--muted)]">Gestionar tiendas</div>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => navigateTo("/admin/usuarios")}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
+                      >
+                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        <div>
+                          <div className="font-medium">Usuarios</div>
+                          <div className="text-xs text-[color:var(--muted)]">Clientes, vendedores, repartidores</div>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => navigateTo("/admin/pedidos")}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
+                      >
+                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                        <div>
+                          <div className="font-medium">Pedidos</div>
+                          <div className="text-xs text-[color:var(--muted)]">Todos los pedidos</div>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => navigateTo("/admin/tiendas")}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
+                      >
+                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                        <div>
+                          <div className="font-medium">Tiendas</div>
+                          <div className="text-xs text-[color:var(--muted)]">Editar datos de tiendas</div>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => navigateTo("/admin/productos")}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
+                      >
+                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                        <div>
+                          <div className="font-medium">Productos</div>
+                          <div className="text-xs text-[color:var(--muted)]">Agregar a tiendas</div>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => navigateTo("/admin/mercado-pago")}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
+                      >
+                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        </svg>
+                        <div>
+                          <div className="font-medium">Pagos</div>
+                          <div className="text-xs text-[color:var(--muted)]">Configurar métodos de pago</div>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => navigateTo("/contrato")}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
+                      >
+                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <div>
+                          <div className="font-medium">Contrato</div>
+                          <div className="text-xs text-[color:var(--muted)]">Términos y condiciones</div>
+                        </div>
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : isVendor ? (
               <div className="relative" ref={menuRef}>
                 <button
                   type="button"
@@ -225,137 +368,6 @@ export function NavBar() {
                 </svg>
                 Repartidor
               </Link>
-            ) : isAdmin ? (
-              <div className="relative" ref={menuRef}>
-                <button
-                  type="button"
-                  onClick={() => setVendorMenuOpen(!vendorMenuOpen)}
-                  className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
-                    pathname.startsWith("/admin")
-                      ? "bg-[var(--accent)] text-white"
-                      : "bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-white"
-                  }`}
-                >
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  Admin
-                  <svg className={`h-4 w-4 transition-transform ${vendorMenuOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-                
-                {vendorMenuOpen && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-[-1]"
-                      onClick={() => setVendorMenuOpen(false)}
-                    />
-                    <div className="absolute right-0 mt-2 w-56 rounded-xl border border-[var(--border)] bg-white py-2 shadow-lg z-50">
-                      <div className="px-4 py-2 border-b border-[var(--border)]">
-                        <div className="text-xs font-semibold text-[color:var(--muted)] uppercase tracking-wide">Administración</div>
-                      </div>
-                      <button
-                        onClick={() => navigateTo("/admin")}
-                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
-                      >
-                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                        </svg>
-                        <div>
-                          <div className="font-medium">Dashboard</div>
-                          <div className="text-xs text-[color:var(--muted)]">Estadísticas generales</div>
-                        </div>
-                      </button>
-                      <button
-                        onClick={() => navigateTo("/admin/membresias")}
-                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
-                      >
-                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                        </svg>
-                        <div>
-                          <div className="font-medium">Membresías</div>
-                          <div className="text-xs text-[color:var(--muted)]">Gestionar tiendas</div>
-                        </div>
-                      </button>
-                      <button
-                        onClick={() => navigateTo("/admin/usuarios")}
-                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
-                      >
-                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                        </svg>
-                        <div>
-                          <div className="font-medium">Usuarios</div>
-                          <div className="text-xs text-[color:var(--muted)]">Clientes, vendedores, repartidores</div>
-                        </div>
-                      </button>
-                      <button
-                        onClick={() => navigateTo("/vendor/pedidos")}
-                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
-                      >
-                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                        </svg>
-                        <div>
-                          <div className="font-medium">Pedidos</div>
-                          <div className="text-xs text-[color:var(--muted)]">Gestionar pedidos</div>
-                        </div>
-                      </button>
-                      <button
-                        onClick={() => navigateTo("/admin/tiendas")}
-                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
-                      >
-                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                        </svg>
-                        <div>
-                          <div className="font-medium">Tiendas</div>
-                          <div className="text-xs text-[color:var(--muted)]">Editar datos de tiendas</div>
-                        </div>
-                      </button>
-                      <button
-                        onClick={() => navigateTo("/admin/productos")}
-                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
-                      >
-                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                        </svg>
-                        <div>
-                          <div className="font-medium">Productos</div>
-                          <div className="text-xs text-[color:var(--muted)]">Agregar a tiendas</div>
-                        </div>
-                      </button>
-                      <button
-                        onClick={() => navigateTo("/admin/mercado-pago")}
-                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
-                      >
-                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                        </svg>
-                        <div>
-                          <div className="font-medium">Pagos</div>
-                          <div className="text-xs text-[color:var(--muted)]">Configurar métodos de pago</div>
-                        </div>
-                      </button>
-                      <button
-                        onClick={() => navigateTo("/contrato")}
-                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
-                      >
-                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <div>
-                          <div className="font-medium">Contrato</div>
-                          <div className="text-xs text-[color:var(--muted)]">Firmar contrato</div>
-                        </div>
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
             ) : null}
           </nav>
 
@@ -526,73 +538,7 @@ export function NavBar() {
                 </>
               )}
               
-              {isVendor ? (
-                <>
-                  <div className="my-2 border-t border-[var(--border)]"></div>
-                  <div className="px-4 py-2 text-xs font-semibold text-[color:var(--muted)] uppercase tracking-wide">Mi Tienda</div>
-                  <Link
-                    href="/vendor"
-                    onClick={() => setMenuOpen(false)}
-                    className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                      pathname === "/vendor" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
-                    }`}
-                  >
-                    Dashboard
-                  </Link>
-                  <Link
-                    href="/vendor/mi-tienda"
-                    onClick={() => setMenuOpen(false)}
-                    className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                      pathname === "/vendor/mi-tienda" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
-                    }`}
-                  >
-                    Editar Tienda
-                  </Link>
-                  <Link
-                    href="/vendor/productos"
-                    onClick={() => setMenuOpen(false)}
-                    className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                      pathname.startsWith("/vendor/productos") ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
-                    }`}
-                  >
-                    Mis Productos
-                  </Link>
-                  <Link
-                    href="/vendor/productos/nuevo"
-                    onClick={() => setMenuOpen(false)}
-                    className="rounded-lg px-4 py-3 text-sm font-medium text-[var(--accent)]"
-                  >
-                    + Nuevo Producto
-                  </Link>
-                </>
-              ) : isDelivery ? (
-                <>
-                  <Link
-                    href="/delivery"
-                    onClick={() => setMenuOpen(false)}
-                    className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${
-                      pathname === "/delivery" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
-                    }`}
-                  >
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
-                    </svg>
-                    Mis entregas
-                  </Link>
-                  <Link
-                    href="/delivery/escanear"
-                    onClick={() => setMenuOpen(false)}
-                    className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${
-                      pathname === "/delivery/escanear" ? "bg-orange-100 text-orange-600" : "text-orange-600"
-                    }`}
-                  >
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                    </svg>
-                    Escanear QR
-                  </Link>
-                </>
-              ) : isAdmin ? (
+              {isAdmin ? (
                 <>
                   <div className="my-2 border-t border-[var(--border)]"></div>
                   <div className="px-4 py-2 text-xs font-semibold text-[color:var(--muted)] uppercase tracking-wide">Administración</div>
@@ -604,6 +550,15 @@ export function NavBar() {
                     }`}
                   >
                     Dashboard Admin
+                  </Link>
+                  <Link
+                    href="/admin/envios"
+                    onClick={() => setMenuOpen(false)}
+                    className={`rounded-lg px-4 py-3 text-sm font-medium ${
+                      pathname === "/admin/envios" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                    }`}
+                  >
+                    Envíos
                   </Link>
                   <Link
                     href="/admin/membresias"
@@ -667,6 +622,72 @@ export function NavBar() {
                     }`}
                   >
                     MercadoPago
+                  </Link>
+                </>
+              ) : isVendor ? (
+                <>
+                  <div className="my-2 border-t border-[var(--border)]"></div>
+                  <div className="px-4 py-2 text-xs font-semibold text-[color:var(--muted)] uppercase tracking-wide">Mi Tienda</div>
+                  <Link
+                    href="/vendor"
+                    onClick={() => setMenuOpen(false)}
+                    className={`rounded-lg px-4 py-3 text-sm font-medium ${
+                      pathname === "/vendor" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                    }`}
+                  >
+                    Dashboard
+                  </Link>
+                  <Link
+                    href="/vendor/mi-tienda"
+                    onClick={() => setMenuOpen(false)}
+                    className={`rounded-lg px-4 py-3 text-sm font-medium ${
+                      pathname === "/vendor/mi-tienda" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                    }`}
+                  >
+                    Editar Tienda
+                  </Link>
+                  <Link
+                    href="/vendor/productos"
+                    onClick={() => setMenuOpen(false)}
+                    className={`rounded-lg px-4 py-3 text-sm font-medium ${
+                      pathname.startsWith("/vendor/productos") ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                    }`}
+                  >
+                    Mis Productos
+                  </Link>
+                  <Link
+                    href="/vendor/productos/nuevo"
+                    onClick={() => setMenuOpen(false)}
+                    className="rounded-lg px-4 py-3 text-sm font-medium text-[var(--accent)]"
+                  >
+                    + Nuevo Producto
+                  </Link>
+                </>
+              ) : isDelivery ? (
+                <>
+                  <Link
+                    href="/delivery"
+                    onClick={() => setMenuOpen(false)}
+                    className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${
+                      pathname === "/delivery" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                    }`}
+                  >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+                    </svg>
+                    Mis entregas
+                  </Link>
+                  <Link
+                    href="/delivery/escanear"
+                    onClick={() => setMenuOpen(false)}
+                    className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${
+                      pathname === "/delivery/escanear" ? "bg-orange-100 text-orange-600" : "text-orange-600"
+                    }`}
+                  >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                    </svg>
+                    Escanear QR
                   </Link>
                 </>
               ) : null}

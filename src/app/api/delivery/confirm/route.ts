@@ -5,6 +5,7 @@ import { requireUser } from "@/server/requireUser";
 import { sendTextNotification } from "@/server/notifications";
 import { sendWhatsAppMessage } from "@/server/whatsapp";
 import { sendSMS } from "@/server/sns";
+import { appendStatusTimestamp } from "@/lib/statusTimestamps";
 
 export async function POST(req: Request) {
   const auth = await requireUser();
@@ -63,10 +64,13 @@ export async function POST(req: Request) {
     message = "Producto recogido - En camino";
   }
 
+  const currentTs = order.statusTimestamps as Record<string, string> | null;
+
   await prisma.order.update({
     where: { id: orderId },
     data: {
       status: newStatus as "COMPLETED" | "OUT_FOR_DELIVERY",
+      statusTimestamps: appendStatusTimestamp(currentTs, newStatus),
       ...(user?.role === "DELIVERY" && !order.deliveryUserId ? { deliveryUserId: userId } : {}),
     },
   });

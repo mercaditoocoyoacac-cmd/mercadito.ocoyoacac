@@ -4,6 +4,7 @@ import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
 import { sendTextNotification } from "@/server/notifications";
 import { sendPushToMultiple } from "@/server/push";
+import { appendStatusTimestamp } from "@/lib/statusTimestamps";
 
 const StatusSchema = z.object({
   status: z.enum(["PENDING", "CONFIRMED", "READY", "OUT_FOR_DELIVERY", "COMPLETED", "CANCELLED"]),
@@ -33,15 +34,20 @@ export async function POST(
 
   const order = await prisma.order.findFirst({
     where: { id, storeId: store.id },
-    select: { id: true, fulfillmentType: true, deliveryUserId: true, customerAddress: true, customerName: true },
+    select: { id: true, fulfillmentType: true, deliveryUserId: true, customerAddress: true, customerName: true, statusTimestamps: true },
   });
   if (!order) {
     return NextResponse.json({ ok: false, error: "Pedido no encontrado." }, { status: 404 });
   }
 
+  const currentTimestamps = order.statusTimestamps as Record<string, string> | null;
+
   await prisma.order.update({
     where: { id },
-    data: { status: parsed.data.status },
+    data: {
+      status: parsed.data.status,
+      statusTimestamps: appendStatusTimestamp(currentTimestamps, parsed.data.status),
+    },
   });
 
   if (

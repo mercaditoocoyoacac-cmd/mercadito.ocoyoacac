@@ -356,6 +356,7 @@ export default function AdminDashboardClient({ data }: { data: StatsData }) {
               { href: "/admin/tiendas", label: "Tiendas", icon: "🏪", desc: "Editar datos de tiendas" },
               { href: "/admin/productos", label: "Productos", icon: "📦", desc: "Administrar productos" },
               { href: "/admin/pedidos", label: "Pedidos", icon: "📋", desc: "Todos los pedidos" },
+              { href: "/admin/envios", label: "Envíos", icon: "🛵", desc: "Supervisión de entregas" },
               { href: "/admin/ranking", label: "Ranking", icon: "⭐", desc: "Calificaciones" },
             ].map((item, i) => (
               <Link
