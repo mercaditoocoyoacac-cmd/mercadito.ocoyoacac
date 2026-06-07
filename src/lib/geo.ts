@@ -36,23 +36,31 @@ export function calcDeliveryFeeCents(distanceKm: number): number {
   return BASE_FEE_CENTS + extraSegments * EXTRA_FEE_PER_SEGMENT_CENTS;
 }
 
-function isCapacitor(): boolean {
-  return typeof window !== "undefined" && typeof (window as any).Capacitor !== "undefined";
+function isNativeApp(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const Cap = (window as any).Capacitor;
+    return Cap && typeof Cap.isNativePlatform === "function" && Cap.isNativePlatform();
+  } catch {
+    return false;
+  }
+}
+
+function getMapsProtocolUrl(lat: number | null | undefined, lng: number | null | undefined, address: string | null | undefined): string {
+  if (lat && lng) return `geo:${lat},${lng}?q=${lat},${lng}`;
+  if (address) return `geo:0,0?q=${encodeURIComponent(address)}`;
+  return "geo:0,0?q=Mercadito+Ocoyoacac";
 }
 
 export function getMapsUrl(lat: number | null | undefined, lng: number | null | undefined, address: string | null | undefined): string {
-  if (isCapacitor()) {
-    if (lat && lng) return `geo:${lat},${lng}?q=${lat},${lng}`;
-    if (address) return `geo:0,0?q=${encodeURIComponent(address)}`;
-    return "geo:0,0?q=Mercadito+Ocoyoacac";
-  }
+  if (isNativeApp()) return getMapsProtocolUrl(lat, lng, address);
   if (lat && lng) return `https://www.google.com/maps?q=${lat},${lng}`;
   if (address) return `https://www.google.com/maps/search/${encodeURIComponent(address)}`;
   return "https://www.google.com/maps";
 }
 
 export function openMapsUrl(url: string): void {
-  if (isCapacitor()) {
+  if (isNativeApp()) {
     window.open(url, "_system");
   } else {
     window.open(url, "_blank", "noopener,noreferrer");
