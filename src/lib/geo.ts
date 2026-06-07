@@ -36,12 +36,25 @@ export function calcDeliveryFeeCents(distanceKm: number): number {
   return BASE_FEE_CENTS + extraSegments * EXTRA_FEE_PER_SEGMENT_CENTS;
 }
 
+function isCapacitor(): boolean {
+  return typeof window !== "undefined" && typeof (window as any).Capacitor !== "undefined";
+}
+
 export function getMapsUrl(lat: number | null | undefined, lng: number | null | undefined, address: string | null | undefined): string {
-  if (lat && lng) return `geo:${lat},${lng}?q=${lat},${lng}`;
-  if (address) return `geo:0,0?q=${encodeURIComponent(address)}`;
-  return "geo:0,0?q=Mercadito+Ocoyoacac";
+  if (isCapacitor()) {
+    if (lat && lng) return `geo:${lat},${lng}?q=${lat},${lng}`;
+    if (address) return `geo:0,0?q=${encodeURIComponent(address)}`;
+    return "geo:0,0?q=Mercadito+Ocoyoacac";
+  }
+  if (lat && lng) return `https://www.google.com/maps?q=${lat},${lng}`;
+  if (address) return `https://www.google.com/maps/search/${encodeURIComponent(address)}`;
+  return "https://www.google.com/maps";
 }
 
 export function openMapsUrl(url: string): void {
-  window.open(url, "_system");
+  if (isCapacitor()) {
+    window.open(url, "_system");
+  } else {
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
 }
