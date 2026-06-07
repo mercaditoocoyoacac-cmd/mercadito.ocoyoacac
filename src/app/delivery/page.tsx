@@ -15,7 +15,7 @@ export default async function DeliveryDashboard() {
   }
 
   const myDeliveries = await prisma.order.findMany({
-    where: { deliveryUserId: session.user.id },
+    where: { deliveryUserId: session.user.id, status: { not: "CANCELLED" } },
     orderBy: { createdAt: "desc" },
     select: {
       id: true,

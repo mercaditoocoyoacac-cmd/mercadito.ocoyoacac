@@ -279,7 +279,7 @@ export default function DeliveryTracker({
   const activeDeliveries = myDeliveries.filter((o) => o.status === "OUT_FOR_DELIVERY");
   const completedDeliveries = myDeliveries.filter((o) => o.status === "COMPLETED");
   const nonCompletedMyDeliveries = myDeliveries.filter(
-    (o) => o.status !== "COMPLETED" && o.status !== "OUT_FOR_DELIVERY"
+    (o) => o.status !== "COMPLETED" && o.status !== "OUT_FOR_DELIVERY" && o.status !== "CANCELLED"
   );
 
   return (
