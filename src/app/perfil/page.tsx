@@ -34,7 +34,8 @@ export default function ProfilePage() {
   const [success, setSuccess] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
-    name: "",
+    nombres: "",
+    apellidos: "",
     phone: "",
     address: "",
     city: "",
@@ -63,8 +64,12 @@ export default function ProfilePage() {
       const data = await res.json();
       if (data.ok) {
         setProfile(data.user);
+        const parts = (data.user.name || "").trim().split(" ");
+        const nombres = parts.slice(0, -1).join(" ");
+        const apellidos = parts.slice(-1).join(" ");
         setFormData({
-          name: data.user.name || "",
+          nombres,
+          apellidos,
           phone: data.user.phone || "",
           address: data.user.address || "",
           city: data.user.city || "",
@@ -94,6 +99,7 @@ export default function ProfilePage() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           ...formData,
+          name: (formData.nombres.trim() + " " + formData.apellidos.trim()).trim(),
           latitude: location?.lat,
           longitude: location?.lng,
         }),
@@ -221,16 +227,29 @@ export default function ProfilePage() {
           <h2 className="font-semibold">Información personal</h2>
           
           <div className="mt-4 space-y-4">
-            <div>
-              <label className="block text-sm font-medium">Nombre completo *</label>
-              <input
-                type="text"
-                required
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-[var(--border)] px-4 py-2.5"
-                placeholder="Tu nombre completo"
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium">Nombres *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.nombres}
+                  onChange={(e) => setFormData({ ...formData, nombres: e.target.value })}
+                  className="mt-1 w-full rounded-lg border border-[var(--border)] px-4 py-2.5"
+                  placeholder="Juan"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Apellidos *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.apellidos}
+                  onChange={(e) => setFormData({ ...formData, apellidos: e.target.value })}
+                  className="mt-1 w-full rounded-lg border border-[var(--border)] px-4 py-2.5"
+                  placeholder="Pérez"
+                />
+              </div>
             </div>
 
             <div>

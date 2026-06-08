@@ -8,7 +8,8 @@ import { useState } from "react";
 export default function RegistroPage() {
   const router = useRouter();
   const { data: session } = useSession();
-  const [name, setName] = useState("");
+  const [nombres, setNombres] = useState("");
+  const [apellidos, setApellidos] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
@@ -98,7 +99,7 @@ export default function RegistroPage() {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
-        name: name.trim() || undefined,
+        name: (nombres.trim() + " " + apellidos.trim()).trim() || undefined,
         email,
         password,
         phone: phone,
@@ -158,15 +159,28 @@ export default function RegistroPage() {
         </div>
       ) : (
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-          <label className="block">
-            <div className="text-sm font-medium">Nombre (opcional)</div>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-              placeholder="Tu nombre"
-            />
-          </label>
+          <div className="grid grid-cols-2 gap-3">
+            <label className="block">
+              <div className="text-sm font-medium">Nombres *</div>
+              <input
+                value={nombres}
+                onChange={(e) => setNombres(e.target.value)}
+                required
+                className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                placeholder="Juan"
+              />
+            </label>
+            <label className="block">
+              <div className="text-sm font-medium">Apellidos *</div>
+              <input
+                value={apellidos}
+                onChange={(e) => setApellidos(e.target.value)}
+                required
+                className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                placeholder="Pérez"
+              />
+            </label>
+          </div>
 
           <label className="block">
             <div className="text-sm font-medium">Correo *</div>

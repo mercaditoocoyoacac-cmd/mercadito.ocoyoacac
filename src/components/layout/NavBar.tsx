@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DarkModeToggle } from "@/components/ui/DarkModeToggle";
 
 export function NavBar() {
@@ -14,6 +14,11 @@ export function NavBar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [vendorMenuOpen, setVendorMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [menuOpen]);
 
   const isActive = (path: string) => pathname === path;
   const isVendor = role === "VENDOR";
@@ -509,8 +514,11 @@ export function NavBar() {
         </div>
 
         {menuOpen && (
-          <div className="border-t border-[var(--border)] py-4 md:hidden">
-            <nav className="flex flex-col gap-1">
+          <div className="md:hidden">
+            <div className="fixed inset-0 z-40 bg-black/20" onClick={() => setMenuOpen(false)} />
+            <div className="fixed inset-x-0 top-16 bottom-0 z-50 bg-white/95 backdrop-blur-md overflow-y-auto">
+            <div className="border-t border-[var(--border)]">
+              <nav className="flex flex-col gap-1 p-4">
               <Link
                 href="/tiendas"
                 onClick={() => setMenuOpen(false)}
@@ -818,9 +826,11 @@ export function NavBar() {
                 <DarkModeToggle />
               </div>
             </nav>
+            </div>
+            </div>
           </div>
-        )}
-      </div>
-    </header>
+          )}
+        </div>
+      </header>
   );
 }
