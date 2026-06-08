@@ -514,11 +514,8 @@ export function NavBar() {
         </div>
 
         {menuOpen && (
-          <div className="md:hidden">
-            <div className="fixed inset-0 z-40 bg-black/20" onClick={() => setMenuOpen(false)} />
-            <div className="fixed inset-x-0 top-16 bottom-0 z-50 bg-white/95 backdrop-blur-md overflow-y-auto">
-            <div className="border-t border-[var(--border)]">
-              <nav className="flex flex-col gap-1 p-4">
+          <div className="md:hidden max-h-[calc(100vh-4rem)] overflow-y-auto border-t border-[var(--border)] bg-white/95 backdrop-blur-md">
+            <nav className="flex flex-col gap-1 p-4">
               <Link
                 href="/tiendas"
                 onClick={() => setMenuOpen(false)}
@@ -826,8 +823,6 @@ export function NavBar() {
                 <DarkModeToggle />
               </div>
             </nav>
-            </div>
-            </div>
           </div>
           )}
         </div>
