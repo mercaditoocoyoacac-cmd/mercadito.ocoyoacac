@@ -6,31 +6,6 @@ export const dynamic = "force-dynamic";
 
 const STORES_PER_PAGE = 12;
 
-type CategoryKey = "CANASTA_BASICA" | "HERRAMIENTAS" | "FLORERIAS" | "POSTRES" | "COMIDA_PREPARADA" | "FRUTAS_VERDURAS" | "FARMACIAS" | "SERVICIOS";
-
-const CATEGORIES = [
-  { key: "", label: "Todas" },
-  { key: "CANASTA_BASICA", label: "Canasta básica" },
-  { key: "HERRAMIENTAS", label: "Herramientas" },
-  { key: "FLORERIAS", label: "Florerías" },
-  { key: "POSTRES", label: "Postres" },
-  { key: "COMIDA_PREPARADA", label: "Comida preparada" },
-  { key: "FRUTAS_VERDURAS", label: "Frutas y verduras" },
-  { key: "FARMACIAS", label: "Farmacias" },
-  { key: "SERVICIOS", label: "Servicios" },
-] as const;
-
-const CATEGORY_ICONS: Record<string, string> = {
-  CANASTA_BASICA: "🛒",
-  HERRAMIENTAS: "🔧",
-  FLORERIAS: "💐",
-  POSTRES: "🍰",
-  COMIDA_PREPARADA: "🍲",
-  FRUTAS_VERDURAS: "🥬",
-  FARMACIAS: "💊",
-  SERVICIOS: "📋",
-};
-
 export default async function TiendasPage({
   searchParams,
 }: {
@@ -41,14 +16,20 @@ export default async function TiendasPage({
   const category = params?.category || "";
   const skip = (page - 1) * STORES_PER_PAGE;
 
-  const validCategory = category && CATEGORIES.some(c => c.key === category) ? category : "";
+  const allCategories = await prisma.category.findMany({
+    where: { isActive: true },
+    orderBy: { sortOrder: "asc" },
+    select: { key: true, label: true, icon: true },
+  });
+
+  const validCategory = category && allCategories.some(c => c.key === category) ? category : "";
 
   const [stores, total] = await Promise.all([
     prisma.store.findMany({
       where: {
         isActive: true,
         isPublished: true,
-        ...(validCategory ? { category: validCategory as CategoryKey } : {}),
+        ...(validCategory ? { category: validCategory } : {}),
       },
       orderBy: { createdAt: "desc" },
       take: STORES_PER_PAGE,
@@ -71,12 +52,14 @@ export default async function TiendasPage({
       where: {
         isActive: true,
         isPublished: true,
-        ...(validCategory ? { category: validCategory as CategoryKey } : {}),
+        ...(validCategory ? { category: validCategory } : {}),
       },
     }),
   ]);
 
   const totalPages = Math.ceil(total / STORES_PER_PAGE);
+
+  const categoryLookup = Object.fromEntries(allCategories.map(c => [c.key, c]));
 
   return (
     <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 fade-in">
@@ -90,17 +73,27 @@ export default async function TiendasPage({
       </div>
 
       <div className="mb-8 flex flex-wrap justify-center gap-2">
-        {CATEGORIES.map((cat) => (
+        <Link
+          href="/tiendas"
+          className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+            !category
+              ? "bg-[var(--accent)] text-white"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+          }`}
+        >
+          Todas
+        </Link>
+        {allCategories.map((cat) => (
           <Link
             key={cat.key}
-            href={`/tiendas${cat.key ? `?category=${cat.key}` : ""}`}
+            href={`/tiendas?category=${cat.key}`}
             className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
               category === cat.key
                 ? "bg-[var(--accent)] text-white"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
             }`}
           >
-            {CATEGORY_ICONS[cat.key] || ""} {cat.label}
+            {cat.icon} {cat.label}
           </Link>
         ))}
       </div>
@@ -160,7 +153,7 @@ export default async function TiendasPage({
                   </h3>
                   {store.category && (
                     <span className="shrink-0 rounded-full bg-[var(--accent-soft)] px-2 py-0.5 text-[10px] font-medium text-[var(--accent)]">
-                      {CATEGORY_ICONS[store.category] || ""} {store.category.replace(/_/g, " ").toLowerCase()}
+                      {categoryLookup[store.category]?.icon || ""} {categoryLookup[store.category]?.label || store.category.replace(/_/g, " ")}
                     </span>
                   )}
                 </div>

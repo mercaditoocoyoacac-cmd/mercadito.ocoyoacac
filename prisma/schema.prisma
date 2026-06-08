@@ -28,17 +28,6 @@ enum DayOfWeek {
   SUNDAY
 }
 
-enum StoreCategory {
-  CANASTA_BASICA
-  HERRAMIENTAS
-  FLORERIAS
-  POSTRES
-  COMIDA_PREPARADA
-  FRUTAS_VERDURAS
-  FARMACIAS
-  SERVICIOS
-}
-
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -92,7 +81,7 @@ model Store {
   id          String   @id @default(cuid())
   slug        String   @unique
   name       String
-  category   StoreCategory @default(CANASTA_BASICA)
+  category   String @default("CANASTA_BASICA")
   description String?
   phone      String?
   address    String?
@@ -142,6 +131,19 @@ model StorePaymentMethod {
 
   @@index([storeId])
   @@index([storeId, isActive])
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  label     String
+  icon      String   @default("🏪")
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sortOrder, isActive])
 }
 
 model Subscription {

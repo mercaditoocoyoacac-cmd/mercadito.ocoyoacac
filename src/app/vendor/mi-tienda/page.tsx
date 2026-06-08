@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 
 const LocationPicker = dynamic(
@@ -41,6 +41,7 @@ export default function EditarTiendaPage() {
   const [loadingStore, setLoadingStore] = useState(true);
   const [name, setName] = useState("");
   const [category, setCategory] = useState("CANASTA_BASICA");
+  const [categories, setCategories] = useState<{ key: string; label: string; icon: string }[]>([]);
   const [description, setDescription] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
@@ -67,8 +68,13 @@ export default function EditarTiendaPage() {
   }
 
   async function fetchStore() {
-    const res = await fetch("/api/vendor/store");
-    const data = (await res.json()) as { ok: true; store: Store | null };
+    const [storeRes, catsRes] = await Promise.all([
+      fetch("/api/vendor/store"),
+      fetch("/api/admin/categories"),
+    ]);
+    const catsData = await catsRes.json();
+    if (catsData.ok) setCategories(catsData.categories);
+    const data = (await storeRes.json()) as { ok: true; store: Store | null };
     if (data.store) {
       setStore(data.store);
       setName(data.store.name);
@@ -230,14 +236,10 @@ export default function EditarTiendaPage() {
             onChange={(e) => setCategory(e.target.value)}
             className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
           >
-            <option value="CANASTA_BASICA">Canasta básica</option>
-            <option value="HERRAMIENTAS">Herramientas</option>
-            <option value="FLORERIAS">Florerías</option>
-            <option value="POSTRES">Postres</option>
-            <option value="COMIDA_PREPARADA">Comida preparada</option>
-            <option value="FRUTAS_VERDURAS">Frutas y verduras</option>
-            <option value="FARMACIAS">Farmacias</option>
-            <option value="SERVICIOS">Servicios</option>
+            <option value="CANASTA_BASICA">🛒 Canasta básica</option>
+            {categories.filter((c) => c.key !== "CANASTA_BASICA").map((cat) => (
+              <option key={cat.key} value={cat.key}>{cat.icon} {cat.label}</option>
+            ))}
           </select>
           <p className="mt-1 text-xs text-[color:var(--muted)]">
             {category === "SERVICIOS"

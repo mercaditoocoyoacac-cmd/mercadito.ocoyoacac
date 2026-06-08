@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 function slugify(input: string) {
   return input
@@ -19,6 +19,7 @@ export default function VendorOnboardingPage() {
   const autoSlug = useMemo(() => slugify(name), [name]);
   const [slug, setSlug] = useState("");
   const [category, setCategory] = useState("CANASTA_BASICA");
+  const [categories, setCategories] = useState<{ key: string; label: string; icon: string }[]>([]);
   const [description, setDescription] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
@@ -27,6 +28,13 @@ export default function VendorOnboardingPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    fetch("/api/admin/categories")
+      .then((r) => r.json())
+      .then((data) => { if (data.ok) setCategories(data.categories); })
+      .catch(() => {});
+  }, []);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -177,14 +185,10 @@ export default function VendorOnboardingPage() {
             onChange={(e) => setCategory(e.target.value)}
             className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
           >
-            <option value="CANASTA_BASICA">Canasta básica</option>
-            <option value="HERRAMIENTAS">Herramientas</option>
-            <option value="FLORERIAS">Florerías</option>
-            <option value="POSTRES">Postres</option>
-            <option value="COMIDA_PREPARADA">Comida preparada</option>
-            <option value="FRUTAS_VERDURAS">Frutas y verduras</option>
-            <option value="FARMACIAS">Farmacias</option>
-            <option value="SERVICIOS">Servicios</option>
+            <option value="CANASTA_BASICA">🛒 Canasta básica</option>
+            {categories.filter((c) => c.key !== "CANASTA_BASICA").map((cat) => (
+              <option key={cat.key} value={cat.key}>{cat.icon} {cat.label}</option>
+            ))}
           </select>
           <p className="mt-1 text-xs text-[color:var(--muted)]">
             {category === "SERVICIOS"

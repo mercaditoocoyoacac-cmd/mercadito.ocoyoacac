@@ -11,7 +11,7 @@ const StoreSchema = z.object({
     .min(3)
     .max(40)
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug inválido"),
-  category: z.enum(["CANASTA_BASICA", "HERRAMIENTAS", "FLORERIAS", "POSTRES", "COMIDA_PREPARADA", "FRUTAS_VERDURAS", "FARMACIAS", "SERVICIOS"]).default("CANASTA_BASICA"),
+  category: z.string().min(1).max(40).default("CANASTA_BASICA"),
   description: z.string().max(280).optional(),
   phone: z.string().max(40).optional(),
   address: z.string().max(140).optional(),

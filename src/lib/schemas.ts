@@ -1,10 +1,5 @@
 import { z } from "zod";
 
-export const CATEGORIES = [
-  "CANASTA_BASICA", "HERRAMIENTAS", "FLORERIAS", "POSTRES",
-  "COMIDA_PREPARADA", "FRUTAS_VERDURAS", "FARMACIAS", "SERVICIOS",
-] as const;
-
 export const DAYS = [
   "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY",
 ] as const;
@@ -56,7 +51,7 @@ export const productUpdateSchema = z.object({
 
 const storeFields = {
   name: z.string().min(2).max(80).optional(),
-  category: z.enum(CATEGORIES).optional(),
+  category: z.string().min(1).max(40).optional(),
   description: z.string().max(280).optional(),
   phone: z.string().max(40).optional(),
   address: z.string().max(140).optional(),

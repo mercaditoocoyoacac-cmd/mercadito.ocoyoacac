@@ -18,6 +18,13 @@ const DAYS = [
   { key: "SUNDAY", label: "Domingo" },
 ] as const;
 
+interface Category {
+  id: string;
+  key: string;
+  label: string;
+  icon: string;
+}
+
 interface Store {
   id: string;
   name: string;
@@ -39,9 +46,11 @@ interface Store {
 
 function StoreForm({
   store,
+  categories,
   onSaved,
 }: {
   store: Store;
+  categories: Category[];
   onSaved: () => void;
 }) {
   const [name, setName] = useState(store.name);
@@ -163,14 +172,9 @@ function StoreForm({
         <div className="text-sm font-medium">Categoría</div>
         <select value={category} onChange={(e) => setCategory(e.target.value)}
           className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]">
-          <option value="CANASTA_BASICA">Canasta básica</option>
-          <option value="HERRAMIENTAS">Herramientas</option>
-          <option value="FLORERIAS">Florerías</option>
-          <option value="POSTRES">Postres</option>
-          <option value="COMIDA_PREPARADA">Comida preparada</option>
-          <option value="FRUTAS_VERDURAS">Frutas y verduras</option>
-          <option value="FARMACIAS">Farmacias</option>
-          <option value="SERVICIOS">Servicios</option>
+          {categories.map((cat) => (
+            <option key={cat.key} value={cat.key}>{cat.icon} {cat.label}</option>
+          ))}
         </select>
       </label>
 
@@ -278,14 +282,18 @@ function StoreForm({
 
 export default function AdminTiendasPage() {
   const [stores, setStores] = useState<Store[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [selectedStoreId, setSelectedStoreId] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/admin/stores")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.ok) setStores(data.stores);
+    Promise.all([
+      fetch("/api/admin/stores").then((r) => r.json()),
+      fetch("/api/admin/categories").then((r) => r.json()),
+    ])
+      .then(([storesData, catsData]) => {
+        if (storesData.ok) setStores(storesData.stores);
+        if (catsData.ok) setCategories(catsData.categories);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -340,7 +348,7 @@ export default function AdminTiendasPage() {
 
       {!loading && selectedStore && (
         <div className="max-w-xl">
-          <StoreForm store={selectedStore} onSaved={() => {}} />
+          <StoreForm store={selectedStore} categories={categories} onSaved={() => {}} />
         </div>
       )}
     </div>
