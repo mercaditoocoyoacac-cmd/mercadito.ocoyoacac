@@ -198,7 +198,7 @@ function OrderCard({ order, drivers, onRefresh }: { order: OrderData; drivers: D
     <div className={`rounded-xl border ${isActive ? "border-[var(--border)]" : cancelled ? "border-red-200 bg-red-50/30" : "border-gray-200 bg-gray-50/30"}`}>
       <button onClick={() => setExpanded(!expanded)} className="w-full text-left p-4">
         <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 mb-1">
               <span className="font-medium text-sm truncate">{order.customerName}</span>
               <StatusBadge status={order.status} />
@@ -207,6 +207,11 @@ function OrderCard({ order, drivers, onRefresh }: { order: OrderData; drivers: D
               <div>{order.store.name} · {formatMoney(order.totalCents, order.currency)}</div>
               {order.deliveryUser && <div>🛵 {order.deliveryUser.name || order.deliveryUser.email}</div>}
               <div className="text-[10px]">{getTimeAgo(order.updatedAt)}</div>
+            </div>
+            <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-[color:var(--muted)]">
+              {order.customerPhone && <span>📞 {order.customerPhone}</span>}
+              {order.customerAddress && <span className="truncate max-w-[200px]">📍 {order.customerAddress}</span>}
+              {order.notes && <span className="text-yellow-700">📝 Ref: {order.notes}</span>}
             </div>
           </div>
           <svg className={`w-5 h-5 shrink-0 text-[color:var(--muted)] transition-transform ${expanded ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">

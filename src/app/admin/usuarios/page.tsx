@@ -98,6 +98,10 @@ export default async function AdminUsersPage({
       additionalRoles: true,
       isActive: true,
       createdAt: true,
+      phone: true,
+      address: true,
+      city: true,
+      state: true,
       stores: { select: { id: true, name: true, isPublished: true } },
       orders: { select: { id: true } },
       deliveries: { select: { id: true } },
@@ -213,6 +217,12 @@ export default async function AdminUsersPage({
                     <div className="flex-1">
                       <div className="font-medium">{user.name || "Sin nombre"}</div>
                       <div className="text-sm text-[color:var(--muted)]">{user.email}</div>
+                      {(user.phone || user.address) && (
+                        <div className="mt-1 space-y-0.5">
+                          {user.phone && <div className="text-xs text-[color:var(--muted)]">📞 {user.phone}</div>}
+                          {user.address && <div className="text-xs text-[color:var(--muted)]">📍 {user.address}{user.city ? `, ${user.city}` : ""}{user.state ? `, ${user.state}` : ""}</div>}
+                        </div>
+                      )}
                       <div className="mt-1 flex flex-wrap gap-1">
                         {allRoles.map((r) => (
                           <span key={r} className={`text-xs px-2 py-0.5 rounded-full ${roleColors[r] || "bg-gray-100 text-gray-800"}`}>

@@ -39,6 +39,17 @@ export async function GET() {
       openTime: true,
       closeTime: true,
       scheduleDays: true,
+      createdAt: true,
+      subscription: {
+        select: {
+          status: true,
+          startDate: true,
+          endDate: true,
+          discountEndDate: true,
+          contractSigned: true,
+          createdAt: true,
+        },
+      },
     },
   });
 
@@ -116,7 +127,39 @@ export async function POST(req: Request) {
       data: { role: "VENDOR" },
     });
 
-    return NextResponse.json({ ok: true, store });
+  const s = store as any;
+  return NextResponse.json({
+    ok: true,
+    store: s
+      ? {
+          id: s.id,
+          name: s.name,
+          slug: s.slug,
+          category: s.category,
+          description: s.description ?? null,
+          phone: s.phone ?? null,
+          address: s.address ?? null,
+          imageUrl: s.imageUrl ?? null,
+          isActive: s.isActive,
+          latitude: s.latitude ?? null,
+          longitude: s.longitude ?? null,
+          openTime: s.openTime ?? null,
+          closeTime: s.closeTime ?? null,
+          scheduleDays: s.scheduleDays,
+          createdAt: s.createdAt?.toISOString() ?? null,
+          subscription: s.subscription
+            ? {
+                status: s.subscription.status,
+                startDate: s.subscription.startDate.toISOString(),
+                endDate: s.subscription.endDate.toISOString(),
+                discountEndDate: s.subscription.discountEndDate?.toISOString() ?? null,
+                contractSigned: s.subscription.contractSigned,
+                createdAt: s.subscription.createdAt.toISOString(),
+              }
+            : null,
+        }
+      : null,
+  });
   } catch (error) {
     console.error("[vendor/store] Error creating store:", error);
     const msg = error instanceof Error ? error.message : String(error);

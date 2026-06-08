@@ -151,7 +151,8 @@ model Subscription {
   status        SubscriptionStatus @default(EXPIRED)
   startDate     DateTime           @default(now())
   endDate       DateTime
-  monthlyPriceCents Int            @default(49600)
+  monthlyPriceCents Int            @default(83000)
+  discountEndDate DateTime?
   paymentMethod String?
   paymentReference String?
   contractSigned Boolean           @default(false)

@@ -340,6 +340,18 @@ export function NavBar() {
                         </div>
                       </button>
                       <button
+                        onClick={() => navigateTo("/vendor/membresia")}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
+                      >
+                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <div>
+                          <div className="font-medium">Membresía</div>
+                          <div className="text-xs text-[color:var(--muted)]">Estado y pago</div>
+                        </div>
+                      </button>
+                      <button
                         onClick={() => navigateTo("/vendor/productos")}
                         className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
                       >
@@ -666,6 +678,15 @@ export function NavBar() {
                     }`}
                   >
                     Editar Tienda
+                  </Link>
+                  <Link
+                    href="/vendor/membresia"
+                    onClick={() => setMenuOpen(false)}
+                    className={`rounded-lg px-4 py-3 text-sm font-medium ${
+                      pathname === "/vendor/membresia" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                    }`}
+                  >
+                    Membresía
                   </Link>
                   <Link
                     href="/vendor/productos"
