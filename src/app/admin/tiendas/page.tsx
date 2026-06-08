@@ -286,7 +286,7 @@ export default function AdminTiendasPage() {
   const [selectedStoreId, setSelectedStoreId] = useState("");
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  function loadData() {
     Promise.all([
       fetch("/api/admin/stores").then((r) => r.json()),
       fetch("/api/admin/categories").then((r) => r.json()),
@@ -297,6 +297,13 @@ export default function AdminTiendasPage() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
+  }
+
+  useEffect(() => { loadData(); }, []);
+
+  useEffect(() => {
+    const interval = setInterval(loadData, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const selectedStore = stores.find((s) => s.id === selectedStoreId);

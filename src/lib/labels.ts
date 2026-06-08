@@ -1,8 +1,8 @@
 export const ORDER_STATUS_LABELS: Record<string, string> = {
   PENDING: "Pendiente",
-  CONFIRMED: "Confirmado",
-  READY: "Listo",
-  OUT_FOR_DELIVERY: "En camino",
+  CONFIRMED: "En preparación",
+  READY: "Listo para recoger",
+  OUT_FOR_DELIVERY: "Repartidor en camino",
   COMPLETED: "Entregado",
   CANCELLED: "Cancelado",
 };

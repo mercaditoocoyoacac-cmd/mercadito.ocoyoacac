@@ -12,6 +12,8 @@ interface OrderInfo {
   customerAddress: string | null;
   status: string;
   totalCents: number;
+  deliveryCode: string | null;
+  pickupCode: string | null;
   store: { name: string; phone: string };
 }
 
@@ -102,7 +104,7 @@ export default function DeliveryScanPage() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           orderId: orderInfo.id,
-          deliveryCode: orderInfo.id,
+          code: orderInfo.deliveryCode,
           action: "pickup",
         }),
       });

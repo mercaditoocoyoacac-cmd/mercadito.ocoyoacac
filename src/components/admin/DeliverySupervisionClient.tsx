@@ -101,18 +101,18 @@ function OrderTimeline({ timestamps }: { timestamps: Record<string, string> | nu
   const activeIdx = stages.findLastIndex((s) => s.done);
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="space-y-1">
       {stages.map((s, i) => (
-        <div key={s.status} className="flex items-center gap-1 flex-1 min-w-0">
-          <div className="flex flex-col items-center min-w-0">
-            <div className={`w-3 h-3 rounded-full shrink-0 ${s.done ? "bg-green-500" : "bg-gray-200"}`} />
-            <span className={`text-[10px] leading-tight mt-0.5 text-center ${s.done ? "text-green-700 font-medium" : "text-gray-400"}`}>
-              {s.time || (i <= activeIdx ? "—" : "")}
-            </span>
+        <div key={s.status} className="flex items-center gap-3">
+          <div className={`w-3 h-3 rounded-full shrink-0 ${s.done ? "bg-green-500" : "bg-gray-200"}`} />
+          <div className="flex-1 min-w-0">
+            <div className={`text-xs font-medium ${s.done ? "text-green-700" : "text-gray-400"}`}>
+              {s.label}
+            </div>
+            {s.time && (
+              <div className="text-[10px] text-gray-500">{s.time}</div>
+            )}
           </div>
-          {i < stages.length - 1 && (
-            <div className={`h-0.5 flex-1 mt-[-1.25rem] ${s.done ? "bg-green-400" : "bg-gray-200"}`} />
-          )}
         </div>
       ))}
     </div>
@@ -369,6 +369,11 @@ export default function DeliverySupervisionClient() {
   }
 
   useEffect(() => { fetchData(); }, []);
+
+  useEffect(() => {
+    const interval = setInterval(fetchData, 15000);
+    return () => clearInterval(interval);
+  }, []);
 
   const statuses = ["ALL", "CONFIRMED", "READY", "OUT_FOR_DELIVERY", "COMPLETED", "CANCELLED"];
   const storeNames = data ? [...new Set(data.orders.map((o) => o.store.name))].sort() : [];

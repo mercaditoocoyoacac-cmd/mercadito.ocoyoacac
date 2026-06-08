@@ -338,6 +338,12 @@ function AdminProductosPage() {
       .catch(() => setLoading(false));
   }, [selectedStoreId, sortParam, dirParam]);
 
+  useEffect(() => {
+    if (!selectedStoreId) return;
+    const interval = setInterval(loadProducts, 30000);
+    return () => clearInterval(interval);
+  }, [selectedStoreId]);
+
   async function handleCreate(data: ProductFormData & { variants: { name: string; price: string }[] }) {
     const res = await fetch("/api/admin/products", {
       method: "POST",

@@ -3,8 +3,13 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { formatDateInMexico } from "@/lib/dates";
+import { formatMoney } from "@/lib/format";
 
 export const revalidate = 30;
+
+const FULL_PRICE_CENTS = 83_000;
+const DISCOUNTED_PRICE_CENTS = 49_800;
+const GRACE_PERIOD_CUTOFF = new Date("2026-08-01");
 
 export default async function AdminSubscriptionsPage() {
   const session = await getSession();
@@ -105,6 +110,9 @@ export default async function AdminSubscriptionsPage() {
                     Inicio: {formatDateInMexico(sub.startDate)} | 
                     Fin: {formatDateInMexico(sub.endDate)}
                   </div>
+                  <div className="mt-1 text-[11px] text-emerald-700">
+                    Al terminar prueba: {formatMoney(DISCOUNTED_PRICE_CENTS)}/mes (40% desc.) primeros 12 meses, luego {formatMoney(FULL_PRICE_CENTS)}/mes
+                  </div>
                   <div className="mt-3 flex gap-2 flex-wrap">
                     {store.isPublished ? (
                       <form action={async () => {
@@ -137,11 +145,15 @@ export default async function AdminSubscriptionsPage() {
                       "use server";
                       const endDate = new Date();
                       endDate.setMonth(endDate.getMonth() + 1);
+                      const discountEnd = new Date();
+                      discountEnd.setFullYear(discountEnd.getFullYear() + 1);
                       await prisma.subscription.update({
                         where: { storeId: store.id },
                         data: {
                           status: "ACTIVE",
                           endDate,
+                          monthlyPriceCents: FULL_PRICE_CENTS,
+                          discountEndDate: discountEnd,
                         },
                       });
                       await prisma.store.update({
@@ -151,7 +163,7 @@ export default async function AdminSubscriptionsPage() {
                       revalidatePath("/admin/membresias");
                     }}>
                       <button className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700">
-                        Convertir a activo
+                        Convertir a activo ({formatMoney(FULL_PRICE_CENTS)})
                       </button>
                     </form>
                     <form action={async () => {
@@ -249,6 +261,12 @@ export default async function AdminSubscriptionsPage() {
                       <span className="text-amber-700 font-medium">Ya utilizó su período de prueba de 30 días</span>
                     </div>
                   )}
+                  {store.createdAt < GRACE_PERIOD_CUTOFF && (
+                    <div className="mt-1 flex items-center gap-2 text-xs px-2 py-1 rounded-lg bg-purple-50 border border-purple-200">
+                      <span className="text-purple-600">🎁</span>
+                      <span className="text-purple-700 font-medium">Período de gracia beta — gratis hasta agosto 2026</span>
+                    </div>
+                  )}
                   {sub && (
                     <div className="mt-2 text-xs text-[color:var(--muted)]">
                       Inicio: {formatDateInMexico(sub.startDate)} | 
@@ -257,6 +275,23 @@ export default async function AdminSubscriptionsPage() {
                         <span className="ml-2">
                           | Contrato: {formatDateInMexico(sub.contractSignedAt)}
                         </span>
+                      )}
+                    </div>
+                  )}
+                  {sub && sub.status === "ACTIVE" && (
+                    <div className="mt-1 text-[11px] text-[color:var(--muted)] space-x-2">
+                      <span>Precio: {formatMoney(sub.monthlyPriceCents)}/mes</span>
+                      {sub.discountEndDate && new Date(sub.discountEndDate) > today && (
+                        <span className="text-green-600 font-medium">
+                          🏷️ Descuento 40% activo hasta {formatDateInMexico(sub.discountEndDate)}
+                          ({Math.ceil((new Date(sub.discountEndDate).getTime() - today.getTime()) / (1000 * 60 * 60 * 24))} días)
+                        </span>
+                      )}
+                      {sub.discountEndDate && new Date(sub.discountEndDate) <= today && (
+                        <span className="text-orange-600">Descuento vencido — precio completo</span>
+                      )}
+                      {sub.paymentReference && (
+                        <span className="text-blue-600">| Ref: {sub.paymentReference}</span>
                       )}
                     </div>
                   )}
@@ -293,18 +328,28 @@ data: { isPublished: true },
                       "use server";
                       const endDate = new Date();
                       endDate.setMonth(endDate.getMonth() + 1);
+                      const now = new Date();
+                      const existingSub = await prisma.subscription.findUnique({ where: { storeId: store.id } });
+                      const isFirstPayment = !existingSub || existingSub.status !== "ACTIVE";
+                      const discountEnd = isFirstPayment
+                        ? new Date(now.getFullYear() + 1, now.getMonth(), now.getDate())
+                        : existingSub.discountEndDate && existingSub.discountEndDate > now
+                          ? existingSub.discountEndDate
+                          : null;
                       await prisma.subscription.upsert({
                         where: { storeId: store.id },
                         create: {
                           storeId: store.id,
                           status: "ACTIVE",
                           endDate,
-                          monthlyPriceCents: 15000,
+                          monthlyPriceCents: FULL_PRICE_CENTS,
+                          discountEndDate: discountEnd,
                         },
                         update: {
                           status: "ACTIVE",
-                          startDate: new Date(),
                           endDate,
+                          discountEndDate: discountEnd,
+                          monthlyPriceCents: FULL_PRICE_CENTS,
                         },
                       });
                       await prisma.store.update({
@@ -314,30 +359,30 @@ data: { isPublished: true },
                       revalidatePath("/admin/membresias");
                     }}>
                       <button className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700">
-                        Renovar membresía
+                        Renovar membresía ({formatMoney(FULL_PRICE_CENTS)})
                       </button>
                     </form>
                     {!sub || (sub.status !== "TRIAL" && !isTrial) ? (
-                      <form action={async () => {
-                        "use server";
-                        const trialEnd = new Date();
-                    trialEnd.setDate(trialEnd.getDate() + 30);
-                        await prisma.subscription.upsert({
-                          where: { storeId: store.id },
-                          create: {
-                            storeId: store.id,
-                            status: "TRIAL",
-                            startDate: new Date(),
-                            endDate: trialEnd,
-                            monthlyPriceCents: 49600,
-                            contractSigned: false,
-                          },
-                          update: {
-                            status: "TRIAL",
-                            startDate: new Date(),
-                            endDate: trialEnd,
-                          },
-                        });
+                    <form action={async () => {
+                      "use server";
+                      const trialEnd = new Date();
+                      trialEnd.setDate(trialEnd.getDate() + 30);
+                      await prisma.subscription.upsert({
+                        where: { storeId: store.id },
+                        create: {
+                          storeId: store.id,
+                          status: "TRIAL",
+                          startDate: new Date(),
+                          endDate: trialEnd,
+                          monthlyPriceCents: DISCOUNTED_PRICE_CENTS,
+                          contractSigned: false,
+                        },
+                        update: {
+                          status: "TRIAL",
+                          startDate: new Date(),
+                          endDate: trialEnd,
+                        },
+                      });
                         if (!store.owner.trialUsed) {
                           await prisma.user.update({
                             where: { id: store.owner.id },

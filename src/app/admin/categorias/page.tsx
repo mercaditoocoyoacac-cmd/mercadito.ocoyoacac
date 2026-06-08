@@ -40,6 +40,11 @@ export default function AdminCategoriasPage() {
 
   useEffect(() => { fetchCategories(); }, []);
 
+  useEffect(() => {
+    const interval = setInterval(fetchCategories, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     if (!newKey || !newLabel) return;
