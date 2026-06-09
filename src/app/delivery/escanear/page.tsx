@@ -24,6 +24,8 @@ export default function DeliveryScanPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
+  const [confirmingDelivery, setConfirmingDelivery] = useState(false);
+  const [scannedCode, setScannedCode] = useState("");
   const [scanning, setScanning] = useState(false);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const scannerId = "qr-scanner";
@@ -32,6 +34,7 @@ export default function DeliveryScanPage() {
     setLoading(true);
     setError(null);
     setOrderInfo(null);
+    setScannedCode(code.toUpperCase().trim());
 
     try {
       const res = await fetch(`/api/delivery/confirm?code=${encodeURIComponent(code)}`);
@@ -96,7 +99,6 @@ export default function DeliveryScanPage() {
 
   async function confirmPickup() {
     if (!orderInfo) return;
-
     setConfirming(true);
     try {
       const res = await fetch("/api/delivery/confirm", {
@@ -109,7 +111,6 @@ export default function DeliveryScanPage() {
         }),
       });
       const data = await res.json();
-
       if (data.ok) {
         toast.success("✓ Producto recogido - ¡En camino!");
         window.location.href = "/delivery";
@@ -120,6 +121,32 @@ export default function DeliveryScanPage() {
       setError("Error al confirmar");
     } finally {
       setConfirming(false);
+    }
+  }
+
+  async function confirmDelivery() {
+    if (!orderInfo) return;
+    setConfirmingDelivery(true);
+    try {
+      const res = await fetch("/api/delivery/confirm", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          orderId: orderInfo.id,
+          code: orderInfo.pickupCode,
+        }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        toast.success("✓ Entrega completada");
+        window.location.href = "/delivery";
+      } else {
+        setError(data.error || "Error al confirmar");
+      }
+    } catch {
+      setError("Error al confirmar");
+    } finally {
+      setConfirmingDelivery(false);
     }
   }
 
@@ -243,16 +270,24 @@ export default function DeliveryScanPage() {
             </div>
 
             <div className="space-y-3">
-              <button
-                onClick={confirmPickup}
-                disabled={confirming}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600 py-4 text-lg font-bold text-white transition-colors hover:bg-green-700 disabled:opacity-50"
-              >
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                {confirming ? "Confirmando..." : "Recoger producto - En camino"}
-              </button>
+              {scannedCode === orderInfo.deliveryCode ? (
+                <button
+                  onClick={confirmPickup}
+                  disabled={confirming}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600 py-4 text-lg font-bold text-white transition-colors hover:bg-green-700 disabled:opacity-50"
+                >
+                  {confirming ? "Confirmando..." : "Recoger producto - En camino"}
+                </button>
+              ) : null}
+              {scannedCode === orderInfo.pickupCode ? (
+                <button
+                  onClick={confirmDelivery}
+                  disabled={confirmingDelivery}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-4 text-lg font-bold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {confirmingDelivery ? "Confirmando..." : "Completar entrega - Entregado"}
+                </button>
+              ) : null}
               <button
                 onClick={() => {
                   setOrderInfo(null);

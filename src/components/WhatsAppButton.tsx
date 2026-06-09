@@ -5,17 +5,13 @@ const TEXT = encodeURIComponent("Hola, necesito ayuda con la aplicación");
 
 export function WhatsAppButton() {
   const handleClick = () => {
-    const nativeUrl = `whatsapp://send?phone=${PHONE}&text=${TEXT}`;
-    const webUrl = `https://api.whatsapp.com/send?phone=${PHONE}&text=${TEXT}`;
+    const waUrl = `https://wa.me/${PHONE}?text=${TEXT}`;
     const isCapacitor = typeof (window as any).Capacitor !== "undefined";
 
     if (isCapacitor) {
-      window.open(nativeUrl, "_system");
-      setTimeout(() => { window.open(webUrl, "_system"); }, 3000);
-    } else if (navigator.share) {
-      navigator.share({ title: "Mercadito Ocoyoacac", text: decodeURIComponent(TEXT), url: `https://wa.me/${PHONE}` });
+      window.open(waUrl, "_system");
     } else {
-      window.open(webUrl, "_blank");
+      window.location.href = waUrl;
     }
   };
 
