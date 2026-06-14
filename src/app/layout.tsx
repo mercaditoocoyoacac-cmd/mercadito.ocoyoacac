@@ -8,7 +8,7 @@ import { TopLoader } from "@/components/ui/TopLoader";
 import { Providers } from "@/app/providers";
 import { NavBar } from "@/components/layout/NavBar";
 import { FooterWithPrivacy } from "@/components/layout/FooterWithPrivacy";
-import { WhatsAppButton } from "@/components/WhatsAppButton";
+import { SupportButton } from "@/components/SupportButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -62,7 +62,7 @@ export default function RootLayout({
             <div id="main-content" className="flex flex-1 flex-col">{children}</div>
             <FooterWithPrivacy />
             <Toaster position="top-right" richColors closeButton />
-            <WhatsAppButton />
+            <SupportButton />
           </ConfirmProvider>
         </Providers>
       </body>

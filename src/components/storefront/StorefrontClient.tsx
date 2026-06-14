@@ -325,7 +325,7 @@ export function StorefrontClient({
       {cartCount > 0 && !quickViewProduct && (
         <Link
           href="/carrito"
-          className="fixed bottom-6 right-6 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--accent)] text-white shadow-xl transition-all hover:bg-[var(--accent-hover)] hover:scale-110 active:scale-95"
+          className="fixed bottom-6 left-6 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--accent)] text-white shadow-xl transition-all hover:bg-[var(--accent-hover)] hover:scale-110 active:scale-95"
         >
           <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
