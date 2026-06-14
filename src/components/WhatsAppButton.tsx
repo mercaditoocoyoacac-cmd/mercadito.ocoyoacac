@@ -5,14 +5,14 @@ const TEXT = encodeURIComponent("Hola, necesito ayuda con la aplicación");
 
 export function WhatsAppButton() {
   const handleClick = () => {
-    const waUrl = `https://wa.me/${PHONE}?text=${TEXT}`;
-    const isCapacitor = typeof (window as any).Capacitor !== "undefined";
+    const nativeUrl = `whatsapp://send?phone=${PHONE}&text=${TEXT}`;
+    const webUrl = `https://api.whatsapp.com/send?phone=${PHONE}&text=${TEXT}`;
 
-    if (isCapacitor) {
-      window.open(waUrl, "_system");
-    } else {
-      window.location.href = waUrl;
-    }
+    window.location.href = nativeUrl;
+    setTimeout(() => {
+      if (document.hidden) return;
+      window.location.href = webUrl;
+    }, 2000);
   };
 
   return (

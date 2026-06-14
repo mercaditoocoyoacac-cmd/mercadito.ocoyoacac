@@ -105,10 +105,10 @@ export default async function StorefrontPage({
         </div>
         {store.category === "SERVICIOS" ? (
           store.phone ? (
-            <a
-              href={`https://wa.me/${store.phone.replace(/\D/g, "")}?text=Hola%2C%20me%20gustaría%20agendar%20una%20cita%20en%20${encodeURIComponent(store.name)}`}
-              target="_blank"
-              rel="noopener noreferrer"
+    <a
+      href={`https://api.whatsapp.com/send?phone=${store.phone.replace(/\D/g, "")}&text=Hola%2C%20me%20gustaría%20agendar%20una%20cita%20en%20${encodeURIComponent(store.name)}`}
+      target="_blank"
+      rel="noopener noreferrer"
               className="inline-flex shrink-0 items-center gap-2 rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
             >
               <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
@@ -185,15 +185,15 @@ export default async function StorefrontPage({
                 <div className="mt-2">
                   {store.category === "SERVICIOS" ? (
                     store.phone ? (
-                      <a
-                        href={`https://wa.me/${store.phone.replace(/\D/g, "")}?text=Hola%2C%20me%20gustaría%20agendar%20una%20cita%20para%20${encodeURIComponent(product.name)}%20en%20${encodeURIComponent(store.name)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-                          product.isUnavailable
-                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                            : "bg-green-600 text-white hover:bg-green-700"
-                        }`}
+    <a
+      href={`https://api.whatsapp.com/send?phone=${store.phone.replace(/\D/g, "")}&text=Hola%2C%20me%20gustaría%20agendar%20una%20cita%20para%20${encodeURIComponent(product.name)}%20en%20${encodeURIComponent(store.name)}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+        product.isUnavailable
+          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+          : "bg-green-600 text-white hover:bg-green-700"
+      }`}
                       >
                         Agendar cita
                       </a>

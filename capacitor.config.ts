@@ -7,7 +7,7 @@ const config: CapacitorConfig = {
   server: {
     url: 'https://mercadito-ocoyoacac.vercel.app',
     cleartext: true,
-    allowNavigation: ['*']
+    allowNavigation: ['mercadito-ocoyoacac.vercel.app']
   },
   plugins: {
     SplashScreen: {
