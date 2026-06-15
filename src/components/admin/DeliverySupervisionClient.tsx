@@ -96,6 +96,35 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
+function CompleteOrderButton({ orderId, onComplete }: { orderId: string; onComplete: () => void }) {
+  const [completing, setCompleting] = useState(false);
+
+  async function handleComplete() {
+    if (!confirm("¿Marcar este pedido como completado?")) return;
+    setCompleting(true);
+    try {
+      const res = await fetch("/api/admin/envios/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId }),
+      });
+      const data = await res.json();
+      if (data.ok) onComplete();
+    } catch {}
+    setCompleting(false);
+  }
+
+  return (
+    <button
+      onClick={handleComplete}
+      disabled={completing}
+      className="text-xs px-3 py-1.5 rounded-lg border border-green-200 text-green-700 hover:bg-green-50 transition-colors disabled:opacity-50"
+    >
+      {completing ? "..." : "✅ Marcar completado"}
+    </button>
+  );
+}
+
 function OrderTimeline({ timestamps }: { timestamps: Record<string, string> | null }) {
   const stages = getTimelineStages(timestamps);
   const activeIdx = stages.findLastIndex((s) => s.done);
@@ -302,6 +331,9 @@ function OrderCard({ order, drivers, onRefresh }: { order: OrderData; drivers: D
               <button onClick={() => handleNotify("customer")} disabled={notifying} className="text-xs px-3 py-1.5 rounded-lg border border-[var(--border)] hover:bg-[var(--accent-soft)] transition-colors disabled:opacity-50">
                 {notifying ? "..." : "🔔 Notificar cliente"}
               </button>
+              {order.status !== "COMPLETED" && order.status !== "CANCELLED" && (
+                <CompleteOrderButton orderId={order.id} onComplete={onRefresh} />
+              )}
               <button onClick={() => { if (confirm("¿Cancelar este pedido?")) handleCancel(); }} className="text-xs px-3 py-1.5 rounded-lg border border-red-200 text-red-700 hover:bg-red-50 transition-colors">
                 ❌ Cancelar pedido
               </button>
