@@ -31,7 +31,7 @@ export default async function StorefrontPage({
   });
   if (!store || !store.isActive) return notFound();
 
-  const open = store.category === "SERVICIOS" ? true : isStoreOpen(store);
+  const open = store.category === "SERVICIOS" ? true : isStoreOpen(store as any);
 
   const products = await prisma.product.findMany({
     where: { storeId: store.id, isActive: true },

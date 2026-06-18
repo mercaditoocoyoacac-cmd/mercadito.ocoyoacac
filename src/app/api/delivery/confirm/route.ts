@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
-import { requireRole } from "@/server/requireUser";
+import { requireRole, requireUser } from "@/server/requireUser";
 import { sendTextNotification } from "@/server/notifications";
 import { sendWhatsAppMessage } from "@/server/whatsapp";
 import { sendSMS } from "@/server/sns";
@@ -12,6 +12,11 @@ export async function POST(req: Request) {
   if (!auth.ok) return auth.res;
 
   const userId = auth.userId;
+
+  const currentUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true, additionalRoles: true },
+  });
 
   const json = await req.json().catch(() => null);
   const { orderId, code, action } = json || {};
@@ -62,7 +67,7 @@ export async function POST(req: Request) {
     data: {
       status: newStatus as "COMPLETED" | "OUT_FOR_DELIVERY",
       statusTimestamps: appendStatusTimestamp(currentTs, newStatus),
-      ...(user?.role === "DELIVERY" && !order.deliveryUserId ? { deliveryUserId: userId } : {}),
+      ...((currentUser?.role === "DELIVERY" || (currentUser?.additionalRoles ?? "").split(",").includes("DELIVERY")) && !order.deliveryUserId ? { deliveryUserId: userId } : {}),
     },
   });
 

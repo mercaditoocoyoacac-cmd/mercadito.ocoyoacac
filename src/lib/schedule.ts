@@ -24,9 +24,9 @@ export function isStoreOpen(store: {
   openTime: string | null;
   closeTime: string | null;
   scheduleDays: string[];
-  scheduleDetails?: StoreScheduleDetails | null;
+  scheduleDetails?: unknown;
 }): boolean {
-  const details = store.scheduleDetails;
+  const details = store.scheduleDetails as StoreScheduleDetails | null;
   if (details && details.days && Object.keys(details.days).length > 0) {
     const { day, nowMinutes } = getMexicoCityTime();
     const daySchedule = details.days[day];
