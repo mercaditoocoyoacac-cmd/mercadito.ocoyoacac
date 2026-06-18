@@ -8,14 +8,17 @@ export async function POST(req: Request) {
   if (!auth.ok) return auth.res;
 
   const json = await req.json().catch(() => null);
-  const { orderId, storeScore, deliveryScore, comment } = json || {};
+  const { orderId, storeScore, packagingScore, completenessScore, deliveryScore, timelinessScore, comment } = json || {};
 
   if (!orderId || !storeScore || storeScore < 1 || storeScore > 5) {
     return NextResponse.json({ ok: false, error: "storeScore requerido (1-5)" }, { status: 400 });
   }
 
-  if (deliveryScore !== undefined && deliveryScore !== null && (deliveryScore < 1 || deliveryScore > 5)) {
-    return NextResponse.json({ ok: false, error: "deliveryScore debe ser 1-5" }, { status: 400 });
+  function validScore(v: unknown, min = 1, max = 5): boolean {
+    return v === undefined || v === null || (typeof v === "number" && v >= min && v <= max);
+  }
+  if (!validScore(packagingScore) || !validScore(completenessScore) || !validScore(deliveryScore) || !validScore(timelinessScore)) {
+    return NextResponse.json({ ok: false, error: "Scores deben ser 1-5" }, { status: 400 });
   }
 
   const order = await prisma.order.findFirst({
@@ -36,7 +39,10 @@ export async function POST(req: Request) {
     data: {
       orderId,
       storeScore,
+      packagingScore: packagingScore || null,
+      completenessScore: completenessScore || null,
       deliveryScore: order.fulfillmentType === "DELIVERY" ? (deliveryScore || null) : null,
+      timelinessScore: order.fulfillmentType === "DELIVERY" ? (timelinessScore || null) : null,
       comment: comment || null,
     },
   });

@@ -322,11 +322,14 @@ model Order {
 }
 
 model OrderRating {
-  id            String   @id @default(cuid())
-  storeScore    Int
-  deliveryScore Int?
-  comment       String?
-  createdAt     DateTime @default(now())
+  id               String   @id @default(cuid())
+  storeScore       Int
+  packagingScore   Int?
+  completenessScore Int?
+  deliveryScore    Int?
+  timelinessScore  Int?
+  comment          String?
+  createdAt        DateTime @default(now())
 
   orderId String @unique
   order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)

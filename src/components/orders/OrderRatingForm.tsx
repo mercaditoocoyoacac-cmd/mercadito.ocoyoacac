@@ -22,6 +22,8 @@ function StarInput({ value, onChange }: { value: number; onChange: (v: number) =
   );
 }
 
+type ScoreField = { label: string; key: "storeScore" | "packagingScore" | "completenessScore" | "deliveryScore" | "timelinessScore"; show: boolean };
+
 export default function OrderRatingForm({
   orderId,
   fulfillmentType,
@@ -32,12 +34,25 @@ export default function OrderRatingForm({
   hasExistingRating: boolean;
 }) {
   const router = useRouter();
-  const [storeScore, setStoreScore] = useState(0);
-  const [deliveryScore, setDeliveryScore] = useState(0);
+  const [scores, setScores] = useState<Record<string, number>>({});
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(hasExistingRating);
   const [error, setError] = useState("");
+
+  const isDelivery = fulfillmentType === "DELIVERY";
+
+  const questions: ScoreField[] = [
+    { label: "¿Cómo calificas tu pedido?", key: "storeScore", show: true },
+    { label: "¿El pedido estaba bien empaquetado?", key: "packagingScore", show: true },
+    { label: "¿Llegó completo?", key: "completenessScore", show: true },
+    { label: "¿El repartidor llegó en buen tiempo?", key: "timelinessScore", show: isDelivery },
+    { label: "Calificación del repartidor", key: "deliveryScore", show: isDelivery },
+  ];
+
+  function setScore(key: string, val: number) {
+    setScores(prev => ({ ...prev, [key]: val }));
+  }
 
   if (done) {
     return (
@@ -49,8 +64,8 @@ export default function OrderRatingForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (storeScore === 0) {
-      setError("Selecciona una calificación para la tienda");
+    if (!scores.storeScore) {
+      setError("Califica tu pedido");
       return;
     }
     setSubmitting(true);
@@ -58,7 +73,15 @@ export default function OrderRatingForm({
     const res = await fetch("/api/ratings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ orderId, storeScore, deliveryScore: deliveryScore || null, comment: comment || null }),
+      body: JSON.stringify({
+        orderId,
+        storeScore: scores.storeScore,
+        packagingScore: scores.packagingScore || null,
+        completenessScore: scores.completenessScore || null,
+        deliveryScore: scores.deliveryScore || null,
+        timelinessScore: scores.timelinessScore || null,
+        comment: comment || null,
+      }),
     });
     const data = await res.json().catch(() => null);
     if (res.ok && data?.ok) {
@@ -71,29 +94,33 @@ export default function OrderRatingForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-xl border border-[var(--border)] p-4 space-y-4">
-      <h3 className="font-semibold">Califica tu pedido</h3>
-
-      <div>
-        <label className="mb-1 block text-sm font-medium">Tienda</label>
-        <StarInput value={storeScore} onChange={setStoreScore} />
+    <form onSubmit={handleSubmit} className="rounded-xl border border-[var(--border)] p-6 space-y-5">
+      <div className="text-center">
+        <div className="text-2xl mb-2">📝</div>
+        <h3 className="text-lg font-semibold">¿Cómo fue tu experiencia?</h3>
+        <p className="text-sm text-[color:var(--muted)] mt-1">
+          Tu opinión nos ayuda a mejorar
+        </p>
       </div>
 
-      {fulfillmentType === "DELIVERY" && (
-        <div>
-          <label className="mb-1 block text-sm font-medium">Repartidor</label>
-          <StarInput value={deliveryScore} onChange={setDeliveryScore} />
-        </div>
-      )}
+      <div className="space-y-4">
+        {questions.filter(q => q.show).map(q => (
+          <div key={q.key}>
+            <label className="mb-1.5 block text-sm font-medium">{q.label}</label>
+            <StarInput value={scores[q.key] || 0} onChange={(v) => setScore(q.key, v)} />
+          </div>
+        ))}
+      </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium">Comentario (opcional)</label>
+        <label className="mb-1.5 block text-sm font-medium">Comentario adicional (opcional)</label>
         <textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-          rows={2}
+          rows={3}
           maxLength={500}
+          placeholder="Cuéntanos más sobre tu experiencia..."
         />
       </div>
 
@@ -102,7 +129,7 @@ export default function OrderRatingForm({
       <button
         type="submit"
         disabled={submitting}
-        className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-50"
+        className="w-full rounded-lg bg-[var(--accent)] px-4 py-2.5 text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-50"
       >
         {submitting ? "Enviando..." : "Enviar calificación"}
       </button>
