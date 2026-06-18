@@ -45,6 +45,8 @@ export default function ProfilePage() {
 
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
 
+  const [activeOrders, setActiveOrders] = useState<any[]>([]);
+
   const [verifyModal, setVerifyModal] = useState<{ open: boolean; type: string; target: string }>({
     open: false,
     type: "",
@@ -56,6 +58,9 @@ export default function ProfilePage() {
 
   useState(() => {
     fetchProfile();
+    fetch("/api/profile/active-orders")
+      .then(r => r.json())
+      .then(data => { if (data.ok) setActiveOrders(data.orders); });
   });
 
   async function fetchProfile() {
@@ -209,6 +214,41 @@ export default function ProfilePage() {
           </Link>
         )}
       </div>
+
+      {activeOrders.length > 0 && (
+        <div className="mt-6 space-y-3">
+          {activeOrders.map(o => (
+            <div key={o.id} className={`rounded-xl border-2 p-6 text-center ${
+              o.arrivedAt && o.status === "OUT_FOR_DELIVERY"
+                ? "border-orange-400 bg-orange-50 shadow-lg"
+                : "border-orange-200 bg-orange-50"
+            }`}>
+              <div className="text-3xl mb-2">
+                {o.arrivedAt ? "🛵" : "📦"}
+              </div>
+              <div className="text-base font-bold text-gray-900">
+                {o.arrivedAt ? "¡El repartidor está en camino a entregarte!" : "Pedido listo en " + o.store.name}
+              </div>
+              <div className="mt-3 inline-block rounded-xl bg-white px-6 py-3 shadow-inner">
+                <div className="font-mono text-4xl font-bold tracking-[0.25em] text-gray-900">
+                  {o.pickupCode}
+                </div>
+              </div>
+              <div className="mt-2 text-xs text-gray-500">
+                {o.arrivedAt
+                  ? "Proporciona este código al repartidor para recibir tu pedido"
+                  : "Proporciona este código al recoger en tienda"}
+              </div>
+              <Link
+                href={`/mis-pedidos/${o.id}`}
+                className="mt-3 inline-block text-xs text-[var(--accent)] hover:underline"
+              >
+                Ver detalle del pedido →
+              </Link>
+            </div>
+          ))}
+        </div>
+      )}
 
       {error && (
         <div className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-700">
