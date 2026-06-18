@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
-import { requireUser } from "@/server/requireUser";
+import { requireRole } from "@/server/requireUser";
 import { appendStatusTimestamp } from "@/lib/statusTimestamps";
 
 const ClaimSchema = z.object({
@@ -10,14 +10,15 @@ const ClaimSchema = z.object({
 });
 
 export async function POST(req: Request) {
-  const auth = await requireUser();
+  const auth = await requireRole("DELIVERY");
   if (!auth.ok) return auth.res;
 
   const user = await prisma.user.findUnique({
     where: { id: auth.userId },
-    select: { id: true, role: true, isActive: true, latitude: true, longitude: true },
+    select: { id: true, role: true, isActive: true, latitude: true, longitude: true, additionalRoles: true },
   });
-  if (!user || user.role !== "DELIVERY" || !user.isActive) {
+  const hasDeliveryRole = user?.role === "DELIVERY" || (user?.additionalRoles ?? "").split(",").includes("DELIVERY");
+  if (!user || !hasDeliveryRole || !user.isActive) {
     return NextResponse.json({ ok: false, error: "No autorizado." }, { status: 403 });
   }
 

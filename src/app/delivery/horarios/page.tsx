@@ -60,7 +60,7 @@ export default function HorariosPage() {
       return;
     }
     if (status !== "authenticated") return;
-    if (session.user.role !== "DELIVERY") {
+    if (session.user.role !== "DELIVERY" && !(session.user.additionalRoles ?? "").split(",").includes("DELIVERY")) {
       router.replace("/delivery/login");
       return;
     }

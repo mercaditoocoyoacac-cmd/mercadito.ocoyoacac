@@ -1,20 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/server/prisma";
-import { requireUser } from "@/server/requireUser";
+import { requireRole } from "@/server/requireUser";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const auth = await requireUser();
+  const auth = await requireRole("ADMIN");
   if (!auth.ok) return auth.res;
-
-  const user = await prisma.user.findUnique({
-    where: { id: auth.userId },
-    select: { role: true },
-  });
-  if (user?.role !== "ADMIN") {
-    return NextResponse.json({ ok: false, error: "No autorizado" }, { status: 403 });
-  }
 
   const now = new Date();
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);

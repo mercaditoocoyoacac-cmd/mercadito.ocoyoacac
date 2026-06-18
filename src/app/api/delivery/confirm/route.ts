@@ -1,26 +1,17 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
-import { requireUser } from "@/server/requireUser";
+import { requireRole } from "@/server/requireUser";
 import { sendTextNotification } from "@/server/notifications";
 import { sendWhatsAppMessage } from "@/server/whatsapp";
 import { sendSMS } from "@/server/sns";
 import { appendStatusTimestamp } from "@/lib/statusTimestamps";
 
 export async function POST(req: Request) {
-  const auth = await requireUser();
+  const auth = await requireRole("DELIVERY", "VENDOR", "ADMIN");
   if (!auth.ok) return auth.res;
 
   const userId = auth.userId;
-
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { role: true },
-  });
-
-  if (user?.role !== "DELIVERY" && user?.role !== "VENDOR" && user?.role !== "ADMIN") {
-    return NextResponse.json({ ok: false, error: "No autorizado" }, { status: 403 });
-  }
 
   const json = await req.json().catch(() => null);
   const { orderId, code, action } = json || {};

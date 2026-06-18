@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/server/prisma";
-import { requireUser } from "@/server/requireUser";
+import { requireRole } from "@/server/requireUser";
 
 const updateSchema = z.object({
   label: z.string().min(1).max(80).optional(),
@@ -11,16 +11,8 @@ const updateSchema = z.object({
 });
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await requireUser();
+  const auth = await requireRole("ADMIN");
   if (!auth.ok) return auth.res;
-
-  const user = await prisma.user.findUnique({
-    where: { id: auth.userId },
-    select: { role: true },
-  });
-  if (user?.role !== "ADMIN") {
-    return NextResponse.json({ ok: false, error: "No autorizado" }, { status: 403 });
-  }
 
   const json = await req.json().catch(() => null);
   const parsed = updateSchema.safeParse(json);
@@ -44,16 +36,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 }
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await requireUser();
+  const auth = await requireRole("ADMIN");
   if (!auth.ok) return auth.res;
-
-  const user = await prisma.user.findUnique({
-    where: { id: auth.userId },
-    select: { role: true },
-  });
-  if (user?.role !== "ADMIN") {
-    return NextResponse.json({ ok: false, error: "No autorizado" }, { status: 403 });
-  }
 
   const { id } = await params;
 

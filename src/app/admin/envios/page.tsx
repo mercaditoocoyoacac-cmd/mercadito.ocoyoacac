@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/server/session";
+import { getUserRoles } from "@/server/requireUser";
 import DeliverySupervisionClient from "@/components/admin/DeliverySupervisionClient";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +13,7 @@ export default async function AdminEnviosPage() {
     console.error("Session error:", e);
   }
 
-  if (!session?.user?.id || session.user.role !== "ADMIN") {
+  if (!session?.user?.id || !getUserRoles(session).includes("ADMIN")) {
     redirect("/admin/login");
   }
 

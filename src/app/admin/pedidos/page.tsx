@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
+import { getUserRoles } from "@/server/requireUser";
 import { formatMoney } from "@/lib/format";
 import { getStatusLabel } from "@/lib/labels";
 
@@ -9,7 +10,7 @@ export const revalidate = 30;
 export default async function AdminOrdersPage() {
   const session = await getSession();
 
-  if (!session?.user?.id || session.user.role !== "ADMIN") {
+  if (!session?.user?.id || !getUserRoles(session).includes("ADMIN")) {
     redirect("/");
   }
 

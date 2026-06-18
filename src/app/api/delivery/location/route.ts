@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/server/prisma";
-import { requireUser } from "@/server/requireUser";
+import { requireRole } from "@/server/requireUser";
 
 const LocationSchema = z.object({
   latitude: z.number().min(-90).max(90),
@@ -9,20 +9,8 @@ const LocationSchema = z.object({
 });
 
 export async function POST(req: Request) {
-  const auth = await requireUser();
+  const auth = await requireRole("DELIVERY");
   if (!auth.ok) return auth.res;
-
-  const user = await prisma.user.findUnique({
-    where: { id: auth.userId },
-    select: { role: true },
-  });
-
-  if (!user || user.role !== "DELIVERY") {
-    return NextResponse.json(
-      { ok: false, error: "No autorizado." },
-      { status: 403 },
-    );
-  }
 
   const json = await req.json().catch(() => null);
   const parsed = LocationSchema.safeParse(json);

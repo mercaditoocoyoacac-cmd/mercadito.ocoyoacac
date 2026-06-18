@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
+import { getUserRoles } from "@/server/requireUser";
 import DeliveryTracker from "@/components/orders/DeliveryTracker";
 import DeliveryRating from "@/components/delivery/DeliveryRating";
 import { PullToRefreshWrapper } from "@/components/ui/PullToRefreshWrapper";
@@ -10,7 +11,7 @@ export const dynamic = "force-dynamic";
 export default async function DeliveryDashboard() {
   const session = await getSession();
   
-  if (!session?.user?.id || session.user.role !== "DELIVERY") {
+  if (!session?.user?.id || !getUserRoles(session).includes("DELIVERY")) {
     redirect("/delivery/login");
   }
 

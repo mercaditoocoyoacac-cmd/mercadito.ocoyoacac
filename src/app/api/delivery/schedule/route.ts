@@ -1,17 +1,15 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/server/prisma";
-import { getSession } from "@/server/session";
+import { requireRole } from "@/server/requireUser";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const session = await getSession();
-  if (!session?.user?.id || session.user.role !== "DELIVERY") {
-    return NextResponse.json({ ok: false, error: "No autorizado" }, { status: 401 });
-  }
+  const auth = await requireRole("DELIVERY");
+  if (!auth.ok) return auth.res;
 
   const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
+    where: { id: auth.userId },
     select: { availabilitySchedule: true },
   });
 
@@ -19,10 +17,8 @@ export async function GET() {
 }
 
 export async function PUT(req: Request) {
-  const session = await getSession();
-  if (!session?.user?.id || session.user.role !== "DELIVERY") {
-    return NextResponse.json({ ok: false, error: "No autorizado" }, { status: 401 });
-  }
+  const auth = await requireRole("DELIVERY");
+  if (!auth.ok) return auth.res;
 
   const body = await req.json().catch(() => ({}));
   const { schedule } = body;
@@ -32,7 +28,7 @@ export async function PUT(req: Request) {
   }
 
   await prisma.user.update({
-    where: { id: session.user.id },
+    where: { id: auth.userId },
     data: { availabilitySchedule: schedule },
   });
 

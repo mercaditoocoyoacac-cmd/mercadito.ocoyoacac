@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/server/prisma";
-import { requireUser } from "@/server/requireUser";
+import { requireRole } from "@/server/requireUser";
 import { sendTextNotification } from "@/server/notifications";
 import { sendWhatsAppMessage } from "@/server/whatsapp";
 import { sendSMS } from "@/server/sns";
@@ -12,16 +12,8 @@ const NotifySchema = z.object({
 });
 
 export async function POST(req: Request) {
-  const auth = await requireUser();
+  const auth = await requireRole("ADMIN");
   if (!auth.ok) return auth.res;
-
-  const admin = await prisma.user.findUnique({
-    where: { id: auth.userId },
-    select: { role: true },
-  });
-  if (admin?.role !== "ADMIN") {
-    return NextResponse.json({ ok: false, error: "No autorizado" }, { status: 403 });
-  }
 
   const json = await req.json().catch(() => null);
   const parsed = NotifySchema.safeParse(json);

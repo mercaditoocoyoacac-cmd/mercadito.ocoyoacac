@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
+import { getUserRoles } from "@/server/requireUser";
 import { formatDateInMexico } from "@/lib/dates";
 import { formatMoney } from "@/lib/format";
 
@@ -14,7 +15,7 @@ const GRACE_PERIOD_CUTOFF = new Date("2026-08-01");
 export default async function AdminSubscriptionsPage() {
   const session = await getSession();
 
-  if (!session?.user?.id || session.user.role !== "ADMIN") {
+  if (!session?.user?.id || !getUserRoles(session).includes("ADMIN")) {
     redirect("/");
   }
 

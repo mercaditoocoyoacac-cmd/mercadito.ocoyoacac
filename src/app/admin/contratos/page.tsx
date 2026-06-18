@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
+import { getUserRoles } from "@/server/requireUser";
 import { formatDateInMexico } from "@/lib/dates";
 import { EmptyState } from "@/components/ui/EmptyState";
 
@@ -10,7 +11,7 @@ export const revalidate = 30;
 export default async function AdminContractsPage() {
   const session = await getSession();
 
-  if (!session?.user?.id || session.user.role !== "ADMIN") {
+  if (!session?.user?.id || !getUserRoles(session).includes("ADMIN")) {
     redirect("/");
   }
 

@@ -13,13 +13,21 @@ export async function requireUser() {
   return { ok: true as const, userId, session };
 }
 
+export function getUserRoles(session: { user: { role?: string | null; additionalRoles?: string | null } }): string[] {
+  return [
+    session.user.role ?? "",
+    ...(session.user.additionalRoles?.split(",").filter(Boolean) ?? []),
+  ].filter(Boolean);
+}
+
 export async function requireRole(...roles: string[]) {
   const session = await getSession();
   const userId = session?.user?.id;
   if (!userId) {
     return { ok: false as const, res: NextResponse.json({ ok: false, error: "No autorizado" }, { status: 401 }) };
   }
-  if (!session.user.role || !roles.includes(session.user.role)) {
+  const userRoles = getUserRoles(session);
+  if (!userRoles.some(r => roles.includes(r))) {
     return { ok: false as const, res: NextResponse.json({ ok: false, error: "No autorizado" }, { status: 403 }) };
   }
   return { ok: true as const, userId, session };

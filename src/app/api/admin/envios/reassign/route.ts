@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
-import { requireUser } from "@/server/requireUser";
+import { requireRole } from "@/server/requireUser";
 
 const ReassignSchema = z.object({
   orderId: z.string().min(1),
@@ -10,16 +10,8 @@ const ReassignSchema = z.object({
 });
 
 export async function POST(req: Request) {
-  const auth = await requireUser();
+  const auth = await requireRole("ADMIN");
   if (!auth.ok) return auth.res;
-
-  const admin = await prisma.user.findUnique({
-    where: { id: auth.userId },
-    select: { role: true },
-  });
-  if (admin?.role !== "ADMIN") {
-    return NextResponse.json({ ok: false, error: "No autorizado" }, { status: 403 });
-  }
 
   const json = await req.json().catch(() => null);
   const parsed = ReassignSchema.safeParse(json);
@@ -44,10 +36,11 @@ export async function POST(req: Request) {
 
   const driver = await prisma.user.findUnique({
     where: { id: driverId },
-    select: { role: true, isActive: true },
+    select: { role: true, isActive: true, additionalRoles: true },
   });
 
-  if (!driver || driver.role !== "DELIVERY" || !driver.isActive) {
+  const isDelivery = driver?.role === "DELIVERY" || (driver?.additionalRoles ?? "").split(",").includes("DELIVERY");
+  if (!driver || !isDelivery || !driver.isActive) {
     return NextResponse.json({ ok: false, error: "Repartidor no válido" }, { status: 400 });
   }
 
