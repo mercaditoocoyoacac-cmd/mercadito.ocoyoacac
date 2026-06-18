@@ -5,6 +5,7 @@ import { getSession } from "@/server/session";
 import { revalidatePath } from "next/cache";
 import { formatMoney } from "@/lib/format";
 import { getStatusLabel, FULFILLMENT_LABELS } from "@/lib/labels";
+import VendorCodeQR from "@/components/vendor/VendorCodeQR";
 
 export const dynamic = "force-dynamic";
 
@@ -169,23 +170,19 @@ export default async function VendorPedidoPage({
 
           {order.fulfillmentType === "DELIVERY" && order.deliveryCode && (
             <div className="rounded-lg bg-blue-50 px-4 py-3 text-center">
-              <div className="text-sm font-medium">Código para el repartidor</div>
-              <div className="text-2xl font-mono font-bold tracking-widest mt-1">
-                {order.deliveryCode}
-              </div>
-              <div className="text-xs text-[color:var(--muted)] mt-1">
-                Entrega este código al repartidor al recoger el pedido
+              <div className="text-sm font-medium mb-2">Código QR para el repartidor</div>
+              <VendorCodeQR code={order.deliveryCode} orderId={order.id} label="delivery" />
+              <div className="text-xs text-[color:var(--muted)] mt-2">
+                Muestra este QR al repartidor al recoger el pedido
               </div>
             </div>
           )}
           {order.pickupCode && (
             <div className="rounded-lg bg-orange-50 px-4 py-3 text-center">
-              <div className="text-sm font-medium">Código de confirmación del cliente</div>
-              <div className="text-2xl font-mono font-bold tracking-widest mt-1">
-                {order.pickupCode}
-              </div>
-              <div className="text-xs text-[color:var(--muted)] mt-1">
-                El repartidor lo solicitará al cliente para confirmar la entrega
+              <div className="text-sm font-medium mb-2">Código QR de confirmación del cliente</div>
+              <VendorCodeQR code={order.pickupCode} orderId={order.id} label="pickup" />
+              <div className="text-xs text-[color:var(--muted)] mt-2">
+                El repartidor lo escaneará al entregar al cliente
               </div>
             </div>
           )}
