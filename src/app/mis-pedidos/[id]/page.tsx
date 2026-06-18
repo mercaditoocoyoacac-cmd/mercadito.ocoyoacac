@@ -186,26 +186,38 @@ export default async function PedidoDetallePage({
           </div>
         </div>
 
-        {order.arrivedAt && order.status === "OUT_FOR_DELIVERY" && (
-          <div className={`rounded-xl border p-6 text-center ${
+        {order.arrivedAt && order.status === "OUT_FOR_DELIVERY" && order.pickupCode && (
+          <div className={`rounded-xl border-2 p-8 text-center ${
             order.arrivalConfirmedAt
-              ? "border-green-300 bg-green-50"
-              : "border-orange-300 bg-orange-50 animate-pulse"
+              ? "border-green-400 bg-green-50"
+              : "border-orange-400 bg-orange-50 shadow-lg"
           }`}>
-            <div className="text-3xl mb-2">🛵</div>
-            <div className="text-lg font-semibold text-green-800">¡El repartidor está aquí!</div>
-            <div className="mt-1 text-sm text-green-700">
-              {order.arrivalConfirmedAt
-                ? "Confirmaste que estás enterado. Sal a recibir tu pedido."
-                : "El repartidor ya llegó a tu domicilio."}
+            <div className="text-4xl mb-3">🛵</div>
+            <div className="text-xl font-bold text-green-900">¡El repartidor ya está aquí!</div>
+            <div className="mt-4">
+              <div className="text-sm font-medium text-gray-600 mb-2">
+                {order.arrivalConfirmedAt
+                  ? "Sal a recibir tu pedido"
+                  : "Proporciona este código al repartidor"}
+              </div>
+              <div className="inline-block rounded-xl bg-white px-8 py-4 shadow-inner">
+                <div className="font-mono text-5xl font-bold tracking-[0.3em] text-gray-900">
+                  {order.pickupCode}
+                </div>
+              </div>
+              <div className="mt-3 text-xs text-gray-500">
+                El repartidor te solicitará este código para confirmar la entrega
+              </div>
             </div>
             {!order.arrivalConfirmedAt && (
-              <ArrivalConfirmButton orderId={order.id} />
+              <div className="mt-4">
+                <ArrivalConfirmButton orderId={order.id} />
+              </div>
             )}
           </div>
         )}
 
-        {(order.status === "OUT_FOR_DELIVERY" || order.status === "READY" || order.status === "CONFIRMED") && order.pickupCode && (
+        {(order.status === "OUT_FOR_DELIVERY" || order.status === "READY" || order.status === "CONFIRMED") && order.pickupCode && !(order.arrivedAt && order.status === "OUT_FOR_DELIVERY") && (
           <div className="rounded-xl border border-orange-200 bg-orange-50 p-6 text-center">
             <div className="text-sm font-medium text-orange-700">Tu código de entrega</div>
             <div className="mt-2 font-mono text-4xl font-bold tracking-widest text-orange-700">
