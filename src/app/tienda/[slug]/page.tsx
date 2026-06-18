@@ -26,6 +26,7 @@ export default async function StorefrontPage({
       openTime: true,
       closeTime: true,
       scheduleDays: true,
+      scheduleDetails: true,
     },
   });
   if (!store || !store.isActive) return notFound();

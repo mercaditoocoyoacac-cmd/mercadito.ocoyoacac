@@ -61,6 +61,7 @@ const storeFields = {
   openTime: z.string().regex(/^([01]?\d|2[0-3]):[0-5]\d$/).nullable().optional(),
   closeTime: z.string().regex(/^([01]?\d|2[0-3]):[0-5]\d$/).nullable().optional(),
   scheduleDays: z.array(z.enum(DAYS)).min(1).optional(),
+  scheduleDetails: z.any().optional(),
 } as const;
 
 export const updateStoreSchema = z.object(storeFields);

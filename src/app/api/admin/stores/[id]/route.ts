@@ -40,6 +40,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         openTime: parsed.data.openTime === undefined ? undefined : (parsed.data.openTime || null),
         closeTime: parsed.data.closeTime === undefined ? undefined : (parsed.data.closeTime || null),
         scheduleDays: parsed.data.scheduleDays,
+        scheduleDetails: parsed.data.scheduleDetails,
       },
     });
 

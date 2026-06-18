@@ -1,3 +1,9 @@
+type DaySchedule = { active: boolean; start: string; end: string };
+type StoreScheduleDetails = {
+  mode: "weekly" | "daily";
+  days: Partial<Record<string, DaySchedule>>;
+};
+
 function getMexicoCityTime() {
   const now = new Date();
   const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
@@ -14,19 +20,38 @@ function getMexicoCityTime() {
   };
 }
 
-export function isStoreOpen(schedule: {
+export function isStoreOpen(store: {
   openTime: string | null;
   closeTime: string | null;
   scheduleDays: string[];
+  scheduleDetails?: StoreScheduleDetails | null;
 }): boolean {
-  if (!schedule.openTime || !schedule.closeTime) return true;
-  if (schedule.scheduleDays.length === 0) return false;
+  const details = store.scheduleDetails;
+  if (details && details.days && Object.keys(details.days).length > 0) {
+    const { day, nowMinutes } = getMexicoCityTime();
+    const daySchedule = details.days[day];
+    if (!daySchedule || !daySchedule.active) return false;
+    if (!daySchedule.start || !daySchedule.end) return true;
+
+    const [openH, openM] = daySchedule.start.split(":").map(Number);
+    const [closeH, closeM] = daySchedule.end.split(":").map(Number);
+    const openMinutes = openH * 60 + openM;
+    const closeMinutes = closeH * 60 + closeM;
+
+    if (closeMinutes <= openMinutes) {
+      return nowMinutes >= openMinutes || nowMinutes < closeMinutes;
+    }
+    return nowMinutes >= openMinutes && nowMinutes < closeMinutes;
+  }
+
+  if (!store.openTime || !store.closeTime) return true;
+  if (store.scheduleDays.length === 0) return false;
 
   const { day, nowMinutes } = getMexicoCityTime();
-  if (!schedule.scheduleDays.includes(day)) return false;
+  if (!store.scheduleDays.includes(day)) return false;
 
-  const [openH, openM] = schedule.openTime.split(":").map(Number);
-  const [closeH, closeM] = schedule.closeTime.split(":").map(Number);
+  const [openH, openM] = store.openTime.split(":").map(Number);
+  const [closeH, closeM] = store.closeTime.split(":").map(Number);
   const openMinutes = openH * 60 + openM;
   const closeMinutes = closeH * 60 + closeM;
 

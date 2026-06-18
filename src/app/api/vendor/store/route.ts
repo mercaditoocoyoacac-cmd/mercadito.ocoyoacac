@@ -39,6 +39,7 @@ export async function GET() {
       openTime: true,
       closeTime: true,
       scheduleDays: true,
+      scheduleDetails: true,
       createdAt: true,
       subscription: {
         select: {
@@ -146,6 +147,7 @@ export async function POST(req: Request) {
           openTime: s.openTime ?? null,
           closeTime: s.closeTime ?? null,
           scheduleDays: s.scheduleDays,
+          scheduleDetails: s.scheduleDetails,
           createdAt: s.createdAt?.toISOString() ?? null,
           subscription: s.subscription
             ? {
@@ -215,6 +217,7 @@ export async function PUT(req: Request) {
         openTime: parsed.data.openTime === undefined ? undefined : (parsed.data.openTime || null),
         closeTime: parsed.data.closeTime === undefined ? undefined : (parsed.data.closeTime || null),
         scheduleDays: parsed.data.scheduleDays,
+        scheduleDetails: parsed.data.scheduleDetails,
       },
     });
 

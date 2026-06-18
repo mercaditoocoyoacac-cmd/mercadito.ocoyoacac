@@ -25,6 +25,9 @@ interface Store {
   scheduleDays: string[];
 }
 
+type DaySchedule = { active: boolean; start: string; end: string };
+type StoreScheduleDetails = { mode: "weekly" | "daily"; days: Record<string, DaySchedule> };
+
 const DAYS = [
   { key: "MONDAY", label: "Lunes" },
   { key: "TUESDAY", label: "Martes" },
@@ -34,6 +37,21 @@ const DAYS = [
   { key: "SATURDAY", label: "Sábado" },
   { key: "SUNDAY", label: "Domingo" },
 ] as const;
+
+function defaultStoreSchedule(): StoreScheduleDetails {
+  return {
+    mode: "weekly",
+    days: {
+      MONDAY: { active: true, start: "09:00", end: "18:00" },
+      TUESDAY: { active: true, start: "09:00", end: "18:00" },
+      WEDNESDAY: { active: true, start: "09:00", end: "18:00" },
+      THURSDAY: { active: true, start: "09:00", end: "18:00" },
+      FRIDAY: { active: true, start: "09:00", end: "18:00" },
+      SATURDAY: { active: false, start: "09:00", end: "14:00" },
+      SUNDAY: { active: false, start: "09:00", end: "14:00" },
+    },
+  };
+}
 
 export default function EditarTiendaPage() {
   const router = useRouter();
@@ -53,6 +71,8 @@ export default function EditarTiendaPage() {
   const [scheduleDays, setScheduleDays] = useState<string[]>(
     DAYS.map((d) => d.key)
   );
+  const [scheduleDetails, setScheduleDetails] = useState<StoreScheduleDetails>(defaultStoreSchedule());
+  const [scheduleMode, setScheduleMode] = useState<"weekly" | "daily">("weekly");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -88,6 +108,10 @@ export default function EditarTiendaPage() {
       setOpenTime(data.store.openTime ?? "");
       setCloseTime(data.store.closeTime ?? "");
       setScheduleDays(data.store.scheduleDays.length > 0 ? data.store.scheduleDays : DAYS.map((d) => d.key));
+      if (data.store.scheduleDetails && data.store.scheduleDetails.days) {
+        setScheduleDetails(data.store.scheduleDetails);
+        setScheduleMode(data.store.scheduleDetails.mode || "weekly");
+      }
     } else {
       router.push("/vendor/onboarding");
       return;
@@ -134,12 +158,48 @@ export default function EditarTiendaPage() {
     setScheduleDays((prev) =>
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
     );
+    setScheduleDetails(prev => ({
+      ...prev,
+      days: { ...prev.days, [day]: { ...prev.days[day], active: !prev.days[day]?.active } },
+    }));
+  }
+
+  function updateDaySchedule(day: string, partial: Partial<DaySchedule>) {
+    setScheduleDetails(prev => ({
+      ...prev,
+      days: { ...prev.days, [day]: { ...prev.days[day], ...partial } },
+    }));
+  }
+
+  function handleStoreScheduleMode(mode: "weekly" | "daily") {
+    setScheduleMode(mode);
+    if (mode === "weekly") {
+      const activeDays = DAYS.filter(d => scheduleDetails.days[d.key]?.active);
+      if (activeDays.length > 0) {
+        const ref = scheduleDetails.days[activeDays[0].key];
+        setScheduleDetails(prev => ({
+          mode: "weekly",
+          days: Object.fromEntries(
+            DAYS.map(d => [d.key, { ...ref, active: prev.days[d.key]?.active ?? false }])
+          ) as Record<string, DaySchedule>,
+        }));
+      } else {
+        setScheduleDetails(prev => ({ ...prev, mode: "weekly" }));
+      }
+    } else {
+      setScheduleDetails(prev => ({ ...prev, mode: "daily" }));
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
     setError(null);
+
+    const activeDays = DAYS.filter(d => scheduleDetails.days[d.key]?.active);
+    const syncOpenTime = activeDays.length > 0 ? scheduleDetails.days[activeDays[0].key].start : "";
+    const syncCloseTime = activeDays.length > 0 ? scheduleDetails.days[activeDays[0].key].end : "";
+    const syncScheduleDays = activeDays.map(d => d.key);
 
     const res = await fetch("/api/vendor/store", {
       method: "PUT",
@@ -153,9 +213,10 @@ export default function EditarTiendaPage() {
         imageUrl: imageUrl || null,
         latitude: latitude,
         longitude: longitude,
-        openTime: openTime || null,
-        closeTime: closeTime || null,
-        scheduleDays,
+        openTime: syncOpenTime || null,
+        closeTime: syncCloseTime || null,
+        scheduleDays: syncScheduleDays,
+        scheduleDetails,
       }),
     });
 
@@ -312,49 +373,99 @@ export default function EditarTiendaPage() {
           </div>
           <p className="text-xs text-[color:var(--muted)] mb-4">
             Los clientes solo podrán hacer pedidos durante tu horario configurado.
-            Deja los campos vacíos para aceptar pedidos 24/7.
+            Desmarca todos los días para aceptar pedidos 24/7.
           </p>
 
-          <div className="grid gap-4 sm:grid-cols-2 mb-5">
-            <label className="block">
-              <div className="text-xs font-medium text-[color:var(--muted)]">Hora de apertura</div>
-              <input
-                type="time"
-                value={openTime}
-                onChange={(e) => setOpenTime(e.target.value)}
-                className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-              />
-            </label>
-            <label className="block">
-              <div className="text-xs font-medium text-[color:var(--muted)]">Hora de cierre</div>
-              <input
-                type="time"
-                value={closeTime}
-                onChange={(e) => setCloseTime(e.target.value)}
-                className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-              />
-            </label>
+          <div className="mb-4 flex gap-2">
+            <button
+              type="button"
+              onClick={() => handleStoreScheduleMode("weekly")}
+              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                scheduleMode === "weekly"
+                  ? "bg-[var(--accent)] text-white"
+                  : "border border-[var(--border)] text-[color:var(--muted)] hover:bg-[var(--accent-soft)]"
+              }`}
+            >
+              Mismo horario todos los días
+            </button>
+            <button
+              type="button"
+              onClick={() => handleStoreScheduleMode("daily")}
+              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                scheduleMode === "daily"
+                  ? "bg-[var(--accent)] text-white"
+                  : "border border-[var(--border)] text-[color:var(--muted)] hover:bg-[var(--accent-soft)]"
+              }`}
+            >
+              Horario por día
+            </button>
           </div>
 
-          <div className="text-xs font-medium text-[color:var(--muted)] mb-2">Días de atención</div>
-          <div className="flex flex-wrap gap-2">
-            {DAYS.map((day) => {
-              const isActive = scheduleDays.includes(day.key);
-              return (
-                <button
-                  key={day.key}
-                  type="button"
-                  onClick={() => toggleDay(day.key)}
-                  className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                    isActive
-                      ? "bg-[var(--accent)] text-white"
-                      : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-                  }`}
-                >
-                  {day.label.slice(0, 3)}
-                </button>
-              );
-            })}
+          {scheduleMode === "weekly" && (
+            <div className="mb-4">
+              <div className="text-xs font-medium text-[color:var(--muted)] mb-2">Días activos</div>
+              <div className="flex flex-wrap gap-2">
+                {DAYS.map((day) => {
+                  const isActive = scheduleDays.includes(day.key);
+                  return (
+                    <button
+                      key={day.key}
+                      type="button"
+                      onClick={() => toggleDay(day.key)}
+                      className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                        isActive
+                          ? "bg-[var(--accent)] text-white"
+                          : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                      }`}
+                    >
+                      {day.label.slice(0, 3)}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            {(scheduleMode === "daily" ? DAYS : DAYS.filter(d => scheduleDays.includes(d.key))).map(day => (
+              <div
+                key={day.key}
+                className={`flex items-center justify-between rounded-lg border p-3 ${
+                  scheduleMode === "daily" && !scheduleDetails.days[day.key]?.active
+                    ? "border-dashed border-gray-300 opacity-60"
+                    : "border-gray-200"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {scheduleMode === "daily" && (
+                    <input
+                      type="checkbox"
+                      checked={scheduleDetails.days[day.key]?.active ?? false}
+                      onChange={() => toggleDay(day.key)}
+                      className="h-4 w-4 rounded border-gray-300 text-[var(--accent)]"
+                    />
+                  )}
+                  <span className="text-sm font-medium">{day.label}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="time"
+                    value={scheduleDetails.days[day.key]?.start ?? "09:00"}
+                    onChange={e => updateDaySchedule(day.key, { start: e.target.value })}
+                    disabled={!scheduleDetails.days[day.key]?.active}
+                    className="w-28 rounded-md border border-[var(--border)] bg-transparent px-2 py-1.5 text-sm [font-size:16px] disabled:opacity-40"
+                  />
+                  <span className="text-xs text-[color:var(--muted)]">a</span>
+                  <input
+                    type="time"
+                    value={scheduleDetails.days[day.key]?.end ?? "18:00"}
+                    onChange={e => updateDaySchedule(day.key, { end: e.target.value })}
+                    disabled={!scheduleDetails.days[day.key]?.active}
+                    className="w-28 rounded-md border border-[var(--border)] bg-transparent px-2 py-1.5 text-sm [font-size:16px] disabled:opacity-40"
+                  />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 

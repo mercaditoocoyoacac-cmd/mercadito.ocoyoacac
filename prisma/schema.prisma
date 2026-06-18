@@ -101,6 +101,7 @@ model Store {
   openTime   String?
   closeTime  String?
   scheduleDays DayOfWeek[] @default([MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY])
+  scheduleDetails Json?          @default("{}")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
