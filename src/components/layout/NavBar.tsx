@@ -736,6 +736,18 @@ export function NavBar() {
                     </svg>
                     Escanear QR
                   </Link>
+                  <Link
+                    href="/delivery/horarios"
+                    onClick={() => setMenuOpen(false)}
+                    className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${
+                      pathname === "/delivery/horarios" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                    }`}
+                  >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z" />
+                    </svg>
+                    Mis horarios
+                  </Link>
                 </>
               ) : null}
               

@@ -59,6 +59,7 @@ model User {
   ineBackUrl     String?
   ineNumber      String?
   trialUsed      Boolean  @default(false)
+  availabilitySchedule Json?          @default("{}")
 
   stores        Store[]
   orders        Order[]       @relation("OrderCustomer")
