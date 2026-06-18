@@ -23,6 +23,7 @@ interface Store {
   openTime: string | null;
   closeTime: string | null;
   scheduleDays: string[];
+  scheduleDetails?: StoreScheduleDetails;
 }
 
 type DaySchedule = { active: boolean; start: string; end: string };
