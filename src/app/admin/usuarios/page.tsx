@@ -261,7 +261,7 @@ export default async function AdminUsersPage({
                         </button>
                       </form>
                     ))}
-                    {allRoles.filter((r) => r !== user.role && r !== "ADMIN").map((role) => (
+                    {allRoles.filter((r) => r !== "ADMIN").map((role) => (
                       <form key={role} action={removeRole.bind(null, user.id, role)}>
                         <button className="rounded-lg bg-red-50 border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100">
                           Quitar {roleLabels[role]}

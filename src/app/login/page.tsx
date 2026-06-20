@@ -74,7 +74,7 @@ export default function LoginPage() {
         </p>
       </div>
 
-      <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+      <form className="mt-6 space-y-4" onSubmit={handleSubmit} autoComplete="on">
         <label className="block">
           <div className="text-sm font-medium">Correo</div>
           <input
@@ -88,6 +88,8 @@ export default function LoginPage() {
               else setFieldErrors((prev) => ({ ...prev, email: "" }));
             }}
             type="email"
+            name="email"
+            autoComplete="email"
             required
             className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
             placeholder="tu@correo.com"
@@ -108,6 +110,8 @@ export default function LoginPage() {
               else setFieldErrors((prev) => ({ ...prev, password: "" }));
             }}
             type="password"
+            name="password"
+            autoComplete="current-password"
             required
             className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
             placeholder="********"
