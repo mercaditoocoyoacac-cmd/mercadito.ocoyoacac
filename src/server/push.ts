@@ -52,6 +52,8 @@ export async function sendPushNotification(token: string, data: PushData) {
           channelId: "order_notifications",
           sound: "default",
           imageUrl: LOGO_URL,
+          icon: "ic_notification",
+          color: "#2563eb",
         },
       },
       apns: {
@@ -90,6 +92,8 @@ export async function sendPushToMultiple(tokens: string[], data: PushData) {
           channelId: "order_notifications",
           sound: "default",
           imageUrl: LOGO_URL,
+          icon: "ic_notification",
+          color: "#2563eb",
         },
       },
       apns: {
