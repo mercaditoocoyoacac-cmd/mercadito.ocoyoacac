@@ -52,7 +52,7 @@ export function NavBar() {
       <div className="mx-auto max-w-6xl px-4">
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-hover)] flex items-center justify-center">
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-[var(--navy)] to-[var(--navy-light)] flex items-center justify-center">
               <span className="text-lg font-bold text-white">M</span>
             </div>
             <div className="hidden sm:block">
