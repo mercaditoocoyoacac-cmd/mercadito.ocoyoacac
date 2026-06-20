@@ -47,7 +47,10 @@ export async function sendPushNotification(token: string, data: PushData) {
         title: data.title,
         body: data.body,
       },
-      data: { url: data.url || "", type: data.type || "" },
+      data: {
+        url: data.url || "",
+        type: data.type || "",
+      },
       android: {
         notification: {
           channelId: "order_notifications",
@@ -87,7 +90,10 @@ export async function sendPushToMultiple(tokens: string[], data: PushData) {
         title: data.title,
         body: data.body,
       },
-      data: { url: data.url || "", type: data.type || "" },
+      data: {
+        url: data.url || "",
+        type: data.type || "",
+      },
       android: {
         notification: {
           channelId: "order_notifications",

@@ -4,6 +4,10 @@ import { useEffect } from "react";
 import { SessionProvider } from "next-auth/react";
 import { Capacitor } from "@capacitor/core";
 
+function emitBubble(detail: { title: string; body: string; url?: string; type?: string }) {
+  window.dispatchEvent(new CustomEvent("push-bubble", { detail }));
+}
+
 export function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const isNative = Capacitor.isNativePlatform();
@@ -60,14 +64,36 @@ async function initNativePush() {
           const title = n.title || payload?.title || "";
           const body = n.body || payload?.body || "";
           if (title) {
-            window.dispatchEvent(new CustomEvent("push-bubble", {
-              detail: { title, body, url: payload?.url, type: payload?.type },
-            }));
+            emitBubble({ title, body, url: payload?.url, type: payload?.type });
           }
         });
 
         PushNotifications.addListener("pushNotificationActionPerformed", (n) => {
-          console.log("Usuario tocó notificación (native):", n);
+          const notif = n.notification;
+          const data = notif.data as Record<string, string> | undefined;
+          const title = notif.title || data?.title || "";
+          const body = notif.body || data?.body || "";
+          if (title) {
+            emitBubble({ title, body, url: data?.url, type: data?.type });
+          }
+        });
+
+        // Show bubbles for any delivered notifications when app resumes
+        App.addListener("appStateChange", async ({ isActive }) => {
+          if (isActive) {
+            const delivered = await PushNotifications.getDeliveredNotifications();
+            for (const n of delivered.notifications) {
+              const data = n.data as Record<string, string> | undefined;
+              const title = n.title || data?.title || "";
+              const body = n.body || data?.body || "";
+              if (title) {
+                emitBubble({ title, body, url: data?.url, type: data?.type });
+              }
+            }
+            if (delivered.notifications.length > 0) {
+              await PushNotifications.removeAllDeliveredNotifications();
+            }
+          }
         });
       }
     }, 1000);
