@@ -78,6 +78,8 @@ export async function POST(
         sendPushToMultiple(driverTokens, {
           title: "Nuevo pedido disponible",
           body: `${store.name} — ${order.customerName}`,
+          type: "NEW_ORDER",
+          url: "/delivery",
         }),
       );
     }

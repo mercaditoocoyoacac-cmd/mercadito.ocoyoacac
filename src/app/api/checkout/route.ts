@@ -259,6 +259,7 @@ export async function POST(req: Request) {
           title: "Nuevo pedido!",
           body: `${parsed.data.customerName} - $${(totalCents / 100).toFixed(2)} ${currency}`,
           url: "/vendor/pedidos",
+          type: "NEW_ORDER",
         }),
       );
     }
@@ -304,6 +305,7 @@ export async function POST(req: Request) {
             title: "Nuevo pedido disponible",
             body: `${storeForNotification?.name || "Tienda"} — ${parsed.data.customerName.trim()}`,
             url: "/delivery",
+            type: "NEW_ORDER",
           }),
         );
       }

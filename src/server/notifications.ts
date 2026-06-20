@@ -24,7 +24,7 @@ export async function sendTextNotification(userId: string, data: NotificationDat
   });
 
   if (user?.pushToken) {
-    await sendPushNotification(user.pushToken, { title: data.title, body: data.body, url: data.url });
+    await sendPushNotification(user.pushToken, { title: data.title, body: data.body, url: data.url, type: data.type });
   }
 }
 

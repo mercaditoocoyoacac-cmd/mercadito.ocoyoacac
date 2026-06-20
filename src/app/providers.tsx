@@ -56,7 +56,14 @@ async function initNativePush() {
         });
 
         PushNotifications.addListener("pushNotificationReceived", (n) => {
-          console.log("Notificación recibida (native):", n);
+          const payload = n.data as Record<string, string> | undefined;
+          const title = n.title || payload?.title || "";
+          const body = n.body || payload?.body || "";
+          if (title) {
+            window.dispatchEvent(new CustomEvent("push-bubble", {
+              detail: { title, body, url: payload?.url, type: payload?.type },
+            }));
+          }
         });
 
         PushNotifications.addListener("pushNotificationActionPerformed", (n) => {
@@ -93,7 +100,9 @@ async function initWebPush() {
       const title = notification.title || data.title || "";
       const body = notification.body || data.body || "";
       if (title) {
-        new Notification(title, { body, icon: "/Logo MO.png" });
+        window.dispatchEvent(new CustomEvent("push-bubble", {
+          detail: { title, body, url: data.url, type: data.type },
+        }));
       }
     });
   } catch (error) {

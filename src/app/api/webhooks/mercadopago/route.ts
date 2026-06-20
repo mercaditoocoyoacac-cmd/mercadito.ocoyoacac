@@ -82,6 +82,7 @@ export async function POST(req: Request) {
             await sendTextNotification(store.ownerId, {
               title: "Membresía activada",
               body: `Pago recibido. Tu membresía para ${store.name} está activa hasta ${endDate.toLocaleDateString("es-MX")}.`,
+              type: "MEMBERSHIP",
               url: "/vendor/membresia",
             });
           }
@@ -107,6 +108,7 @@ export async function POST(req: Request) {
               await sendTextNotification(store.ownerId, {
                 title: "Pago recibido",
                 body: `Nuevo pago aprobado para tu tienda ${store.name}. Pedido #${externalRef.slice(-8)}`,
+                type: "PAYMENT",
                 url: "/vendor/pedidos",
               });
             }

@@ -29,6 +29,7 @@ interface PushData {
   title: string;
   body: string;
   url?: string;
+  type?: string;
 }
 
 export async function sendPushNotification(token: string, data: PushData) {
@@ -46,7 +47,7 @@ export async function sendPushNotification(token: string, data: PushData) {
         title: data.title,
         body: data.body,
       },
-      data: data.url ? { url: data.url } : undefined,
+      data: { url: data.url || "", type: data.type || "" },
       android: {
         notification: {
           channelId: "order_notifications",
@@ -86,7 +87,7 @@ export async function sendPushToMultiple(tokens: string[], data: PushData) {
         title: data.title,
         body: data.body,
       },
-      data: data.url ? { url: data.url } : undefined,
+      data: { url: data.url || "", type: data.type || "" },
       android: {
         notification: {
           channelId: "order_notifications",

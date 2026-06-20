@@ -9,6 +9,7 @@ import { Providers } from "@/app/providers";
 import { NavBar } from "@/components/layout/NavBar";
 import { FooterWithPrivacy } from "@/components/layout/FooterWithPrivacy";
 import { SupportButton } from "@/components/SupportButton";
+import { NotificationBubble } from "@/components/NotificationBubble";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -63,6 +64,7 @@ export default function RootLayout({
             <FooterWithPrivacy />
             <Toaster position="top-right" richColors closeButton />
             <SupportButton />
+            <NotificationBubble />
           </ConfirmProvider>
         </Providers>
       </body>
