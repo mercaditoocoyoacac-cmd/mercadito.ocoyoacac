@@ -2,6 +2,8 @@ package com.mercaditoocoyoacac.app;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.media.AudioAttributes;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -37,6 +39,12 @@ public class MainActivity extends BridgeActivity {
             channel.setDescription("Notificaciones de nuevos pedidos y entregas");
             channel.enableLights(true);
             channel.setShowBadge(true);
+
+            Uri soundUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.notification);
+            AudioAttributes attrs = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                .build();
+            channel.setSound(soundUri, attrs);
 
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(channel);
