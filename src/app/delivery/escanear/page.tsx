@@ -2,8 +2,9 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import { Html5Qrcode } from "html5-qrcode";
 import { formatMoney } from "@/lib/format";
+import { startQrScanner, stopQrScanner } from "@/lib/scanner";
+import type { Html5Qrcode } from "html5-qrcode";
 
 interface OrderInfo {
   id: string;
@@ -54,10 +55,8 @@ export default function DeliveryScanPage() {
   }
 
   const stopScanner = useCallback(async () => {
-    if (scannerRef.current) {
-      try { await scannerRef.current.stop(); } catch {}
-      scannerRef.current = null;
-    }
+    stopQrScanner(scannerRef.current);
+    scannerRef.current = null;
     setScanning(false);
   }, []);
 
@@ -65,28 +64,22 @@ export default function DeliveryScanPage() {
     setError(null);
     setScanning(true);
 
-    try {
-      const scanner = new Html5Qrcode(scannerId);
-      scannerRef.current = scanner;
+    const scanner = await startQrScanner(
+      scannerId,
+      (code) => {
+        if (code.length >= 4 && code.length <= 10) {
+          stopScanner();
+          lookupCode(code);
+        }
+      },
+      (msg) => setError(msg),
+    );
 
-      await scanner.start(
-        { facingMode: "environment" },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-        },
-        (decodedText) => {
-          const code = decodedText.trim().toUpperCase();
-          if (code.length >= 4 && code.length <= 10) {
-            stopScanner();
-            lookupCode(code);
-          }
-        },
-        () => {}
-      );
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "No se pudo acceder a la cámara. Usa el código manual.");
+    if (scanner) {
+      scannerRef.current = scanner;
+    } else {
       setScanning(false);
+      if (!error) setError("No se pudo iniciar la cámara. Usa el código manual.");
     }
   }
 

@@ -4,8 +4,9 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
-import { Html5Qrcode } from "html5-qrcode";
 import { haversineDistance, formatDistance, getMapsUrl, openMapsUrl } from "@/lib/geo";
+import { startQrScanner, stopQrScanner } from "@/lib/scanner";
+import type { Html5Qrcode } from "html5-qrcode";
 import DeliveryChat from "@/components/chat/DeliveryChat";
 import { getStatusLabel } from "@/lib/labels";
 
@@ -274,32 +275,29 @@ export default function DeliveryTracker({
   async function startPickupScanner() {
     setPickupError(null);
     setPickupScanning(true);
-    try {
-      const scanner = new Html5Qrcode(scannerId);
+
+    const scanner = await startQrScanner(
+      scannerId,
+      (code) => {
+        if (code.length >= 4 && code.length <= 10) {
+          stopScanner();
+          setPickupCode(code);
+        }
+      },
+      (msg) => setPickupError(msg),
+    );
+
+    if (scanner) {
       scannerRef.current = scanner;
-      await scanner.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 220, height: 220 } },
-        (decodedText) => {
-          const code = decodedText.trim().toUpperCase();
-          if (code.length >= 4 && code.length <= 10) {
-            stopScanner();
-            setPickupCode(code);
-          }
-        },
-        () => {},
-      );
-    } catch {
-      setPickupError("No se pudo acceder a la cámara. Ingresa el código manualmente.");
+    } else {
       setPickupScanning(false);
+      if (!pickupError) setPickupError("No se pudo iniciar la cámara. Ingresa el código manualmente.");
     }
   }
 
   const stopScanner = useCallback(async () => {
-    if (scannerRef.current) {
-      try { await scannerRef.current.stop(); } catch {}
-      scannerRef.current = null;
-    }
+    stopQrScanner(scannerRef.current);
+    scannerRef.current = null;
     setPickupScanning(false);
   }, []);
 
