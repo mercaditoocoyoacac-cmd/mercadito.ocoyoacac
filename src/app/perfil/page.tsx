@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import dynamic from "next/dynamic";
+import { EnableNotifications } from "@/components/ui/EnableNotifications";
 
 const LocationPicker = dynamic(
   () => import("@/components/maps/LocationPicker"),
@@ -261,6 +262,16 @@ export default function ProfilePage() {
           {success}
         </div>
       )}
+
+      <div className="mt-6 rounded-xl border border-[var(--border)] bg-white p-6">
+        <h2 className="font-semibold">Notificaciones</h2>
+        <p className="mt-1 text-sm text-[color:var(--muted)]">
+          Recibe alertas cuando haya nuevos pedidos, entregas o actualizaciones
+        </p>
+        <div className="mt-4">
+          <EnableNotifications />
+        </div>
+      </div>
 
       <form onSubmit={handleSave} className="mt-6 space-y-6">
         <div className="rounded-xl border border-[var(--border)] bg-white p-6">
