@@ -8,20 +8,16 @@ const ALLOWED_ORIGINS = [
   "http://localhost:3001",
   "capacitor://localhost",
   "https://localhost",
+  "file://",
 ].filter(Boolean);
 
-const MUTATION_METHODS = ["POST", "PUT", "PATCH", "DELETE"];
+const CSRF_PATHS = ["/api/register", "/api/auth/forgot-password", "/api/auth/reset-password"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/api/") && MUTATION_METHODS.includes(request.method) && !pathname.startsWith("/api/auth/")) {
+  if (CSRF_PATHS.some((p) => pathname.startsWith(p)) && request.method === "POST") {
     const origin = request.headers.get("origin") || request.headers.get("referer") || "";
-
-    const csrfHeader = request.headers.get("x-csrf-token");
-    if (csrfHeader === "1" || csrfHeader === "true") {
-      return NextResponse.next();
-    }
 
     if (origin) {
       const isAllowed = ALLOWED_ORIGINS.some((allowed) => allowed && origin.startsWith(allowed));
@@ -42,5 +38,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: "/api/:path*",
+  matcher: ["/api/:path*"],
 };
