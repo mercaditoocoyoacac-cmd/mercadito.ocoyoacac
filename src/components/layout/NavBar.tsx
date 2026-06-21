@@ -5,6 +5,7 @@ import { signOut, useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { DarkModeToggle } from "@/components/ui/DarkModeToggle";
+import { NotificationBell } from "@/components/ui/NotificationBell";
 
 export function NavBar() {
   const { data, update } = useSession();
@@ -492,6 +493,7 @@ export function NavBar() {
                 </Link>
               </div>
             )}
+            {data?.user && <NotificationBell />}
             <DarkModeToggle />
           </div>
 
@@ -831,7 +833,8 @@ export function NavBar() {
                 </>
               )}
               <div className="my-2 border-t border-[var(--border)]"></div>
-              <div className="px-4 py-2">
+              <div className="px-4 py-2 flex items-center gap-3">
+                {data?.user && <NotificationBell />}
                 <DarkModeToggle />
               </div>
             </nav>
