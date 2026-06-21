@@ -2,6 +2,8 @@ import PDFDocument from "pdfkit";
 import { prisma } from "@/server/prisma";
 import { headers } from "next/headers";
 import { formatDateInMexico } from "@/lib/dates";
+import { requireUser } from "@/server/requireUser";
+import { rateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +17,14 @@ function generateId(): string {
 }
 
 export async function POST(req: Request) {
+  const auth = await requireUser();
+  if (!auth.ok) return auth.res;
+
+  const rl = await rateLimit(`contract:${auth.userId}`, { intervalMs: 3600_000, max: 5 });
+  if (!rl.ok) {
+    return Response.json({ ok: false, error: "Demasiadas solicitudes. Intenta más tarde." }, { status: 429 });
+  }
+
   const json = await req.json().catch(() => null);
   const { storeId, ineNumber, ineFrontUrl, ineBackUrl } = json || {};
 
@@ -33,6 +43,10 @@ export async function POST(req: Request) {
 
   if (!store) {
     return Response.json({ ok: false, error: "Tienda no encontrada" }, { status: 404 });
+  }
+
+  if (store.ownerId !== auth.userId) {
+    return Response.json({ ok: false, error: "No autorizado" }, { status: 403 });
   }
 
   await prisma.user.update({

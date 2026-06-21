@@ -1,12 +1,27 @@
 import { NextResponse } from "next/server";
 import { randomBytes } from "crypto";
+import { headers } from "next/headers";
 import { prisma } from "@/server/prisma";
 import { sendEmail } from "@/server/email";
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
   const { email } = await req.json().catch(() => ({}));
   if (!email || typeof email !== "string") {
     return NextResponse.json({ ok: false, error: "Correo requerido" }, { status: 400 });
+  }
+
+  const headersList = await headers();
+  const ip = headersList.get("x-forwarded-for")?.split(",")[0] || "unknown";
+  const rlKey = `forgot:${ip}`;
+  const rl = await rateLimit(rlKey, { intervalMs: 3600_000, max: 5 });
+  if (!rl.ok) {
+    return NextResponse.json({ ok: true });
+  }
+
+  const rlEmail = await rateLimit(`forgot:${email}`, { intervalMs: 3600_000, max: 3 });
+  if (!rlEmail.ok) {
+    return NextResponse.json({ ok: true });
   }
 
   const normalized = email.toLowerCase().trim();

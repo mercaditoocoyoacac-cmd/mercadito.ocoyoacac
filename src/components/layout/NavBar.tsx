@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -53,9 +54,13 @@ export function NavBar() {
       <div className="mx-auto max-w-6xl px-4">
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-[var(--navy)] to-[var(--navy-light)] flex items-center justify-center">
-              <span className="text-lg font-bold text-white">M</span>
-            </div>
+            <Image
+              src="/logo.svg"
+              alt="Mercadito Ocoyoacac"
+              width={36}
+              height={36}
+              className="rounded-lg"
+            />
             <div className="hidden sm:block">
               <span className="font-semibold tracking-tight">Mercadito</span>
               <span className="ml-1 text-sm text-[color:var(--muted)]">Ocoyoacac</span>

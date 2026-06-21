@@ -2,6 +2,8 @@ import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/server/prisma";
+import { headers } from "next/headers";
+import { rateLimit } from "@/lib/rate-limit";
 
 const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY || "mercadito-admin-secure-2024";
 
@@ -16,6 +18,17 @@ const RegisterSchema = z.object({
 
 export async function POST(req: Request) {
   try {
+    const headersList = await headers();
+    const ip = headersList.get("x-forwarded-for")?.split(",")[0] || "unknown";
+    const rlKey = `register:${ip}`;
+    const rl = await rateLimit(rlKey, { intervalMs: 3600_000, max: 5 });
+    if (!rl.ok) {
+      return NextResponse.json(
+        { ok: false, error: "Demasiados registros desde esta IP. Intenta más tarde." },
+        { status: 429 },
+      );
+    }
+
     const json = await req.json().catch(() => null);
     const parsed = RegisterSchema.safeParse(json);
     if (!parsed.success) {

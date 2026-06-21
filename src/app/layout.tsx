@@ -23,12 +23,46 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "Mercadito Ocoyoacac",
+  title: {
+    default: "Mercadito Ocoyoacac",
+    template: "%s | Mercadito Ocoyoacac",
+  },
   description:
-    "Marketplace multi-vendedor para negocios locales en Ocoyoacac, Edomex.",
+    "Marketplace multi-vendedor para negocios locales en Ocoyoacac, Edomex. Compra productos locales, apoya a tu comunidad.",
+  keywords: ["mercado", "Ocoyoacac", "compras locales", "marketplace", "Edomex", "tiendas locales"],
+  authors: [{ name: "Mercadito Ocoyoacac" }],
+  openGraph: {
+    type: "website",
+    locale: "es_MX",
+    url: process.env.NEXT_PUBLIC_APP_URL || "https://mercadito-ocoyoacac.vercel.app",
+    siteName: "Mercadito Ocoyoacac",
+    title: "Mercadito Ocoyoacac — Compra local, apoya tu comunidad",
+    description:
+      "Marketplace multi-vendedor para negocios locales en Ocoyoacac, Edomex.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Mercadito Ocoyoacac",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Mercadito Ocoyoacac",
+    description: "Marketplace multi-vendedor para negocios locales en Ocoyoacac, Edomex.",
+    images: ["/og-image.png"],
+  },
   icons: {
-    icon: "/Logo MO.png",
-    apple: "/Logo MO.png",
+    icon: [
+      { url: "/logo.svg", type: "image/svg+xml" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
   manifest: "/manifest.json",
   appleWebApp: {

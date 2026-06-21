@@ -11,7 +11,7 @@ export const revalidate = 30;
 export default async function AdminAprobarVendedoresPage() {
   const session = await getSession();
 
-  if (!session?.user?.id || !getUserRoles(session).includes("ADMIN")) {
+  if (!session?.user?.id || session.user.isActive === false || !getUserRoles(session).includes("ADMIN")) {
     redirect("/admin/login");
   }
 

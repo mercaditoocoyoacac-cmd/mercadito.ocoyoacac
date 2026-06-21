@@ -122,8 +122,9 @@ export function NotificationBell() {
       <button
         type="button"
         onClick={toggle}
-        className="relative rounded-lg p-2 text-[color:var(--muted)] transition-colors hover:bg-gray-100"
+        className="relative rounded-lg p-2 transition-colors hover:bg-[var(--surface)]"
         aria-label="Notificaciones"
+        style={{ color: "var(--muted)" }}
       >
         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -138,7 +139,7 @@ export function NotificationBell() {
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 mt-2 w-80 rounded-xl border border-[var(--border)] bg-white shadow-lg z-50 max-h-[480px] flex flex-col">
+          <div className="fixed right-4 top-16 w-80 sm:w-96 rounded-xl border border-[var(--border)] bg-[var(--background)] shadow-lg z-50 max-h-[70vh] flex flex-col">
             <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-3">
               <div className="text-sm font-semibold">Notificaciones</div>
               {notifications.length > 0 && (
@@ -162,14 +163,16 @@ export function NotificationBell() {
                     key={n.id}
                     type="button"
                     onClick={() => markRead([n.id], n.url)}
-                    className="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-gray-50 border-b border-[var(--border)] last:border-0 transition-colors"
+                    className="w-full text-left hover:bg-[var(--surface)] border-b border-[var(--border)] last:border-0 transition-colors"
                   >
-                    <span className="mt-0.5 text-lg">{typeIcons[n.type] || "🔔"}</span>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium truncate">{n.title}</div>
-                      <div className="text-xs text-[color:var(--muted)] truncate">{n.message}</div>
+                    <div className="px-4 py-3 grid grid-cols-[auto_1fr_auto] gap-2 items-start">
+                      <span className="text-base leading-none pt-0.5">{typeIcons[n.type] || "🔔"}</span>
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium leading-snug" style={{ color: "var(--foreground)" }}>{n.title}</div>
+                        {n.message && <div className="text-xs leading-snug mt-0.5" style={{ color: "var(--muted)" }}>{n.message}</div>}
+                      </div>
+                      <span className="text-[11px] whitespace-nowrap pt-0.5" style={{ color: "var(--muted)" }}>{formatTime(n.createdAt)}</span>
                     </div>
-                    <span className="shrink-0 text-[10px] text-[color:var(--muted)]">{formatTime(n.createdAt)}</span>
                   </button>
                 ))
               )}

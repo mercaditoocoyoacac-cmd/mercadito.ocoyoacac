@@ -109,6 +109,7 @@ export default function DeliveryTracker({
   const [locationError, setLocationError] = useState<string | null>(null);
   const [completeCode, setCompleteCode] = useState<Record<string, string>>({});
   const [arriving, setArriving] = useState<Record<string, boolean>>({});
+  const [claimingOrder, setClaimingOrder] = useState<string | null>(null);
   const [showMyDeliveries, setShowMyDeliveries] = useState(true);
   const [showDelivered, setShowDelivered] = useState(false);
   const [pickupOrderId, setPickupOrderId] = useState<string | null>(null);
@@ -166,6 +167,7 @@ export default function DeliveryTracker({
   }, []);
 
   async function acceptOrder(orderId: string) {
+    setClaimingOrder(orderId);
     const res = await fetch("/api/delivery/claim", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -173,9 +175,17 @@ export default function DeliveryTracker({
     });
     const data = (await res.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
     if (res.ok && data?.ok) {
+      toast.success("Pedido aceptado — escanea el código de la tienda");
+      setPickupOrderId(orderId);
+      setPickupCode("");
+      setPickupError(null);
+      setShowMyDeliveries(true);
+      setClaimingOrder(null);
       router.refresh();
+      setTimeout(() => startPickupScanner(), 600);
     } else {
       toast.error(data?.error || "No se pudo aceptar el pedido.");
+      setClaimingOrder(null);
     }
   }
 
@@ -735,9 +745,14 @@ export default function DeliveryTracker({
                     </div>
                     <button
                       onClick={() => acceptOrder(order.id)}
-                      className="shrink-0 rounded-xl bg-emerald-600 px-6 py-4 text-base font-bold text-white hover:bg-emerald-700 shadow-md active:scale-95 transition-transform border-none cursor-pointer"
+                      disabled={claimingOrder === order.id}
+                      className="shrink-0 rounded-xl px-6 py-4 text-base font-bold text-white shadow-md active:scale-95 transition-transform border-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100 ${
+                        claimingOrder === order.id
+                          ? 'bg-gray-500'
+                          : 'bg-emerald-600 hover:bg-emerald-700'
+                      }"
                     >
-                      Aceptar
+                      {claimingOrder === order.id ? "Aceptando..." : "Aceptar"}
                     </button>
                   </div>
                 </div>

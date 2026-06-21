@@ -9,7 +9,7 @@ export const revalidate = 30;
 async function approvePaymentMethod(methodId: string, storeId: string) {
   "use server";
   const session = await getSession();
-  if (!session?.user?.id || !getUserRoles(session).includes("ADMIN")) return;
+  if (!session?.user?.id || session.user.isActive === false || !getUserRoles(session).includes("ADMIN")) return;
 
   await prisma.storePaymentMethod.update({
     where: { id: methodId },
@@ -27,7 +27,7 @@ async function approvePaymentMethod(methodId: string, storeId: string) {
 async function rejectPaymentMethod(methodId: string) {
   "use server";
   const session = await getSession();
-  if (!session?.user?.id || !getUserRoles(session).includes("ADMIN")) return;
+  if (!session?.user?.id || session.user.isActive === false || !getUserRoles(session).includes("ADMIN")) return;
 
   await prisma.storePaymentMethod.update({
     where: { id: methodId },
@@ -39,7 +39,7 @@ async function rejectPaymentMethod(methodId: string) {
 
 export default async function AdminPaymentMethodsPage() {
   const session = await getSession();
-  if (!session?.user?.id || !getUserRoles(session).includes("ADMIN")) {
+  if (!session?.user?.id || session.user.isActive === false || !getUserRoles(session).includes("ADMIN")) {
     redirect("/");
   }
 

@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export default async function DeliveryDashboard() {
   const session = await getSession();
   
-  if (!session?.user?.id || !getUserRoles(session).includes("DELIVERY")) {
+  if (!session?.user?.id || session.user.isActive === false || !getUserRoles(session).includes("DELIVERY")) {
     redirect("/delivery/login");
   }
 

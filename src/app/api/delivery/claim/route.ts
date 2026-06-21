@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { requireRole } from "@/server/requireUser";
 import { appendStatusTimestamp } from "@/lib/statusTimestamps";
+import { rateLimit } from "@/lib/rate-limit";
 
 const ClaimSchema = z.object({
   orderId: z.string().min(1),
@@ -12,6 +13,14 @@ const ClaimSchema = z.object({
 export async function POST(req: Request) {
   const auth = await requireRole("DELIVERY");
   if (!auth.ok) return auth.res;
+
+  const rl = await rateLimit(`claim:${auth.userId}`, { intervalMs: 10_000, max: 5 });
+  if (!rl.ok) {
+    return NextResponse.json(
+      { ok: false, error: "Demasiadas solicitudes. Espera unos segundos." },
+      { status: 429 },
+    );
+  }
 
   const user = await prisma.user.findUnique({
     where: { id: auth.userId },
@@ -73,6 +82,7 @@ export async function POST(req: Request) {
 
   revalidatePath(`/vendor/pedidos/${parsed.data.orderId}`);
   revalidatePath("/vendor/pedidos");
+  revalidatePath("/delivery");
 
   return NextResponse.json({ ok: true, orderId: parsed.data.orderId });
 }

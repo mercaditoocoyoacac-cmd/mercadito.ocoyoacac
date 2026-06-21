@@ -1,11 +1,20 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { headers } from "next/headers";
 import { prisma } from "@/server/prisma";
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
   const { token, password } = await req.json().catch(() => ({}));
   if (!token || !password || typeof password !== "string") {
     return NextResponse.json({ ok: false, error: "Datos inválidos" }, { status: 400 });
+  }
+
+  const headersList = await headers();
+  const ip = headersList.get("x-forwarded-for")?.split(",")[0] || "unknown";
+  const rl = await rateLimit(`reset:${ip}`, { intervalMs: 3600_000, max: 10 });
+  if (!rl.ok) {
+    return NextResponse.json({ ok: false, error: "Demasiadas solicitudes. Intenta más tarde." }, { status: 429 });
   }
 
   if (password.length < 6) {

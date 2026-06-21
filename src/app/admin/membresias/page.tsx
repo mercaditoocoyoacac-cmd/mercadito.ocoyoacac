@@ -15,7 +15,7 @@ const GRACE_PERIOD_CUTOFF = new Date("2026-08-01");
 export default async function AdminSubscriptionsPage() {
   const session = await getSession();
 
-  if (!session?.user?.id || !getUserRoles(session).includes("ADMIN")) {
+  if (!session?.user?.id || session.user.isActive === false || !getUserRoles(session).includes("ADMIN")) {
     redirect("/");
   }
 

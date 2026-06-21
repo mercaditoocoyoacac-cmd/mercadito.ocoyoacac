@@ -119,6 +119,7 @@ export const authOptions: NextAuthOptions = {
           name: user.name ?? undefined,
           role: user.role,
           additionalRoles: user.additionalRoles || undefined,
+          isActive: user.isActive,
         };
       },
     }),
@@ -128,6 +129,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.role = user.role;
         token.additionalRoles = user.additionalRoles;
+        token.isActive = user.isActive;
         token.needsDeviceApproval = (user as { needsDeviceApproval?: boolean }).needsDeviceApproval;
       }
       return token;
@@ -136,6 +138,7 @@ export const authOptions: NextAuthOptions = {
       if (token.sub) session.user.id = token.sub;
       if (token.role) session.user.role = token.role;
       if (token.additionalRoles) session.user.additionalRoles = token.additionalRoles;
+      if (typeof token.isActive === "boolean") session.user.isActive = token.isActive;
       return session;
     },
   },
