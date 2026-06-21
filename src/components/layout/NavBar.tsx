@@ -470,7 +470,7 @@ export function NavBar() {
                 )}
                 <button
                   type="button"
-                  onClick={() => signOut({ callbackUrl: "/" })}
+                  onClick={() => signOut({ callbackUrl: "/login" })}
                   className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium text-[color:var(--muted)] transition-colors hover:bg-gray-100 hover:text-gray-900"
                 >
                   Salir
@@ -794,7 +794,7 @@ export function NavBar() {
                   )}
                   <button
                     type="button"
-                    onClick={() => { setMenuOpen(false); signOut({ callbackUrl: "/" }); }}
+                    onClick={() => { setMenuOpen(false); signOut({ callbackUrl: "/login" }); }}
                     className="rounded-lg px-4 py-3 text-sm font-medium text-left text-red-600 hover:bg-red-50"
                   >
                     Cerrar sesión
