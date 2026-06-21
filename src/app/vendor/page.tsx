@@ -1,5 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
+import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { formatDateInMexico, formatDateTimeInMexico } from "@/lib/dates";
@@ -209,10 +211,11 @@ export default async function VendorDashboard() {
       id: true,
       status: true,
       subtotalCents: true,
+      currency: true,
       createdAt: true,
     },
     orderBy: { createdAt: "desc" },
-    take: 5,
+    take: 10,
   });
 
   const totalOrders = await prisma.order.count({
@@ -493,7 +496,7 @@ export default async function VendorDashboard() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="font-medium">{formatMoney(order.subtotalCents, "MXN")}</div>
+                      <div className="font-medium">{formatMoney(order.subtotalCents, order.currency || "MXN")}</div>
                       <div className={`text-xs ${
                         order.status === "PENDING" ? "text-yellow-600" :
                         order.status === "COMPLETED" ? "text-green-600" :
@@ -506,6 +509,44 @@ export default async function VendorDashboard() {
                          order.status === "COMPLETED" ? "✅ Completado" :
                          "❌ Cancelado"}
                       </div>
+                      {order.status === "PENDING" && (
+                        <form
+                          action={async () => {
+                            "use server";
+                            const c = (await cookies()).toString();
+                            await fetch(`${process.env.NEXTAUTH_URL}/api/vendor/orders/${order.id}/status`, {
+                              method: "POST",
+                              headers: { "content-type": "application/json", cookie: c },
+                              body: JSON.stringify({ status: "CONFIRMED" }),
+                            });
+                            revalidatePath("/vendor");
+                            revalidatePath(`/vendor/pedidos/${order.id}`);
+                          }}
+                        >
+                          <button className="mt-1 rounded-lg bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700">
+                            Confirmar
+                          </button>
+                        </form>
+                      )}
+                      {order.status === "CONFIRMED" && (
+                        <form
+                          action={async () => {
+                            "use server";
+                            const c = (await cookies()).toString();
+                            await fetch(`${process.env.NEXTAUTH_URL}/api/vendor/orders/${order.id}/status`, {
+                              method: "POST",
+                              headers: { "content-type": "application/json", cookie: c },
+                              body: JSON.stringify({ status: "READY" }),
+                            });
+                            revalidatePath("/vendor");
+                            revalidatePath(`/vendor/pedidos/${order.id}`);
+                          }}
+                        >
+                          <button className="mt-1 rounded-lg bg-yellow-600 px-3 py-1 text-xs font-medium text-white hover:bg-yellow-700">
+                            Marcar listo
+                          </button>
+                        </form>
+                      )}
                     </div>
                   </div>
                 ))}
