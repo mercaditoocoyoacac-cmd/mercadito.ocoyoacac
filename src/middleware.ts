@@ -15,7 +15,7 @@ const MUTATION_METHODS = ["POST", "PUT", "PATCH", "DELETE"];
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/api/") && MUTATION_METHODS.includes(request.method)) {
+  if (pathname.startsWith("/api/") && MUTATION_METHODS.includes(request.method) && !pathname.startsWith("/api/auth/")) {
     const origin = request.headers.get("origin") || request.headers.get("referer") || "";
 
     const csrfHeader = request.headers.get("x-csrf-token");
