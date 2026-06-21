@@ -4,6 +4,8 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
+import android.webkit.WebView;
 import androidx.core.splashscreen.SplashScreen;
 import com.getcapacitor.BridgeActivity;
 
@@ -13,6 +15,16 @@ public class MainActivity extends BridgeActivity {
         SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
         createNotificationChannels();
+        enableWebViewAutofill();
+    }
+
+    private void enableWebViewAutofill() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            WebView webView = getBridge().getWebView();
+            if (webView != null) {
+                webView.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_YES);
+            }
+        }
     }
 
     private void createNotificationChannels() {
