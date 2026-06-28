@@ -22,6 +22,10 @@ interface ProductData {
   sellByWeight: boolean;
   minWeightGrams: number;
   maxWeightGrams: number;
+  soldCount: number;
+  isPromotion: boolean;
+  promotionPriceCents: number | null;
+  discountPercentage: number | null;
   variants: VariantData[];
 }
 
@@ -106,6 +110,16 @@ export function StorefrontClient({
   }, [products, searchQuery]);
 
   const isServicios = store.category === "SERVICIOS";
+
+  const bestSellers = useMemo(() => {
+    if (isServicios) return [];
+    return [...products].filter((p) => p.soldCount > 0).sort((a, b) => b.soldCount - a.soldCount).slice(0, 10);
+  }, [products, isServicios]);
+
+  const promotions = useMemo(() => {
+    if (isServicios) return [];
+    return products.filter((p) => p.isPromotion);
+  }, [products, isServicios]);
 
   return (
     <>
@@ -253,6 +267,12 @@ export function StorefrontClient({
           </div>
         </div>
 
+        {!isServicios && !searchQuery && bestSellers.length > 0 && (
+          <ProductSlider title="⭐ Más vendidos" items={bestSellers} store={store} open={open} onQuickView={(p) => setQuickViewProduct(p)} onAddedToCart={fetchCartCount} />
+        )}
+        {!isServicios && !searchQuery && promotions.length > 0 && (
+          <ProductSlider title="🔥 Promociones" items={promotions} store={store} open={open} onQuickView={(p) => setQuickViewProduct(p)} onAddedToCart={fetchCartCount} />
+        )}
         {filteredProducts.length === 0 ? (
           <div className="rounded-xl border border-gray-200 p-10 text-center">
             <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-gray-100">
@@ -339,6 +359,36 @@ export function StorefrontClient({
   );
 }
 
+function ProductSlider({ title, items, store, open, onQuickView, onAddedToCart }: {
+  title: string;
+  items: ProductData[];
+  store: StoreData;
+  open: boolean;
+  onQuickView: (p: ProductData) => void;
+  onAddedToCart: () => void;
+}) {
+  if (items.length === 0) return null;
+  return (
+    <div className="mb-6">
+      <h3 className="text-base font-bold text-gray-800 mb-3">{title}</h3>
+      <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin" style={{ scrollbarWidth: "thin" }}>
+        {items.map((product, i) => (
+          <div key={product.id} className="flex-shrink-0 w-44">
+            <ProductCard
+              product={product}
+              store={store}
+              open={open}
+              index={i}
+              onQuickView={() => onQuickView(product)}
+              onAddedToCart={onAddedToCart}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ProductCard({
   product,
   store,
@@ -393,6 +443,13 @@ function ProductCard({
             </span>
           </div>
         )}
+        {product.isPromotion && (
+          <div className="absolute top-2 left-2 z-10">
+            <span className="inline-block rounded-full bg-red-500 px-2.5 py-0.5 text-[10px] font-bold text-white shadow">
+              -{product.discountPercentage ?? 0}%
+            </span>
+          </div>
+        )}
         <button
           type="button"
           onClick={(e) => { e.stopPropagation(); onQuickView(); }}
@@ -421,9 +478,14 @@ function ProductCard({
             ? `${formatMoney(product.priceCents, product.currency)} / kg`
             : hasVariants
             ? `Desde ${formatMoney(Math.min(...product.variants.map((v) => v.priceCents), product.priceCents), product.currency)}`
+            : product.isPromotion && product.promotionPriceCents != null
+            ? <><span className="line-through text-gray-400 text-sm mr-1">{formatMoney(product.priceCents, product.currency)}</span>{formatMoney(product.promotionPriceCents, product.currency)}</>
             : formatMoney(product.priceCents, product.currency)}
         </div>
 
+        {product.soldCount > 0 && (
+          <p className="text-[11px] text-gray-400 mb-1">{product.soldCount} vendidos</p>
+        )}
         {product.description && (
           <p className="text-xs text-gray-400 line-clamp-2 mb-2.5 leading-relaxed">
             {product.description}
@@ -649,6 +711,8 @@ function QuickViewModal({
                   ? `${formatMoney(product.priceCents, product.currency)} / kg`
                   : product.variants.length > 0
                   ? `Desde ${formatMoney(Math.min(...product.variants.map((v) => v.priceCents), product.priceCents), product.currency)}`
+                  : product.isPromotion && product.promotionPriceCents != null
+                  ? <><span className="line-through text-gray-400 text-lg mr-2">{formatMoney(product.priceCents, product.currency)}</span>{formatMoney(product.promotionPriceCents, product.currency)}</>
                   : formatMoney(product.priceCents, product.currency)}
               </span>
               {product.isUnavailable && (

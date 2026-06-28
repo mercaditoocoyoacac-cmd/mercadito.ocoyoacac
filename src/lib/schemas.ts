@@ -29,6 +29,9 @@ export const productCreateSchemaBase = z.object({
   minWeightGrams: z.number().int().min(1).default(100),
   maxWeightGrams: z.number().int().min(1).default(5000),
   variants: z.array(variantCreateSchema).optional(),
+  isPromotion: z.boolean().optional(),
+  promotionPriceCents: z.number().int().min(0).optional(),
+  discountPercentage: z.number().int().min(0).max(100).optional(),
 });
 
 export const productCreateSchema = productCreateSchemaBase.extend({
@@ -47,6 +50,9 @@ export const productUpdateSchema = z.object({
   minWeightGrams: z.number().int().min(1).optional(),
   maxWeightGrams: z.number().int().min(1).optional(),
   variants: z.array(variantUpdateSchema).optional(),
+  isPromotion: z.boolean().optional(),
+  promotionPriceCents: z.number().int().min(0).nullable().optional(),
+  discountPercentage: z.number().int().min(0).max(100).nullable().optional(),
 });
 
 const storeFields = {

@@ -36,6 +36,13 @@ export async function GET(req: Request) {
       imageUrl: true,
       sku: true,
       stock: true,
+      sellByWeight: true,
+      minWeightGrams: true,
+      maxWeightGrams: true,
+      isPromotion: true,
+      promotionPriceCents: true,
+      discountPercentage: true,
+      soldCount: true,
       variants: {
         select: { id: true, name: true, priceCents: true, sortOrder: true },
         orderBy: { sortOrder: "asc" },
@@ -86,6 +93,9 @@ export async function POST(req: Request) {
       variants: parsed.data.variants?.length
         ? { create: parsed.data.variants }
         : undefined,
+      isPromotion: parsed.data.isPromotion ?? false,
+      promotionPriceCents: parsed.data.promotionPriceCents ?? null,
+      discountPercentage: parsed.data.discountPercentage ?? null,
     },
     select: { id: true },
   });

@@ -51,6 +51,9 @@ export default function NuevoProductoPage() {
   const [maxWeightGrams, setMaxWeightGrams] = useState("5000");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [variants, setVariants] = useState<VariantEntry[]>([]);
+  const [isPromotion, setIsPromotion] = useState(false);
+  const [promotionPrice, setPromotionPrice] = useState("");
+  const [discountPercentage, setDiscountPercentage] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function addVariant() {
@@ -153,6 +156,9 @@ export default function NuevoProductoPage() {
               minWeightGrams: sellByWeight ? parseInt(minWeightGrams) || 100 : undefined,
               maxWeightGrams: sellByWeight ? parseInt(maxWeightGrams) || 5000 : undefined,
               variants: variantsPayload.length > 0 ? variantsPayload : undefined,
+              isPromotion,
+              promotionPriceCents: isPromotion && promotionPrice ? Math.round(Number(promotionPrice) * 100) : undefined,
+              discountPercentage: isPromotion && discountPercentage ? parseInt(discountPercentage) : undefined,
             }),
           });
           const data = (await res.json().catch(() => null)) as
@@ -345,6 +351,46 @@ export default function NuevoProductoPage() {
                   Vacío = sin control de inventario
                 </p>
               </label>
+            </div>
+
+            <div className="border-t border-[var(--border)] pt-4">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="isPromotion"
+                  checked={isPromotion}
+                  onChange={(e) => setIsPromotion(e.target.checked)}
+                  className="rounded border-[var(--border)]"
+                />
+                <label htmlFor="isPromotion" className="text-sm font-medium cursor-pointer">
+                  Promoción / Descuento
+                  <HelpTip text="Activa esta opción si quieres mostrar un precio especial con descuento. Aparecerá en la sección de promociones de tu tienda." />
+                </label>
+              </div>
+              {isPromotion && (
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <label className="block">
+                    <div className="text-sm font-medium">Precio promocional (MXN)</div>
+                    <input
+                      value={promotionPrice}
+                      onChange={(e) => setPromotionPrice(e.target.value)}
+                      inputMode="decimal"
+                      className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                      placeholder="Ej: 20.00"
+                    />
+                  </label>
+                  <label className="block">
+                    <div className="text-sm font-medium">% de descuento</div>
+                    <input
+                      value={discountPercentage}
+                      onChange={(e) => setDiscountPercentage(e.target.value)}
+                      inputMode="numeric"
+                      className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                      placeholder="Ej: 20"
+                    />
+                  </label>
+                </div>
+              )}
             </div>
 
             <label className="block">

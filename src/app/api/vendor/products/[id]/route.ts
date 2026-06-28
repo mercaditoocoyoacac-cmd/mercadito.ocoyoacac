@@ -48,6 +48,9 @@ export async function PUT(
       sellByWeight: parsed.data.sellByWeight,
       minWeightGrams: parsed.data.minWeightGrams,
       maxWeightGrams: parsed.data.maxWeightGrams,
+      isPromotion: parsed.data.isPromotion,
+      promotionPriceCents: parsed.data.promotionPriceCents,
+      discountPercentage: parsed.data.discountPercentage,
     },
   });
 

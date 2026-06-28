@@ -47,6 +47,10 @@ export default async function StorefrontPage({
       sellByWeight: true,
       minWeightGrams: true,
       maxWeightGrams: true,
+      soldCount: true,
+      isPromotion: true,
+      promotionPriceCents: true,
+      discountPercentage: true,
       variants: {
         where: { isActive: true },
         select: { id: true, name: true, priceCents: true },
