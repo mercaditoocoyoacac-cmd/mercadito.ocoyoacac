@@ -182,7 +182,7 @@ export default function DeliveryTracker({
       setShowMyDeliveries(true);
       setClaimingOrder(null);
       router.refresh();
-      setTimeout(() => startPickupScanner(), 600);
+      setTimeout(() => startPickupScanner(orderId), 600);
     } else {
       toast.error(data?.error || "No se pudo aceptar el pedido.");
       setClaimingOrder(null);
@@ -256,8 +256,9 @@ export default function DeliveryTracker({
     router.refresh();
   }
 
-  async function handlePickup(orderId: string) {
-    if (!pickupCode.trim()) {
+  async function handlePickup(orderId: string, codeOverride?: string) {
+    const code = (codeOverride ?? pickupCode).trim();
+    if (!code) {
       toast.error("Escanea o ingresa el código de recogida.");
       return;
     }
@@ -266,7 +267,7 @@ export default function DeliveryTracker({
     const res = await fetch("/api/delivery/confirm", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ orderId, code: pickupCode.trim().toUpperCase(), action: "pickup" }),
+      body: JSON.stringify({ orderId, code: code.toUpperCase(), action: "pickup" }),
     });
     const data = (await res.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
     setPickupLoading(false);
@@ -282,7 +283,7 @@ export default function DeliveryTracker({
     }
   }
 
-  async function startPickupScanner() {
+  async function startPickupScanner(orderId: string) {
     setPickupError(null);
     setPickupScanning(true);
 
@@ -292,6 +293,7 @@ export default function DeliveryTracker({
         if (code.length >= 4 && code.length <= 10) {
           stopScanner();
           setPickupCode(code);
+          handlePickup(orderId, code);
         }
       },
       (msg) => setPickupError(msg),
@@ -597,7 +599,7 @@ export default function DeliveryTracker({
                               {!pickupScanning && !pickupCode && (
                                 <button
                                   type="button"
-                                  onClick={startPickupScanner}
+                                  onClick={() => { if (pickupOrderId) startPickupScanner(pickupOrderId); }}
                                   className="w-full rounded-lg bg-blue-600 py-2 text-sm font-bold text-white hover:bg-blue-700 mb-3 border-none cursor-pointer"
                                 >
                                   📷 Activar cámara
@@ -643,7 +645,7 @@ export default function DeliveryTracker({
                                 setPickupOrderId(order.id);
                                 setPickupCode("");
                                 setPickupError(null);
-                                setTimeout(() => startPickupScanner(), 300);
+                                setTimeout(() => startPickupScanner(order.id), 300);
                               }}
                               className="w-full rounded-xl bg-green-600 py-3 text-base font-bold text-white hover:bg-green-700 shadow-sm active:scale-95 transition-transform border-none cursor-pointer flex items-center justify-center gap-2"
                             >
