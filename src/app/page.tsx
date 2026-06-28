@@ -88,17 +88,17 @@ export default async function Home() {
         <div className="flex flex-wrap items-center justify-center gap-8 text-center">
           <div className="animate-fade-in">
             <div className="text-4xl font-bold text-amber-600">{storeCount}</div>
-            <div className="text-sm text-stone-500">Tiendas locales</div>
+            <div className="text-sm text-stone-600">Tiendas locales</div>
           </div>
           <div className="h-12 w-px bg-amber-200"></div>
           <div className="animate-fade-in animate-stagger-1">
             <div className="text-4xl font-bold text-amber-600">{productCount}</div>
-            <div className="text-sm text-stone-500">Productos</div>
+            <div className="text-sm text-stone-600">Productos</div>
           </div>
           <div className="h-12 w-px bg-amber-200"></div>
           <div className="animate-fade-in animate-stagger-2">
             <div className="text-4xl font-bold text-amber-600">🚚</div>
-            <div className="text-sm text-stone-500">Entrega misma día</div>
+            <div className="text-sm text-stone-600">Entrega misma día</div>
           </div>
         </div>
       </section>
@@ -107,14 +107,14 @@ export default async function Home() {
       <section className="bg-gradient-to-b from-amber-50 to-orange-50 py-20">
         <div className="mx-auto max-w-4xl px-4 text-center animate-slide-up">
           <h2 className="text-3xl font-bold text-stone-800">¿Cómo funciona?</h2>
-          <p className="mt-3 text-stone-500">Tres pasos para recibir tus productos</p>
+          <p className="mt-3 text-stone-600">Tres pasos para recibir tus productos</p>
           <div className="mt-12 grid gap-8 sm:grid-cols-3">
             <div className="animate-slide-up-sm animate-stagger-1">
               <div className="mx-auto h-20 w-20 rounded-3xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-3xl font-bold text-white shadow-lg shadow-amber-200">
                 1
               </div>
               <h3 className="mt-5 text-lg font-bold text-stone-800">Elige una tienda</h3>
-              <p className="mt-2 text-sm text-stone-500">
+               <p className="mt-2 text-sm text-stone-600">
                 Explora las tiendas locales y encuentra lo que necesitas
               </p>
             </div>
@@ -123,7 +123,7 @@ export default async function Home() {
                 2
               </div>
               <h3 className="mt-5 text-lg font-bold text-stone-800">Agrega al carrito</h3>
-              <p className="mt-2 text-sm text-stone-500">
+              <p className="mt-2 text-sm text-stone-600">
                 Elige tus productos y paga cuando recibas
               </p>
             </div>
@@ -132,7 +132,7 @@ export default async function Home() {
                 3
               </div>
               <h3 className="mt-5 text-lg font-bold text-stone-800">Recibe en casa</h3>
-              <p className="mt-2 text-sm text-stone-500">
+              <p className="mt-2 text-sm text-stone-600">
                 Lo recibes el mismo día o pasando a recoger
               </p>
             </div>
@@ -145,7 +145,7 @@ export default async function Home() {
         <section className="mx-auto max-w-6xl px-4 py-20 animate-slide-up">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold text-stone-800">Tiendas destacadas</h2>
-            <p className="mt-2 text-stone-500">Descubre las tiendas más populares de tu comunidad</p>
+            <p className="mt-2 text-stone-600">Descubre las tiendas más populares de tu comunidad</p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {featuredStores.map((store, idx) => (
@@ -173,7 +173,7 @@ export default async function Home() {
                   {store.name}
                 </h3>
                 {store.description && (
-                  <p className="mt-1.5 text-sm text-stone-500 line-clamp-2">
+                  <p className="mt-1.5 text-sm text-stone-600 line-clamp-2">
                     {store.description}
                   </p>
                 )}
@@ -226,7 +226,7 @@ export default async function Home() {
       {/* Footer Links */}
       <section className="mx-auto max-w-6xl px-4 py-10 text-center">
         <div className="flex flex-wrap items-center justify-center gap-8 text-sm">
-          <Link href="/login" className="text-stone-500 hover:text-stone-700 transition-colors hover:underline">
+          <Link href="/login" className="text-stone-600 hover:text-stone-800 transition-colors hover:underline">
             Iniciar sesión
           </Link>
           <Link href="/portal/vendedor" className="text-amber-600 font-semibold hover:text-amber-700 transition-colors hover:underline">
