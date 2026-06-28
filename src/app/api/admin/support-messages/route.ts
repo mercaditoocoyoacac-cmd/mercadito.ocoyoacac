@@ -40,3 +40,19 @@ export async function PATCH(req: Request) {
 
   return NextResponse.json({ ok: true });
 }
+
+export async function DELETE(req: Request) {
+  const session = await getSession();
+  if (!session?.user?.id || session.user.isActive === false || !getUserRoles(session).includes("ADMIN")) {
+    return NextResponse.json({ ok: false, error: "No autorizado" }, { status: 403 });
+  }
+
+  const { id } = await req.json().catch(() => ({ id: "" }));
+  if (!id) {
+    return NextResponse.json({ ok: false, error: "ID requerido" }, { status: 400 });
+  }
+
+  await prisma.supportMessage.delete({ where: { id } });
+
+  return NextResponse.json({ ok: true });
+}
