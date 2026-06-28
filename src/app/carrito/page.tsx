@@ -160,7 +160,7 @@ function QtyControl({ value, onMinus, onPlus, disabled }: { value: number; onMin
       <button
         type="button"
         onClick={onMinus}
-        disabled={disabled || value <= 1}
+        disabled={disabled || value <= 0}
         aria-label="Disminuir cantidad"
         className="flex h-9 w-9 items-center justify-center text-[color:var(--muted)] hover:bg-gray-100 disabled:opacity-30 transition-colors"
       >
