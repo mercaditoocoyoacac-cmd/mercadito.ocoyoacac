@@ -351,6 +351,7 @@ export default function AdminDashboardClient({ data }: { data: StatsData }) {
           </div>
           <div className="p-4 space-y-3">
             {[
+              { href: "/admin/mensajes", label: "Mensajes", icon: "💬", desc: "Soporte y reportes" },
               { href: "/admin/membresias", label: "Membresías", icon: "🛡️", desc: "Gestionar suscripciones" },
               { href: "/admin/usuarios", label: "Usuarios", icon: "👥", desc: "Clientes y vendedores" },
               { href: "/admin/tiendas", label: "Tiendas", icon: "🏪", desc: "Editar datos de tiendas" },

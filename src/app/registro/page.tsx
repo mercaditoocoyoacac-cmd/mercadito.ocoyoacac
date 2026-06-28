@@ -13,45 +13,12 @@ export default function RegistroPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
-  const [phoneCode, setPhoneCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [sendingCode, setSendingCode] = useState(false);
-  const [codeSent, setCodeSent] = useState(false);
 
   const role = session?.user?.role;
   const additionalRoles = session?.user?.additionalRoles?.split(",").filter(Boolean) || [];
   const isLoggedInVendorOrDelivery = session?.user && role !== "CUSTOMER" && !additionalRoles.includes("CUSTOMER");
-
-  async function sendPhoneCode() {
-    if (!phone || phone.replace(/\D/g, "").length < 10) {
-      setError("Ingresa un número de teléfono válido (mínimo 10 dígitos)");
-      return;
-    }
-    setSendingCode(true);
-    setError(null);
-    
-    try {
-      const res = await fetch("/api/register/send-verification", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ phone }),
-      });
-      const data = await res.json();
-      
-      if (data.ok) {
-        setCodeSent(true);
-        if (data.autoVerified) {
-          setPhoneCode("auto");
-        }
-      } else {
-        setError(data.error || "Error al enviar código");
-      }
-    } catch {
-      setError("Error al conectar con el servidor");
-    }
-    setSendingCode(false);
-  }
 
   async function handleUpgrade() {
     setLoading(true);
@@ -77,8 +44,8 @@ export default function RegistroPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    
-    if (!email || !password) {
+
+    if (!email || !password || !phone) {
       setError("Completa todos los campos requeridos");
       return;
     }
@@ -87,14 +54,9 @@ export default function RegistroPage() {
       setError("La contraseña debe tener al menos 8 caracteres");
       return;
     }
-    
-    if (!phone || !codeSent) {
-      setError("Debes verificar tu número de teléfono");
-      return;
-    }
 
     setLoading(true);
-    
+
     const res = await fetch("/api/register", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -102,7 +64,7 @@ export default function RegistroPage() {
         name: (nombres.trim() + " " + apellidos.trim()).trim() || undefined,
         email,
         password,
-        phone: phone,
+        phone: phone || undefined,
         role: "CUSTOMER",
       }),
     });
@@ -110,7 +72,7 @@ export default function RegistroPage() {
       | { ok: true; user: { id: string; email: string } }
       | { ok: false; error?: string }
       | null;
-      
+
     if (!res.ok || !data?.ok) {
       setLoading(false);
       const msg = data && "error" in data ? data.error : "No se pudo registrar.";
@@ -132,12 +94,12 @@ export default function RegistroPage() {
     <main className="mx-auto w-full max-w-md flex-1 px-4 py-10">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold tracking-tight">
-          {isLoggedInVendorOrDelivery ? "Ser cliente también" : "Registro de Cliente"}
+          {isLoggedInVendorOrDelivery ? "Ser cliente también" : "Crear cuenta"}
         </h1>
         <p className="mt-2 text-sm text-[color:var(--muted)]">
           {isLoggedInVendorOrDelivery
             ? "Activa el modo cliente en tu cuenta para comprar en tiendas."
-            : "Crea una cuenta para comprar en las tiendas de tu zona."}
+            : "Regístrate para comprar en las tiendas de tu zona."}
         </p>
       </div>
 
@@ -161,21 +123,19 @@ export default function RegistroPage() {
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
           <div className="grid grid-cols-2 gap-3">
             <label className="block">
-              <div className="text-sm font-medium">Nombres *</div>
+              <div className="text-sm font-medium">Nombres</div>
               <input
                 value={nombres}
                 onChange={(e) => setNombres(e.target.value)}
-                required
                 className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
                 placeholder="Juan"
               />
             </label>
             <label className="block">
-              <div className="text-sm font-medium">Apellidos *</div>
+              <div className="text-sm font-medium">Apellidos</div>
               <input
                 value={apellidos}
                 onChange={(e) => setApellidos(e.target.value)}
-                required
                 className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
                 placeholder="Pérez"
               />
@@ -201,58 +161,24 @@ export default function RegistroPage() {
               onChange={(e) => setPassword(e.target.value)}
               type="password"
               required
+              minLength={8}
               className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
               placeholder="Mínimo 8 caracteres"
             />
-            <p className="mt-1 text-xs text-[color:var(--muted)]">
-              Debe tener: mayúscula, minúscula, número y carácter especial
-            </p>
+            <p className="mt-1 text-xs text-[color:var(--muted)]">Mínimo 8 caracteres</p>
           </label>
 
           <label className="block">
             <div className="text-sm font-medium">Teléfono *</div>
             <input
               value={phone}
-              onChange={(e) => {
-                setPhone(e.target.value);
-                setCodeSent(false);
-              }}
+              onChange={(e) => setPhone(e.target.value)}
               type="tel"
               required
-              disabled={codeSent}
-              className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)] disabled:opacity-50"
-              placeholder="55 1234 5678"
+              className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+              placeholder="722..."
             />
-            {!codeSent && (
-              <button
-                type="button"
-                onClick={sendPhoneCode}
-                disabled={sendingCode || !phone}
-                className="mt-2 rounded-md bg-[var(--accent)] px-3 py-1.5 text-xs font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-50"
-              >
-                {sendingCode ? "Enviando código..." : "Enviar código SMS"}
-              </button>
-            )}
           </label>
-
-          {codeSent && phoneCode !== "auto" && (
-            <label className="block">
-              <div className="text-sm font-medium">Código de verificación *</div>
-              <input
-                value={phoneCode}
-                onChange={(e) => setPhoneCode(e.target.value)}
-                type="text"
-                required
-                maxLength={6}
-                className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-                placeholder="Código de 6 dígitos"
-              />
-              <p className="mt-1 text-xs text-green-600">✓ Código enviado al {phone}</p>
-            </label>
-          )}
-          {codeSent && phoneCode === "auto" && (
-            <p className="text-sm text-green-600 font-medium">✓ Teléfono verificado</p>
-          )}
 
           {error ? (
             <div className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700">

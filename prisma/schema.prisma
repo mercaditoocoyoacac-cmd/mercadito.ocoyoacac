@@ -70,6 +70,7 @@ model User {
   notifications Notification[]
   verifications Verification[]
   chatMessages  ChatMessage[]
+  supportMessages SupportMessage[]
 
   @@index([role])
   @@index([isActive])
@@ -409,6 +410,22 @@ model Verification {
 
   @@index([userId])
   @@index([target])
+}
+
+model SupportMessage {
+  id            String   @id @default(cuid())
+  message       String
+  contactEmail  String?
+  contactPhone  String?
+  imageUrl      String?
+  read          Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([read])
 }
 
 model ChatMessage {
