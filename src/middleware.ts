@@ -11,7 +11,7 @@ const ALLOWED_ORIGINS = [
   "file://",
 ].filter(Boolean);
 
-const CSRF_PATHS = ["/api/register", "/api/auth/forgot-password", "/api/auth/reset-password"];
+const CSRF_PATHS = ["/api/auth/forgot-password", "/api/auth/reset-password"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -20,7 +20,8 @@ export function middleware(request: NextRequest) {
     const origin = request.headers.get("origin") || request.headers.get("referer") || "";
 
     if (origin) {
-      const isAllowed = ALLOWED_ORIGINS.some((allowed) => allowed && origin.startsWith(allowed));
+      const requestOrigin = request.nextUrl.origin;
+      const isAllowed = [requestOrigin, ...ALLOWED_ORIGINS].some((allowed) => allowed && origin.startsWith(allowed));
       if (!isAllowed) {
         return NextResponse.json({ ok: false, error: "Origen no autorizado" }, { status: 403 });
       }
