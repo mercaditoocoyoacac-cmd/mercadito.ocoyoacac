@@ -55,6 +55,12 @@ export const productUpdateSchema = z.object({
   discountPercentage: z.number().int().min(0).max(100).nullable().optional(),
 });
 
+const dayScheduleSchema = z.object({
+  active: z.boolean(),
+  start: z.string(),
+  end: z.string(),
+});
+
 const storeFields = {
   name: z.string().min(2).max(80).optional(),
   category: z.string().min(1).max(40).optional(),
@@ -66,9 +72,12 @@ const storeFields = {
   longitude: z.number().min(-180).max(180).nullable().optional(),
   openTime: z.string().regex(/^([01]?\d|2[0-3]):[0-5]\d$/).nullable().optional(),
   closeTime: z.string().regex(/^([01]?\d|2[0-3]):[0-5]\d$/).nullable().optional(),
-  scheduleDays: z.array(z.enum(DAYS)).min(1).optional(),
-  scheduleDetails: z.any().optional(),
-} as const;
+  scheduleDays: z.array(z.enum(DAYS)).optional(),
+  scheduleDetails: z.object({
+    mode: z.enum(["weekly", "daily"]),
+    days: z.record(z.string(), dayScheduleSchema),
+  }).optional(),
+};
 
 export const updateStoreSchema = z.object(storeFields);
 
