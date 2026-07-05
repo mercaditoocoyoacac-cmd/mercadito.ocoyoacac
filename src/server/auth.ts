@@ -125,12 +125,22 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.role = user.role;
         token.additionalRoles = user.additionalRoles;
         token.isActive = user.isActive;
         token.needsDeviceApproval = (user as { needsDeviceApproval?: boolean }).needsDeviceApproval;
+      } else if (trigger === "update") {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: { role: true, additionalRoles: true, isActive: true },
+        });
+        if (dbUser) {
+          token.role = dbUser.role;
+          token.additionalRoles = dbUser.additionalRoles || undefined;
+          token.isActive = dbUser.isActive;
+        }
       }
       return token;
     },
