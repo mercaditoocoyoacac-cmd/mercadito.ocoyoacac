@@ -51,5 +51,15 @@
 	<string>Necesitamos tu ubicacion para asignarte pedidos cercanos y optimizar las rutas de entrega.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Necesitamos tu ubicacion para asignarte pedidos cercanos incluso cuando la app esta en segundo plano.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>La app necesita acceso a tu galeria para adjuntar imagenes a mensajes de soporte.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>La app necesita acceso a la camara para tomar fotos y adjuntarlas a mensajes de soporte.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>location</string>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>
