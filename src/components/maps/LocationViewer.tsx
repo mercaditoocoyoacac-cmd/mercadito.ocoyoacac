@@ -1,21 +1,8 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+import { useJsApiLoader, GoogleMap, Marker } from "@react-google-maps/api";
 
-const markerIcon = L.icon({
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-
-L.Marker.prototype.options.icon = markerIcon;
+const containerStyle = { width: "100%", height: "100%" };
 
 interface LocationViewerProps {
   latitude: number | null;
@@ -24,15 +11,13 @@ interface LocationViewerProps {
   label?: string;
 }
 
-export default function LocationViewer({
-  latitude,
-  longitude,
-  height = "h-48",
-  label,
-}: LocationViewerProps) {
-  const mounted = useSyncExternalStore(() => () => {}, () => true, () => false);
+export default function LocationViewer({ latitude, longitude, height = "h-48", label }: LocationViewerProps) {
+  const { isLoaded } = useJsApiLoader({
+    id: "google-map-script-viewer",
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY || "",
+  });
 
-  if (!mounted) {
+  if (!isLoaded) {
     return (
       <div className={`${height} w-full rounded-xl bg-gray-100 animate-pulse flex items-center justify-center`}>
         <span className="text-sm text-gray-400">Cargando mapa...</span>
@@ -53,30 +38,26 @@ export default function LocationViewer({
   }
 
   return (
-    <div className={`${height} w-full rounded-xl overflow-hidden border border-[var(--border)] shadow-sm`}>
-      <MapContainer
-        center={[latitude, longitude]}
+    <div className={`${height} w-full rounded-xl overflow-hidden border border-[var(--border)] shadow-sm relative`}>
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={{ lat: latitude, lng: longitude }}
         zoom={16}
-        style={{ height: "100%", width: "100%" }}
-        scrollWheelZoom={false}
-        dragging={false}
-        doubleClickZoom={false}
-        zoomControl={false}
-        attributionControl={false}
+        options={{
+          scrollwheel: false,
+          draggable: false,
+          zoomControl: false,
+          streetViewControl: false,
+          mapTypeControl: false,
+          fullscreenControl: false,
+          disableDefaultUI: true,
+          styles: [{ featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }],
+        }}
       >
-        <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-        />
-        <Marker position={[latitude, longitude]}>
-          {label && (
-            <Popup>
-              <div className="text-xs font-medium">{label}</div>
-            </Popup>
-          )}
-        </Marker>
-      </MapContainer>
+        <Marker position={{ lat: latitude, lng: longitude }} />
+      </GoogleMap>
       {label && (
-        <div className="absolute bottom-2 left-2 right-2 z-[400]">
+        <div className="absolute bottom-2 left-2 right-2 z-10">
           <div className="mx-auto w-fit rounded-full bg-white/80 backdrop-blur-sm px-3 py-1 text-[10px] text-gray-500 shadow-sm border border-gray-200/50">
             {label}
           </div>
