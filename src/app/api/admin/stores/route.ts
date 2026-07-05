@@ -25,6 +25,7 @@ export async function GET() {
       openTime: true,
       closeTime: true,
       scheduleDays: true,
+      scheduleDetails: true,
       owner: { select: { id: true, name: true, email: true } },
     },
   });

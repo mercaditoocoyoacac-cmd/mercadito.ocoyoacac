@@ -59,6 +59,7 @@ interface Store {
   openTime: string | null;
   closeTime: string | null;
   scheduleDays: string[];
+  scheduleDetails?: StoreScheduleDetails | null;
   owner: { id: string; name: string; email: string };
 }
 
@@ -85,10 +86,10 @@ function StoreForm({
     store.scheduleDays.length > 0 ? store.scheduleDays : DAYS.map((d) => d.key)
   );
   const [scheduleDetails, setScheduleDetails] = useState<StoreScheduleDetails>(
-    (store as any).scheduleDetails?.days ? (store as any).scheduleDetails : defaultStoreSchedule()
+    store.scheduleDetails?.days ? store.scheduleDetails : defaultStoreSchedule()
   );
   const [scheduleMode, setScheduleMode] = useState<"weekly" | "daily">(
-    (store as any).scheduleDetails?.mode || "weekly"
+    store.scheduleDetails?.mode || "weekly"
   );
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -457,7 +458,7 @@ export default function AdminTiendasPage() {
 
       {!loading && selectedStore && (
         <div className="max-w-xl">
-          <StoreForm store={selectedStore} categories={categories} onSaved={() => {}} />
+          <StoreForm key={selectedStore.id} store={selectedStore} categories={categories} onSaved={() => {}} />
         </div>
       )}
     </div>
