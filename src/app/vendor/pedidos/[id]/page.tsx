@@ -141,6 +141,7 @@ export default async function VendorPedidoPage({
                 >
                   <span>
                     {isWeight ? `${wg}g` : `${item.quantity}x`} {item.name}
+                    {item.variantName && <span className="text-xs text-[color:var(--muted)]"> ({item.variantName})</span>}
                   </span>
                   <span className="font-medium">
                     {formatMoney(lineTotal, order.currency)}
