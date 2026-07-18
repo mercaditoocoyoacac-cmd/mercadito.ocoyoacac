@@ -597,6 +597,15 @@ export function NavBar() {
                     Mensajes
                   </Link>
                   <Link
+                    href="/admin/zonas-envio"
+                    onClick={() => setMenuOpen(false)}
+                    className={`rounded-lg px-4 py-3 text-sm font-medium ${
+                      pathname === "/admin/zonas-envio" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                    }`}
+                  >
+                    Zonas Envío
+                  </Link>
+                  <Link
                     href="/admin/envios"
                     onClick={() => setMenuOpen(false)}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${

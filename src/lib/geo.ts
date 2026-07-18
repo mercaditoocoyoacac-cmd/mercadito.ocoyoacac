@@ -59,6 +59,26 @@ export function getMapsUrl(lat: number | null | undefined, lng: number | null | 
   return "https://www.google.com/maps";
 }
 
+/**
+ * Point-in-polygon using ray casting algorithm.
+ * Returns true if the point (lat, lng) is inside the polygon.
+ */
+export function pointInPolygon(
+  lat: number,
+  lng: number,
+  polygon: { lat: number; lng: number }[],
+): boolean {
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const xi = polygon[i].lng, yi = polygon[i].lat;
+    const xj = polygon[j].lng, yj = polygon[j].lat;
+    if ((yi > lat) !== (yj > lat) && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
 export function openMapsUrl(url: string): void {
   if (isNativeApp()) {
     window.open(url, "_system");

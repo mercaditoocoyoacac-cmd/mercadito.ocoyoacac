@@ -433,6 +433,20 @@ model SupportMessage {
   @@index([read])
 }
 
+model DeliveryZone {
+  id         String   @id @default(cuid())
+  name       String
+  color      String   @default("#22c55e")
+  priceCents Int
+  polygon    Json
+  isActive   Boolean  @default(true)
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([isActive])
+}
+
 model ChatMessage {
   id         String   @id @default(cuid())
   orderId    String

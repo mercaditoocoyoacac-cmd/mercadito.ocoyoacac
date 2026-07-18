@@ -30,25 +30,7 @@ type CartItem = {
 };
 
 import { formatMoney } from "@/lib/format";
-
-function calcDeliveryFeeCents(distanceKm: number): number {
-  const BASE_FEE = 2500;
-  const EXTRA_FEE = 1000;
-  const BASE_KM = 2;
-  const SEGMENT_KM = 2;
-  if (distanceKm <= 0) return BASE_FEE;
-  if (distanceKm <= BASE_KM) return BASE_FEE;
-  const extraSegments = Math.ceil((distanceKm - BASE_KM) / SEGMENT_KM);
-  return BASE_FEE + extraSegments * EXTRA_FEE;
-}
-
-function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371;
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const a = Math.sin(dLat / 2) ** 2 + Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
+import { calcDeliveryFeeCents, haversineDistance } from "@/lib/geo";
 
 function Skeleton() {
   return (
