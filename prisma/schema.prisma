@@ -207,10 +207,12 @@ model Product {
   maxWeightGrams Int     @default(5000)
   sortOrder      Int     @default(0)
 
-  soldCount          Int  @default(0)
-  isPromotion        Boolean @default(false)
+  soldCount           Int      @default(0)
+  isPromotion         Boolean  @default(false)
   promotionPriceCents Int?
   discountPercentage  Int?
+  promotionStartDate  DateTime?
+  promotionEndDate    DateTime?
 
   storeId String
   store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)

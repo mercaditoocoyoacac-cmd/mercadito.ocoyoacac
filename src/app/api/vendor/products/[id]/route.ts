@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
 import { productUpdateSchema as UpdateProductSchema } from "@/lib/schemas";
+import { broadcastPromotion } from "@/server/push";
 
 export async function PUT(
   req: Request,
@@ -28,11 +29,11 @@ export async function PUT(
 
   const product = await prisma.product.findFirst({
     where: { id, storeId: store.id },
-    select: { id: true },
+    select: { id: true, isPromotion: true, name: true },
   });
   if (!product) return NextResponse.json({ ok: false }, { status: 404 });
 
-  await prisma.product.update({
+  const updated = await prisma.product.update({
     where: { id },
     data: {
       name: parsed.data.name?.trim(),
@@ -51,8 +52,24 @@ export async function PUT(
       isPromotion: parsed.data.isPromotion,
       promotionPriceCents: parsed.data.promotionPriceCents,
       discountPercentage: parsed.data.discountPercentage,
+      promotionStartDate: parsed.data.promotionStartDate,
+      promotionEndDate: parsed.data.promotionEndDate,
     },
+    select: { name: true, isPromotion: true },
   });
+
+  const justActivated = updated.isPromotion && !product.isPromotion;
+  if (justActivated) {
+    const storeInfo = await prisma.store.findUnique({
+      where: { id: store.id },
+      select: { name: true },
+    });
+    broadcastPromotion({
+      storeName: storeInfo?.name || "Mercadito Ocoyoacac",
+      productName: updated.name,
+      discountPercentage: parsed.data.discountPercentage ?? null,
+    });
+  }
 
   if (parsed.data.variants !== undefined) {
     const existing = await prisma.productVariant.findMany({

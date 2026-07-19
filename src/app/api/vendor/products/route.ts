@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
 import { productCreateSchemaBase as CreateProductSchema } from "@/lib/schemas";
+import { broadcastPromotion } from "@/server/push";
 
 export async function GET(req: Request) {
   const auth = await requireUser();
@@ -42,6 +43,8 @@ export async function GET(req: Request) {
       isPromotion: true,
       promotionPriceCents: true,
       discountPercentage: true,
+      promotionStartDate: true,
+      promotionEndDate: true,
       soldCount: true,
       variants: {
         select: { id: true, name: true, priceCents: true, sortOrder: true },
@@ -59,7 +62,7 @@ export async function POST(req: Request) {
 
   const store = await prisma.store.findFirst({
     where: { ownerId: auth.userId },
-    select: { id: true },
+    select: { id: true, name: true },
   });
   if (!store) {
     return NextResponse.json(
@@ -96,9 +99,19 @@ export async function POST(req: Request) {
       isPromotion: parsed.data.isPromotion ?? false,
       promotionPriceCents: parsed.data.promotionPriceCents ?? null,
       discountPercentage: parsed.data.discountPercentage ?? null,
+      promotionStartDate: parsed.data.promotionStartDate ?? null,
+      promotionEndDate: parsed.data.promotionEndDate ?? null,
     },
-    select: { id: true },
+    select: { id: true, name: true },
   });
+
+  if (parsed.data.isPromotion) {
+    broadcastPromotion({
+      storeName: store.name || "Mercadito Ocoyoacac",
+      productName: product.name,
+      discountPercentage: parsed.data.discountPercentage ?? null,
+    });
+  }
 
   return NextResponse.json({ ok: true, product });
 }

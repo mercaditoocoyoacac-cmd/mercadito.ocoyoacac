@@ -1,4 +1,5 @@
 import admin from "firebase-admin";
+import { prisma } from "@/server/prisma";
 
 let initialized = false;
 
@@ -123,4 +124,28 @@ export async function sendPushToMultiple(tokens: string[], data: PushData) {
   } catch (error) {
     console.error("Error sending push notifications:", error);
   }
+}
+
+export async function broadcastPromotion(data: {
+  storeName: string;
+  productName: string;
+  discountPercentage: number | null;
+}) {
+  const users = await prisma.user.findMany({
+    where: { pushToken: { not: null } },
+    select: { pushToken: true },
+  });
+  const tokens = users.map((u) => u.pushToken).filter(Boolean) as string[];
+  if (tokens.length === 0) return;
+
+  const discountText = data.discountPercentage
+    ? ` -${data.discountPercentage}%`
+    : "";
+  await sendPushToMultiple(tokens, {
+    title: `🎉 Promoción en ${data.storeName}`,
+    body: `${data.productName}${discountText}`,
+    url: "/tiendas",
+    type: "PROMOTION",
+  });
+  console.log(`[PUSH] Promoción enviada a ${tokens.length} dispositivos`);
 }

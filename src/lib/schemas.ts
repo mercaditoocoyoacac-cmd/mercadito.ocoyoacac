@@ -32,6 +32,8 @@ export const productCreateSchemaBase = z.object({
   isPromotion: z.boolean().optional(),
   promotionPriceCents: z.number().int().min(0).optional(),
   discountPercentage: z.number().int().min(0).max(100).optional(),
+  promotionStartDate: z.date().nullable().optional(),
+  promotionEndDate: z.date().nullable().optional(),
 });
 
 export const productCreateSchema = productCreateSchemaBase.extend({
@@ -53,6 +55,8 @@ export const productUpdateSchema = z.object({
   isPromotion: z.boolean().optional(),
   promotionPriceCents: z.number().int().min(0).nullable().optional(),
   discountPercentage: z.number().int().min(0).max(100).nullable().optional(),
+  promotionStartDate: z.date().nullable().optional(),
+  promotionEndDate: z.date().nullable().optional(),
 });
 
 const dayScheduleSchema = z.object({

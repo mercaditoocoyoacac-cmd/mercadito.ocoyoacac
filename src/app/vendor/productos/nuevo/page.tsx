@@ -54,6 +54,8 @@ export default function NuevoProductoPage() {
   const [isPromotion, setIsPromotion] = useState(false);
   const [promotionPrice, setPromotionPrice] = useState("");
   const [discountPercentage, setDiscountPercentage] = useState("");
+  const [promotionStartDate, setPromotionStartDate] = useState("");
+  const [promotionEndDate, setPromotionEndDate] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function addVariant() {
@@ -159,6 +161,8 @@ export default function NuevoProductoPage() {
               isPromotion,
               promotionPriceCents: isPromotion && promotionPrice ? Math.round(Number(promotionPrice) * 100) : undefined,
               discountPercentage: isPromotion && discountPercentage ? parseInt(discountPercentage) : undefined,
+              promotionStartDate: isPromotion && promotionStartDate ? new Date(promotionStartDate).toISOString() : undefined,
+              promotionEndDate: isPromotion && promotionEndDate ? new Date(promotionEndDate).toISOString() : undefined,
             }),
           });
           const data = (await res.json().catch(() => null)) as
@@ -368,27 +372,49 @@ export default function NuevoProductoPage() {
                 </label>
               </div>
               {isPromotion && (
-                <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                  <label className="block">
-                    <div className="text-sm font-medium">Precio promocional (MXN)</div>
-                    <input
-                      value={promotionPrice}
-                      onChange={(e) => setPromotionPrice(e.target.value)}
-                      inputMode="decimal"
-                      className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-                      placeholder="Ej: 20.00"
-                    />
-                  </label>
-                  <label className="block">
-                    <div className="text-sm font-medium">% de descuento</div>
-                    <input
-                      value={discountPercentage}
-                      onChange={(e) => setDiscountPercentage(e.target.value)}
-                      inputMode="numeric"
-                      className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-                      placeholder="Ej: 20"
-                    />
-                  </label>
+                <div className="mt-3 space-y-3">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <label className="block">
+                      <div className="text-sm font-medium">Precio promocional (MXN)</div>
+                      <input
+                        value={promotionPrice}
+                        onChange={(e) => setPromotionPrice(e.target.value)}
+                        inputMode="decimal"
+                        className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                        placeholder="Ej: 20.00"
+                      />
+                    </label>
+                    <label className="block">
+                      <div className="text-sm font-medium">% de descuento</div>
+                      <input
+                        value={discountPercentage}
+                        onChange={(e) => setDiscountPercentage(e.target.value)}
+                        inputMode="numeric"
+                        className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                        placeholder="Ej: 20"
+                      />
+                    </label>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <label className="block">
+                      <div className="text-sm font-medium">Inicio de promoción</div>
+                      <input
+                        type="date"
+                        value={promotionStartDate}
+                        onChange={(e) => setPromotionStartDate(e.target.value)}
+                        className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                      />
+                    </label>
+                    <label className="block">
+                      <div className="text-sm font-medium">Fin de promoción</div>
+                      <input
+                        type="date"
+                        value={promotionEndDate}
+                        onChange={(e) => setPromotionEndDate(e.target.value)}
+                        className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                      />
+                    </label>
+                  </div>
                 </div>
               )}
             </div>

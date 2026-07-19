@@ -69,6 +69,16 @@ export function NavBar() {
 
           <nav className="hidden md:flex items-center gap-1">
             <Link
+              href="/promociones"
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                isActive("/promociones")
+                  ? "bg-[var(--accent-soft)] text-[var(--accent)]"
+                  : "text-[color:var(--muted)] hover:bg-gray-100 hover:text-gray-900"
+              }`}
+            >
+              Promociones
+            </Link>
+            <Link
               href="/tiendas"
               className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                 isActive("/tiendas")
@@ -523,6 +533,15 @@ export function NavBar() {
         {menuOpen && (
           <div className="md:hidden max-h-[calc(100vh-4rem)] overflow-y-auto border-t border-[var(--border)] bg-white/95 backdrop-blur-md">
             <nav className="flex flex-col gap-1 p-4">
+              <Link
+                href="/promociones"
+                onClick={() => setMenuOpen(false)}
+                className={`rounded-lg px-4 py-3 text-sm font-medium ${
+                  isActive("/promociones") ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                }`}
+              >
+                Promociones
+              </Link>
               <Link
                 href="/tiendas"
                 onClick={() => setMenuOpen(false)}
