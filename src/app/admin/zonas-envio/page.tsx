@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { useJsApiLoader, GoogleMap, Polygon } from "@react-google-maps/api";
+import { useJsApiLoader, GoogleMap, Polygon, Marker, Polyline } from "@react-google-maps/api";
 import { formatMoney } from "@/lib/format";
 
 const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY || "";
@@ -24,17 +24,18 @@ export default function ZonasEnvioPage() {
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script-zones",
     googleMapsApiKey: apiKey,
-    libraries: ["drawing"],
+    libraries: [],
   });
 
   const [zones, setZones] = useState<Zone[]>([]);
   const [drawing, setDrawing] = useState(false);
+  const [drawPoints, setDrawPoints] = useState<{ lat: number; lng: number }[]>([]);
   const [editingZone, setEditingZone] = useState<Partial<Zone> | null>(null);
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [mapReady, setMapReady] = useState(false);
   const mapRef = useRef<google.maps.Map | null>(null);
-  const drawingManagerRef = useRef<google.maps.drawing.DrawingManager | null>(null);
+  const clickListenerRef = useRef<google.maps.MapsEventListener | null>(null);
 
   const loadZones = useCallback(async () => {
     const res = await fetch("/api/admin/delivery-zones");
@@ -50,50 +51,54 @@ export default function ZonasEnvioPage() {
   }, []);
 
   useEffect(() => {
-    if (!isLoaded || !mapReady) return;
-    if (drawingManagerRef.current) {
-      drawingManagerRef.current.setMap(null);
-      drawingManagerRef.current = null;
-    }
-
-    const dm = new google.maps.drawing.DrawingManager({
-      drawingMode: drawing ? google.maps.drawing.OverlayType.POLYGON : null,
-      drawingControl: false,
-      polygonOptions: {
-        fillColor: "#22c55e",
-        fillOpacity: 0.35,
-        strokeColor: "#22c55e",
-        strokeWeight: 2,
-        editable: true,
-      },
-    });
-    dm.setMap(mapRef.current);
-    drawingManagerRef.current = dm;
-
-    const listener = google.maps.event.addListener(dm, "polygoncomplete", (polygon: google.maps.Polygon) => {
-      const path = polygon.getPath();
-      const coords: { lat: number; lng: number }[] = [];
-      for (let i = 0; i < path.getLength(); i++) {
-        const p = path.getAt(i);
-        coords.push({ lat: p.lat(), lng: p.lng() });
+    if (!isLoaded || !mapReady || !mapRef.current || !drawing) return;
+    const map = mapRef.current;
+    const listener = map.addListener("click", (e: google.maps.MapMouseEvent) => {
+      const lat = e.latLng?.lat();
+      const lng = e.latLng?.lng();
+      if (lat != null && lng != null) {
+        setDrawPoints((prev) => [...prev, { lat, lng }]);
       }
-      polygon.setMap(null);
-      setDrawing(false);
-      const newZone: Partial<Zone> = {
-        name: "",
-        color: COLORS[zones.length % COLORS.length],
-        priceCents: 2500,
-        polygon: coords,
-        isActive: true,
-      };
-      setEditingZone(newZone);
     });
-
+    clickListenerRef.current = listener;
     return () => {
       google.maps.event.removeListener(listener);
-      dm.setMap(null);
+      clickListenerRef.current = null;
     };
-  }, [isLoaded, mapReady, drawing, zones.length]);
+  }, [isLoaded, mapReady, drawing]);
+
+  function startDrawing() {
+    setDrawPoints([]);
+    setDrawing(true);
+    setEditingZone(null);
+  }
+
+  function cancelDrawing() {
+    setDrawing(false);
+    setDrawPoints([]);
+    if (clickListenerRef.current) {
+      google.maps.event.removeListener(clickListenerRef.current);
+      clickListenerRef.current = null;
+    }
+  }
+
+  function finishDrawing() {
+    if (drawPoints.length < 3) return;
+    setDrawing(false);
+    if (clickListenerRef.current) {
+      google.maps.event.removeListener(clickListenerRef.current);
+      clickListenerRef.current = null;
+    }
+    const newZone: Partial<Zone> = {
+      name: "",
+      color: COLORS[zones.length % COLORS.length],
+      priceCents: 2500,
+      polygon: [...drawPoints],
+      isActive: true,
+    };
+    setDrawPoints([]);
+    setEditingZone(newZone);
+  }
 
   const centerZone = useCallback((zone: Zone) => {
     if (!mapRef.current || !zone.polygon?.length) return;
@@ -156,17 +161,35 @@ export default function ZonasEnvioPage() {
             Define zonas geográficas con costo de envío personalizado.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setDrawing(!drawing)}
-          className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-            drawing
-              ? "bg-red-500 text-white hover:bg-red-600"
-              : "bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]"
-          }`}
-        >
-          {drawing ? "Cancelar dibujo" : "Dibujar nueva zona"}
-        </button>
+        <div className="flex gap-2">
+          {drawing ? (
+            <>
+              <button
+                type="button"
+                onClick={cancelDrawing}
+                className="rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600 transition-colors"
+              >
+                Cancelar dibujo
+              </button>
+              <button
+                type="button"
+                onClick={finishDrawing}
+                disabled={drawPoints.length < 3}
+                className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-50 transition-colors"
+              >
+                Completar polígono ({drawPoints.length} pts)
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={startDrawing}
+              className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)] transition-colors"
+            >
+              Dibujar nueva zona
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -222,6 +245,12 @@ export default function ZonasEnvioPage() {
                 </div>
               </div>
             ))}
+
+          {drawing && (
+            <div className="rounded-xl border border-blue-300 bg-blue-50 p-4 text-sm text-blue-700">
+              Haz clic en el mapa para agregar puntos al polígono. Mínimo 3 puntos.
+            </div>
+          )}
 
           {editingZone && (
             <div className="rounded-xl border border-[var(--accent)] bg-blue-50/50 p-4 space-y-3">
@@ -325,6 +354,37 @@ export default function ZonasEnvioPage() {
                   onClick={() => centerZone(zone)}
                 />
               ))}
+            {drawing && drawPoints.length > 0 && (
+              <>
+                <Polyline
+                  path={drawPoints}
+                  options={{
+                    strokeColor: "#22c55e",
+                    strokeWeight: 2,
+                    strokeOpacity: 0.8,
+                  }}
+                />
+                {drawPoints.map((p, i) => (
+                  <Marker
+                    key={i}
+                    position={p}
+                    icon={{
+                      path: google.maps.SymbolPath.CIRCLE,
+                      scale: 6,
+                      fillColor: "#22c55e",
+                      fillOpacity: 1,
+                      strokeColor: "#fff",
+                      strokeWeight: 2,
+                    }}
+                    label={{
+                      text: `${i + 1}`,
+                      color: "#fff",
+                      fontSize: "10px",
+                    }}
+                  />
+                ))}
+              </>
+            )}
           </GoogleMap>
         </div>
       </div>
