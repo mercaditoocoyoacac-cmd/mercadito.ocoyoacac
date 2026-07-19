@@ -32,6 +32,7 @@ export default function ZonasEnvioPage() {
   const [editingZone, setEditingZone] = useState<Partial<Zone> | null>(null);
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
   const mapRef = useRef<google.maps.Map | null>(null);
   const drawingManagerRef = useRef<google.maps.drawing.DrawingManager | null>(null);
 
@@ -45,11 +46,15 @@ export default function ZonasEnvioPage() {
 
   const onMapLoad = useCallback((map: google.maps.Map) => {
     mapRef.current = map;
+    setMapReady(true);
   }, []);
 
   useEffect(() => {
-    if (!isLoaded || !mapRef.current) return;
-    if (drawingManagerRef.current) drawingManagerRef.current.setMap(null);
+    if (!isLoaded || !mapReady) return;
+    if (drawingManagerRef.current) {
+      drawingManagerRef.current.setMap(null);
+      drawingManagerRef.current = null;
+    }
 
     const dm = new google.maps.drawing.DrawingManager({
       drawingMode: drawing ? google.maps.drawing.OverlayType.POLYGON : null,
@@ -88,7 +93,7 @@ export default function ZonasEnvioPage() {
       google.maps.event.removeListener(listener);
       dm.setMap(null);
     };
-  }, [isLoaded, drawing, zones.length]);
+  }, [isLoaded, mapReady, drawing, zones.length]);
 
   const centerZone = useCallback((zone: Zone) => {
     if (!mapRef.current || !zone.polygon?.length) return;
