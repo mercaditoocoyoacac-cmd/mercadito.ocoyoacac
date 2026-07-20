@@ -32,6 +32,25 @@ export function NavBar() {
     return () => document.removeEventListener("mousedown", handler);
   }, [vendorMenuOpen]);
 
+  const headerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (headerRef.current) {
+        headerRef.current.style.transform = "translateZ(0)";
+        requestAnimationFrame(() => {
+          if (headerRef.current) headerRef.current.style.transform = "";
+        });
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("orientationchange", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleResize);
+    };
+  }, []);
+
   const isActive = (path: string) => pathname === path;
   const isVendor = role === "VENDOR";
   const isDelivery = role === "DELIVERY";
@@ -60,7 +79,7 @@ export function NavBar() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-[var(--border)] bg-white/95 backdrop-blur-md">
+    <header ref={headerRef} className="fixed top-0 left-0 right-0 z-50 border-b border-[var(--border)] bg-white/95 backdrop-blur-md">
       <div className="mx-auto max-w-6xl px-4">
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
