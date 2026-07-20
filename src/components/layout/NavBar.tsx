@@ -22,6 +22,16 @@ export function NavBar() {
     return () => { document.body.style.overflow = ""; };
   }, [menuOpen]);
 
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (vendorMenuOpen && menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setVendorMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [vendorMenuOpen]);
+
   const isActive = (path: string) => pathname === path;
   const isVendor = role === "VENDOR";
   const isDelivery = role === "DELIVERY";
@@ -174,12 +184,7 @@ export function NavBar() {
                 </button>
                 
                 {vendorMenuOpen && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-[-1]"
-                      onClick={() => setVendorMenuOpen(false)}
-                    />
-                    <div className="absolute right-0 mt-2 w-56 rounded-xl border border-[var(--border)] bg-white py-2 shadow-lg z-[55]">
+                  <div className="absolute right-0 mt-2 w-56 rounded-xl border border-[var(--border)] bg-white py-2 shadow-lg z-[55]">
                       <div className="px-4 py-2 border-b border-[var(--border)]">
                         <div className="text-xs font-semibold text-[color:var(--muted)] uppercase tracking-wide">Administración</div>
                       </div>
@@ -316,7 +321,6 @@ export function NavBar() {
                         </div>
                       </button>
                     </div>
-                  </>
                 )}
               </div>
             ) : isVendor ? (
@@ -340,12 +344,7 @@ export function NavBar() {
                 </button>
                 
                 {vendorMenuOpen && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-[-1]"
-                      onClick={() => setVendorMenuOpen(false)}
-                    />
-                    <div className="absolute right-0 mt-2 w-56 rounded-xl border border-[var(--border)] bg-white py-2 shadow-lg z-[55]">
+                  <div className="absolute right-0 mt-2 w-56 rounded-xl border border-[var(--border)] bg-white py-2 shadow-lg z-[55]">
                       <div className="px-4 py-2 border-b border-[var(--border)]">
                         <div className="text-xs font-semibold text-[color:var(--muted)] uppercase tracking-wide">Mi Tienda</div>
                       </div>
@@ -423,7 +422,6 @@ export function NavBar() {
                       </div>
                     </div>
                     </div>
-                  </>
                 )}
               </div>
             ) : isDelivery ? (
