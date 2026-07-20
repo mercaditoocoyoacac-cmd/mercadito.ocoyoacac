@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "@/server/prisma";
 import { headers } from "next/headers";
 import { rateLimit } from "@/lib/rate-limit";
+import { sendPushToAdmins } from "@/server/push";
 
 const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY || "mercadito-admin-secure-2024";
 
@@ -60,6 +61,13 @@ export async function POST(req: Request) {
         data: { role: upgradeRole as "CUSTOMER" | "VENDOR" | "DELIVERY" | "ADMIN", additionalRoles: additional || null },
         select: { id: true, email: true },
       });
+      const roleLabels2: Record<string, string> = { CUSTOMER: "Cliente", VENDOR: "Vendedor", DELIVERY: "Repartidor", ADMIN: "Admin" };
+      await sendPushToAdmins({
+        title: "🆕 Actualización de rol",
+        body: `${exists.name || emailLower} ahora también es ${roleLabels2[upgradeRole] || upgradeRole}`,
+        url: "/admin/usuarios",
+        type: "NEW_USER",
+      });
       return NextResponse.json({ ok: true, user: updated, upgraded: true });
     }
 
@@ -85,6 +93,15 @@ export async function POST(req: Request) {
         role: userRole,
       },
       select: { id: true, email: true },
+    });
+
+    // Notify admins of new registration
+    const roleLabels: Record<string, string> = { CUSTOMER: "Cliente", VENDOR: "Vendedor", DELIVERY: "Repartidor", ADMIN: "Admin" };
+    await sendPushToAdmins({
+      title: "🆕 Nuevo registro",
+      body: `${name?.trim() || emailLower} se registró como ${roleLabels[userRole] || userRole}`,
+      url: "/admin/usuarios",
+      type: "NEW_USER",
     });
 
     return NextResponse.json({ ok: true, user });

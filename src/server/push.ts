@@ -150,6 +150,20 @@ export async function broadcastPromotion(data: {
   console.log(`[PUSH] Promoción enviada a ${tokens.length} dispositivos`);
 }
 
+export async function sendPushToAdmins(data: PushData) {
+  const admins = await prisma.user.findMany({
+    where: {
+      pushToken: { not: null },
+      role: "ADMIN",
+    },
+    select: { pushToken: true },
+  });
+  const tokens = admins.map((a) => a.pushToken).filter(Boolean) as string[];
+  if (tokens.length === 0) return;
+  await sendPushToMultiple(tokens, data);
+  console.log(`[PUSH] Notificación enviada a ${tokens.length} administradores`);
+}
+
 export async function sendVendorReminder() {
   const vendors = await prisma.user.findMany({
     where: {
