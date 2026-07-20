@@ -3,11 +3,26 @@
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import { FieldError } from "@/components/ui/FieldError";
 
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
+const STORAGE_KEY = "mercadito_suggested_accounts";
+
+function getSuggestedAccounts(): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch { return []; }
+}
+
+function saveSuggestedAccount(email: string) {
+  const accounts = getSuggestedAccounts().filter((a) => a !== email);
+  accounts.unshift(email);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(accounts.slice(0, 5)));
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -17,6 +32,12 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const passwordRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setSuggestions(getSuggestedAccounts().filter((a) => a !== email));
+  }, [email]);
 
   async function redirectByRole() {
     const sessionRes = await fetch("/api/auth/session");
@@ -62,7 +83,18 @@ export default function LoginPage() {
       setError("Correo o contraseña incorrectos.");
       return;
     }
+    saveSuggestedAccount(email);
     await redirectByRole();
+  }
+
+  function selectAccount(acc: string) {
+    setEmail(acc);
+    setTimeout(() => passwordRef.current?.focus(), 100);
+  }
+
+  function clearSuggestions() {
+    localStorage.removeItem(STORAGE_KEY);
+    setSuggestions([]);
   }
 
   return (
@@ -74,7 +106,35 @@ export default function LoginPage() {
         </p>
       </div>
 
-      <form className="mt-6 space-y-4" onSubmit={handleSubmit} autoComplete="on">
+      <div className="mt-6">
+        {suggestions.length > 0 && (
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-medium text-[color:var(--muted)] uppercase tracking-wide">Cuentas sugeridas</span>
+              <button
+                type="button"
+                onClick={clearSuggestions}
+                className="text-xs text-[color:var(--muted)] hover:underline"
+              >
+                Limpiar
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {suggestions.map((acc) => (
+                <button
+                  key={acc}
+                  type="button"
+                  onClick={() => selectAccount(acc)}
+                  className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-xs font-medium text-left hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] transition-colors max-w-full"
+                >
+                  <div className="truncate">{acc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <form className="space-y-4" onSubmit={handleSubmit} autoComplete="on">
         <label className="block">
           <div className="text-sm font-medium">Correo</div>
           <input
@@ -100,6 +160,7 @@ export default function LoginPage() {
         <label className="block">
           <div className="text-sm font-medium">Contraseña</div>
           <input
+            ref={passwordRef}
             value={password}
             onChange={(e) => {
               setPassword(e.target.value);
@@ -145,6 +206,7 @@ export default function LoginPage() {
           {loading ? "Entrando..." : "Entrar"}
         </button>
       </form>
+      </div>
 
       <div className="mt-6 text-sm text-[color:var(--muted)]">
         ¿No tienes cuenta?{" "}
