@@ -6,6 +6,7 @@ import { LayoutGroup } from "framer-motion";
 import { Capacitor } from "@capacitor/core";
 import SplashScreen from "@/components/ui/SplashScreen";
 import { SwipeBack } from "@/components/ui/SwipeBack";
+import { OfflineDetector } from "@/components/ui/OfflineDetector";
 
 function emitBubble(detail: { title: string; body: string; url?: string; type?: string }) {
   window.dispatchEvent(new CustomEvent("push-bubble", { detail }));
@@ -28,7 +29,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <SessionProvider>
       <LayoutGroup>
         <SplashScreen>
-          <SwipeBack>{children}</SwipeBack>
+          <SwipeBack>
+            <OfflineDetector />
+            {children}
+          </SwipeBack>
         </SplashScreen>
       </LayoutGroup>
     </SessionProvider>
