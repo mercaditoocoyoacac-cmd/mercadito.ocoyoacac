@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/server/prisma";
 import { shimmerBlur } from "@/lib/images";
+import { CategoryFilter } from "@/components/ui/CategoryFilter";
 
 export const dynamic = "force-dynamic";
 
@@ -73,30 +74,12 @@ export default async function TiendasPage({
         </p>
       </div>
 
-      <div className="mb-8 flex flex-wrap justify-center gap-2">
-        <Link
-          href="/tiendas"
-          className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-            !category
-              ? "bg-[var(--accent)] text-white"
-              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-          }`}
-        >
-          Todas
-        </Link>
-        {allCategories.map((cat) => (
-          <Link
-            key={cat.key}
-            href={`/tiendas?category=${cat.key}`}
-            className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-              category === cat.key
-                ? "bg-[var(--accent)] text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-          >
-            {cat.icon} {cat.label}
-          </Link>
-        ))}
+      <div className="mb-6">
+        <CategoryFilter
+          categories={allCategories}
+          selected={category}
+          baseUrl="/tiendas"
+        />
       </div>
 
       {stores.length === 0 ? (

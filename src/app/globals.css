@@ -5,6 +5,10 @@ body {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 :root {
   --background: #FFFFFF;
   --foreground: #333333;
