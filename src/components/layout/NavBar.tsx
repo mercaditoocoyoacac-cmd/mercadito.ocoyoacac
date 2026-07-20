@@ -60,6 +60,7 @@ export function NavBar() {
               width={36}
               height={36}
               className="rounded-lg"
+              priority
             />
             <div className="hidden sm:block">
               <span className="font-semibold tracking-tight">Mercadito</span>
@@ -291,6 +292,18 @@ export function NavBar() {
                         </div>
                       </button>
                       <button
+                        onClick={() => navigateTo("/admin/cupones")}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
+                      >
+                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                        </svg>
+                        <div>
+                          <div className="font-medium">Cupones</div>
+                          <div className="text-xs text-[color:var(--muted)]">Códigos promocionales</div>
+                        </div>
+                      </button>
+                      <button
                         onClick={() => navigateTo("/contrato")}
                         className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
                       >
@@ -385,16 +398,30 @@ export function NavBar() {
                         </div>
                       </button>
                       <div className="border-t border-[var(--border)] mt-2 pt-2">
+                      <button
+                        onClick={() => navigateTo("/vendor/productos/nuevo")}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left text-[var(--accent)] hover:bg-[var(--accent-soft)]"
+                      >
+                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        <div className="font-medium">Nuevo Producto</div>
+                      </button>
+                      <div className="border-t border-[var(--border)] mt-2 pt-2">
                         <button
-                          onClick={() => navigateTo("/vendor/productos/nuevo")}
-                          className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left text-[var(--accent)] hover:bg-[var(--accent-soft)]"
+                          onClick={() => navigateTo("/vendor/cupones")}
+                          className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
                         >
-                          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                          <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                           </svg>
-                          <div className="font-medium">Nuevo Producto</div>
+                          <div>
+                            <div className="font-medium">Cupones</div>
+                            <div className="text-xs text-[color:var(--muted)]">Códigos de descuento</div>
+                          </div>
                         </button>
                       </div>
+                    </div>
                     </div>
                   </>
                 )}
@@ -705,6 +732,15 @@ export function NavBar() {
                   >
                     MercadoPago
                   </Link>
+                  <Link
+                    href="/admin/cupones"
+                    onClick={() => setMenuOpen(false)}
+                    className={`rounded-lg px-4 py-3 text-sm font-medium ${
+                      pathname === "/admin/cupones" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                    }`}
+                  >
+                    Cupones
+                  </Link>
                 </>
               ) : isVendor ? (
                 <>
@@ -752,6 +788,15 @@ export function NavBar() {
                     className="rounded-lg px-4 py-3 text-sm font-medium text-[var(--accent)]"
                   >
                     + Nuevo Producto
+                  </Link>
+                  <Link
+                    href="/vendor/cupones"
+                    onClick={() => setMenuOpen(false)}
+                    className={`rounded-lg px-4 py-3 text-sm font-medium ${
+                      pathname === "/vendor/cupones" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                    }`}
+                  >
+                    Cupones
                   </Link>
                 </>
               ) : isDelivery ? (

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/server/prisma";
+import { shimmerBlur } from "@/lib/images";
 
 export const dynamic = "force-dynamic";
 
@@ -139,6 +140,8 @@ export default async function TiendasPage({
                     className="object-cover p-4 rounded-xl"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     priority={i < 6}
+                    placeholder="blur"
+                    blurDataURL={shimmerBlur}
                   />
                 ) : (
                   <div className="h-20 w-20 rounded-full bg-white/50 flex items-center justify-center text-3xl font-bold text-[var(--accent)]">

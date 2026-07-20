@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import { ConfirmProvider } from "@/components/ui/ConfirmDialog";
 import { SkipToContent } from "@/components/ui/SkipToContent";
 import { TopLoader } from "@/components/ui/TopLoader";
+import { AnimatedPageWrapper } from "@/components/ui/PageTransition";
 import { Providers } from "@/app/providers";
 import { NavBar } from "@/components/layout/NavBar";
 import { FooterWithPrivacy } from "@/components/layout/FooterWithPrivacy";
@@ -96,7 +97,7 @@ export default function RootLayout({
         <Providers>
           <ConfirmProvider>
             <NavBar />
-            <div id="main-content" className="flex flex-1 flex-col">{children}</div>
+            <div id="main-content" className="flex flex-1 flex-col"><AnimatedPageWrapper>{children}</AnimatedPageWrapper></div>
             <FooterWithPrivacy />
             <Toaster position="top-right" richColors closeButton />
             <SupportButton />

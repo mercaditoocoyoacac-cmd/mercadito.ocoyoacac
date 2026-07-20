@@ -1,9 +1,11 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { formatMoney } from "@/lib/format";
+import { shimmerBlur } from "@/lib/images";
 
 interface VariantData {
   id: string;
@@ -150,6 +152,7 @@ export function StorefrontClient({
                   fill
                   className="object-cover"
                   sizes="40px"
+                  priority
                 />
               </div>
             )}
@@ -313,19 +316,35 @@ export function StorefrontClient({
                   : "productos"}
               </p>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <motion.div
+              className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-40px" }}
+              variants={{
+                hidden: {},
+                visible: { transition: { staggerChildren: 0.04, delayChildren: 0.05 } },
+              } as const}
+            >
               {filteredProducts.map((product, i) => (
-                <ProductCard
+                <motion.div
                   key={product.id}
-                  product={product}
-                  store={store}
-                  open={open}
-                  index={i}
-                  onQuickView={() => setQuickViewProduct(product)}
-                  onAddedToCart={fetchCartCount}
-                />
+                  variants={{
+                    hidden: { opacity: 0, y: 16 },
+                    visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 200, damping: 25, mass: 0.5 } },
+                  } as const}
+                >
+                  <ProductCard
+                    product={product}
+                    store={store}
+                    open={open}
+                    index={i}
+                    onQuickView={() => setQuickViewProduct(product)}
+                    onAddedToCart={fetchCartCount}
+                  />
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </>
         )}
       </main>
@@ -371,9 +390,26 @@ function ProductSlider({ title, items, store, open, onQuickView, onAddedToCart }
   return (
     <div className="mb-6">
       <h3 className="text-base font-bold text-gray-800 mb-3">{title}</h3>
-      <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin" style={{ scrollbarWidth: "thin" }}>
+      <motion.div
+        className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin"
+        style={{ scrollbarWidth: "thin" }}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        variants={{
+          hidden: {},
+          visible: { transition: { staggerChildren: 0.04 } },
+        } as const}
+      >
         {items.map((product, i) => (
-          <div key={product.id} className="flex-shrink-0 w-44">
+          <motion.div
+            key={product.id}
+            className="flex-shrink-0 w-44"
+            variants={{
+              hidden: { opacity: 0, x: -10 },
+              visible: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 200, damping: 25 } },
+            } as const}
+          >
             <ProductCard
               product={product}
               store={store}
@@ -382,9 +418,9 @@ function ProductSlider({ title, items, store, open, onQuickView, onAddedToCart }
               onQuickView={() => onQuickView(product)}
               onAddedToCart={onAddedToCart}
             />
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -428,6 +464,8 @@ function ProductCard({
             className="object-cover transition-transform duration-300 group-hover:scale-110"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             priority={index < 4}
+            placeholder="blur"
+            blurDataURL={shimmerBlur}
           />
         ) : (
           <div className="flex h-full items-center justify-center">
@@ -691,6 +729,8 @@ function QuickViewModal({
               fill
               className="object-cover"
               sizes="(max-width: 640px) 100vw, 500px"
+            placeholder="blur"
+            blurDataURL={shimmerBlur}
             />
           </div>
         ) : (

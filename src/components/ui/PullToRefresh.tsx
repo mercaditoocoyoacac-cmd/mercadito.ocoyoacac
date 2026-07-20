@@ -1,17 +1,30 @@
 "use client";
 
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const THRESHOLD = 80;
-const MAX_PULL = 150;
+const MAX_PULL = 160;
 
 type Phase = "idle" | "pulling" | "ready" | "refreshing";
 
-export function PullToRefresh({ children, onRefresh }: { children: React.ReactNode; onRefresh?: () => Promise<void> }) {
+export function PullToRefresh({
+  children,
+  onRefresh,
+}: {
+  children: React.ReactNode;
+  onRefresh?: () => Promise<void>;
+}) {
   const [phase, setPhase] = useState<Phase>("idle");
-  const [pullDist, setPullDist] = useState(0);
   const startY = useRef(0);
   const pulling = useRef(false);
+  const pullRaw = useMotionValue(0);
+  const pullSpring = useSpring(pullRaw, { stiffness: 300, damping: 30, mass: 0.5 });
+  const rotate = useTransform(pullSpring, [0, THRESHOLD], [180, 0]);
+  const opacity = useTransform(pullSpring, [0, 20], [0, 1]);
+  const scale = useTransform(pullSpring, [0, THRESHOLD], [0.5, 1]);
+  const contentY = useTransform(pullSpring, [0, MAX_PULL], [0, MAX_PULL]);
+  const indicatorH = useTransform(pullSpring, [0, MAX_PULL], [0, MAX_PULL]);
 
   const refresh = useCallback(async () => {
     setPhase("refreshing");
@@ -23,9 +36,9 @@ export function PullToRefresh({ children, onRefresh }: { children: React.ReactNo
       }
     } finally {
       setPhase("idle");
-      setPullDist(0);
+      pullRaw.set(0);
     }
-  }, [onRefresh]);
+  }, [onRefresh, pullRaw]);
 
   useEffect(() => {
     const el = document.documentElement;
@@ -40,11 +53,20 @@ export function PullToRefresh({ children, onRefresh }: { children: React.ReactNo
     function onTouchMove(e: TouchEvent) {
       if (!pulling.current) return;
       const dy = e.touches[0].clientY - startY.current;
-      if (dy <= 0) { setPullDist(0); setPhase("idle"); return; }
+      if (dy <= 0) {
+        pullRaw.set(0);
+        setPhase("idle");
+        return;
+      }
       e.preventDefault();
-      const dist = Math.min(dy * 0.5, MAX_PULL);
-      setPullDist(dist);
-      setPhase(dist >= THRESHOLD ? "ready" : "pulling");
+      const dist = Math.min(dy * 0.4, MAX_PULL);
+      pullRaw.set(dist);
+      const wasReady = phase === "ready";
+      const nowReady = dist >= THRESHOLD;
+      setPhase(nowReady ? "ready" : "pulling");
+      if (nowReady && !wasReady && navigator.vibrate) {
+        navigator.vibrate(12);
+      }
     }
 
     function onTouchEnd() {
@@ -54,7 +76,7 @@ export function PullToRefresh({ children, onRefresh }: { children: React.ReactNo
         refresh();
       } else {
         setPhase("idle");
-        setPullDist(0);
+        pullRaw.set(0);
       }
     }
 
@@ -66,19 +88,19 @@ export function PullToRefresh({ children, onRefresh }: { children: React.ReactNo
       el.removeEventListener("touchmove", onTouchMove);
       el.removeEventListener("touchend", onTouchEnd);
     };
-  }, [phase, refresh]);
-
-  const isRefreshing = phase === "refreshing";
-  const indicatorH = Math.max(0, pullDist);
+  }, [phase, refresh, pullRaw]);
 
   return (
-    <div className="relative">
-      <div
-        className="pointer-events-none fixed left-0 right-0 z-50 flex items-center justify-center overflow-hidden bg-[var(--accent)]/10 backdrop-blur-sm transition-[height] duration-100"
-        style={{ top: 0, height: isRefreshing ? 48 : indicatorH }}
+    <div className="relative overflow-hidden">
+      <motion.div
+        className="pointer-events-none fixed left-0 right-0 z-50 flex items-center justify-center overflow-hidden"
+        style={{ top: 0, height: indicatorH }}
       >
-        <div className={`transition-transform duration-200 ${phase === "ready" ? "rotate-180" : ""}`}>
-          {isRefreshing ? (
+        <motion.div
+          className="flex items-center justify-center"
+          style={{ opacity, scale }}
+        >
+          {phase === "refreshing" ? (
             <div className="flex items-center gap-2 text-sm font-medium text-[var(--accent)]">
               <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -87,16 +109,19 @@ export function PullToRefresh({ children, onRefresh }: { children: React.ReactNo
               Actualizando...
             </div>
           ) : (
-            <svg className={`h-6 w-6 text-[var(--accent)] transition-opacity duration-150 ${indicatorH > 10 ? "opacity-100" : "opacity-0"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <motion.svg
+              className="h-6 w-6 text-[var(--accent)]"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              style={{ rotate }}
+            >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
+            </motion.svg>
           )}
-        </div>
-      </div>
-
-      <div style={{ transform: isRefreshing ? "translateY(48px)" : `translateY(${indicatorH}px)`, transition: "transform 0.1s" }}>
-        {children}
-      </div>
+        </motion.div>
+      </motion.div>
+      <motion.div style={{ y: contentY }}>{children}</motion.div>
     </div>
   );
 }

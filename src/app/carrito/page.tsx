@@ -29,8 +29,11 @@ type CartItem = {
   };
 };
 
+import { motion } from "framer-motion";
 import { formatMoney } from "@/lib/format";
 import { calcDeliveryFeeCents, haversineDistance } from "@/lib/geo";
+import { bounceIn, cardSpring, fadeSlideUp } from "@/components/ui/MotionPresets";
+import { AnimatedList, AnimatedListItem } from "@/components/ui/AnimatedList";
 
 function Skeleton() {
   return (
@@ -201,6 +204,11 @@ export default function CarritoPage() {
   const [notes, setNotes] = useState("");
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [updatingQty, setUpdatingQty] = useState<Record<string, boolean>>({});
+  const [couponInput, setCouponInput] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{ id: string; code: string; discountCents: number } | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState("");
+  const [couponStatus, setCouponStatus] = useState<"" | "active" | "inactive">("");
 
   const deliveryFee = useMemo(() => {
     if (fulfillmentType !== "DELIVERY") return 0;
@@ -213,7 +221,8 @@ export default function CarritoPage() {
     }
     return 2500;
   }, [fulfillmentType, items, customerLat, customerLng]);
-  const total = subtotal + deliveryFee;
+  const couponDiscount = appliedCoupon?.discountCents ?? 0;
+  const total = subtotal + deliveryFee - couponDiscount;
 
   async function refresh() {
     queueMicrotask(() => setLoading(true));
@@ -304,6 +313,37 @@ export default function CarritoPage() {
     await refresh();
   };
 
+  async function applyCoupon() {
+    const code = couponInput.trim().toUpperCase();
+    if (!code) { setCouponError("Ingresa un código."); return; }
+    setCouponLoading(true);
+    setCouponError("");
+    setAppliedCoupon(null);
+    setCouponStatus("");
+    const res = await fetch("/api/checkout/coupon", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ code }),
+    });
+    const data = await res.json();
+    setCouponLoading(false);
+    if (!res.ok || !data.ok) {
+      setCouponStatus("inactive");
+      setCouponError(data.error || "Cupón inválido.");
+      return;
+    }
+    setCouponStatus("active");
+    setAppliedCoupon({ id: data.coupon.id, code: data.coupon.code, discountCents: data.coupon.discountCents });
+    setCouponInput("");
+    toast.success(`Cupón aplicado: ${data.coupon.code}`);
+  }
+
+  function removeCoupon() {
+    setAppliedCoupon(null);
+    setCouponError("");
+    setCouponStatus("");
+  }
+
   const handleClearCart = async () => {
     if (!(await confirm({ message: "¿Vaciar todo el carrito?", variant: "danger", confirmText: "Vaciar", title: "Vaciar carrito" }))) return;
     const itemsCopy = [...(items ?? [])];
@@ -320,19 +360,21 @@ export default function CarritoPage() {
   const handleCheckout = async () => {
     setCheckoutLoading(true);
     setError(null);
+    const body: Record<string, unknown> = {
+      fulfillmentType,
+      paymentMethod,
+      customerName,
+      customerPhone,
+      customerAddress: customerAddress || undefined,
+      customerLat: customerLat || undefined,
+      customerLng: customerLng || undefined,
+      notes: notes || undefined,
+    };
+    if (appliedCoupon) body.couponCode = appliedCoupon.code;
     const res = await fetch("/api/checkout", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        fulfillmentType,
-        paymentMethod,
-        customerName,
-        customerPhone,
-        customerAddress: customerAddress || undefined,
-        customerLat: customerLat || undefined,
-        customerLng: customerLng || undefined,
-        notes: notes || undefined,
-      }),
+      body: JSON.stringify(body),
     });
     const data = await res.json().catch(() => null);
     setCheckoutLoading(false);
@@ -409,7 +451,8 @@ export default function CarritoPage() {
       ) : (
         <div className="grid gap-8 lg:grid-cols-5">
           {/* Left: Items */}
-          <div className="lg:col-span-3 space-y-4">
+          <div className="lg:col-span-3">
+            <AnimatedList className="space-y-4">
             {(items ?? []).map((item) => {
               const effectivePrice = item.variant?.priceCents ?? item.product.priceCents;
               const lineTotal = item.product.sellByWeight && item.weightGrams
@@ -419,7 +462,7 @@ export default function CarritoPage() {
               const isUpdating = updatingQty[cartKey];
 
               return (
-                <div key={cartKey} className={`group relative rounded-xl border card-hover ${item.product.isUnavailable ? "border-red-200 bg-red-50/50" : "border-[var(--border)] bg-white"}`}>
+                <AnimatedListItem key={cartKey} className={`group relative rounded-xl border card-hover ${item.product.isUnavailable ? "border-red-200 bg-red-50/50" : "border-[var(--border)] bg-white"}`}>
                   <div className="flex items-start gap-4 p-4 sm:p-5">
                     {/* Product image placeholder */}
                     <div className="hidden sm:flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-[var(--accent-soft)]">
@@ -471,7 +514,7 @@ export default function CarritoPage() {
                       Agotado
                     </div>
                   )}
-                </div>
+                </AnimatedListItem>
               );
             })}
 
@@ -483,11 +526,12 @@ export default function CarritoPage() {
                 Seguir comprando
               </Link>
             </div>
+            </AnimatedList>
           </div>
 
           {/* Right: Summary + Checkout */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="rounded-xl border border-[var(--border)] bg-white p-5 lg:sticky lg:top-24">
+            <motion.div variants={fadeSlideUp} initial="initial" animate="animate" className="rounded-xl border border-[var(--border)] bg-white p-5 lg:sticky lg:top-24">
               <h2 className="font-semibold text-sm">Resumen del pedido</h2>
 
               <div className="mt-4 space-y-2.5 text-sm">
@@ -501,11 +545,70 @@ export default function CarritoPage() {
                     {deliveryFee > 0 ? formatMoney(deliveryFee, currency) : "No aplica"}
                   </span>
                 </div>
+
+                {/* Coupon */}
+                {appliedCoupon ? (
+                  <div className="rounded-lg bg-green-50 px-3 py-2 text-sm space-y-1">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <span className="inline-flex h-2 w-2 rounded-full bg-green-500" />
+                        <span className="text-green-700 font-medium">Activo</span>
+                        <span className="text-green-600 font-mono">({appliedCoupon.code})</span>
+                      </div>
+                      <button type="button" onClick={removeCoupon} className="text-red-500 hover:text-red-700">
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                    <div className="text-green-700 font-semibold">-{formatMoney(couponDiscount, currency)}</div>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="flex gap-2">
+                      <input
+                        value={couponInput}
+                        onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponStatus(""); }}
+                        placeholder="Cupón"
+                        className="flex-1 rounded-lg border border-[var(--border)] px-3 py-2 text-sm uppercase"
+                        onKeyDown={(e) => { if (e.key === "Enter") applyCoupon(); }}
+                      />
+                      <button
+                        type="button"
+                        onClick={applyCoupon}
+                        disabled={couponLoading || !couponInput.trim()}
+                        className="rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium hover:bg-gray-200 disabled:opacity-50"
+                      >
+                        {couponLoading ? (
+                          <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                        ) : "Aplicar"}
+                      </button>
+                    </div>
+                    {couponError && (
+                      <div className="mt-1.5 rounded-lg bg-red-50 border border-red-200 px-3 py-2">
+                        <div className="flex items-center gap-1.5 text-xs text-red-700">
+                          <span className={`inline-flex h-2 w-2 rounded-full ${couponStatus === "inactive" ? "bg-red-500" : "bg-gray-400"}`} />
+                          <span className="font-medium">{couponStatus === "inactive" ? "Inactivo" : "Error"}</span>
+                          <span>— {couponError}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <hr className="border-[var(--border)]" />
                 <div className="flex justify-between text-base font-bold">
                   <span>Total</span>
                   <span className="text-lg">{formatMoney(total, currency)}</span>
                 </div>
+                {couponDiscount > 0 && (
+                  <div className="text-xs text-green-600 text-right">
+                    Ahorras {formatMoney(couponDiscount, currency)}
+                  </div>
+                )}
               </div>
 
               {/* Fulfillment type selector */}
@@ -576,7 +679,7 @@ export default function CarritoPage() {
                   </div>
                 </div>
               )}
-            </div>
+            </motion.div>
 
             {/* Checkout form */}
             <div className="rounded-xl border border-[var(--border)] bg-white p-5">

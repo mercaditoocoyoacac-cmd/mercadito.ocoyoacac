@@ -124,7 +124,7 @@ export default async function AdminUsersPage({
   const allRoleOptions = ["CUSTOMER", "VENDOR", "DELIVERY"];
 
   return (
-    <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
+    <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 fade-in">
       <div className="mb-8">
         <h1 className="text-2xl font-semibold tracking-tight">
           Gestión de Usuarios

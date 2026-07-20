@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -411,9 +412,25 @@ export default function DeliveryTracker({
                     <h3 className="text-base font-bold text-orange-800">En curso</h3>
                     <span className="rounded-full bg-orange-100 text-orange-800 text-xs px-2 py-0.5 font-bold">{activeDeliveries.length}</span>
                   </div>
-                  <div className="grid gap-4 sm:grid-cols-2">
+                  <motion.div
+                    className="grid gap-4 sm:grid-cols-2"
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, margin: "-20px" }}
+                    variants={{
+                      hidden: {},
+                      visible: { transition: { staggerChildren: 0.05, delayChildren: 0.05 } },
+                    } as const}
+                  >
                     {activeDeliveries.map((order) => (
-                      <div key={order.id} className="rounded-xl border-2 border-orange-200 bg-white p-5 shadow-md">
+                      <motion.div
+                        key={order.id}
+                        variants={{
+                          hidden: { opacity: 0, y: 16, scale: 0.97 },
+                          visible: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 200, damping: 25, mass: 0.5 } },
+                        } as const}
+                        className="rounded-xl border-2 border-orange-200 bg-white p-5 shadow-md"
+                    >
                         {/* Order header */}
                         <div className="flex items-center justify-between mb-3">
                           <div className="font-mono text-lg font-bold tracking-wider">
@@ -533,9 +550,9 @@ export default function DeliveryTracker({
 
                           <DeliveryChat orderId={order.id} currentUserId={currentUserId} currentUserRole="DELIVERY" />
                         </div>
-                      </div>
+                      </motion.div>
                     ))}
-                  </div>
+                  </motion.div>
                 </div>
               )}
 
@@ -547,9 +564,25 @@ export default function DeliveryTracker({
                       📋 Pendientes ({nonCompletedMyDeliveries.length})
                     </h3>
                   </div>
-                  <div className="grid gap-3 p-4">
+                  <motion.div
+                    className="grid gap-3 p-4"
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={{
+                      hidden: {},
+                      visible: { transition: { staggerChildren: 0.04 } },
+                    } as const}
+                  >
                     {nonCompletedMyDeliveries.map((order) => (
-                      <div key={order.id} className="rounded-xl border-2 border-purple-200 bg-white p-4 shadow-sm">
+                      <motion.div
+                        key={order.id}
+                        variants={{
+                          hidden: { opacity: 0, x: -10 },
+                          visible: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 200, damping: 25 } },
+                        } as const}
+                        className="rounded-xl border-2 border-purple-200 bg-white p-4 shadow-sm"
+                        >
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-mono text-base font-bold">#{order.id.slice(-8).toUpperCase()}</span>
@@ -659,9 +692,9 @@ export default function DeliveryTracker({
 
                           <DeliveryChat orderId={order.id} currentUserId={currentUserId} currentUserRole="DELIVERY" />
                         </div>
-                      </div>
+                      </motion.div>
                     ))}
-                  </div>
+                  </motion.div>
                 </div>
               )}
             </>
@@ -688,11 +721,27 @@ export default function DeliveryTracker({
             <div className="text-sm text-[var(--muted)] mt-1">Los nuevos pedidos aparecerán aquí automáticamente</div>
           </div>
         ) : (
-          <div className="divide-y divide-gray-200">
+          <motion.div
+            className="divide-y divide-gray-200"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={{
+              hidden: {},
+              visible: { transition: { staggerChildren: 0.04 } },
+            } as const}
+          >
             {availableDeliveries.map((order) => {
               const distance = getDistanceToOrder(order.customerLat, order.customerLng);
               return (
-                <div key={order.id} className="px-5 py-4">
+                <motion.div
+                  key={order.id}
+                  variants={{
+                    hidden: { opacity: 0, x: -8 },
+                    visible: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 200, damping: 26 } },
+                  } as const}
+                  className="px-5 py-4"
+                  >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -757,10 +806,10 @@ export default function DeliveryTracker({
                       {claimingOrder === order.id ? "Aceptando..." : "Aceptar"}
                     </button>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         )}
       </div>
 
@@ -781,9 +830,25 @@ export default function DeliveryTracker({
             </svg>
           </button>
           {showDelivered && (
-            <div className="divide-y divide-gray-200">
+            <motion.div
+              className="divide-y divide-gray-200"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={{
+                hidden: {},
+                visible: { transition: { staggerChildren: 0.03 } },
+              } as const}
+            >
               {completedDeliveries.map((order) => (
-                <div key={order.id} className="px-5 py-4">
+                <motion.div
+                  key={order.id}
+                  variants={{
+                    hidden: { opacity: 0, y: 8 },
+                    visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 200, damping: 26 } },
+                  } as const}
+                  className="px-5 py-4"
+                >
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
@@ -799,9 +864,9 @@ export default function DeliveryTracker({
                       ${(order.totalCents / 100).toFixed(2)}
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           )}
         </div>
       )}

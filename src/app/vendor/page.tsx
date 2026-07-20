@@ -243,7 +243,7 @@ export default async function VendorDashboard() {
     <>
       <VendorCoachMarks />
       <PullToRefreshWrapper>
-      <main className="flex-1">
+      <main className="flex-1 fade-in">
       {totalProducts === 0 ? (
         <div className="mx-4 mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-4">
           <div className="flex items-start gap-3">

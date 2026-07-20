@@ -1,8 +1,11 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { formatMoney } from "@/lib/format";
+import { shimmerBlur } from "@/lib/images";
 
 interface Promotion {
   id: string;
@@ -63,20 +66,38 @@ export default function PromocionesPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+      <motion.div
+        className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-40px" }}
+        variants={{
+          hidden: {},
+          visible: { transition: { staggerChildren: 0.04, delayChildren: 0.05 } },
+        } as const}
+      >
         {promotions.map((p) => (
-          <Link
+          <motion.div
             key={p.id}
-            href={`/tienda/${p.store.slug}`}
-            className="group rounded-xl border border-[var(--border)] overflow-hidden hover:shadow-md transition-shadow"
+            variants={{
+              hidden: { opacity: 0, y: 16, scale: 0.97 },
+              visible: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 200, damping: 25, mass: 0.5 } },
+            } as const}
           >
+            <Link
+              href={`/tienda/${p.store.slug}`}
+              className="group rounded-xl border border-[var(--border)] overflow-hidden hover:shadow-md transition-shadow block"
+            >
             <div className="relative aspect-square bg-gray-50">
               {p.imageUrl ? (
-                <img
+                <Image
                   src={p.imageUrl}
                   alt={p.name}
-                  className="h-full w-full object-cover"
-                  loading="lazy"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  placeholder="blur"
+                  blurDataURL={shimmerBlur}
                 />
               ) : (
                 <div className="flex h-full items-center justify-center text-3xl text-gray-300">
@@ -107,8 +128,9 @@ export default function PromocionesPage() {
               )}
             </div>
           </Link>
-        ))}
-      </div>
+        </motion.div>
+      ))}
+    </motion.div>
     </main>
   );
 }

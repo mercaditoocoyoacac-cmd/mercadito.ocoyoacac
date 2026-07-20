@@ -57,8 +57,8 @@ export default async function VendorPedidosPage() {
   };
 
   return (
-    <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
-      <div className="mb-8">
+    <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 fade-in">
+      <div className="mb-8 animate-slide-up-sm">
         <h1 className="text-2xl font-semibold tracking-tight">Pedidos</h1>
         <p className="mt-1 text-sm text-[color:var(--muted)]">
           {store.name} ·{" "}
@@ -68,7 +68,7 @@ export default async function VendorPedidosPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5 mb-8">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5 mb-8 animate-slide-up-sm">
         <div className="rounded-xl border border-[var(--border)] p-5">
           <div className="text-sm text-[color:var(--muted)]">Total</div>
           <div className="mt-1 text-2xl font-semibold">{orders.length}</div>
@@ -108,9 +108,9 @@ export default async function VendorPedidosPage() {
             No hay pedidos aún.
           </div>
         ) : (
-          <div className="divide-y divide-[var(--border)]">
-            {orders.map((order) => (
-              <div key={order.id} className="px-5 py-4">
+          <div className="divide-y divide-[var(--border)] animate-slide-up-sm">
+            {orders.map((order, idx) => (
+              <div key={order.id} style={{ animationDelay: `${idx * 40}ms` }} className="px-5 py-4 fade-in">
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="font-mono font-medium">

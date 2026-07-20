@@ -2,7 +2,10 @@
 
 import { useEffect } from "react";
 import { SessionProvider } from "next-auth/react";
+import { LayoutGroup } from "framer-motion";
 import { Capacitor } from "@capacitor/core";
+import SplashScreen from "@/components/ui/SplashScreen";
+import { SwipeBack } from "@/components/ui/SwipeBack";
 
 function emitBubble(detail: { title: string; body: string; url?: string; type?: string }) {
   window.dispatchEvent(new CustomEvent("push-bubble", { detail }));
@@ -21,7 +24,15 @@ export function Providers({ children }: { children: React.ReactNode }) {
     return () => {};
   }, []);
 
-  return <SessionProvider>{children}</SessionProvider>;
+  return (
+    <SessionProvider>
+      <LayoutGroup>
+        <SplashScreen>
+          <SwipeBack>{children}</SwipeBack>
+        </SplashScreen>
+      </LayoutGroup>
+    </SessionProvider>
+  );
 }
 
 async function initNativePush() {

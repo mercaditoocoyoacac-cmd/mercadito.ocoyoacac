@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { redirect } from "next/navigation";
+import { shimmerBlur } from "@/lib/images";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 
@@ -162,6 +163,9 @@ export default async function Home() {
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-110"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      placeholder="blur"
+                      blurDataURL={shimmerBlur}
+                      priority={idx < 3}
                     />
                   </div>
                 ) : (

@@ -90,3 +90,32 @@ export const updateStoreSchemaAdmin = z.object({
   isActive: z.boolean().optional(),
   isPublished: z.boolean().optional(),
 });
+
+export const couponCreateSchema = z.object({
+  code: z.string().min(2).max(40).toUpperCase().transform((v) => v.replace(/[^A-Z0-9_-]/g, "")),
+  discountType: z.enum(["PERCENTAGE", "FIXED"]),
+  discountValue: z.number().int().min(1),
+  storeId: z.string().min(1),
+  minPurchaseCents: z.number().int().min(0).optional(),
+  maxUses: z.number().int().min(1).optional(),
+  maxUsesPerUser: z.number().int().min(1).optional(),
+  isActive: z.boolean().optional(),
+  startsAt: z.string().datetime().nullable().optional(),
+  expiresAt: z.string().datetime().nullable().optional(),
+});
+
+export const couponUpdateSchema = z.object({
+  code: z.string().min(2).max(40).toUpperCase().transform((v) => v.replace(/[^A-Z0-9_-]/g, "")).optional(),
+  discountType: z.enum(["PERCENTAGE", "FIXED"]).optional(),
+  discountValue: z.number().int().min(1).optional(),
+  minPurchaseCents: z.number().int().min(0).nullable().optional(),
+  maxUses: z.number().int().min(1).nullable().optional(),
+  maxUsesPerUser: z.number().int().min(1).nullable().optional(),
+  isActive: z.boolean().optional(),
+  startsAt: z.string().datetime().nullable().optional(),
+  expiresAt: z.string().datetime().nullable().optional(),
+});
+
+export const applyCouponSchema = z.object({
+  code: z.string().min(1).max(40),
+});

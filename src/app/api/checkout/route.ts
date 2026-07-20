@@ -28,6 +28,7 @@ const CheckoutSchema = z.object({
   customerLat: z.number().optional(),
   customerLng: z.number().optional(),
   notes: z.string().max(400).optional(),
+  couponCode: z.string().max(40).optional(),
 });
 
 export async function POST(req: Request) {
@@ -195,7 +196,50 @@ export async function POST(req: Request) {
       deliveryCents = 2500;
     }
   }
-  const totalCents = subtotalCents + deliveryCents;
+  let couponDiscountCents = 0;
+  let couponId: string | undefined;
+  if (parsed.data.couponCode) {
+    const code = parsed.data.couponCode.toUpperCase().trim();
+    const coupon = await prisma.coupon.findUnique({
+      where: { code_storeId: { code, storeId } },
+    });
+    if (!coupon || !coupon.isActive) {
+      return NextResponse.json({ ok: false, error: "Cupón inválido o inactivo." }, { status: 400 });
+    }
+    const now = new Date();
+    if (coupon.startsAt && coupon.startsAt > now) {
+      return NextResponse.json({ ok: false, error: "Este cupón aún no está vigente." }, { status: 400 });
+    }
+    if (coupon.expiresAt && coupon.expiresAt < now) {
+      return NextResponse.json({ ok: false, error: "Este cupón ya expiró." }, { status: 400 });
+    }
+    if (coupon.maxUses && coupon.usedCount >= coupon.maxUses) {
+      return NextResponse.json({ ok: false, error: "Este cupón ya alcanzó su límite de usos." }, { status: 400 });
+    }
+    if (coupon.minPurchaseCents && subtotalCents < coupon.minPurchaseCents) {
+      return NextResponse.json({ ok: false, error: `Compra mínima de $${(coupon.minPurchaseCents / 100).toFixed(2)} para este cupón.` }, { status: 400 });
+    }
+    if (coupon.maxUsesPerUser) {
+      const userUsage = await prisma.order.count({
+        where: { userId: auth.userId, couponId: coupon.id },
+      });
+      if (userUsage >= coupon.maxUsesPerUser) {
+        return NextResponse.json({ ok: false, error: "Ya usaste este cupón el máximo de veces permitido." }, { status: 400 });
+      }
+    }
+    if (coupon.discountType === "PERCENTAGE") {
+      couponDiscountCents = Math.round((subtotalCents * coupon.discountValue) / 100);
+    } else {
+      couponDiscountCents = coupon.discountValue;
+    }
+    if (couponDiscountCents > subtotalCents) couponDiscountCents = subtotalCents;
+    couponId = coupon.id;
+    await prisma.coupon.update({
+      where: { id: coupon.id },
+      data: { usedCount: { increment: 1 } },
+    });
+  }
+  const totalCents = subtotalCents + deliveryCents - couponDiscountCents;
   const deliveryCode = generateDeliveryCode();
   const pickupCode = generateDeliveryCode();
 
@@ -215,6 +259,8 @@ export async function POST(req: Request) {
       deliveryCents,
       totalCents,
       currency,
+      couponDiscountCents: couponDiscountCents > 0 ? couponDiscountCents : null,
+      couponId: couponId || null,
       deliveryCode,
       pickupCode,
       items: {

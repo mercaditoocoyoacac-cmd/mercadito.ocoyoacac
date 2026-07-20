@@ -111,6 +111,7 @@ model Store {
 
   products     Product[]
   orders       Order[]
+  coupons      Coupon[]
   subscription Subscription?
   paymentMethods StorePaymentMethod[]
 
@@ -284,6 +285,31 @@ enum SubscriptionStatus {
   CANCELLED
 }
 
+model Coupon {
+  id            String   @id @default(cuid())
+  code          String
+  discountType  String   // PERCENTAGE or FIXED
+  discountValue Int      // percentage (1-100) or cents
+  minPurchaseCents Int?
+  maxUses       Int?
+  usedCount     Int      @default(0)
+  maxUsesPerUser Int?
+  isActive      Boolean  @default(true)
+  startsAt      DateTime?
+  expiresAt     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  storeId String
+  store   Store   @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  orders Order[]
+
+  @@unique([code, storeId])
+  @@index([storeId])
+  @@index([storeId, isActive])
+}
+
 model Order {
   id              String          @id @default(cuid())
   status          OrderStatus     @default(PENDING)
@@ -304,6 +330,7 @@ model Order {
   statusTimestamps Json?          @default("{}")
   arrivedAt              DateTime?
   arrivalConfirmedAt     DateTime?
+  couponDiscountCents    Int?
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
@@ -314,6 +341,9 @@ model Order {
 
   deliveryUserId String?
   deliveryUser   User?   @relation("OrderDelivery", fields: [deliveryUserId], references: [id])
+
+  couponId String?
+  coupon   Coupon? @relation(fields: [couponId], references: [id], onDelete: SetNull)
 
   items OrderItem[]
   rating OrderRating?
