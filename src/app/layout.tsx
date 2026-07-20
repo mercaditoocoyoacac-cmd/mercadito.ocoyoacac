@@ -97,7 +97,7 @@ export default function RootLayout({
         <Providers>
           <ConfirmProvider>
             <NavBar />
-            <div id="main-content" className="flex flex-1 flex-col"><AnimatedPageWrapper>{children}</AnimatedPageWrapper></div>
+            <div id="main-content" className="flex flex-1 flex-col pt-16"><AnimatedPageWrapper>{children}</AnimatedPageWrapper></div>
             <FooterWithPrivacy />
             <Toaster position="top-right" richColors closeButton />
             <SupportButton />
