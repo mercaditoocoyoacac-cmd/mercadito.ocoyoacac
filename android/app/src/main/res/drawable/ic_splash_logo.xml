@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="512dp"
+    android:height="512dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+
+    <!-- Background rounded square -->
+    <path
+        android:fillColor="#EA580C"
+        android:pathData="M48,0 L464,0 C490.5,0 512,21.5 512,48 L512,464 C512,490.5 490.5,512 464,512 L48,512 C21.5,512 0,490.5 0,464 L0,48 C0,21.5 21.5,0 48,0 Z" />
+
+    <!-- Storefront roof (stylized M shape) -->
+    <path
+        android:fillColor="#22C55E"
+        android:pathData="M100,340 L160,160 L256,260 L352,160 L412,340 L380,340 L352,240 L256,340 L160,240 L132,340 Z" />
+
+    <!-- Base line -->
+    <path
+        android:fillColor="#22C55E"
+        android:pathData="M130,350 L382,350 L382,374 L130,374 Z" />
+
+    <!-- Accent dot -->
+    <circle
+        android:fillColor="#D4AF37"
+        android:cx="380"
+        android:cy="140"
+        android:r="20" />
+</vector>

@@ -12,20 +12,20 @@ const config: CapacitorConfig = {
   ios: {
     contentInset: 'always',
     preferredContentMode: 'mobile',
-    backgroundColor: '#2563eb',
+    backgroundColor: '#EA580C',
   },
   plugins: {
     SplashScreen: {
       launchShowDuration: 3000,
       launchAutoHide: true,
-      backgroundColor: '#2563eb',
+      backgroundColor: '#EA580C',
       androidSplashResourceName: 'splash',
       androidScaleType: 'CENTER_CROP',
       showSpinner: false,
     },
     StatusBar: {
       style: 'light',
-      backgroundColor: '#2563eb',
+      backgroundColor: '#EA580C',
     },
     PushNotifications: {
       presentationOptions: ['badge', 'sound', 'alert'],
