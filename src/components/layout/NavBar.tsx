@@ -16,10 +16,28 @@ export function NavBar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [vendorMenuOpen, setVendorMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const scrollPosRef = useRef(0);
 
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    if (menuOpen) {
+      scrollPosRef.current = window.scrollY;
+      document.body.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollPosRef.current}px`;
+      document.body.style.width = "100%";
+    } else {
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      window.scrollTo(0, scrollPosRef.current);
+    }
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+    };
   }, [menuOpen]);
 
   useEffect(() => {
@@ -79,7 +97,7 @@ export function NavBar() {
   };
 
   return (
-    <header ref={headerRef} className="fixed top-0 left-0 right-0 z-50 border-b border-[var(--border)] bg-white/95 backdrop-blur-md">
+    <header ref={headerRef} className="fixed top-0 left-0 right-0 z-[100] border-b border-[var(--border)] bg-white/95 backdrop-blur-md [padding-top:env(safe-area-inset-top,0px)]">
       <div className="mx-auto max-w-6xl px-4">
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
@@ -575,7 +593,7 @@ export function NavBar() {
         </div>
 
         {menuOpen && (
-          <div className="md:hidden max-h-[calc(100vh-4rem)] overflow-y-auto border-t border-[var(--border)] bg-white/95 backdrop-blur-md">
+          <div className="md:hidden max-h-[calc(100vh-4rem)] max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-[var(--border)] bg-white/95 backdrop-blur-md">
             <nav className="flex flex-col gap-1 p-4">
               <Link
                 href="/promociones"
