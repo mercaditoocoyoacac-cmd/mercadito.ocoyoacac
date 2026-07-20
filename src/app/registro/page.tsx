@@ -164,10 +164,9 @@ export default function RegistroPage() {
           </p>
         </div>
       ) : (
-        <>
-          {/* Role selection */}
-          <div className="mb-6">
-            <p className="text-sm font-medium mb-3">¿Qué necesitas hacer en Mercadito Ocoyoacac?</p>
+        <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+          <div>
+            <p className="text-sm font-medium mb-3">¿Para qué deseas tu cuenta?</p>
             <div className="grid grid-cols-3 gap-3">
               {(["CUSTOMER", "VENDOR", "DELIVERY"] as const).map((r) => {
                 const colors = roleColors[r];
@@ -199,8 +198,6 @@ export default function RegistroPage() {
               })}
             </div>
           </div>
-
-          <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="grid grid-cols-2 gap-3">
               <label className="block">
                 <div className="text-sm font-medium">Nombres</div>
@@ -278,7 +275,6 @@ export default function RegistroPage() {
                   : "Selecciona una opción arriba"}
             </button>
           </form>
-        </>
       )}
 
       {!isLoggedInVendorOrDelivery && (
