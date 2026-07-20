@@ -149,3 +149,43 @@ export async function broadcastPromotion(data: {
   });
   console.log(`[PUSH] Promoción enviada a ${tokens.length} dispositivos`);
 }
+
+export async function sendVendorReminder() {
+  const vendors = await prisma.user.findMany({
+    where: {
+      pushToken: { not: null },
+      OR: [
+        { role: "VENDOR" },
+        { additionalRoles: { contains: "VENDOR" } },
+      ],
+    },
+    select: { pushToken: true, id: true },
+  });
+
+  if (vendors.length === 0) {
+    console.log("[CRON] No vendors with push tokens found");
+    return;
+  }
+
+  const tokens = vendors.map((v) => v.pushToken).filter(Boolean) as string[];
+
+  const reminders = [
+    {
+      title: "📋 Recuerda actualizar tus productos",
+      body: "Mantén tu catálogo al día para que tus clientes vean lo mejor de tu tienda. ¡Los productos actualizados venden más!",
+      url: "/vendor/productos",
+      type: "VENDOR_REMINDER",
+    },
+    {
+      title: "⭐ Tu tienda en Mercadito Ocoyoacac",
+      body: "Revisa que tus precios, fotos y descripciones estén actualizados. ¡Nosotros te ayudamos a crecer!",
+      url: "/vendor/mi-tienda",
+      type: "VENDOR_REMINDER",
+    },
+  ];
+
+  const reminder = reminders[new Date().getDay() % reminders.length];
+
+  await sendPushToMultiple(tokens, reminder);
+  console.log(`[CRON] Vendor reminder sent to ${tokens.length} devices`);
+}
