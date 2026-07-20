@@ -6,17 +6,13 @@ import { CategoryFilter } from "@/components/ui/CategoryFilter";
 
 export const dynamic = "force-dynamic";
 
-const STORES_PER_PAGE = 12;
-
 export default async function TiendasPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; category?: string }>;
+  searchParams: Promise<{ category?: string }>;
 }) {
   const params = await searchParams;
-  const page = parseInt(params?.page || "1");
   const category = params?.category || "";
-  const skip = (page - 1) * STORES_PER_PAGE;
 
   const allCategories = await prisma.category.findMany({
     where: { isActive: true },
@@ -26,40 +22,32 @@ export default async function TiendasPage({
 
   const validCategory = category && allCategories.some(c => c.key === category) ? category : "";
 
-  const [stores, total] = await Promise.all([
-    prisma.store.findMany({
-      where: {
-        isActive: true,
-        isPublished: true,
-        ...(validCategory ? { category: validCategory } : {}),
-      },
-      orderBy: { createdAt: "desc" },
-      take: STORES_PER_PAGE,
-      skip,
-      select: { 
-        id: true, 
-        name: true, 
-        slug: true, 
-        category: true,
-        description: true, 
-        address: true,
-        imageUrl: true,
-        products: {
-          where: { isActive: true },
-          select: { id: true }
-        }
-      },
-    }),
-    prisma.store.count({
-      where: {
-        isActive: true,
-        isPublished: true,
-        ...(validCategory ? { category: validCategory } : {}),
-      },
-    }),
-  ]);
+  const stores = await prisma.store.findMany({
+    where: {
+      isActive: true,
+      isPublished: true,
+      ...(validCategory ? { category: validCategory } : {}),
+    },
+    select: { 
+      id: true, 
+      name: true, 
+      slug: true, 
+      category: true,
+      description: true, 
+      address: true,
+      imageUrl: true,
+      products: {
+        where: { isActive: true },
+        select: { id: true, soldCount: true }
+      }
+    },
+  });
 
-  const totalPages = Math.ceil(total / STORES_PER_PAGE);
+  stores.sort((a, b) => {
+    const aSales = a.products.reduce((sum, p) => sum + p.soldCount, 0);
+    const bSales = b.products.reduce((sum, p) => sum + p.soldCount, 0);
+    return bSales - aSales;
+  });
 
   const categoryLookup = Object.fromEntries(allCategories.map(c => [c.key, c]));
 
@@ -153,7 +141,7 @@ export default async function TiendasPage({
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
-                    {(store as { products: { id: string }[] }).products.length} productos
+                    {store.products.length} productos
                   </div>
                   {store.address ? (
                     <div className="flex items-center gap-1 text-xs text-[color:var(--muted)]">
@@ -168,30 +156,6 @@ export default async function TiendasPage({
               </div>
             </Link>
           ))}
-        </div>
-      )}
-
-      {totalPages > 1 && (
-        <div className="mt-8 flex justify-center gap-2">
-          {page > 1 && (
-            <Link
-              href={`/tiendas?page=${page - 1}${validCategory ? `&category=${validCategory}` : ""}`}
-              className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm hover:bg-gray-100"
-            >
-              Anterior
-            </Link>
-          )}
-          <span className="px-4 py-2 text-sm text-[color:var(--muted)]">
-            {page} / {totalPages}
-          </span>
-          {page < totalPages && (
-            <Link
-              href={`/tiendas?page=${page + 1}${validCategory ? `&category=${validCategory}` : ""}`}
-              className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm hover:bg-gray-100"
-            >
-              Siguiente
-            </Link>
-          )}
         </div>
       )}
 
