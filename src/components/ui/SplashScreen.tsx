@@ -21,7 +21,7 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
             exit={{ opacity: 0, transition: { duration: 0.5, ease: "easeInOut" } }}
           >
             <motion.img
-              src="/logo.svg"
+              src="/logo.png"
               alt="Mercadito"
               className="h-28 w-28 sm:h-36 sm:w-36 drop-shadow-2xl"
               initial={{ opacity: 0, scale: 0.5, y: 20 }}

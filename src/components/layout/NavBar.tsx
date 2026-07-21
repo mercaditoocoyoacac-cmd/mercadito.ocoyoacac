@@ -102,7 +102,7 @@ export function NavBar() {
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
             <Image
-              src="/logo.svg"
+              src="/logo.png"
               alt="Mercadito Ocoyoacac"
               width={36}
               height={36}

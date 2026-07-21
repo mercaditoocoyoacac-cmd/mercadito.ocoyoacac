@@ -32,7 +32,7 @@ export function OfflineDetector() {
     <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white px-6">
       <div className="flex flex-col items-center gap-6 max-w-sm text-center">
         <Image
-          src="/logo.svg"
+          src="/logo.png"
           alt="Mercadito Ocoyoacac"
           width={120}
           height={120}
