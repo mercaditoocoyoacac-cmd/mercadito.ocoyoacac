@@ -36,18 +36,18 @@ export default async function TiendasPage({
       description: true, 
       address: true,
       imageUrl: true,
-      products: {
-        where: { isActive: true },
-        select: { id: true, soldCount: true }
-      }
+      _count: { select: { products: { where: { isActive: true } } } },
     },
   });
 
-  stores.sort((a, b) => {
-    const aSales = a.products.reduce((sum, p) => sum + p.soldCount, 0);
-    const bSales = b.products.reduce((sum, p) => sum + p.soldCount, 0);
-    return bSales - aSales;
+  // Sort by actual completed order count
+  const completedCounts = await prisma.order.groupBy({
+    by: ["storeId"],
+    where: { status: "COMPLETED" },
+    _count: { id: true },
   });
+  const countMap = new Map(completedCounts.map((o) => [o.storeId, o._count.id]));
+  stores.sort((a, b) => (countMap.get(b.id) || 0) - (countMap.get(a.id) || 0));
 
   const categoryLookup = Object.fromEntries(allCategories.map(c => [c.key, c]));
 
@@ -141,7 +141,7 @@ export default async function TiendasPage({
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
-                    {store.products.length} productos
+                    {store._count.products} productos
                   </div>
                   {store.address ? (
                     <div className="flex items-center gap-1 text-xs text-[color:var(--muted)]">
