@@ -48,10 +48,12 @@ interface StoreData {
 export function StorefrontClient({
   store,
   products,
+  promoProductIds,
   open,
 }: {
   store: StoreData;
   products: ProductData[];
+  promoProductIds: string[];
   open: boolean;
 }) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -98,11 +100,12 @@ export function StorefrontClient({
     const addIfNotSeen = (p: ProductData) => {
       if (!seen.has(p.id)) { seen.add(p.id); result.push(p); }
     };
-    products.filter((p) => p.isPromotion).forEach(addIfNotSeen);
+    const promoIdSet = new Set(promoProductIds);
+    products.filter((p) => p.isPromotion || promoIdSet.has(p.id)).forEach(addIfNotSeen);
     products.filter((p) => p.variants.length > 0).forEach(addIfNotSeen);
     [...products].filter((p) => p.soldCount > 0).sort((a, b) => b.soldCount - a.soldCount).slice(0, 10).forEach(addIfNotSeen);
     return result;
-  }, [products, isServicios]);
+  }, [products, isServicios, promoProductIds]);
 
   const filteredProducts = useMemo(() => {
     if (!searchQuery.trim()) return products;

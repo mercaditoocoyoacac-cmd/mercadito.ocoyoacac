@@ -66,3 +66,20 @@ export function getMexicoTimeString() {
   const { day, hours, minutes } = getMexicoCityTime();
   return `${day} ${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
 }
+
+export function isStoreOpenToday(store: {
+  openTime: string | null;
+  closeTime: string | null;
+  scheduleDays: string[];
+  scheduleDetails?: unknown;
+}): boolean {
+  const details = store.scheduleDetails as StoreScheduleDetails | null;
+  if (details && details.days && Object.keys(details.days).length > 0) {
+    const { day } = getMexicoCityTime();
+    const daySchedule = details.days[day];
+    return !!daySchedule && daySchedule.active;
+  }
+  if (store.scheduleDays.length === 0) return false;
+  const { day } = getMexicoCityTime();
+  return store.scheduleDays.includes(day);
+}

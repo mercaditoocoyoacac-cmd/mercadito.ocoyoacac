@@ -258,6 +258,7 @@ model Promotion {
   requiresCoupon     Boolean  @default(false)
   startDate          DateTime?
   endDate            DateTime?
+  lastPromoNotifiedAt DateTime?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 

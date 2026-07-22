@@ -203,3 +203,63 @@ export async function sendVendorReminder() {
   await sendPushToMultiple(tokens, reminder);
   console.log(`[CRON] Vendor reminder sent to ${tokens.length} devices`);
 }
+
+export async function sendPromotionsToStoreCustomers(storeId: string, storeName: string) {
+  const promoRows = await prisma.promotion.findMany({
+    where: {
+      storeId,
+      isActive: true,
+      OR: [
+        { endDate: null },
+        { endDate: { gte: new Date() } },
+      ],
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      lastPromoNotifiedAt: true,
+    },
+  });
+
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const toNotify = promoRows.filter(
+    (p) => !p.lastPromoNotifiedAt || p.lastPromoNotifiedAt < todayStart
+  );
+
+  if (toNotify.length === 0) return;
+
+  const customerIds = await prisma.order.findMany({
+    where: { storeId },
+    select: { userId: true },
+    distinct: ["userId"],
+  });
+
+  if (customerIds.length === 0) return;
+
+  const userIds = customerIds.map((c) => c.userId);
+  const users = await prisma.user.findMany({
+    where: { id: { in: userIds }, pushToken: { not: null } },
+    select: { pushToken: true },
+  });
+
+  const tokens = users.map((u) => u.pushToken).filter(Boolean) as string[];
+  if (tokens.length === 0) return;
+
+  for (const promo of toNotify) {
+    const body = promo.description || promo.title;
+    await sendPushToMultiple(tokens, {
+      title: `🔥 ¡Promociones de ${storeName}!`,
+      body,
+      url: `/tiendas`,
+      type: "PROMOTION",
+    });
+    await prisma.promotion.update({
+      where: { id: promo.id },
+      data: { lastPromoNotifiedAt: new Date() },
+    });
+    console.log(`[PUSH] Promo "${promo.title}" → ${tokens.length} clientes de ${storeName}`);
+  }
+}
