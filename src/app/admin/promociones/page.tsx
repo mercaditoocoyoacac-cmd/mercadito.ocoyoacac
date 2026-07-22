@@ -175,7 +175,7 @@ export default function AdminPromocionesPage() {
       storeId,
       title: title.trim(),
       description: description.trim() || undefined,
-      discountPercentage: isPercentage && discountPct ? parseInt(discountPct) : undefined,
+      discountPercentage: isPercentage && discountPct ? parseInt(discountPct) : null,
       imageUrl: imageUrl || undefined,
       startDate: startDate || undefined,
       endDate: endDate || undefined,
