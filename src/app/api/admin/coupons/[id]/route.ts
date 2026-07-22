@@ -28,7 +28,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
   const data: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(parsed.data)) {
-    if (key !== "storeIds" && value !== undefined) data[key] = value;
+    if (key !== "storeIds" && key !== "userIds" && value !== undefined) data[key] = value;
   }
   if (data.startsAt) data.startsAt = new Date(data.startsAt as string);
   if (data.expiresAt) data.expiresAt = new Date(data.expiresAt as string);
@@ -42,12 +42,22 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     });
   }
 
+  if (parsed.data.userIds) {
+    await prisma.couponUser.deleteMany({ where: { couponId: id } });
+    await prisma.couponUser.createMany({
+      data: parsed.data.userIds.map((userId) => ({ couponId: id, userId })),
+    });
+  }
+
   const coupon = await prisma.coupon.update({
     where: { id },
     data: data as any,
     include: {
       stores: {
         include: { store: { select: { id: true, name: true, slug: true } } },
+      },
+      users: {
+        include: { user: { select: { id: true, name: true, email: true } } },
       },
     },
   });

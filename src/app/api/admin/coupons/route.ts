@@ -12,6 +12,9 @@ export async function GET() {
       stores: {
         include: { store: { select: { id: true, name: true, slug: true } } },
       },
+      users: {
+        include: { user: { select: { id: true, name: true, email: true } } },
+      },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -60,10 +63,16 @@ export async function POST(req: Request) {
       stores: {
         create: parsed.data.storeIds.map((storeId) => ({ storeId })),
       },
+      users: parsed.data.userIds ? {
+        create: parsed.data.userIds.map((userId) => ({ userId })),
+      } : undefined,
     },
     include: {
       stores: {
         include: { store: { select: { id: true, name: true, slug: true } } },
+      },
+      users: {
+        include: { user: { select: { id: true, name: true, email: true } } },
       },
     },
   });

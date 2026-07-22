@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { formatMoney } from "@/lib/format";
 
 type Store = { id: string; name: string; slug: string };
+type User = { id: string; name: string | null; email: string; role: string; createdAt: string };
 type StoreCoupon = {
   id: string;
   code: string;
@@ -22,6 +23,7 @@ type StoreCoupon = {
   expiresAt: string | null;
   createdAt: string;
   stores: { store: Store }[];
+  users: { user: User }[];
 };
 type MembershipCoupon = {
   id: string;
@@ -42,6 +44,7 @@ const MEMBERSHIP_PRICE = 83000;
 
 const emptyStoreForm = {
   storeIds: [] as string[],
+  userIds: [] as string[],
   code: "",
   discountType: "PERCENTAGE" as "PERCENTAGE" | "FIXED",
   discountValue: 0,
@@ -72,6 +75,7 @@ export default function AdminCuponesPage() {
   // Store coupons state
   const [storeCoupons, setStoreCoupons] = useState<StoreCoupon[]>([]);
   const [stores, setStores] = useState<Store[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [storeForm, setStoreForm] = useState(emptyStoreForm);
   const [showStoreForm, setShowStoreForm] = useState(false);
 
@@ -84,15 +88,18 @@ export default function AdminCuponesPage() {
   const [loading, setLoading] = useState(true);
 
   async function loadStoreCoupons() {
-    const [cRes, sRes] = await Promise.all([
+    const [cRes, sRes, uRes] = await Promise.all([
       fetch("/api/admin/coupons"),
       fetch("/api/admin/stores"),
+      fetch("/api/admin/users"),
     ]);
     if (cRes.status === 401) { router.push("/admin/login"); return; }
     const cData = await cRes.json();
     const sData = await sRes.json();
+    const uData = await uRes.json();
     if (cData.ok) setStoreCoupons(cData.coupons);
     if (sData.ok) setStores(sData.stores || sData.data || []);
+    if (uData.ok) setUsers(uData.users || []);
   }
 
   async function loadMemberCoupons() {
@@ -125,6 +132,15 @@ export default function AdminCuponesPage() {
     }));
   }
 
+  function toggleUserId(userId: string) {
+    setStoreForm((prev) => ({
+      ...prev,
+      userIds: prev.userIds.includes(userId)
+        ? prev.userIds.filter((id) => id !== userId)
+        : [...prev.userIds, userId],
+    }));
+  }
+
   async function handleStoreSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (storeForm.storeIds.length === 0 || !storeForm.code || !storeForm.discountValue) {
@@ -142,6 +158,7 @@ export default function AdminCuponesPage() {
     if (storeForm.maxUsesPerUser) body.maxUsesPerUser = Number(storeForm.maxUsesPerUser);
     if (storeForm.userRegisteredBefore) body.userRegisteredBefore = new Date(storeForm.userRegisteredBefore).toISOString();
     if (storeForm.storeCreatedBefore) body.storeCreatedBefore = new Date(storeForm.storeCreatedBefore).toISOString();
+    if (storeForm.userIds.length > 0) body.userIds = storeForm.userIds;
     if (storeForm.startsAt) body.startsAt = new Date(storeForm.startsAt).toISOString();
     if (storeForm.expiresAt) body.expiresAt = new Date(storeForm.expiresAt).toISOString();
 
@@ -336,6 +353,29 @@ export default function AdminCuponesPage() {
                 </div>
                 {storeForm.storeIds.length > 0 && (
                   <p className="mt-1 text-xs text-[color:var(--muted)]">{storeForm.storeIds.length} tienda{storeForm.storeIds.length > 1 ? "s" : ""} seleccionada{storeForm.storeIds.length > 1 ? "s" : ""}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-[color:var(--muted)] mb-2">Usuarios específicos <span className="text-[color:var(--muted)]">(opcional — vacío = todos los usuarios)</span></label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto rounded-lg border border-[var(--border)] p-2">
+                  {users.length === 0 && <p className="text-xs text-[color:var(--muted)] col-span-3">Cargando usuarios...</p>}
+                  {users.map((u) => (
+                    <label key={u.id} className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer transition-all ${storeForm.userIds.includes(u.id) ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300" : "border-[var(--border)] hover:border-gray-300"}`}>
+                      <input type="checkbox" checked={storeForm.userIds.includes(u.id)} onChange={() => toggleUserId(u.id)} className="sr-only" />
+                      <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${storeForm.userIds.includes(u.id) ? "border-emerald-500 bg-emerald-500" : "border-gray-300"}`}>
+                        {storeForm.userIds.includes(u.id) && (
+                          <svg className="h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                        )}
+                      </span>
+                      <span className="truncate">{u.name || u.email}</span>
+                    </label>
+                  ))}
+                </div>
+                {storeForm.userIds.length > 0 && (
+                  <p className="mt-1 text-xs text-emerald-600">{storeForm.userIds.length} usuario{storeForm.userIds.length > 1 ? "s" : ""} seleccionado{storeForm.userIds.length > 1 ? "s" : ""} — solo ellos podrán usar el cupón</p>
+                )}
+                {storeForm.userIds.length === 0 && (
+                  <p className="mt-1 text-xs text-[color:var(--muted)]">Sin selección = todos los usuarios pueden usar el cupón</p>
                 )}
               </div>
               <div className="grid gap-4 sm:grid-cols-2">

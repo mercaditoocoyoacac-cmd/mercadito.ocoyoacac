@@ -251,6 +251,10 @@ export async function POST(req: Request) {
     if (!coupon.stores.some((s) => s.storeId === storeId)) {
       return NextResponse.json({ ok: false, error: "Este cupón no es válido para esta tienda." }, { status: 400 });
     }
+    const couponUsers = await prisma.couponUser.findMany({ where: { couponId: coupon.id }, select: { userId: true } });
+    if (couponUsers.length > 0 && !couponUsers.some((u) => u.userId === auth.userId)) {
+      return NextResponse.json({ ok: false, error: "Este cupón no está disponible para tu cuenta." }, { status: 400 });
+    }
     const now = new Date();
     if (coupon.startsAt && coupon.startsAt > now) {
       return NextResponse.json({ ok: false, error: "Este cupón aún no está vigente." }, { status: 400 });

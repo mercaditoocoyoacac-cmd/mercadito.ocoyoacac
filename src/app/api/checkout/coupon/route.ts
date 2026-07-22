@@ -50,6 +50,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Este cupón no es válido para esta tienda." }, { status: 404 });
   }
 
+  const couponUsers = await prisma.couponUser.findMany({ where: { couponId: coupon.id }, select: { userId: true } });
+  if (couponUsers.length > 0 && !couponUsers.some((u) => u.userId === auth.userId)) {
+    return NextResponse.json({ ok: false, error: "Este cupón no está disponible para tu cuenta." }, { status: 400 });
+  }
+
   if (!coupon.isActive) {
     return NextResponse.json({ ok: false, error: "Este cupón ya no está activo." }, { status: 400 });
   }

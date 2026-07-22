@@ -76,6 +76,7 @@ model User {
   verifications Verification[]
   chatMessages  ChatMessage[]
   supportMessages SupportMessage[]
+  couponUsers CouponUser[]
 
   @@index([role])
   @@index([isActive])
@@ -373,6 +374,7 @@ model Coupon {
   updatedAt     DateTime @updatedAt
 
   stores  CouponStore[]
+  users   CouponUser[]
   orders  Order[]
 
   @@index([isActive])
@@ -387,6 +389,17 @@ model CouponStore {
 
   @@unique([couponId, storeId])
   @@index([storeId])
+}
+
+model CouponUser {
+  id        String  @id @default(cuid())
+  couponId  String
+  userId    String
+  coupon    Coupon  @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([couponId, userId])
+  @@index([userId])
 }
 
 model MembershipCoupon {
