@@ -27,7 +27,17 @@ export async function POST(req: Request) {
 
         // Subscription payment
         if (externalRef.startsWith("sub_")) {
-          const storeId = externalRef.slice(4);
+          // Parse: sub_{storeId} or sub_{storeId}_c_{couponCode}
+          const refBody = externalRef.slice(4);
+          let storeId: string;
+          let couponCode: string | null = null;
+          const couponIdx = refBody.indexOf("_c_");
+          if (couponIdx !== -1) {
+            storeId = refBody.slice(0, couponIdx);
+            couponCode = refBody.slice(couponIdx + 3);
+          } else {
+            storeId = refBody;
+          }
           const now = new Date();
           const endDate = new Date();
           endDate.setMonth(endDate.getMonth() + 1);
@@ -72,6 +82,14 @@ export async function POST(req: Request) {
             where: { id: storeId },
             data: { isPublished: true, plan: "MEMBER" },
           });
+
+          // Track membership coupon usage
+          if (couponCode) {
+            await prisma.membershipCoupon.update({
+              where: { code: couponCode },
+              data: { usedCount: { increment: 1 } },
+            }).catch(() => {});
+          }
 
           const store = await prisma.store.findUnique({
             where: { id: storeId },

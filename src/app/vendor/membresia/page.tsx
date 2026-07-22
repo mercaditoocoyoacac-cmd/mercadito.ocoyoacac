@@ -27,6 +27,10 @@ export default function VendorMembresiaPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [store, setStore] = useState<{ name: string; createdAt: string; plan: string } | null>(null);
   const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null);
+  const [couponCode, setCouponCode] = useState("");
+  const [couponData, setCouponData] = useState<{ code: string; description: string | null; discountType: string; discountValue: number; finalPrice: number; savings: number } | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState("");
 
   useEffect(() => {
     if (searchParams.get("success")) {
@@ -60,11 +64,47 @@ export default function VendorMembresiaPage() {
 
   useEffect(() => { loadData(); }, []);
 
+  async function validateCoupon() {
+    if (!couponCode.trim()) return;
+    setCouponLoading(true);
+    setCouponError("");
+    setCouponData(null);
+    try {
+      const res = await fetch("/api/vendor/membership-coupon", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ code: couponCode.trim() }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setCouponData(data.coupon ? {
+          code: data.coupon.code,
+          description: data.coupon.description,
+          discountType: data.coupon.discountType,
+          discountValue: data.coupon.discountValue,
+          finalPrice: data.finalPrice,
+          savings: data.savings,
+        } : null);
+      } else {
+        setCouponError(data.error || "Cupón inválido.");
+      }
+    } catch {
+      setCouponError("Error al validar cupón.");
+    }
+    setCouponLoading(false);
+  }
+
   async function handlePay() {
     setPaying(true);
     setError(null);
     try {
-      const res = await fetch("/api/vendor/pay-subscription", { method: "POST" });
+      const body: Record<string, unknown> = {};
+      if (couponData) body.couponCode = couponData.code;
+      const res = await fetch("/api/vendor/pay-subscription", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(body),
+      });
       const data = await res.json();
       if (data.ok && data.initPoint) {
         window.location.href = data.initPoint;
@@ -194,13 +234,56 @@ export default function VendorMembresiaPage() {
                   ✓ Tu plan activo
                 </div>
               ) : (
-                <button
-                  onClick={handlePay}
-                  disabled={paying || !!inGrace}
-                  className="mt-5 w-full rounded-xl bg-amber-500 px-6 py-3 text-sm font-bold text-white hover:bg-amber-600 disabled:opacity-60 transition-all"
-                >
-                  {inGrace ? "En periodo de gracia" : paying ? "Conectando..." : `Activar Vende+ ${formatMoney(price, "MXN")}/mes`}
-                </button>
+                <div className="mt-5 space-y-3">
+                  {/* Coupon input */}
+                  <div className="rounded-lg border border-[var(--border)] p-3">
+                    <label className="text-xs font-medium text-[color:var(--muted)]">¿Tienes un cupón de descuento?</label>
+                    <div className="mt-1.5 flex gap-2">
+                      <input
+                        value={couponCode}
+                        onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponData(null); setCouponError(""); }}
+                        placeholder="CÓDIGO"
+                        className="flex-1 rounded-lg border border-[var(--border)] px-3 py-2 text-sm uppercase font-mono"
+                        disabled={couponLoading}
+                      />
+                      <button
+                        type="button"
+                        onClick={validateCoupon}
+                        disabled={couponLoading || !couponCode.trim()}
+                        className="shrink-0 rounded-lg border border-[var(--accent)] px-3 py-2 text-sm font-medium text-[var(--accent)] hover:bg-[var(--accent-soft)] disabled:opacity-50"
+                      >
+                        {couponLoading ? "..." : "Aplicar"}
+                      </button>
+                    </div>
+                    {couponData && (
+                      <div className="mt-2 rounded-lg bg-green-50 border border-green-200 px-3 py-2 text-sm">
+                        <div className="flex items-center gap-2 text-green-700 font-medium">
+                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                          Cupón "{couponData.code}" aplicado
+                        </div>
+                        <div className="mt-1 text-green-600">
+                          Ahorras {formatMoney(couponData.savings, "MXN")} — Total: {formatMoney(couponData.finalPrice, "MXN")}/mes
+                        </div>
+                        <button type="button" onClick={() => { setCouponData(null); setCouponCode(""); }} className="mt-1 text-xs text-red-500 hover:underline">
+                          Quitar cupón
+                        </button>
+                      </div>
+                    )}
+                    {couponError && (
+                      <div className="mt-2 text-xs text-red-600">{couponError}</div>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={handlePay}
+                    disabled={paying || !!inGrace}
+                    className="w-full rounded-xl bg-amber-500 px-6 py-3 text-sm font-bold text-white hover:bg-amber-600 disabled:opacity-60 transition-all"
+                  >
+                    {inGrace ? "En periodo de gracia" : paying ? "Conectando..." : couponData
+                      ? `Pagar ${formatMoney(couponData.finalPrice, "MXN")}/mes`
+                      : `Activar Vende+ ${formatMoney(price, "MXN")}/mes`}
+                  </button>
+                </div>
               )}
             </div>
           </div>

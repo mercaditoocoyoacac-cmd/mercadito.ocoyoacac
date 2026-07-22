@@ -361,6 +361,7 @@ export default function AdminDashboardClient({ data }: { data: StatsData }) {
               { href: "/admin/envios", label: "Envíos", icon: "🛵", desc: "Supervisión de entregas" },
               { href: "/admin/zonas-envio", label: "Zonas Envío", icon: "🗺️", desc: "Costos por zona geográfica" },
               { href: "/admin/ranking", label: "Ranking", icon: "⭐", desc: "Calificaciones" },
+              { href: "/admin/membresia-cupones", label: "Cupones Membresía", icon: "🎟️", desc: "Descuentos en membresía" },
             ].map((item, i) => (
               <Link
                 key={item.href}

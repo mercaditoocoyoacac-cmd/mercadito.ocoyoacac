@@ -6,9 +6,12 @@ const FULL_PRICE_CENTS = 83000;
 const DISCOUNTED_PRICE_CENTS = 49800;
 const GRACE_DATE = new Date("2026-08-01T00:00:00.000Z");
 
-export async function POST() {
+export async function POST(req: Request) {
   const auth = await requireUser();
   if (!auth.ok) return auth.res;
+
+  const body = await req.json().catch(() => ({}));
+  const couponCode: string | undefined = body.couponCode;
 
   const store = await prisma.store.findFirst({
     where: { ownerId: auth.userId },
@@ -27,9 +30,40 @@ export async function POST() {
     return NextResponse.json({ ok: false, error: "Tu membresía está en período de gracia hasta agosto de 2026. No necesitas pagar todavía." }, { status: 400 });
   }
 
-  // Determine price
+  // Determine base price
   const isDiscounted = sub?.discountEndDate ? now < sub.discountEndDate : false;
-  const amountCents = isDiscounted ? DISCOUNTED_PRICE_CENTS : FULL_PRICE_CENTS;
+  let amountCents = isDiscounted ? DISCOUNTED_PRICE_CENTS : FULL_PRICE_CENTS;
+  let appliedCouponCode: string | null = null;
+
+  // Apply membership coupon if provided
+  if (couponCode) {
+    const coupon = await prisma.membershipCoupon.findUnique({
+      where: { code: couponCode.toUpperCase().trim() },
+    });
+    if (!coupon) {
+      return NextResponse.json({ ok: false, error: "Cupón no encontrado." }, { status: 400 });
+    }
+    if (!coupon.isActive) {
+      return NextResponse.json({ ok: false, error: "Este cupón está inactivo." }, { status: 400 });
+    }
+    if (coupon.startsAt && now < coupon.startsAt) {
+      return NextResponse.json({ ok: false, error: "Este cupón aún no está vigente." }, { status: 400 });
+    }
+    if (coupon.expiresAt && now > coupon.expiresAt) {
+      return NextResponse.json({ ok: false, error: "Este cupón ya expiró." }, { status: 400 });
+    }
+    if (coupon.maxUses && coupon.usedCount >= coupon.maxUses) {
+      return NextResponse.json({ ok: false, error: "Este cupón ya alcanzó su límite de usos." }, { status: 400 });
+    }
+
+    // Calculate discounted price
+    if (coupon.discountType === "PERCENTAGE") {
+      amountCents = Math.round(amountCents * (1 - coupon.discountValue / 100));
+    } else {
+      amountCents = Math.max(1, amountCents - coupon.discountValue);
+    }
+    appliedCouponCode = coupon.code;
+  }
 
   // Create MercadoPago preference using platform token
   const accessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN;
@@ -37,7 +71,10 @@ export async function POST() {
     return NextResponse.json({ ok: false, error: "Pasarela de pago no configurada. Contacta al administrador." }, { status: 500 });
   }
 
-  const externalRef = `sub_${store.id}`;
+  // Encode coupon code in external reference for webhook tracking
+  const externalRef = appliedCouponCode
+    ? `sub_${store.id}_c_${appliedCouponCode}`
+    : `sub_${store.id}`;
   const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
 
   try {
@@ -50,8 +87,10 @@ export async function POST() {
       body: JSON.stringify({
         items: [
           {
-            title: "Membresía Mercadito Ocoyoacac - 1 mes",
-            description: `Suscripción mensual para ${store.name}`,
+            title: appliedCouponCode
+              ? `Membresía Mercadito Ocoyoacac - 1 mes (${appliedCouponCode})`
+              : "Membresía Mercadito Ocoyoacac - 1 mes",
+            description: `Suscripción mensual para ${store.name}${appliedCouponCode ? ` — cupón ${appliedCouponCode}` : ""}`,
             quantity: 1,
             unit_price: amountCents / 100,
             currency_id: "MXN",
@@ -78,7 +117,12 @@ export async function POST() {
       return NextResponse.json({ ok: false, error: "Error al crear el pago. Intenta más tarde." }, { status: 502 });
     }
 
-    return NextResponse.json({ ok: true, initPoint: data.init_point });
+    return NextResponse.json({
+      ok: true,
+      initPoint: data.init_point,
+      finalPrice: amountCents,
+      couponApplied: appliedCouponCode,
+    });
   } catch (e) {
     console.error("pay-subscription error:", e);
     return NextResponse.json({ ok: false, error: "Error de conexión con la pasarela de pago." }, { status: 502 });

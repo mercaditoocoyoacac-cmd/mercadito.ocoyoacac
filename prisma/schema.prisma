@@ -356,6 +356,21 @@ model Coupon {
   @@index([storeId, isActive])
 }
 
+model MembershipCoupon {
+  id            String   @id @default(cuid())
+  code          String   @unique
+  description   String?
+  discountType  String   // PERCENTAGE or FIXED
+  discountValue Int      // percentage (1-100) or cents off the membership price
+  maxUses       Int?
+  usedCount     Int      @default(0)
+  isActive      Boolean  @default(true)
+  startsAt      DateTime?
+  expiresAt     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
 model Order {
   id              String          @id @default(cuid())
   status          OrderStatus     @default(PENDING)

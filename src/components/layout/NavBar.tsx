@@ -801,6 +801,15 @@ export function NavBar() {
                     Cupones
                   </Link>
                   <Link
+                    href="/admin/membresia-cupones"
+                    onClick={() => setMenuOpen(false)}
+                    className={`rounded-lg px-4 py-3 text-sm font-medium ${
+                      pathname === "/admin/membresia-cupones" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                    }`}
+                  >
+                    Cupones Membresía
+                  </Link>
+                  <Link
                     href="/admin/promociones"
                     onClick={() => setMenuOpen(false)}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
