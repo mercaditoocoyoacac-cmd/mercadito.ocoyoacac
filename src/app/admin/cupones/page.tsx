@@ -1,12 +1,12 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { formatMoney } from "@/lib/format";
 
 type Store = { id: string; name: string; slug: string };
-type Coupon = {
+type StoreCoupon = {
   id: string;
   code: string;
   discountType: "PERCENTAGE" | "FIXED";
@@ -21,8 +21,23 @@ type Coupon = {
   createdAt: string;
   store: Store;
 };
+type MembershipCoupon = {
+  id: string;
+  code: string;
+  description: string | null;
+  discountType: "PERCENTAGE" | "FIXED";
+  discountValue: number;
+  maxUses: number | null;
+  usedCount: number;
+  isActive: boolean;
+  startsAt: string | null;
+  expiresAt: string | null;
+  createdAt: string;
+};
 
-const emptyForm = {
+const MEMBERSHIP_PRICE = 83000;
+
+const emptyStoreForm = {
   storeId: "",
   code: "",
   discountType: "PERCENTAGE" as "PERCENTAGE" | "FIXED",
@@ -34,16 +49,35 @@ const emptyForm = {
   expiresAt: "",
 };
 
+const emptyMemberForm = {
+  code: "",
+  description: "",
+  discountType: "PERCENTAGE" as "PERCENTAGE" | "FIXED",
+  discountValue: 0,
+  maxUses: "",
+  startsAt: "",
+  expiresAt: "",
+};
+
 export default function AdminCuponesPage() {
   const router = useRouter();
-  const [coupons, setCoupons] = useState<Coupon[]>([]);
-  const [stores, setStores] = useState<Store[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState(emptyForm);
-  const [showForm, setShowForm] = useState(false);
+  const [tab, setTab] = useState<"tienda" | "membresia">("tienda");
 
-  async function load() {
-    setLoading(true);
+  // Store coupons state
+  const [storeCoupons, setStoreCoupons] = useState<StoreCoupon[]>([]);
+  const [stores, setStores] = useState<Store[]>([]);
+  const [storeForm, setStoreForm] = useState(emptyStoreForm);
+  const [showStoreForm, setShowStoreForm] = useState(false);
+
+  // Membership coupons state
+  const [memberCoupons, setMemberCoupons] = useState<MembershipCoupon[]>([]);
+  const [memberForm, setMemberForm] = useState(emptyMemberForm);
+  const [showMemberForm, setShowMemberForm] = useState(false);
+  const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
+
+  const [loading, setLoading] = useState(true);
+
+  async function loadStoreCoupons() {
     const [cRes, sRes] = await Promise.all([
       fetch("/api/admin/coupons"),
       fetch("/api/admin/stores"),
@@ -51,35 +85,48 @@ export default function AdminCuponesPage() {
     if (cRes.status === 401) { router.push("/admin/login"); return; }
     const cData = await cRes.json();
     const sData = await sRes.json();
-    if (cData.ok) setCoupons(cData.coupons);
+    if (cData.ok) setStoreCoupons(cData.coupons);
     if (sData.ok) setStores(sData.stores || sData.data || []);
+  }
+
+  async function loadMemberCoupons() {
+    const res = await fetch("/api/admin/membership-coupons");
+    if (res.status === 401) { router.push("/admin/login"); return; }
+    const data = await res.json();
+    if (data.ok) setMemberCoupons(data.coupons);
+  }
+
+  async function loadAll() {
+    setLoading(true);
+    await Promise.all([loadStoreCoupons(), loadMemberCoupons()]);
     setLoading(false);
   }
 
-  useEffect(() => { load() }, []);
+  useEffect(() => { loadAll(); }, []);
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
+  // === STORE COUPON HANDLERS ===
+  function handleStoreChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setStoreForm((prev) => ({ ...prev, [name]: value }));
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleStoreSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.storeId || !form.code || !form.discountValue) {
+    if (!storeForm.storeId || !storeForm.code || !storeForm.discountValue) {
       toast.error("Completa los campos obligatorios.");
       return;
     }
     const body: Record<string, unknown> = {
-      storeId: form.storeId,
-      code: form.code,
-      discountType: form.discountType,
-      discountValue: Number(form.discountValue),
+      storeId: storeForm.storeId,
+      code: storeForm.code,
+      discountType: storeForm.discountType,
+      discountValue: Number(storeForm.discountValue),
     };
-    if (form.minPurchaseCents) body.minPurchaseCents = Number(form.minPurchaseCents);
-    if (form.maxUses) body.maxUses = Number(form.maxUses);
-    if (form.maxUsesPerUser) body.maxUsesPerUser = Number(form.maxUsesPerUser);
-    if (form.startsAt) body.startsAt = new Date(form.startsAt).toISOString();
-    if (form.expiresAt) body.expiresAt = new Date(form.expiresAt).toISOString();
+    if (storeForm.minPurchaseCents) body.minPurchaseCents = Number(storeForm.minPurchaseCents);
+    if (storeForm.maxUses) body.maxUses = Number(storeForm.maxUses);
+    if (storeForm.maxUsesPerUser) body.maxUsesPerUser = Number(storeForm.maxUsesPerUser);
+    if (storeForm.startsAt) body.startsAt = new Date(storeForm.startsAt).toISOString();
+    if (storeForm.expiresAt) body.expiresAt = new Date(storeForm.expiresAt).toISOString();
 
     const res = await fetch("/api/admin/coupons", {
       method: "POST",
@@ -87,17 +134,14 @@ export default function AdminCuponesPage() {
       body: JSON.stringify(body),
     });
     const data = await res.json();
-    if (!res.ok || !data.ok) {
-      toast.error(data.error || "Error al crear cupón.");
-      return;
-    }
-    toast.success("Cupón creado.");
-    setForm(emptyForm);
-    setShowForm(false);
-    load();
+    if (!res.ok || !data.ok) { toast.error(data.error || "Error al crear cupón."); return; }
+    toast.success("Cupón de tienda creado.");
+    setStoreForm(emptyStoreForm);
+    setShowStoreForm(false);
+    loadStoreCoupons();
   }
 
-  async function toggleActive(coupon: Coupon) {
+  async function toggleStoreActive(coupon: StoreCoupon) {
     const res = await fetch(`/api/admin/coupons/${coupon.id}`, {
       method: "PUT",
       headers: { "content-type": "application/json" },
@@ -106,16 +150,106 @@ export default function AdminCuponesPage() {
     const data = await res.json();
     if (!res.ok || !data.ok) { toast.error(data.error || "Error"); return; }
     toast.success(coupon.isActive ? "Cupón desactivado" : "Cupón activado");
-    load();
+    loadStoreCoupons();
   }
 
-  async function deleteCoupon(coupon: Coupon) {
+  async function deleteStoreCoupon(coupon: StoreCoupon) {
     if (!confirm(`¿Eliminar cupón "${coupon.code}"?`)) return;
     const res = await fetch(`/api/admin/coupons/${coupon.id}`, { method: "DELETE" });
     const data = await res.json();
     if (!res.ok || !data.ok) { toast.error(data.error || "Error"); return; }
     toast.success("Cupón eliminado.");
-    load();
+    loadStoreCoupons();
+  }
+
+  // === MEMBERSHIP COUPON HANDLERS ===
+  function handleMemberChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
+    const { name, value } = e.target;
+    setMemberForm((prev) => ({ ...prev, [name]: value }));
+  }
+
+  function resetMemberForm() {
+    setMemberForm(emptyMemberForm);
+    setEditingMemberId(null);
+    setShowMemberForm(false);
+  }
+
+  function openEditMember(coupon: MembershipCoupon) {
+    setEditingMemberId(coupon.id);
+    setMemberForm({
+      code: coupon.code,
+      description: coupon.description || "",
+      discountType: coupon.discountType,
+      discountValue: coupon.discountValue,
+      maxUses: coupon.maxUses?.toString() || "",
+      startsAt: coupon.startsAt ? new Date(coupon.startsAt).toISOString().slice(0, 16) : "",
+      expiresAt: coupon.expiresAt ? new Date(coupon.expiresAt).toISOString().slice(0, 16) : "",
+    });
+    setShowMemberForm(true);
+  }
+
+  function memberDiscountedPrice(c: MembershipCoupon | { discountType: string; discountValue: number }) {
+    if (c.discountType === "PERCENTAGE") return MEMBERSHIP_PRICE * (1 - c.discountValue / 100);
+    return MEMBERSHIP_PRICE - c.discountValue;
+  }
+
+  async function handleMemberSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!memberForm.code || !memberForm.discountValue) {
+      toast.error("Completa los campos obligatorios.");
+      return;
+    }
+    if (memberForm.discountType === "PERCENTAGE" && memberForm.discountValue > 100) {
+      toast.error("El porcentaje no puede ser mayor a 100.");
+      return;
+    }
+
+    const body: Record<string, unknown> = {
+      code: memberForm.code,
+      description: memberForm.description || undefined,
+      discountType: memberForm.discountType,
+      discountValue: Number(memberForm.discountValue),
+    };
+    if (memberForm.maxUses) body.maxUses = Number(memberForm.maxUses);
+    if (memberForm.startsAt) body.startsAt = new Date(memberForm.startsAt).toISOString();
+    if (memberForm.expiresAt) body.expiresAt = new Date(memberForm.expiresAt).toISOString();
+
+    const url = editingMemberId
+      ? `/api/admin/membership-coupons/${editingMemberId}`
+      : "/api/admin/membership-coupons";
+    const method = editingMemberId ? "PUT" : "POST";
+
+    const res = await fetch(url, {
+      method,
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) { toast.error(data.error || "Error al guardar cupón."); return; }
+    toast.success(editingMemberId ? "Cupón actualizado." : "Cupón de membresía creado.");
+    resetMemberForm();
+    loadMemberCoupons();
+  }
+
+  async function toggleMemberActive(coupon: MembershipCoupon) {
+    const res = await fetch(`/api/admin/membership-coupons/${coupon.id}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ isActive: !coupon.isActive }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) { toast.error(data.error || "Error"); return; }
+    toast.success(coupon.isActive ? "Cupón desactivado" : "Cupón activado");
+    loadMemberCoupons();
+  }
+
+  async function deleteMemberCoupon(coupon: MembershipCoupon) {
+    if (!confirm(`¿Eliminar cupón "${coupon.code}"?`)) return;
+    const res = await fetch(`/api/admin/membership-coupons/${coupon.id}`, { method: "DELETE" });
+    const data = await res.json();
+    if (!res.ok || !data.ok) { toast.error(data.error || "Error"); return; }
+    toast.success("Cupón eliminado.");
+    loadMemberCoupons();
   }
 
   if (loading) {
@@ -124,133 +258,309 @@ export default function AdminCuponesPage() {
 
   return (
     <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Cupones de descuento</h1>
-          <p className="text-sm text-[color:var(--muted)]">Crea y administra códigos promocionales</p>
-        </div>
+      <h1 className="text-2xl font-bold mb-6">Cupones de descuento</h1>
+
+      {/* Tabs */}
+      <div className="flex gap-1 rounded-lg bg-gray-100 p-1 mb-6 max-w-md">
         <button
-          type="button"
-          onClick={() => setShowForm(!showForm)}
-          className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)]"
+          onClick={() => setTab("tienda")}
+          className={`flex-1 rounded-md px-4 py-2.5 text-sm font-medium transition-all ${
+            tab === "tienda"
+              ? "bg-white text-[var(--accent)] shadow-sm"
+              : "text-[color:var(--muted)] hover:text-gray-700"
+          }`}
         >
-          {showForm ? "Cancelar" : "+ Nuevo cupón"}
+          🏪 Cupones de tienda
+        </button>
+        <button
+          onClick={() => setTab("membresia")}
+          className={`flex-1 rounded-md px-4 py-2.5 text-sm font-medium transition-all ${
+            tab === "membresia"
+              ? "bg-white text-amber-600 shadow-sm"
+              : "text-[color:var(--muted)] hover:text-gray-700"
+          }`}
+        >
+          ⭐ Cupones de membresía
         </button>
       </div>
 
-      {showForm && (
-        <form onSubmit={handleSubmit} className="mb-8 rounded-xl border border-[var(--border)] bg-white p-5 space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Tienda *</label>
-              <select name="storeId" value={form.storeId} onChange={handleChange} required className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm">
-                <option value="">Seleccionar tienda...</option>
-                {stores.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Código *</label>
-              <input name="code" value={form.code} onChange={handleChange} placeholder="BIENVENIDO10" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm uppercase" />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Tipo *</label>
-              <select name="discountType" value={form.discountType} onChange={handleChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm">
-                <option value="PERCENTAGE">% Porcentaje</option>
-                <option value="FIXED">$ Monto fijo</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">
-                {form.discountType === "PERCENTAGE" ? "Porcentaje *" : "Monto ($) *"}
-              </label>
-              <input name="discountValue" type="number" min="1" value={form.discountValue} onChange={handleChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Compra mínima ($)</label>
-              <input name="minPurchaseCents" type="number" min="0" value={form.minPurchaseCents} onChange={handleChange} placeholder="0 = sin mínimo" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Usos máximos</label>
-              <input name="maxUses" type="number" min="1" value={form.maxUses} onChange={handleChange} placeholder="Sin límite" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Usos por usuario</label>
-              <input name="maxUsesPerUser" type="number" min="1" value={form.maxUsesPerUser} onChange={handleChange} placeholder="Sin límite" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Válido desde</label>
-              <input name="startsAt" type="datetime-local" value={form.startsAt} onChange={handleChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Válido hasta</label>
-              <input name="expiresAt" type="datetime-local" value={form.expiresAt} onChange={handleChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
-            </div>
+      {/* ====== TAB: TIENDA ====== */}
+      {tab === "tienda" && (
+        <>
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm text-[color:var(--muted)]">Cupones aplicados al carrito de compra por tienda</p>
+            <button
+              type="button"
+              onClick={() => setShowStoreForm(!showStoreForm)}
+              className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)]"
+            >
+              {showStoreForm ? "Cancelar" : "+ Nuevo cupón"}
+            </button>
           </div>
-          <button type="submit" className="rounded-lg bg-[var(--accent)] px-6 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)]">
-            Crear cupón
-          </button>
-        </form>
+
+          {showStoreForm && (
+            <form onSubmit={handleStoreSubmit} className="mb-6 rounded-xl border border-[var(--border)] bg-white p-5 space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Tienda *</label>
+                  <select name="storeId" value={storeForm.storeId} onChange={handleStoreChange} required className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm">
+                    <option value="">Seleccionar tienda...</option>
+                    {stores.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Código *</label>
+                  <input name="code" value={storeForm.code} onChange={handleStoreChange} placeholder="BIENVENIDO10" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm uppercase" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Tipo *</label>
+                  <select name="discountType" value={storeForm.discountType} onChange={handleStoreChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm">
+                    <option value="PERCENTAGE">% Porcentaje</option>
+                    <option value="FIXED">$ Monto fijo</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">
+                    {storeForm.discountType === "PERCENTAGE" ? "Porcentaje *" : "Monto ($) *"}
+                  </label>
+                  <input name="discountValue" type="number" min="1" value={storeForm.discountValue} onChange={handleStoreChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Compra mínima ($)</label>
+                  <input name="minPurchaseCents" type="number" min="0" value={storeForm.minPurchaseCents} onChange={handleStoreChange} placeholder="0 = sin mínimo" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Usos máximos</label>
+                  <input name="maxUses" type="number" min="1" value={storeForm.maxUses} onChange={handleStoreChange} placeholder="Sin límite" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Usos por usuario</label>
+                  <input name="maxUsesPerUser" type="number" min="1" value={storeForm.maxUsesPerUser} onChange={handleStoreChange} placeholder="Sin límite" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Válido desde</label>
+                  <input name="startsAt" type="datetime-local" value={storeForm.startsAt} onChange={handleStoreChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Válido hasta</label>
+                  <input name="expiresAt" type="datetime-local" value={storeForm.expiresAt} onChange={handleStoreChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                </div>
+              </div>
+              <button type="submit" className="rounded-lg bg-[var(--accent)] px-6 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)]">
+                Crear cupón
+              </button>
+            </form>
+          )}
+
+          <div className="overflow-x-auto rounded-xl border border-[var(--border)]">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-[var(--border)] bg-gray-50">
+                  <th className="px-4 py-3 text-left font-medium">Código</th>
+                  <th className="px-4 py-3 text-left font-medium">Tienda</th>
+                  <th className="px-4 py-3 text-left font-medium">Descuento</th>
+                  <th className="px-4 py-3 text-left font-medium">Usos</th>
+                  <th className="px-4 py-3 text-left font-medium">Vigencia</th>
+                  <th className="px-4 py-3 text-left font-medium">Estado</th>
+                  <th className="px-4 py-3 text-left font-medium">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {storeCoupons.length === 0 && (
+                  <tr><td colSpan={7} className="px-4 py-8 text-center text-[color:var(--muted)]">Sin cupones de tienda aún</td></tr>
+                )}
+                {storeCoupons.map((c, idx) => {
+                  const now = new Date();
+                  const expired = c.expiresAt && new Date(c.expiresAt) < now;
+                  const notStarted = c.startsAt && new Date(c.startsAt) > now;
+                  const discountLabel = c.discountType === "PERCENTAGE" ? `${c.discountValue}%` : `$${(c.discountValue / 100).toFixed(2)}`;
+                  return (
+                    <tr key={c.id} style={{ animationDelay: `${idx * 40}ms` }} className="border-b border-[var(--border)] hover:bg-gray-50 fade-in">
+                      <td className="px-4 py-3 font-mono font-bold">{c.code}</td>
+                      <td className="px-4 py-3">{c.store.name}</td>
+                      <td className="px-4 py-3">{discountLabel}</td>
+                      <td className="px-4 py-3">{c.usedCount}{c.maxUses ? ` / ${c.maxUses}` : ""}</td>
+                      <td className="px-4 py-3 text-xs">
+                        {c.startsAt && <div>Desde: {new Date(c.startsAt).toLocaleDateString()}</div>}
+                        {c.expiresAt && <div>Hasta: {new Date(c.expiresAt).toLocaleDateString()}</div>}
+                        {!c.startsAt && !c.expiresAt && <span className="text-[color:var(--muted)]">Sin fecha</span>}
+                      </td>
+                      <td className="px-4 py-3">
+                        {expired ? <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-700">Expirado</span> :
+                         notStarted ? <span className="rounded-full bg-yellow-100 px-2 py-0.5 text-xs text-yellow-700">Próximo</span> :
+                         c.isActive ? <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">Activo</span> :
+                         <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">Inactivo</span>}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <button type="button" onClick={() => toggleStoreActive(c)}
+                            className={`rounded px-2 py-1 text-xs font-medium ${c.isActive ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-200" : "bg-green-100 text-green-700 hover:bg-green-200"}`}>
+                            {c.isActive ? "Desactivar" : "Activar"}
+                          </button>
+                          <button type="button" onClick={() => deleteStoreCoupon(c)}
+                            className="rounded bg-red-100 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-200">
+                            Eliminar
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
 
-      <div className="overflow-x-auto rounded-xl border border-[var(--border)]">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-[var(--border)] bg-gray-50">
-              <th className="px-4 py-3 text-left font-medium">Código</th>
-              <th className="px-4 py-3 text-left font-medium">Tienda</th>
-              <th className="px-4 py-3 text-left font-medium">Descuento</th>
-              <th className="px-4 py-3 text-left font-medium">Usos</th>
-              <th className="px-4 py-3 text-left font-medium">Vigencia</th>
-              <th className="px-4 py-3 text-left font-medium">Estado</th>
-              <th className="px-4 py-3 text-left font-medium">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {coupons.length === 0 && (
-              <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-[color:var(--muted)]">Sin cupones aún</td>
-              </tr>
-            )}
-            {coupons.map((coupon, idx) => {
-              const now = new Date();
-              const expired = coupon.expiresAt && new Date(coupon.expiresAt) < now;
-              const notStarted = coupon.startsAt && new Date(coupon.startsAt) > now;
-              const discountLabel = coupon.discountType === "PERCENTAGE" ? `${coupon.discountValue}%` : `$${(coupon.discountValue / 100).toFixed(2)}`;
-              return (
-                <tr key={coupon.id} style={{ animationDelay: `${idx * 40}ms` }} className="border-b border-[var(--border)] hover:bg-gray-50 fade-in">
-                  <td className="px-4 py-3 font-mono font-bold">{coupon.code}</td>
-                  <td className="px-4 py-3">{coupon.store.name}</td>
-                  <td className="px-4 py-3">{discountLabel}</td>
-                  <td className="px-4 py-3">{coupon.usedCount}{coupon.maxUses ? ` / ${coupon.maxUses}` : ""}</td>
-                  <td className="px-4 py-3 text-xs">
-                    {coupon.startsAt && <div>Desde: {new Date(coupon.startsAt).toLocaleDateString()}</div>}
-                    {coupon.expiresAt && <div>Hasta: {new Date(coupon.expiresAt).toLocaleDateString()}</div>}
-                    {!coupon.startsAt && !coupon.expiresAt && <span className="text-[color:var(--muted)]">Sin fecha</span>}
-                  </td>
-                  <td className="px-4 py-3">
-                    {expired ? <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-700">Expirado</span> :
-                     notStarted ? <span className="rounded-full bg-yellow-100 px-2 py-0.5 text-xs text-yellow-700">Próximo</span> :
-                     coupon.isActive ? <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">Activo</span> :
-                     <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">Inactivo</span>}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <button type="button" onClick={() => toggleActive(coupon)}
-                        className={`rounded px-2 py-1 text-xs font-medium ${coupon.isActive ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-200" : "bg-green-100 text-green-700 hover:bg-green-200"}`}>
-                        {coupon.isActive ? "Desactivar" : "Activar"}
-                      </button>
-                      <button type="button" onClick={() => deleteCoupon(coupon)}
-                        className="rounded bg-red-100 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-200">
-                        Eliminar
-                      </button>
-                    </div>
-                  </td>
+      {/* ====== TAB: MEMBRESÍA ====== */}
+      {tab === "membresia" && (
+        <>
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm text-[color:var(--muted)]">
+              Cupones que aplican descuento en el pago de la membresía Vende+ ({formatMoney(MEMBERSHIP_PRICE, "MXN")}/mes)
+            </p>
+            <button
+              type="button"
+              onClick={() => { resetMemberForm(); setShowMemberForm(!showMemberForm); }}
+              className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-medium text-white hover:bg-amber-600"
+            >
+              {showMemberForm ? "Cancelar" : "+ Nuevo cupón"}
+            </button>
+          </div>
+
+          {showMemberForm && (
+            <form onSubmit={handleMemberSubmit} className="mb-6 rounded-xl border border-amber-200 bg-amber-50/50 p-5 space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Código *</label>
+                  <input name="code" value={memberForm.code} onChange={handleMemberChange} placeholder="MIEMBRESIA20" required className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm uppercase" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Tipo *</label>
+                  <select name="discountType" value={memberForm.discountType} onChange={handleMemberChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm">
+                    <option value="PERCENTAGE">% Porcentaje</option>
+                    <option value="FIXED">$ Monto fijo</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">
+                    {memberForm.discountType === "PERCENTAGE" ? "Porcentaje (1-100) *" : "Monto a descontar ($) *"}
+                  </label>
+                  <input name="discountValue" type="number" min="1" max={memberForm.discountType === "PERCENTAGE" ? 100 : undefined}
+                    value={memberForm.discountValue || ""} onChange={handleMemberChange} required
+                    className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                  {memberForm.discountValue > 0 && (
+                    <p className="mt-1 text-xs text-[color:var(--muted)]">
+                      Precio final: <span className="font-semibold text-amber-600">
+                        {formatMoney(memberDiscountedPrice({ discountType: memberForm.discountType, discountValue: Number(memberForm.discountValue) }), "MXN")}/mes
+                      </span>
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Usos máximos</label>
+                  <input name="maxUses" type="number" min="1" value={memberForm.maxUses} onChange={handleMemberChange} placeholder="Sin límite" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Descripción (interna)</label>
+                  <input name="description" value={memberForm.description} onChange={handleMemberChange} placeholder="Ej: Descuento para nuevos vendors" maxLength={200} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Válido desde</label>
+                  <input name="startsAt" type="datetime-local" value={memberForm.startsAt} onChange={handleMemberChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Válido hasta</label>
+                  <input name="expiresAt" type="datetime-local" value={memberForm.expiresAt} onChange={handleMemberChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <button type="submit" className="rounded-lg bg-amber-500 px-6 py-2 text-sm font-medium text-white hover:bg-amber-600">
+                  {editingMemberId ? "Actualizar cupón" : "Crear cupón"}
+                </button>
+                {editingMemberId && (
+                  <button type="button" onClick={resetMemberForm} className="text-sm text-[color:var(--muted)] hover:underline">
+                    Cancelar edición
+                  </button>
+                )}
+              </div>
+            </form>
+          )}
+
+          <div className="overflow-x-auto rounded-xl border border-[var(--border)]">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-[var(--border)] bg-gray-50">
+                  <th className="px-4 py-3 text-left font-medium">Código</th>
+                  <th className="px-4 py-3 text-left font-medium">Descripción</th>
+                  <th className="px-4 py-3 text-left font-medium">Descuento</th>
+                  <th className="px-4 py-3 text-left font-medium">Precio final</th>
+                  <th className="px-4 py-3 text-left font-medium">Usos</th>
+                  <th className="px-4 py-3 text-left font-medium">Vigencia</th>
+                  <th className="px-4 py-3 text-left font-medium">Estado</th>
+                  <th className="px-4 py-3 text-left font-medium">Acciones</th>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+              </thead>
+              <tbody>
+                {memberCoupons.length === 0 && (
+                  <tr><td colSpan={8} className="px-4 py-8 text-center text-[color:var(--muted)]">Sin cupones de membresía aún</td></tr>
+                )}
+                {memberCoupons.map((c, idx) => {
+                  const now = new Date();
+                  const expired = c.expiresAt && new Date(c.expiresAt) < now;
+                  const notStarted = c.startsAt && new Date(c.startsAt) > now;
+                  const finalPrice = memberDiscountedPrice(c);
+                  return (
+                    <tr key={c.id} style={{ animationDelay: `${idx * 40}ms` }} className="border-b border-[var(--border)] hover:bg-gray-50 fade-in">
+                      <td className="px-4 py-3 font-mono font-bold">{c.code}</td>
+                      <td className="px-4 py-3 text-xs text-[color:var(--muted)]">{c.description || "—"}</td>
+                      <td className="px-4 py-3 font-semibold">{c.discountType === "PERCENTAGE" ? `${c.discountValue}%` : formatMoney(c.discountValue, "MXN")}</td>
+                      <td className="px-4 py-3">
+                        {finalPrice < MEMBERSHIP_PRICE ? (
+                          <span>
+                            <span className="text-green-600 font-semibold">{formatMoney(finalPrice, "MXN")}</span>
+                            <span className="ml-1 text-xs text-[color:var(--muted)] line-through">{formatMoney(MEMBERSHIP_PRICE, "MXN")}</span>
+                          </span>
+                        ) : (
+                          <span className="text-[color:var(--muted)]">{formatMoney(MEMBERSHIP_PRICE, "MXN")}</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">{c.usedCount}{c.maxUses ? ` / ${c.maxUses}` : ""}</td>
+                      <td className="px-4 py-3 text-xs">
+                        {c.startsAt && <div>Desde: {new Date(c.startsAt).toLocaleDateString()}</div>}
+                        {c.expiresAt && <div>Hasta: {new Date(c.expiresAt).toLocaleDateString()}</div>}
+                        {!c.startsAt && !c.expiresAt && <span className="text-[color:var(--muted)]">Sin fecha</span>}
+                      </td>
+                      <td className="px-4 py-3">
+                        {expired ? <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-700">Expirado</span> :
+                         notStarted ? <span className="rounded-full bg-yellow-100 px-2 py-0.5 text-xs text-yellow-700">Próximo</span> :
+                         c.isActive ? <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">Activo</span> :
+                         <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">Inactivo</span>}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <button type="button" onClick={() => openEditMember(c)}
+                            className="rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-200">
+                            Editar
+                          </button>
+                          <button type="button" onClick={() => toggleMemberActive(c)}
+                            className={`rounded px-2 py-1 text-xs font-medium ${c.isActive ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-200" : "bg-green-100 text-green-700 hover:bg-green-200"}`}>
+                            {c.isActive ? "Desactivar" : "Activar"}
+                          </button>
+                          <button type="button" onClick={() => deleteMemberCoupon(c)}
+                            className="rounded bg-red-100 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-200">
+                            Eliminar
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
     </main>
   );
 }
