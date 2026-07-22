@@ -48,10 +48,13 @@ export async function POST(req: Request) {
 
   const store = await prisma.store.findFirst({
     where: { ownerId: auth.userId },
-    select: { id: true, name: true },
+    select: { id: true, name: true, plan: true },
   });
   if (!store) {
     return NextResponse.json({ ok: false, error: "No tienes tienda" }, { status: 400 });
+  }
+  if (store.plan === "FREE") {
+    return NextResponse.json({ ok: false, error: "Las promociones requieren membresía Vende+." }, { status: 403 });
   }
 
   const json = await req.json().catch(() => null);

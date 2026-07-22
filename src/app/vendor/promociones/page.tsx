@@ -54,16 +54,21 @@ export default function VendorPromocionesPage() {
   const [isPercentage, setIsPercentage] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [storePlan, setStorePlan] = useState<string>("MEMBER");
+  const [showUpsell, setShowUpsell] = useState(false);
 
   async function fetchData() {
-    const [promoRes, prodRes] = await Promise.all([
+    const [promoRes, prodRes, storeRes] = await Promise.all([
       fetch("/api/vendor/promotions"),
       fetch("/api/vendor/products"),
+      fetch("/api/vendor/store"),
     ]);
     const promoData = await promoRes.json();
     const prodData = await prodRes.json();
+    const storeData = await storeRes.json();
     if (promoData.ok) setPromotions(promoData.promotions);
     if (prodData.ok) setProducts(prodData.products?.filter((p: Product & { isActive: boolean }) => p.isActive !== false) || prodData.products || []);
+    if (storeData.ok && storeData.store) setStorePlan(storeData.store.plan || "MEMBER");
     setLoading(false);
   }
 
@@ -233,7 +238,10 @@ export default function VendorPromocionesPage() {
         </div>
         <button
           type="button"
-          onClick={() => { resetForm(); setShowForm(true); }}
+          onClick={() => {
+            if (storePlan === "FREE") { setShowUpsell(true); return; }
+            resetForm(); setShowForm(true);
+          }}
           className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)]"
         >
           + Nueva promoción
@@ -519,6 +527,32 @@ export default function VendorPromocionesPage() {
           ))
         )}
       </div>
+
+      {showUpsell && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowUpsell(false)}>
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="text-center">
+              <div className="text-3xl mb-3">⭐</div>
+              <h3 className="text-lg font-bold">Promociones son exclusivas de Vende+</h3>
+              <p className="mt-2 text-sm text-[color:var(--muted)]">
+                Crea promociones multi-producto, cupones de descuento y notifica a tus clientes por push.
+              </p>
+              <a
+                href="/vendor/membresia"
+                className="mt-5 inline-block w-full rounded-xl bg-amber-500 px-6 py-3 text-sm font-bold text-white hover:bg-amber-600 transition-colors"
+              >
+                Activar Vende+ $830/mes
+              </a>
+              <button
+                onClick={() => setShowUpsell(false)}
+                className="mt-2 w-full text-sm text-[color:var(--muted)] hover:underline"
+              >
+                Ahora no
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

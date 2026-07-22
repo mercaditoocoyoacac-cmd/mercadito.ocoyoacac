@@ -40,6 +40,7 @@ export async function GET() {
       closeTime: true,
       scheduleDays: true,
       scheduleDetails: true,
+      plan: true,
       createdAt: true,
       subscription: {
         select: {
@@ -105,22 +106,9 @@ export async function POST(req: Request) {
         imageUrl: parsed.data.imageUrl ?? null,
         ownerId: auth.userId,
         isPublished: true,
+        plan: "FREE",
       },
       select: { id: true, name: true, slug: true },
-    });
-
-    const trialEnd = new Date();
-    trialEnd.setDate(trialEnd.getDate() + 30);
-
-    await prisma.subscription.create({
-      data: {
-        storeId: store.id,
-        status: "TRIAL",
-        startDate: new Date(),
-        endDate: trialEnd,
-        monthlyPriceCents: 49600,
-        contractSigned: false,
-      },
     });
 
     await prisma.user.update({

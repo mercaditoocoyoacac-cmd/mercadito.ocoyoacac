@@ -67,10 +67,10 @@ export async function POST(req: Request) {
             });
           }
 
-          // Re-publish store if unpublished
+          // Re-publish store and upgrade plan
           await prisma.store.update({
             where: { id: storeId },
-            data: { isPublished: true },
+            data: { isPublished: true, plan: "MEMBER" },
           });
 
           const store = await prisma.store.findUnique({

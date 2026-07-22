@@ -102,7 +102,7 @@ export async function POST(req: Request) {
       isActive: true,
       isUnavailable: true,
       storeId: true,
-      store: { select: { isActive: true, openTime: true, closeTime: true, scheduleDays: true, category: true } },
+      store: { select: { isActive: true, openTime: true, closeTime: true, scheduleDays: true, category: true, plan: true } },
     },
   });
   if (!product || !product.isActive || !product.store.isActive || product.isUnavailable) {

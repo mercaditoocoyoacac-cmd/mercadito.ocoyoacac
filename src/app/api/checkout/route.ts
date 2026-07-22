@@ -93,7 +93,7 @@ export async function POST(req: Request) {
           promotionPriceCents: true,
           promotionEndDate: true,
           stock: true,
-          store: { select: { isActive: true, openTime: true, closeTime: true, scheduleDays: true, category: true, latitude: true, longitude: true } },
+          store: { select: { isActive: true, openTime: true, closeTime: true, scheduleDays: true, category: true, latitude: true, longitude: true, plan: true } },
         },
       },
     },
@@ -125,6 +125,12 @@ export async function POST(req: Request) {
   }
 
   const store = items[0]!.product.store;
+  if (parsed.data.fulfillmentType === "DELIVERY" && store.plan === "FREE") {
+    return NextResponse.json(
+      { ok: false, error: "Los envíos a domicilio requieren membresía Vende+. Elige recoger en tienda." },
+      { status: 400 },
+    );
+  }
   if (!isStoreOpen(store)) {
     return NextResponse.json(
       { ok: false, error: "La tienda está cerrada en este momento." },

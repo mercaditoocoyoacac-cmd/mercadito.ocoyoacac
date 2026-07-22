@@ -28,7 +28,7 @@ type CartItem = {
     isPromotion: boolean;
     promotionPriceCents: number | null;
     promotionEndDate: string | null;
-    store: { id: string; name: string; slug: string; acceptsMercadoPago: boolean; hasOnlinePayment: boolean; latitude: number | null; longitude: number | null };
+    store: { id: string; name: string; slug: string; acceptsMercadoPago: boolean; hasOnlinePayment: boolean; latitude: number | null; longitude: number | null; plan: string };
   };
 };
 
@@ -687,9 +687,12 @@ export default function CarritoPage() {
                   <button
                     type="button"
                     onClick={() => setFulfillmentType("DELIVERY")}
+                    disabled={store?.plan === "FREE"}
                     className={`flex items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium transition-all ${
                       fulfillmentType === "DELIVERY"
                         ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]"
+                        : store?.plan === "FREE"
+                        ? "border-[var(--border)] opacity-50 cursor-not-allowed"
                         : "border-[var(--border)] hover:border-gray-300"
                     }`}
                   >
@@ -697,6 +700,9 @@ export default function CarritoPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2-1m6 0l2 1m-2-1v-4a1 1 0 011-1h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 01.293.707V16l-2 1m-6-3h4m-8 3h8" />
                     </svg>
                     Envío
+                    {store?.plan === "FREE" && (
+                      <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-bold">Vende+</span>
+                    )}
                   </button>
                 </div>
               </div>

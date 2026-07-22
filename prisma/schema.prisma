@@ -18,6 +18,11 @@ enum Role {
   ADMIN
 }
 
+enum StorePlan {
+  FREE
+  MEMBER
+}
+
 enum DayOfWeek {
   MONDAY
   TUESDAY
@@ -93,6 +98,7 @@ model Store {
   isActive   Boolean  @default(true)
   isPublished Boolean @default(false)
   isApproved Boolean @default(false)
+  plan       StorePlan @default(FREE)
   acceptsMercadoPago Boolean @default(false)
   mercadoPagoStatus String @default("PENDING")
   mercadoPagoAccessToken String?

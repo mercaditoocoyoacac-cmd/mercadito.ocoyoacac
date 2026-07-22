@@ -28,6 +28,7 @@ export default async function StorefrontPage({
       closeTime: true,
       scheduleDays: true,
       scheduleDetails: true,
+      plan: true,
     },
   });
   if (!store || !store.isActive) return notFound();
@@ -60,7 +61,7 @@ export default async function StorefrontPage({
     },
   });
 
-  const storePromotions = await prisma.promotion.findMany({
+  const storePromotions = store.plan === "MEMBER" ? await prisma.promotion.findMany({
     where: {
       storeId: store.id,
       isActive: true,
@@ -91,7 +92,7 @@ export default async function StorefrontPage({
       },
     },
     orderBy: { createdAt: "desc" },
-  });
+  }) : [];
 
   return (
     <StorefrontClient

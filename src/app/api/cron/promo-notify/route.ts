@@ -15,7 +15,7 @@ export async function GET(req: Request) {
 
   try {
     const stores = await prisma.store.findMany({
-      where: { isActive: true, isPublished: true },
+      where: { isActive: true, isPublished: true, plan: "MEMBER" },
       select: {
         id: true,
         name: true,

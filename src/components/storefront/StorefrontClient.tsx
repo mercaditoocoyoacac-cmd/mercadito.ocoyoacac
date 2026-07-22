@@ -44,6 +44,7 @@ interface StoreData {
   openTime: string | null;
   closeTime: string | null;
   scheduleDays: string[] | null;
+  plan: string;
 }
 
 interface StorePromoProduct {

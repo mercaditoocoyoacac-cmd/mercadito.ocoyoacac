@@ -310,6 +310,25 @@ export default async function VendorDashboard() {
         </div>
       )}
 
+      {store.plan === "FREE" && (
+        <div className="mx-4 mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <svg className="h-5 w-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <div>
+                <div className="font-medium text-amber-800">Desbloquea envíos y promociones</div>
+                <div className="text-sm text-amber-700">Mejora a Vende+ para enviar a domicilio y crear ofertas especiales.</div>
+              </div>
+            </div>
+            <a href="/vendor/membresia" className="shrink-0 rounded-lg bg-amber-600 px-4 py-2 text-sm font-bold text-white hover:bg-amber-700 transition-colors whitespace-nowrap">
+              Vende+ $830/mes
+            </a>
+          </div>
+        </div>
+      )}
+
       <section className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-700 px-4 py-12 text-white">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-white blur-3xl"></div>
