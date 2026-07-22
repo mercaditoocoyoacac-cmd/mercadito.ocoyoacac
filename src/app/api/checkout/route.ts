@@ -89,6 +89,9 @@ export async function POST(req: Request) {
           storeId: true,
           isActive: true,
           isUnavailable: true,
+          isPromotion: true,
+          promotionPriceCents: true,
+          promotionEndDate: true,
           stock: true,
           store: { select: { isActive: true, openTime: true, closeTime: true, scheduleDays: true, category: true, latitude: true, longitude: true } },
         },
@@ -157,9 +160,39 @@ export async function POST(req: Request) {
   }
 
   const currency = items[0]!.product.currency;
+
+  const activePromotions = await prisma.promotion.findMany({
+    where: {
+      storeId,
+      isActive: true,
+      OR: [{ startDate: null }, { startDate: { lte: new Date() } }],
+      AND: [{ OR: [{ endDate: null }, { endDate: { gte: new Date() } }] }],
+    },
+    include: {
+      products: { select: { productId: true, promoPriceCents: true, quantity: true } },
+    },
+  });
+
+  const promoMap = new Map<string, { promoPriceCents: number; quantity: number; requiresCoupon: boolean }>();
+  for (const promo of activePromotions) {
+    for (const pp of promo.products) {
+      if (pp.promoPriceCents != null) {
+        promoMap.set(pp.productId, { promoPriceCents: pp.promoPriceCents, quantity: pp.quantity, requiresCoupon: promo.requiresCoupon });
+      }
+    }
+  }
+
   const subtotalCents = items.reduce(
     (sum: number, cartItem: typeof items[number]) => {
-      const price = cartItem.variant?.priceCents ?? cartItem.product.priceCents;
+      let price = cartItem.variant?.priceCents ?? cartItem.product.priceCents;
+      const promo = promoMap.get(cartItem.product.id);
+      if (promo && promo.promoPriceCents && (!promo.requiresCoupon || parsed.data.couponCode)) {
+        price = promo.promoPriceCents;
+      } else if (cartItem.product.isPromotion && cartItem.product.promotionPriceCents != null) {
+        if (!cartItem.product.promotionEndDate || new Date(cartItem.product.promotionEndDate) >= new Date()) {
+          price = cartItem.product.promotionPriceCents;
+        }
+      }
       if (cartItem.product.sellByWeight && cartItem.weightGrams) {
         return sum + Math.round((cartItem.weightGrams / 1000) * price) * cartItem.quantity;
       }
@@ -264,15 +297,26 @@ export async function POST(req: Request) {
       deliveryCode,
       pickupCode,
       items: {
-        create: items.map((cartItem: typeof items[number]) => ({
-          productId: cartItem.product.id,
-          name: cartItem.product.name,
-          priceCents: cartItem.variant?.priceCents ?? cartItem.product.priceCents,
-          quantity: cartItem.quantity,
-          weightGrams: cartItem.weightGrams || null,
-          variantName: cartItem.variant?.name || null,
-          variantId: cartItem.variantId,
-        })),
+        create: items.map((cartItem: typeof items[number]) => {
+          let effectivePrice = cartItem.variant?.priceCents ?? cartItem.product.priceCents;
+          const promo = promoMap.get(cartItem.product.id);
+          if (promo && promo.promoPriceCents && (!promo.requiresCoupon || parsed.data.couponCode)) {
+            effectivePrice = promo.promoPriceCents;
+          } else if (cartItem.product.isPromotion && cartItem.product.promotionPriceCents != null) {
+            if (!cartItem.product.promotionEndDate || new Date(cartItem.product.promotionEndDate) >= new Date()) {
+              effectivePrice = cartItem.product.promotionPriceCents;
+            }
+          }
+          return {
+            productId: cartItem.product.id,
+            name: cartItem.product.name,
+            priceCents: effectivePrice,
+            quantity: cartItem.quantity,
+            weightGrams: cartItem.weightGrams || null,
+            variantName: cartItem.variant?.name || null,
+            variantId: cartItem.variantId,
+          };
+        }),
       },
     },
     select: { id: true },

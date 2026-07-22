@@ -249,16 +249,17 @@ model ProductVariant {
 }
 
 model Promotion {
-  id              String    @id @default(cuid())
-  title           String
-  description     String?
+  id                 String   @id @default(cuid())
+  title              String
+  description        String?
   discountPercentage Int?
-  imageUrl        String?
-  startDate       DateTime?
-  endDate         DateTime?
-  isActive        Boolean   @default(true)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  imageUrl           String?
+  isActive           Boolean  @default(true)
+  requiresCoupon     Boolean  @default(false)
+  startDate          DateTime?
+  endDate            DateTime?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   storeId String
   store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { toast } from "sonner";
 import { useConfirm } from "@/components/ui/ConfirmDialog";
 import { PullToRefresh } from "@/components/ui/PullToRefresh";
@@ -25,8 +25,22 @@ type CartItem = {
     currency: string;
     sellByWeight: boolean;
     isUnavailable: boolean;
+    isPromotion: boolean;
+    promotionPriceCents: number | null;
+    promotionEndDate: string | null;
     store: { id: string; name: string; slug: string; acceptsMercadoPago: boolean; hasOnlinePayment: boolean; latitude: number | null; longitude: number | null };
   };
+};
+
+type StorePromotion = {
+  id: string;
+  title: string;
+  requiresCoupon: boolean;
+  products: {
+    promoPriceCents: number | null;
+    quantity: number;
+    product: { id: string };
+  }[];
 };
 
 import { motion } from "framer-motion";
@@ -174,6 +188,7 @@ function QtyControl({ value, onMinus, onPlus, disabled }: { value: number; onMin
 export default function CarritoPage() {
   const router = useRouter();
   const [items, setItems] = useState<CartItem[] | null>(null);
+  const [storePromotions, setStorePromotions] = useState<StorePromotion[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [step] = useState(1);
@@ -182,17 +197,6 @@ export default function CarritoPage() {
   const store = items?.[0]?.product.store;
   const hasOnlinePayment = store?.hasOnlinePayment ?? store?.acceptsMercadoPago ?? false;
   const currency = items?.[0]?.product.currency ?? "MXN";
-  const subtotal = useMemo(
-    () =>
-      (items ?? []).reduce((sum, item) => {
-        const price = item.variant?.priceCents ?? item.product.priceCents;
-        if (item.product.sellByWeight && item.weightGrams) {
-          return sum + Math.round((item.weightGrams / 1000) * price) * item.quantity;
-        }
-        return sum + item.quantity * price;
-      }, 0),
-    [items],
-  );
 
   const [fulfillmentType, setFulfillmentType] = useState<"PICKUP" | "DELIVERY">("PICKUP");
   const [paymentMethod, setPaymentMethod] = useState<"CASH" | "ONLINE">("CASH");
@@ -209,6 +213,34 @@ export default function CarritoPage() {
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState("");
   const [couponStatus, setCouponStatus] = useState<"" | "active" | "inactive">("");
+
+  const getEffectivePrice = useCallback((item: CartItem): number => {
+    const basePrice = item.variant?.priceCents ?? item.product.priceCents;
+    for (const promo of storePromotions) {
+      const pp = promo.products.find((p) => p.product.id === item.product.id);
+      if (!pp) continue;
+      if (promo.requiresCoupon && !appliedCoupon) continue;
+      if (pp.promoPriceCents != null) return pp.promoPriceCents;
+    }
+    if (item.product.isPromotion && item.product.promotionPriceCents != null) {
+      if (!item.product.promotionEndDate || new Date(item.product.promotionEndDate) >= new Date()) {
+        return item.product.promotionPriceCents;
+      }
+    }
+    return basePrice;
+  }, [storePromotions, appliedCoupon]);
+
+  const subtotal = useMemo(
+    () =>
+      (items ?? []).reduce((sum, item) => {
+        const price = getEffectivePrice(item);
+        if (item.product.sellByWeight && item.weightGrams) {
+          return sum + Math.round((item.weightGrams / 1000) * price) * item.quantity;
+        }
+        return sum + item.quantity * price;
+      }, 0),
+    [items, getEffectivePrice],
+  );
 
   const deliveryFee = useMemo(() => {
     if (fulfillmentType !== "DELIVERY") return 0;
@@ -247,6 +279,13 @@ export default function CarritoPage() {
 
     setItems(cartData.items);
 
+    const storeId = cartData.items?.[0]?.product?.store?.id;
+    if (storeId) {
+      const promoRes = await fetch(`/api/promotions/store?storeId=${storeId}`);
+      const promoData = await promoRes.json().catch(() => null);
+      if (promoData?.ok) setStorePromotions(promoData.promotions || []);
+    }
+
     if (profileRes?.ok) {
       const profileData = await profileRes.json();
       if (profileData.ok && profileData.user) {
@@ -273,6 +312,12 @@ export default function CarritoPage() {
       const cartData = await cartRes.json().catch(() => null);
       if (!cartRes.ok || !cartData?.ok) { setError("No se pudo cargar tu carrito."); setLoading(false); return; }
       setItems(cartData.items);
+      const storeId = cartData.items?.[0]?.product?.store?.id;
+      if (storeId) {
+        const promoRes = await fetch(`/api/promotions/store?storeId=${storeId}`);
+        const promoData = await promoRes.json().catch(() => null);
+        if (promoData?.ok) setStorePromotions(promoData.promotions || []);
+      }
       if (profileRes?.ok) {
         const profileData = await profileRes.json();
         if (profileData.ok && profileData.user) {
@@ -454,7 +499,9 @@ export default function CarritoPage() {
           <div className="lg:col-span-3">
             <AnimatedList className="space-y-4">
             {(items ?? []).map((item) => {
-              const effectivePrice = item.variant?.priceCents ?? item.product.priceCents;
+              const basePrice = item.variant?.priceCents ?? item.product.priceCents;
+              const effectivePrice = getEffectivePrice(item);
+              const hasPromo = effectivePrice < basePrice;
               const lineTotal = item.product.sellByWeight && item.weightGrams
                 ? Math.round((item.weightGrams / 1000) * effectivePrice) * item.quantity
                 : item.quantity * effectivePrice;
@@ -480,7 +527,10 @@ export default function CarritoPage() {
                             {item.weightGrams && <span>{item.weightGrams}g</span>}
                             {item.product.sellByWeight
                               ? <span>{formatMoney(effectivePrice, item.product.currency)} / kg</span>
-                              : <span>{formatMoney(effectivePrice, item.product.currency)}</span>
+                              : <span className="flex items-center gap-1.5">
+                                  <span className={hasPromo ? "font-bold text-[var(--accent)]" : ""}>{formatMoney(effectivePrice, item.product.currency)}</span>
+                                  {hasPromo && <span className="text-[color:var(--muted)] line-through text-[10px]">{formatMoney(basePrice, item.product.currency)}</span>}
+                                </span>
                             }
                           </div>
                         </div>

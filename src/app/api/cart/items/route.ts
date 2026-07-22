@@ -41,6 +41,9 @@ export async function GET() {
           currency: true,
           sellByWeight: true,
           isUnavailable: true,
+          isPromotion: true,
+          promotionPriceCents: true,
+          promotionEndDate: true,
            store: {
             select: {
               id: true,

@@ -29,6 +29,7 @@ interface Promotion {
   startDate: string | null;
   endDate: string | null;
   isActive: boolean;
+  requiresCoupon: boolean;
   products: PromotionProduct[];
 }
 
@@ -49,6 +50,7 @@ export default function VendorPromocionesPage() {
   const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
   const [promoPrices, setPromoPrices] = useState<Record<string, string>>({});
   const [quantities, setQuantities] = useState<Record<string, string>>({});
+  const [requiresCoupon, setRequiresCoupon] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -76,6 +78,7 @@ export default function VendorPromocionesPage() {
     setSelectedProducts(new Set());
     setPromoPrices({});
     setQuantities({});
+    setRequiresCoupon(false);
     setEditingId(null);
     setShowForm(false);
     setError(null);
@@ -100,6 +103,7 @@ export default function VendorPromocionesPage() {
     });
     setPromoPrices(prices);
     setQuantities(qtys);
+    setRequiresCoupon(promo.requiresCoupon ?? false);
     setShowForm(true);
     setError(null);
   }
@@ -151,6 +155,7 @@ export default function VendorPromocionesPage() {
       imageUrl: imageUrl || undefined,
       startDate: startDate || undefined,
       endDate: endDate || undefined,
+      requiresCoupon,
       productIds: Array.from(selectedProducts),
       promoPrices: prices,
       quantities: qtys,
@@ -292,6 +297,21 @@ export default function VendorPromocionesPage() {
             </label>
           </div>
 
+          <label className="flex items-center gap-3 cursor-pointer rounded-lg border border-[var(--border)] p-3 hover:bg-gray-50 transition-colors">
+            <input
+              type="checkbox"
+              checked={requiresCoupon}
+              onChange={(e) => setRequiresCoupon(e.target.checked)}
+              className="h-4 w-4 rounded border-[var(--border)] text-[var(--accent)] focus:ring-[var(--accent)]"
+            />
+            <div>
+              <div className="text-sm font-medium">Requiere cupón para activarse</div>
+              <div className="text-xs text-[color:var(--muted)]">
+                Si está marcado, esta promoción solo se aplica cuando el cliente ingresa un código de cupón. Si no está marcado, se aplica automáticamente.
+              </div>
+            </div>
+          </label>
+
           <div>
             <div className="flex items-center justify-between mb-2">
               <div className="text-sm font-medium">Productos incluidos * ({selectedProducts.size} seleccionados)</div>
@@ -389,10 +409,13 @@ export default function VendorPromocionesPage() {
             <div key={promo.id} className={`rounded-xl border border-[var(--border)] p-4 transition-opacity ${!promo.isActive ? "opacity-50" : ""}`}>
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="font-semibold">{promo.title}</h3>
                     {!promo.isActive && (
                       <span className="rounded-full bg-gray-200 px-2 py-0.5 text-[10px] font-medium text-gray-600">Inactiva</span>
+                    )}
+                    {promo.requiresCoupon && (
+                      <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700">Requiere cupón</span>
                     )}
                     {promo.discountPercentage && (
                       <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-600">

@@ -11,6 +11,7 @@ const UpdatePromotionSchema = z.object({
   startDate: z.string().optional().nullable(),
   endDate: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
+  requiresCoupon: z.boolean().optional(),
   productIds: z.array(z.string()).min(1).optional(),
   promoPrices: z.record(z.string(), z.number().int().min(0).optional()).optional(),
   quantities: z.record(z.string(), z.number().int().min(1).optional()).optional(),
@@ -49,6 +50,7 @@ export async function PUT(
   if (data.startDate !== undefined) updateData.startDate = data.startDate ? new Date(data.startDate) : null;
   if (data.endDate !== undefined) updateData.endDate = data.endDate ? new Date(data.endDate) : null;
   if (data.isActive !== undefined) updateData.isActive = data.isActive;
+  if (data.requiresCoupon !== undefined) updateData.requiresCoupon = data.requiresCoupon;
 
   if (data.productIds) {
     await prisma.promotionProduct.deleteMany({ where: { promotionId: id } });

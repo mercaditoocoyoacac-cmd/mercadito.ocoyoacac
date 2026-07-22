@@ -40,6 +40,7 @@ interface MultiPromo {
   description: string | null;
   discountPercentage: number | null;
   imageUrl: string | null;
+  requiresCoupon: boolean;
   endDate: string | null;
   store: { id: string; name: string; slug: string; imageUrl: string | null };
   products: MultiPromoProductLink[];
@@ -113,6 +114,11 @@ export default function PromocionesPage() {
                         {promo.discountPercentage && (
                           <span className="rounded-md bg-red-500 px-2 py-0.5 text-xs font-bold text-white">
                             -{promo.discountPercentage}%
+                          </span>
+                        )}
+                        {promo.requiresCoupon && (
+                          <span className="rounded-md bg-amber-500 px-2 py-0.5 text-xs font-bold text-white">
+                            Requiere cupón
                           </span>
                         )}
                       </div>
