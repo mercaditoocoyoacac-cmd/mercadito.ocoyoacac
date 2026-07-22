@@ -31,6 +31,10 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **Admin dashboard client** (`AdminDashboardClient.tsx`): Full recharts-powered dashboard with animated counters, revenue area chart, top vendors bar chart, subscription pie chart, store categories bar chart, orders by status bar chart, orders-by-day line chart, recent orders list, and quick-access links to management pages.
 - **Vende/Vende+ membership system**: `StorePlan { FREE MEMBER }` enum. FREE = store creation + in-store pickup only. Vende+ ($830/mes) = delivery + multi-product promotions + coupons + push notifications + online payments. Cart disables delivery for FREE stores. Vendor dashboard shows upsell banner. Promotions page shows upsell modal for FREE. Checkout API rejects DELIVERY for FREE. Vendor promotions API returns 403 for FREE. Webhook upgrades to MEMBER on payment. Cron skips FREE stores.
 - **Membership pricing page redesigned**: Side-by-side Vende (free) vs Vende+ ($830/mes) with feature comparison lists, active plan badge, discount display.
+- **Contract system removed**: Deleted `/contrato/`, `/api/contract/`, `/admin/contratos/`, all contract fields from Subscription model. Membership is now payment-only (no contract signing required).
+- **Payment receipts**: `PaymentReceipt` model with sequential numbering (`REC-2026-07-0001`). Auto-generated on successful webhook payment. Vendor receipts page at `/vendor/recibos` with expandable details (period, coupon, payment reference).
+- **Membership confirmation emails**: Resend-powered HTML email sent on successful payment. Includes receipt number, period covered, amount paid, coupon savings, and what's included in Vende+.
+- **Membership coupon system**: Admin-editable `MembershipCoupon` model (code, % or fixed discount, max uses, dates). Admin page at `/admin/membresia-cupones`. Vendor coupon input on `/vendor/membresia` with validation API at `/api/vendor/membership-coupon`. Coupon encoded in MercadoPago external_reference for webhook tracking.
 
 ### In Progress
 - (none)
