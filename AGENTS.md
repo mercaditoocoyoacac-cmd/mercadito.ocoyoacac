@@ -29,6 +29,8 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **Recharts installed**: Added `recharts` dependency for charts/graphs.
 - **Admin stats API** (`/api/admin/stats`): Fetches totals (users, stores, products, orders), revenue data (daily over 30 days, top vendors), order status distribution, subscription stats (by status, monthly recurring revenue), category breakdown, and recent orders.
 - **Admin dashboard client** (`AdminDashboardClient.tsx`): Full recharts-powered dashboard with animated counters, revenue area chart, top vendors bar chart, subscription pie chart, store categories bar chart, orders by status bar chart, orders-by-day line chart, recent orders list, and quick-access links to management pages.
+- **Vende/Vende+ membership system**: `StorePlan { FREE MEMBER }` enum. FREE = store creation + in-store pickup only. Vende+ ($830/mes) = delivery + multi-product promotions + coupons + push notifications + online payments. Cart disables delivery for FREE stores. Vendor dashboard shows upsell banner. Promotions page shows upsell modal for FREE. Checkout API rejects DELIVERY for FREE. Vendor promotions API returns 403 for FREE. Webhook upgrades to MEMBER on payment. Cron skips FREE stores.
+- **Membership pricing page redesigned**: Side-by-side Vende (free) vs Vende+ ($830/mes) with feature comparison lists, active plan badge, discount display.
 
 ### In Progress
 - (none)
@@ -80,3 +82,10 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - `package.json`: added `recharts` dependency
 - `src/app/api/admin/stats/route.ts`: admin stats API endpoint
 - `src/components/admin/AdminDashboardClient.tsx`: recharts-powered admin dashboard
+- `prisma/schema.prisma`: StorePlan enum, Store.plan, Subscription, Promotion models
+- `src/app/vendor/membresia/page.tsx`: redesigned pricing page (Vende vs Vende+)
+- `src/app/carrito/page.tsx`: delivery button disabled for FREE stores
+- `src/app/vendor/promociones/page.tsx`: upsell modal for FREE stores
+- `src/app/vendor/page.tsx`: upsell banner for FREE stores
+- `src/app/api/vendor/store/route.ts`: returns store.plan
+- `src/app/api/cart/items/route.ts`: returns store.plan
