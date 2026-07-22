@@ -402,22 +402,16 @@ function FeaturedPromoCard({ promotion, store, index }: { promotion: StorePromot
               </svg>
             </div>
           )}
-          <div className="absolute top-2 left-2 z-10 flex gap-1">
-            {promotion.discountPercentage && (
+          <div className="absolute top-2 left-2 z-10">
+            {promotion.discountPercentage ? (
               <span className="inline-block rounded-full bg-red-500 px-2.5 py-0.5 text-[10px] font-bold text-white shadow">
                 -{promotion.discountPercentage}%
               </span>
-            )}
-            {hasQuantity && (
-              <span className="inline-block rounded-full bg-[var(--accent)] px-2.5 py-0.5 text-[10px] font-bold text-white shadow">
-                {promotion.products.find((pp) => pp.quantity > 1)?.quantity}x1
+            ) : hasQuantity ? (
+              <span className="inline-block rounded-full bg-green-600 px-2.5 py-0.5 text-[10px] font-bold text-white shadow">
+                {promotion.products.reduce((s, pp) => s + pp.quantity, 0)} productos
               </span>
-            )}
-            {promotion.requiresCoupon && (
-              <span className="inline-block rounded-full bg-amber-500 px-2.5 py-0.5 text-[10px] font-bold text-white shadow">
-                Cupón
-              </span>
-            )}
+            ) : null}
           </div>
         </div>
 
