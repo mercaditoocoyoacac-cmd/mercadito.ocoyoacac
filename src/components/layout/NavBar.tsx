@@ -221,8 +221,8 @@ export function NavBar() {
                 </button>
                 
                 {vendorMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-56 rounded-xl border border-[var(--border)] bg-white py-2 shadow-lg z-[55]">
-                      <div className="px-4 py-2 border-b border-[var(--border)]">
+                  <div className="absolute right-0 mt-2 w-56 rounded-xl border border-[var(--border)] bg-white py-2 shadow-lg z-[55] max-h-[75vh] overflow-y-auto">
+                      <div className="px-4 py-2 border-b border-[var(--border)] sticky top-0 bg-white">
                         <div className="text-xs font-semibold text-[color:var(--muted)] uppercase tracking-wide">Administración</div>
                       </div>
                       <button
