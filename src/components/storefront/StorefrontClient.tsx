@@ -269,7 +269,7 @@ export function StorefrontClient({
                       onAddedToCart={fetchCartCount}
                     />
                   ) : (
-                    <FeaturedPromoCard promotion={item.promotion} store={store} />
+                    <FeaturedPromoCard promotion={item.promotion} store={store} index={i} />
                   )}
                 </div>
               ))}
@@ -358,24 +358,25 @@ export function StorefrontClient({
   );
 }
 
-function FeaturedPromoCard({ promotion, store }: { promotion: StorePromotion; store: StoreData }) {
+function FeaturedPromoCard({ promotion, store, index }: { promotion: StorePromotion; store: StoreData; index: number }) {
   const promoImages = promotion.products
     .filter((pp) => pp.product.imageUrl)
     .slice(0, 4);
 
-  const avgPrice = promotion.products.length > 0
-    ? Math.round(
-        promotion.products.reduce((sum, pp) => sum + (pp.promoPriceCents ?? pp.product.priceCents), 0) /
-        promotion.products.length
-      )
-    : 0;
+  const totalPrice = promotion.products.reduce(
+    (sum, pp) => sum + (pp.promoPriceCents ?? pp.product.priceCents) * pp.quantity,
+    0
+  );
 
   const hasQuantity = promotion.products.some((pp) => pp.quantity > 1);
 
   return (
     <Link href={`/tienda/${store.slug}`} className="block">
-      <div className="group h-full rounded-xl border-2 border-[var(--accent)]/30 overflow-hidden bg-gradient-to-br from-[var(--accent-soft)] to-white transition-all duration-200 hover:shadow-lg hover:border-[var(--accent)]/60">
-        <div className="relative h-28 overflow-hidden bg-[var(--accent)]/5 flex items-center justify-center">
+      <div
+        style={{ animationDelay: `${index * 50}ms` }}
+        className="group h-full rounded-xl border border-gray-200 overflow-hidden bg-white transition-all duration-200 hover:shadow-lg fade-in"
+      >
+        <div className="relative h-44 overflow-hidden bg-gray-100 flex items-center justify-center">
           {promoImages.length > 0 ? (
             <div className={`grid gap-1 p-2 w-full h-full ${
               promoImages.length === 1 ? "grid-cols-1" :
@@ -388,7 +389,7 @@ function FeaturedPromoCard({ promotion, store }: { promotion: StorePromotion; st
                     src={pp.product.imageUrl!}
                     alt={pp.product.name}
                     fill
-                    className="object-cover"
+                    className="object-cover transition-transform duration-300 group-hover:scale-110"
                     sizes="80px"
                   />
                 </div>
@@ -396,45 +397,45 @@ function FeaturedPromoCard({ promotion, store }: { promotion: StorePromotion; st
             </div>
           ) : (
             <div className="flex h-full items-center justify-center">
-              <svg className="h-10 w-10 text-[var(--accent)]/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z" />
+              <svg className="h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z" />
               </svg>
             </div>
           )}
           <div className="absolute top-2 left-2 z-10 flex gap-1">
             {promotion.discountPercentage && (
-              <span className="inline-block rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white shadow">
+              <span className="inline-block rounded-full bg-red-500 px-2.5 py-0.5 text-[10px] font-bold text-white shadow">
                 -{promotion.discountPercentage}%
               </span>
             )}
             {hasQuantity && (
-              <span className="inline-block rounded-full bg-[var(--accent)] px-2 py-0.5 text-[10px] font-bold text-white shadow">
+              <span className="inline-block rounded-full bg-[var(--accent)] px-2.5 py-0.5 text-[10px] font-bold text-white shadow">
                 {promotion.products.find((pp) => pp.quantity > 1)?.quantity}x1
               </span>
             )}
             {promotion.requiresCoupon && (
-              <span className="inline-block rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white shadow">
+              <span className="inline-block rounded-full bg-amber-500 px-2.5 py-0.5 text-[10px] font-bold text-white shadow">
                 Cupón
               </span>
             )}
           </div>
         </div>
 
-        <div className="p-3">
-          <h3 className="text-sm font-bold text-[var(--accent)] truncate">{promotion.title}</h3>
+        <div className="p-3.5">
+          <div className="flex items-start justify-between gap-2 mb-1">
+            <h3 className="text-sm font-semibold truncate">{promotion.title}</h3>
+          </div>
           {promotion.description && (
-            <p className="text-[11px] text-[color:var(--muted)] line-clamp-2 mt-0.5 leading-relaxed">
+            <p className="text-xs text-gray-400 line-clamp-2 mb-2.5 leading-relaxed">
               {promotion.description}
             </p>
           )}
-          <div className="mt-2 flex items-center gap-1">
-            {avgPrice > 0 && (
-              <span className="text-base font-bold text-[var(--accent)]">{formatMoney(avgPrice)}</span>
-            )}
-            <span className="text-[10px] text-[color:var(--muted)]">
-              / {promotion.products.length} {promotion.products.length === 1 ? "producto" : "productos"}
-            </span>
+          <div className="text-base font-bold text-[var(--accent)]">
+            {totalPrice > 0 && formatMoney(totalPrice)}
           </div>
+          <p className="text-[11px] text-gray-400 mt-1">
+            {promotion.products.length} {promotion.products.length === 1 ? "producto" : "productos"}
+          </p>
         </div>
       </div>
     </Link>
