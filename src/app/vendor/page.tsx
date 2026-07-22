@@ -287,19 +287,56 @@ export default async function VendorDashboard() {
       )}
 
       {store.plan === "FREE" && (
-        <div className="mx-4 mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <svg className="h-5 w-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-              <div>
-                <div className="font-medium text-amber-800">Desbloquea envíos y promociones</div>
-                <div className="text-sm text-amber-700">Mejora a Vende+ para enviar a domicilio y crear ofertas especiales.</div>
+        <div className="mx-4 mt-4 overflow-hidden rounded-2xl border border-amber-300/50 bg-gradient-to-r from-amber-50 via-yellow-50 to-orange-50 shadow-sm">
+          <div className="flex flex-col sm:flex-row items-center gap-4 p-5">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-amber-400/30">
+              <span className="text-2xl">⭐</span>
+            </div>
+            <div className="flex-1 text-center sm:text-left">
+              <div className="flex items-center justify-center sm:justify-start gap-2">
+                <h3 className="text-base font-bold text-amber-900">Desbloquea Vende+</h3>
+                <span className="inline-flex items-center rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-700">Premium</span>
+              </div>
+              <p className="mt-1 text-sm text-amber-800/80">
+                Envíos a domicilio, promociones, pagos en línea y más.
+              </p>
+              <div className="mt-2 flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1 text-xs text-amber-700/70">
+                <span className="flex items-center gap-1"><span className="text-amber-500">✓</span> Envío a domicilio</span>
+                <span className="flex items-center gap-1"><span className="text-amber-500">✓</span> Promociones</span>
+                <span className="flex items-center gap-1"><span className="text-amber-500">✓</span> Pagos en línea</span>
+                <span className="flex items-center gap-1"><span className="text-amber-500">✓</span> Push</span>
               </div>
             </div>
-            <a href="/vendor/membresia" className="shrink-0 rounded-lg bg-amber-600 px-4 py-2 text-sm font-bold text-white hover:bg-amber-700 transition-colors whitespace-nowrap">
-              Vende+ $830/mes
+            <a href="/vendor/membresia" className="shrink-0 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-amber-500/25 transition-all hover:shadow-xl hover:shadow-amber-500/30 hover:scale-[1.02] active:scale-[0.98]">
+              $830/mes →
+            </a>
+          </div>
+        </div>
+      )}
+
+      {store.plan === "MEMBER" && subscriptionActive && (
+        <div className="mx-4 mt-4 overflow-hidden rounded-2xl border border-amber-300/40 bg-gradient-to-r from-amber-50/80 via-yellow-50/60 to-orange-50/80 shadow-sm">
+          <div className="flex flex-col sm:flex-row items-center gap-4 p-5">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-500 shadow-lg shadow-amber-400/30">
+              <span className="text-2xl">👑</span>
+            </div>
+            <div className="flex-1 text-center sm:text-left">
+              <div className="flex items-center justify-center sm:justify-start gap-2">
+                <h3 className="text-base font-bold text-amber-900">Vende+ Activa</h3>
+                <span className="inline-flex items-center rounded-full bg-green-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-green-700">Activa</span>
+              </div>
+              <p className="mt-1 text-sm text-amber-800/80">
+                Tu membresía premium está activa. Disfruta de todos los beneficios.
+              </p>
+              <div className="mt-2 flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1 text-xs text-amber-700/70">
+                <span className="flex items-center gap-1"><span className="text-green-500">✓</span> Envío a domicilio</span>
+                <span className="flex items-center gap-1"><span className="text-green-500">✓</span> Promociones</span>
+                <span className="flex items-center gap-1"><span className="text-green-500">✓</span> Pagos en línea</span>
+                <span className="flex items-center gap-1"><span className="text-green-500">✓</span> Push</span>
+              </div>
+            </div>
+            <a href="/vendor/membresia" className="shrink-0 rounded-xl border-2 border-amber-400/50 bg-white/80 px-5 py-2.5 text-sm font-semibold text-amber-700 transition-all hover:bg-amber-50 hover:border-amber-400 active:scale-[0.98]">
+              Gestionar
             </a>
           </div>
         </div>
@@ -316,6 +353,11 @@ export default async function VendorDashboard() {
             <div>
               <div className="inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-1.5 text-sm font-medium backdrop-blur-sm">
                 🏪 {store.name}
+                {store.plan === "MEMBER" && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-400/30 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+                    👑 Vende+
+                  </span>
+                )}
               </div>
               <h1 className="mt-4 text-3xl font-bold">Mi Tienda</h1>
               <p className="mt-2 text-white/80">

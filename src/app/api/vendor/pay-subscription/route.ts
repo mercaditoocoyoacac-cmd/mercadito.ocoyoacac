@@ -55,6 +55,14 @@ export async function POST(req: Request) {
     if (coupon.maxUses && coupon.usedCount >= coupon.maxUses) {
       return NextResponse.json({ ok: false, error: "Este cupón ya alcanzó su límite de usos." }, { status: 400 });
     }
+    if (coupon.maxUsesPerStore) {
+      const storeUsage = await prisma.paymentReceipt.count({
+        where: { storeId: store.id, couponCode: coupon.code },
+      });
+      if (storeUsage >= coupon.maxUsesPerStore) {
+        return NextResponse.json({ ok: false, error: "Tu tienda ya usó este cupón el máximo de veces permitido." }, { status: 400 });
+      }
+    }
 
     // Calculate discounted price
     if (coupon.discountType === "PERCENTAGE") {

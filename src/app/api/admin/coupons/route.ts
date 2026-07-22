@@ -8,7 +8,11 @@ export async function GET() {
   if (!auth.ok) return auth.res;
 
   const coupons = await prisma.coupon.findMany({
-    include: { store: { select: { id: true, name: true, slug: true } } },
+    include: {
+      stores: {
+        include: { store: { select: { id: true, name: true, slug: true } } },
+      },
+    },
     orderBy: { createdAt: "desc" },
   });
 
@@ -25,32 +29,44 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Datos inválidos.", details: parsed.error.flatten() }, { status: 400 });
   }
 
-  const store = await prisma.store.findUnique({ where: { id: parsed.data.storeId }, select: { id: true } });
-  if (!store) {
-    return NextResponse.json({ ok: false, error: "Tienda no encontrada." }, { status: 404 });
-  }
-
   const existing = await prisma.coupon.findUnique({
-    where: { code_storeId: { code: parsed.data.code, storeId: parsed.data.storeId } },
+    where: { code: parsed.data.code },
   });
   if (existing) {
-    return NextResponse.json({ ok: false, error: "Ya existe un cupón con ese código en esta tienda." }, { status: 409 });
+    return NextResponse.json({ ok: false, error: "Ya existe un cupón con ese código." }, { status: 409 });
   }
 
-  const data: Record<string, unknown> = {
-    code: parsed.data.code,
-    discountType: parsed.data.discountType,
-    discountValue: parsed.data.discountValue,
-    storeId: parsed.data.storeId,
-    minPurchaseCents: parsed.data.minPurchaseCents,
-    maxUses: parsed.data.maxUses,
-    maxUsesPerUser: parsed.data.maxUsesPerUser,
-    isActive: parsed.data.isActive ?? true,
-  };
-  if (parsed.data.startsAt) data.startsAt = new Date(parsed.data.startsAt);
-  if (parsed.data.expiresAt) data.expiresAt = new Date(parsed.data.expiresAt);
+  const stores = await prisma.store.findMany({
+    where: { id: { in: parsed.data.storeIds } },
+    select: { id: true },
+  });
+  if (stores.length !== parsed.data.storeIds.length) {
+    return NextResponse.json({ ok: false, error: "Una o más tiendas no fueron encontradas." }, { status: 404 });
+  }
 
-  const coupon = await prisma.coupon.create({ data: data as any });
+  const coupon = await prisma.coupon.create({
+    data: {
+      code: parsed.data.code,
+      discountType: parsed.data.discountType,
+      discountValue: parsed.data.discountValue,
+      minPurchaseCents: parsed.data.minPurchaseCents,
+      maxUses: parsed.data.maxUses,
+      maxUsesPerUser: parsed.data.maxUsesPerUser,
+      userRegisteredBefore: parsed.data.userRegisteredBefore ? new Date(parsed.data.userRegisteredBefore) : undefined,
+      storeCreatedBefore: parsed.data.storeCreatedBefore ? new Date(parsed.data.storeCreatedBefore) : undefined,
+      isActive: parsed.data.isActive ?? true,
+      startsAt: parsed.data.startsAt ? new Date(parsed.data.startsAt) : undefined,
+      expiresAt: parsed.data.expiresAt ? new Date(parsed.data.expiresAt) : undefined,
+      stores: {
+        create: parsed.data.storeIds.map((storeId) => ({ storeId })),
+      },
+    },
+    include: {
+      stores: {
+        include: { store: { select: { id: true, name: true, slug: true } } },
+      },
+    },
+  });
 
   return NextResponse.json({ ok: true, coupon });
 }

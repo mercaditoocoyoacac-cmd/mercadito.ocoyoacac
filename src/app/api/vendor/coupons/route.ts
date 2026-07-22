@@ -14,10 +14,13 @@ export async function GET() {
     return NextResponse.json({ ok: false, error: "No tienes tienda." }, { status: 400 });
   }
 
-  const coupons = await prisma.coupon.findMany({
+  const couponStores = await prisma.couponStore.findMany({
     where: { storeId: store.id },
-    orderBy: { createdAt: "desc" },
+    include: { coupon: true },
+    orderBy: { coupon: { createdAt: "desc" } },
   });
+
+  const coupons = couponStores.map((cs) => cs.coupon);
 
   return NextResponse.json({ ok: true, coupons });
 }

@@ -9,6 +9,7 @@ const createSchema = z.object({
   discountType: z.enum(["PERCENTAGE", "FIXED"]),
   discountValue: z.number().int().min(1),
   maxUses: z.number().int().min(1).optional().nullable(),
+  maxUsesPerStore: z.number().int().min(1).optional().nullable(),
   isActive: z.boolean().optional(),
   startsAt: z.string().optional().nullable(),
   expiresAt: z.string().optional().nullable(),
@@ -61,6 +62,7 @@ export async function POST(req: Request) {
     discountType: parsed.data.discountType,
     discountValue: parsed.data.discountValue,
     maxUses: parsed.data.maxUses,
+    maxUsesPerStore: parsed.data.maxUsesPerStore,
     isActive: parsed.data.isActive ?? true,
   };
   if (parsed.data.startsAt) data.startsAt = new Date(parsed.data.startsAt);

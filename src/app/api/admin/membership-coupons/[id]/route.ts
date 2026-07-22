@@ -9,6 +9,7 @@ const updateSchema = z.object({
   discountType: z.enum(["PERCENTAGE", "FIXED"]).optional(),
   discountValue: z.number().int().min(1).optional(),
   maxUses: z.number().int().min(1).optional().nullable(),
+  maxUsesPerStore: z.number().int().min(1).optional().nullable(),
   isActive: z.boolean().optional(),
   startsAt: z.string().optional().nullable(),
   expiresAt: z.string().optional().nullable(),
@@ -54,6 +55,7 @@ export async function PUT(
   if (parsed.data.discountType !== undefined) data.discountType = parsed.data.discountType;
   if (parsed.data.discountValue !== undefined) data.discountValue = parsed.data.discountValue;
   if (parsed.data.maxUses !== undefined) data.maxUses = parsed.data.maxUses;
+  if (parsed.data.maxUsesPerStore !== undefined) data.maxUsesPerStore = parsed.data.maxUsesPerStore;
   if (parsed.data.isActive !== undefined) data.isActive = parsed.data.isActive;
   if (parsed.data.startsAt !== undefined) data.startsAt = parsed.data.startsAt ? new Date(parsed.data.startsAt) : null;
   if (parsed.data.expiresAt !== undefined) data.expiresAt = parsed.data.expiresAt ? new Date(parsed.data.expiresAt) : null;

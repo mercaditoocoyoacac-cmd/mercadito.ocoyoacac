@@ -15,11 +15,13 @@ type StoreCoupon = {
   maxUses: number | null;
   usedCount: number;
   maxUsesPerUser: number | null;
+  userRegisteredBefore: string | null;
+  storeCreatedBefore: string | null;
   isActive: boolean;
   startsAt: string | null;
   expiresAt: string | null;
   createdAt: string;
-  store: Store;
+  stores: { store: Store }[];
 };
 type MembershipCoupon = {
   id: string;
@@ -28,6 +30,7 @@ type MembershipCoupon = {
   discountType: "PERCENTAGE" | "FIXED";
   discountValue: number;
   maxUses: number | null;
+  maxUsesPerStore: number | null;
   usedCount: number;
   isActive: boolean;
   startsAt: string | null;
@@ -38,13 +41,15 @@ type MembershipCoupon = {
 const MEMBERSHIP_PRICE = 83000;
 
 const emptyStoreForm = {
-  storeId: "",
+  storeIds: [] as string[],
   code: "",
   discountType: "PERCENTAGE" as "PERCENTAGE" | "FIXED",
   discountValue: 0,
   minPurchaseCents: "",
   maxUses: "",
   maxUsesPerUser: "",
+  userRegisteredBefore: "",
+  storeCreatedBefore: "",
   startsAt: "",
   expiresAt: "",
 };
@@ -55,6 +60,7 @@ const emptyMemberForm = {
   discountType: "PERCENTAGE" as "PERCENTAGE" | "FIXED",
   discountValue: 0,
   maxUses: "",
+  maxUsesPerStore: "",
   startsAt: "",
   expiresAt: "",
 };
@@ -110,14 +116,23 @@ export default function AdminCuponesPage() {
     setStoreForm((prev) => ({ ...prev, [name]: value }));
   }
 
+  function toggleStoreId(storeId: string) {
+    setStoreForm((prev) => ({
+      ...prev,
+      storeIds: prev.storeIds.includes(storeId)
+        ? prev.storeIds.filter((id) => id !== storeId)
+        : [...prev.storeIds, storeId],
+    }));
+  }
+
   async function handleStoreSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!storeForm.storeId || !storeForm.code || !storeForm.discountValue) {
+    if (storeForm.storeIds.length === 0 || !storeForm.code || !storeForm.discountValue) {
       toast.error("Completa los campos obligatorios.");
       return;
     }
     const body: Record<string, unknown> = {
-      storeId: storeForm.storeId,
+      storeIds: storeForm.storeIds,
       code: storeForm.code,
       discountType: storeForm.discountType,
       discountValue: Number(storeForm.discountValue),
@@ -125,6 +140,8 @@ export default function AdminCuponesPage() {
     if (storeForm.minPurchaseCents) body.minPurchaseCents = Number(storeForm.minPurchaseCents);
     if (storeForm.maxUses) body.maxUses = Number(storeForm.maxUses);
     if (storeForm.maxUsesPerUser) body.maxUsesPerUser = Number(storeForm.maxUsesPerUser);
+    if (storeForm.userRegisteredBefore) body.userRegisteredBefore = new Date(storeForm.userRegisteredBefore).toISOString();
+    if (storeForm.storeCreatedBefore) body.storeCreatedBefore = new Date(storeForm.storeCreatedBefore).toISOString();
     if (storeForm.startsAt) body.startsAt = new Date(storeForm.startsAt).toISOString();
     if (storeForm.expiresAt) body.expiresAt = new Date(storeForm.expiresAt).toISOString();
 
@@ -182,6 +199,7 @@ export default function AdminCuponesPage() {
       discountType: coupon.discountType,
       discountValue: coupon.discountValue,
       maxUses: coupon.maxUses?.toString() || "",
+      maxUsesPerStore: coupon.maxUsesPerStore?.toString() || "",
       startsAt: coupon.startsAt ? new Date(coupon.startsAt).toISOString().slice(0, 16) : "",
       expiresAt: coupon.expiresAt ? new Date(coupon.expiresAt).toISOString().slice(0, 16) : "",
     });
@@ -211,6 +229,7 @@ export default function AdminCuponesPage() {
       discountValue: Number(memberForm.discountValue),
     };
     if (memberForm.maxUses) body.maxUses = Number(memberForm.maxUses);
+    if (memberForm.maxUsesPerStore) body.maxUsesPerStore = Number(memberForm.maxUsesPerStore);
     if (memberForm.startsAt) body.startsAt = new Date(memberForm.startsAt).toISOString();
     if (memberForm.expiresAt) body.expiresAt = new Date(memberForm.expiresAt).toISOString();
 
@@ -261,13 +280,13 @@ export default function AdminCuponesPage() {
       <h1 className="text-2xl font-bold mb-6">Cupones de descuento</h1>
 
       {/* Tabs */}
-      <div className="flex gap-1 rounded-lg bg-gray-100 p-1 mb-6 max-w-md">
+      <div className="flex gap-1 rounded-lg bg-[var(--surface)] p-1 mb-6 max-w-md">
         <button
           onClick={() => setTab("tienda")}
           className={`flex-1 rounded-md px-4 py-2.5 text-sm font-medium transition-all ${
             tab === "tienda"
-              ? "bg-white text-[var(--accent)] shadow-sm"
-              : "text-[color:var(--muted)] hover:text-gray-700"
+              ? "bg-[var(--background)] text-[var(--accent)] shadow-sm"
+              : "text-[color:var(--muted)] hover:text-[var(--foreground)]"
           }`}
         >
           🏪 Cupones de tienda
@@ -276,8 +295,8 @@ export default function AdminCuponesPage() {
           onClick={() => setTab("membresia")}
           className={`flex-1 rounded-md px-4 py-2.5 text-sm font-medium transition-all ${
             tab === "membresia"
-              ? "bg-white text-amber-600 shadow-sm"
-              : "text-[color:var(--muted)] hover:text-gray-700"
+              ? "bg-[var(--background)] text-amber-600 shadow-sm"
+              : "text-[color:var(--muted)] hover:text-[var(--foreground)]"
           }`}
         >
           ⭐ Cupones de membresía
@@ -299,15 +318,27 @@ export default function AdminCuponesPage() {
           </div>
 
           {showStoreForm && (
-            <form onSubmit={handleStoreSubmit} className="mb-6 rounded-xl border border-[var(--border)] bg-white p-5 space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Tienda *</label>
-                  <select name="storeId" value={storeForm.storeId} onChange={handleStoreChange} required className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm">
-                    <option value="">Seleccionar tienda...</option>
-                    {stores.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-                  </select>
+            <form onSubmit={handleStoreSubmit} className="mb-6 rounded-xl border border-[var(--border)] bg-[var(--background)] p-5 space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-[color:var(--muted)] mb-2">Tiendas *</label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {stores.map((s) => (
+                    <label key={s.id} className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer transition-all ${storeForm.storeIds.includes(s.id) ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]" : "border-[var(--border)] hover:border-gray-300"}`}>
+                      <input type="checkbox" checked={storeForm.storeIds.includes(s.id)} onChange={() => toggleStoreId(s.id)} className="sr-only" />
+                      <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${storeForm.storeIds.includes(s.id) ? "border-[var(--accent)] bg-[var(--accent)]" : "border-gray-300"}`}>
+                        {storeForm.storeIds.includes(s.id) && (
+                          <svg className="h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                        )}
+                      </span>
+                      {s.name}
+                    </label>
+                  ))}
                 </div>
+                {storeForm.storeIds.length > 0 && (
+                  <p className="mt-1 text-xs text-[color:var(--muted)]">{storeForm.storeIds.length} tienda{storeForm.storeIds.length > 1 ? "s" : ""} seleccionada{storeForm.storeIds.length > 1 ? "s" : ""}</p>
+                )}
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Código *</label>
                   <input name="code" value={storeForm.code} onChange={handleStoreChange} placeholder="BIENVENIDO10" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm uppercase" />
@@ -323,7 +354,7 @@ export default function AdminCuponesPage() {
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">
                     {storeForm.discountType === "PERCENTAGE" ? "Porcentaje *" : "Monto ($) *"}
                   </label>
-                  <input name="discountValue" type="number" min="1" value={storeForm.discountValue} onChange={handleStoreChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                  <input name="discountValue" type="number" min="1" value={storeForm.discountValue} onChange={handleStoreChange} className={`w-full rounded-lg border px-3 py-2 text-sm ${storeForm.discountType === "PERCENTAGE" ? "border-[var(--accent)] bg-[var(--accent-soft)]" : "border-[var(--border)] bg-[var(--background)]"}`} />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Compra mínima ($)</label>
@@ -336,6 +367,16 @@ export default function AdminCuponesPage() {
                 <div>
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Usos por usuario</label>
                   <input name="maxUsesPerUser" type="number" min="1" value={storeForm.maxUsesPerUser} onChange={handleStoreChange} placeholder="Sin límite" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Usuarios registrados antes de</label>
+                  <input name="userRegisteredBefore" type="date" value={storeForm.userRegisteredBefore} onChange={handleStoreChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                  <p className="mt-0.5 text-xs text-[color:var(--muted)]">Solo usuarios con cuenta antes de esta fecha</p>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Tiendas creadas antes de</label>
+                  <input name="storeCreatedBefore" type="date" value={storeForm.storeCreatedBefore} onChange={handleStoreChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                  <p className="mt-0.5 text-xs text-[color:var(--muted)]">Solo tiendas registradas antes de esta fecha</p>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Válido desde</label>
@@ -355,9 +396,9 @@ export default function AdminCuponesPage() {
           <div className="overflow-x-auto rounded-xl border border-[var(--border)]">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[var(--border)] bg-gray-50">
+                <tr className="border-b border-[var(--border)] bg-[var(--surface)]">
                   <th className="px-4 py-3 text-left font-medium">Código</th>
-                  <th className="px-4 py-3 text-left font-medium">Tienda</th>
+                  <th className="px-4 py-3 text-left font-medium">Tiendas</th>
                   <th className="px-4 py-3 text-left font-medium">Descuento</th>
                   <th className="px-4 py-3 text-left font-medium">Usos</th>
                   <th className="px-4 py-3 text-left font-medium">Vigencia</th>
@@ -375,9 +416,15 @@ export default function AdminCuponesPage() {
                   const notStarted = c.startsAt && new Date(c.startsAt) > now;
                   const discountLabel = c.discountType === "PERCENTAGE" ? `${c.discountValue}%` : `$${(c.discountValue / 100).toFixed(2)}`;
                   return (
-                    <tr key={c.id} style={{ animationDelay: `${idx * 40}ms` }} className="border-b border-[var(--border)] hover:bg-gray-50 fade-in">
+                    <tr key={c.id} style={{ animationDelay: `${idx * 40}ms` }} className="border-b border-[var(--border)] hover:bg-[var(--surface)] fade-in">
                       <td className="px-4 py-3 font-mono font-bold">{c.code}</td>
-                      <td className="px-4 py-3">{c.store.name}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-wrap gap-1">
+                          {c.stores.map((cs) => (
+                            <span key={cs.store.id} className="inline-block rounded-full bg-[var(--surface)] px-2 py-0.5 text-xs text-[color:var(--muted)]">{cs.store.name}</span>
+                          ))}
+                        </div>
+                      </td>
                       <td className="px-4 py-3">{discountLabel}</td>
                       <td className="px-4 py-3">{c.usedCount}{c.maxUses ? ` / ${c.maxUses}` : ""}</td>
                       <td className="px-4 py-3 text-xs">
@@ -429,7 +476,7 @@ export default function AdminCuponesPage() {
           </div>
 
           {showMemberForm && (
-            <form onSubmit={handleMemberSubmit} className="mb-6 rounded-xl border border-amber-200 bg-amber-50/50 p-5 space-y-4">
+            <form onSubmit={handleMemberSubmit} className="mb-6 rounded-xl border border-[var(--border)] bg-[var(--background)] p-5 space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Código *</label>
@@ -448,7 +495,7 @@ export default function AdminCuponesPage() {
                   </label>
                   <input name="discountValue" type="number" min="1" max={memberForm.discountType === "PERCENTAGE" ? 100 : undefined}
                     value={memberForm.discountValue || ""} onChange={handleMemberChange} required
-                    className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                    className={`w-full rounded-lg border px-3 py-2 text-sm ${memberForm.discountType === "PERCENTAGE" ? "border-amber-400 bg-amber-50 dark:bg-amber-900/20" : "border-[var(--border)] bg-[var(--background)]"}`} />
                   {memberForm.discountValue > 0 && (
                     <p className="mt-1 text-xs text-[color:var(--muted)]">
                       Precio final: <span className="font-semibold text-amber-600">
@@ -460,6 +507,10 @@ export default function AdminCuponesPage() {
                 <div>
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Usos máximos</label>
                   <input name="maxUses" type="number" min="1" value={memberForm.maxUses} onChange={handleMemberChange} placeholder="Sin límite" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Usos máximos por tienda</label>
+                  <input name="maxUsesPerStore" type="number" min="1" value={memberForm.maxUsesPerStore || ""} onChange={handleMemberChange} placeholder="Sin límite" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
                 </div>
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Descripción (interna)</label>
@@ -490,12 +541,13 @@ export default function AdminCuponesPage() {
           <div className="overflow-x-auto rounded-xl border border-[var(--border)]">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[var(--border)] bg-gray-50">
+                <tr className="border-b border-[var(--border)] bg-[var(--surface)]">
                   <th className="px-4 py-3 text-left font-medium">Código</th>
                   <th className="px-4 py-3 text-left font-medium">Descripción</th>
                   <th className="px-4 py-3 text-left font-medium">Descuento</th>
                   <th className="px-4 py-3 text-left font-medium">Precio final</th>
                   <th className="px-4 py-3 text-left font-medium">Usos</th>
+                  <th className="px-4 py-3 text-left font-medium">Usos/tienda</th>
                   <th className="px-4 py-3 text-left font-medium">Vigencia</th>
                   <th className="px-4 py-3 text-left font-medium">Estado</th>
                   <th className="px-4 py-3 text-left font-medium">Acciones</th>
@@ -503,7 +555,7 @@ export default function AdminCuponesPage() {
               </thead>
               <tbody>
                 {memberCoupons.length === 0 && (
-                  <tr><td colSpan={8} className="px-4 py-8 text-center text-[color:var(--muted)]">Sin cupones de membresía aún</td></tr>
+                  <tr><td colSpan={9} className="px-4 py-8 text-center text-[color:var(--muted)]">Sin cupones de membresía aún</td></tr>
                 )}
                 {memberCoupons.map((c, idx) => {
                   const now = new Date();
@@ -511,7 +563,7 @@ export default function AdminCuponesPage() {
                   const notStarted = c.startsAt && new Date(c.startsAt) > now;
                   const finalPrice = memberDiscountedPrice(c);
                   return (
-                    <tr key={c.id} style={{ animationDelay: `${idx * 40}ms` }} className="border-b border-[var(--border)] hover:bg-gray-50 fade-in">
+                    <tr key={c.id} style={{ animationDelay: `${idx * 40}ms` }} className="border-b border-[var(--border)] hover:bg-[var(--surface)] fade-in">
                       <td className="px-4 py-3 font-mono font-bold">{c.code}</td>
                       <td className="px-4 py-3 text-xs text-[color:var(--muted)]">{c.description || "—"}</td>
                       <td className="px-4 py-3 font-semibold">{c.discountType === "PERCENTAGE" ? `${c.discountValue}%` : formatMoney(c.discountValue, "MXN")}</td>
@@ -526,6 +578,7 @@ export default function AdminCuponesPage() {
                         )}
                       </td>
                       <td className="px-4 py-3">{c.usedCount}{c.maxUses ? ` / ${c.maxUses}` : ""}</td>
+                      <td className="px-4 py-3 text-xs">{c.maxUsesPerStore ? `Máx. ${c.maxUsesPerStore}` : "—"}</td>
                       <td className="px-4 py-3 text-xs">
                         {c.startsAt && <div>Desde: {new Date(c.startsAt).toLocaleDateString()}</div>}
                         {c.expiresAt && <div>Hasta: {new Date(c.expiresAt).toLocaleDateString()}</div>}

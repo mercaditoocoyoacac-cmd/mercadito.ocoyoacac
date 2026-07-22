@@ -38,11 +38,16 @@ export async function POST(req: Request) {
   }
 
   const coupon = await prisma.coupon.findUnique({
-    where: { code_storeId: { code, storeId } },
+    where: { code },
+    include: { stores: { select: { storeId: true } } },
   });
 
   if (!coupon) {
-    return NextResponse.json({ ok: false, error: "Cupón no encontrado para esta tienda." }, { status: 404 });
+    return NextResponse.json({ ok: false, error: "Cupón no encontrado." }, { status: 404 });
+  }
+
+  if (!coupon.stores.some((s) => s.storeId === storeId)) {
+    return NextResponse.json({ ok: false, error: "Este cupón no es válido para esta tienda." }, { status: 404 });
   }
 
   if (!coupon.isActive) {
@@ -67,6 +72,17 @@ export async function POST(req: Request) {
     });
     if (userUsage >= coupon.maxUsesPerUser) {
       return NextResponse.json({ ok: false, error: "Ya usaste este cupón el máximo de veces permitido." }, { status: 400 });
+    }
+  }
+
+  if (coupon.userRegisteredBefore || coupon.storeCreatedBefore) {
+    const user = await prisma.user.findUnique({ where: { id: auth.userId }, select: { createdAt: true } });
+    const storeRecord = await prisma.store.findUnique({ where: { id: storeId }, select: { createdAt: true } });
+    if (coupon.userRegisteredBefore && user && user.createdAt >= coupon.userRegisteredBefore) {
+      return NextResponse.json({ ok: false, error: "Este cupón es solo para usuarios registrados antes de " + coupon.userRegisteredBefore.toLocaleDateString("es-MX") + "." }, { status: 400 });
+    }
+    if (coupon.storeCreatedBefore && storeRecord && storeRecord.createdAt >= coupon.storeCreatedBefore) {
+      return NextResponse.json({ ok: false, error: "Este cupón es solo para tiendas creadas antes de " + coupon.storeCreatedBefore.toLocaleDateString("es-MX") + "." }, { status: 400 });
     }
   }
 
