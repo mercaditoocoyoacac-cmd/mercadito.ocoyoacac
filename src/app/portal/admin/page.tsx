@@ -70,7 +70,7 @@ export default async function AdminPortalPage() {
             <div className="text-4xl mb-3">🔒</div>
             <h3 className="text-lg font-semibold">Control total</h3>
             <p className="mt-2 text-sm text-[color:var(--muted)]">
-              Aprueba tiendas, gestiona membresías y contratos
+              Aprueba tiendas, gestiona membresías y pagos
             </p>
           </div>
         </div>

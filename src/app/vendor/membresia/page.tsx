@@ -14,7 +14,6 @@ interface SubscriptionInfo {
   startDate: string;
   endDate: string;
   discountEndDate: string | null;
-  contractSigned: boolean;
   createdAt: string;
 }
 
@@ -306,7 +305,6 @@ export default function VendorMembresiaPage() {
               {isDiscounted && subscription.discountEndDate && (
                 <div>Descuento 40% vigente hasta: {new Date(subscription.discountEndDate).toLocaleDateString("es-MX")}</div>
               )}
-              {subscription.contractSigned && <div>✓ Contrato firmado</div>}
             </div>
           )}
         </div>

@@ -64,10 +64,7 @@ export async function GET(req: Request) {
       name: store.name,
       subscription: store.subscription
         ? {
-            contractSigned: store.subscription.contractSigned,
-            contractSignedAt: store.subscription.contractSignedAt,
-            contractTerms: store.subscription.contractTerms,
-            contractPdfUrl: store.subscription.contractPdfUrl,
+            status: store.subscription.status,
           }
         : null,
     },

@@ -121,6 +121,7 @@ model Store {
   promotions   Promotion[]
   subscription Subscription?
   paymentMethods StorePaymentMethod[]
+  receipts     PaymentReceipt[]
 
   @@index([ownerId])
   @@index([isActive, isPublished])
@@ -166,16 +167,39 @@ model Subscription {
   discountEndDate DateTime?
   paymentMethod String?
   paymentReference String?
-  contractSigned Boolean           @default(false)
-  contractSignedAt DateTime?
-  contractIp    String?
-  contractTerms String?
-  contractPdfUrl String?
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
 
   storeId String @unique
   store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  receipts PaymentReceipt[]
+}
+
+model PaymentReceipt {
+  id            String   @id @default(cuid())
+  receiptNumber String   @unique // e.g. "REC-2026-00001"
+  amountCents   Int
+  currency      String   @default("MXN")
+  description   String
+  periodStart   DateTime
+  periodEnd     DateTime
+  couponCode    String?
+  couponSavings Int?
+  paymentMethod String?
+  paymentReference String?
+  status        String   @default("PAID") // PAID, REFUNDED
+  issuedAt      DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  storeId String
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  subscriptionId String?
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+
+  @@index([storeId])
+  @@index([receiptNumber])
 }
 
 model DeviceAuthorization {

@@ -357,18 +357,6 @@ export function NavBar() {
                           <div className="text-xs text-[color:var(--muted)]">Ofertas multi-producto</div>
                         </div>
                       </button>
-                      <button
-                        onClick={() => navigateTo("/contrato")}
-                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
-                      >
-                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <div>
-                          <div className="font-medium">Contrato</div>
-                          <div className="text-xs text-[color:var(--muted)]">Términos y condiciones</div>
-                        </div>
-                      </button>
                     </div>
                 )}
               </div>
@@ -466,6 +454,18 @@ export function NavBar() {
                           <div>
                             <div className="font-medium">Cupones</div>
                             <div className="text-xs text-[color:var(--muted)]">Códigos de descuento</div>
+                          </div>
+                        </button>
+                        <button
+                          onClick={() => navigateTo("/vendor/recibos")}
+                          className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
+                        >
+                          <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" />
+                          </svg>
+                          <div>
+                            <div className="font-medium">Recibos</div>
+                            <div className="text-xs text-[color:var(--muted)]">Historial de pagos</div>
                           </div>
                         </button>
                         <button
@@ -874,6 +874,15 @@ export function NavBar() {
                     }`}
                   >
                     Cupones
+                  </Link>
+                  <Link
+                    href="/vendor/recibos"
+                    onClick={() => setMenuOpen(false)}
+                    className={`rounded-lg px-4 py-3 text-sm font-medium ${
+                      pathname === "/vendor/recibos" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                    }`}
+                  >
+                    Recibos
                   </Link>
                   <Link
                     href="/vendor/promociones"

@@ -48,7 +48,6 @@ export async function GET() {
           startDate: true,
           endDate: true,
           discountEndDate: true,
-          contractSigned: true,
           createdAt: true,
         },
       },
@@ -143,7 +142,6 @@ export async function POST(req: Request) {
                 startDate: s.subscription.startDate.toISOString(),
                 endDate: s.subscription.endDate.toISOString(),
                 discountEndDate: s.subscription.discountEndDate?.toISOString() ?? null,
-                contractSigned: s.subscription.contractSigned,
                 createdAt: s.subscription.createdAt.toISOString(),
               }
             : null,

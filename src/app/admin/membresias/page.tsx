@@ -245,15 +245,6 @@ export default async function AdminSubscriptionsPage() {
                           {isActive ? "Activa" : sub.status === "TRIAL" ? "Prueba" : sub.status === "EXPIRED" ? "Expirada" : sub.status === "CANCELLED" ? "Cancelada" : "Sin membresía"}
                         </div>
                       )}
-                      {sub?.contractSigned ? (
-                        <div className="text-xs px-2 py-1 rounded-full bg-violet-100 text-violet-800">
-                          ✓ Contrato firmado
-                        </div>
-                      ) : (
-                        <div className="text-xs px-2 py-1 rounded-full bg-orange-100 text-orange-800">
-                          ✗ Sin contrato
-                        </div>
-                      )}
                     </div>
                   </div>
                   {store.owner.trialUsed && (
@@ -272,11 +263,6 @@ export default async function AdminSubscriptionsPage() {
                     <div className="mt-2 text-xs text-[color:var(--muted)]">
                       Inicio: {formatDateInMexico(sub.startDate)} | 
                       Fin: {formatDateInMexico(sub.endDate)}
-                      {sub.contractSignedAt && (
-                        <span className="ml-2">
-                          | Contrato: {formatDateInMexico(sub.contractSignedAt)}
-                        </span>
-                      )}
                     </div>
                   )}
                   {sub && sub.status === "ACTIVE" && (
@@ -376,7 +362,6 @@ data: { isPublished: true },
                           startDate: new Date(),
                           endDate: trialEnd,
                           monthlyPriceCents: DISCOUNTED_PRICE_CENTS,
-                          contractSigned: false,
                         },
                         update: {
                           status: "TRIAL",

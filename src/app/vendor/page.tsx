@@ -103,14 +103,13 @@ export default async function VendorDashboard() {
     ["ACTIVE", "TRIAL"].includes(store.subscription.status) && 
     new Date(store.subscription.endDate) > new Date();
 
-  const contractSigned = store.subscription?.contractSigned ?? false;
   const isTrial = store.subscription?.status === "TRIAL";
   const trialUsed = store.owner?.trialUsed ?? false;
   const trialExpired = store.subscription && 
     store.subscription.status === "TRIAL" && 
     new Date(store.subscription.endDate) <= new Date();
 
-  if (trialUsed && trialExpired && !contractSigned && !subscriptionActive) {
+  if (trialUsed && trialExpired && !subscriptionActive) {
     return (
       <main className="flex-1">
         <section className="bg-gradient-to-br from-red-600 via-red-700 to-rose-700 px-4 py-20 text-white">
@@ -120,37 +119,14 @@ export default async function VendorDashboard() {
               Ya utilizaste tu prueba gratuita de 30 días.
             </p>
             <p className="mt-2 text-white/70">
-              Para continuar usando la plataforma, debes firmar el contrato o contactar a un administrador.
+              Para continuar usando la plataforma, adquiere la membresía Vende+ o contacta a un administrador.
             </p>
             <div className="mt-8 flex justify-center gap-4">
               <Link
-                href="/contrato"
+                href="/vendor/membresia"
                 className="inline-block rounded-lg bg-white px-6 py-3 text-lg font-semibold text-red-700 hover:bg-gray-100"
               >
-                Firmar contrato
-              </Link>
-            </div>
-          </div>
-        </section>
-      </main>
-    );
-  }
-
-  if (!contractSigned && !isTrial) {
-    return (
-      <main className="flex-1">
-        <section className="bg-gradient-to-br from-orange-600 via-orange-700 to-amber-700 px-4 py-20 text-white">
-          <div className="mx-auto max-w-2xl text-center">
-            <h1 className="text-3xl font-bold">Contrato requerido</h1>
-            <p className="mt-4 text-lg text-white/90">
-              Para continuar, necesitas firmar el contrato de servicio.
-            </p>
-            <div className="mt-8">
-              <Link
-                href="/contrato"
-                className="inline-block rounded-lg bg-white px-6 py-3 text-lg font-semibold text-orange-700 hover:bg-gray-100"
-              >
-                Firmar contrato
+                Ver membresía
               </Link>
             </div>
           </div>
@@ -302,7 +278,7 @@ export default async function VendorDashboard() {
               </div>
               <div className={`text-sm ${isTrial ? "text-emerald-700" : "text-yellow-700"}`}>
                 {isTrial
-                  ? `Tu prueba termina el ${formatDateInMexico(store.subscription!.endDate, { day: "numeric", month: "long" })}. Firma el contrato para continuar.`
+                  ? `Tu prueba termina el ${formatDateInMexico(store.subscription!.endDate, { day: "numeric", month: "long" })}. Adquiere Vende+ para continuar.`
                   : "Tu tienda no está visible. Contacta al admin para activar."}
               </div>
             </div>

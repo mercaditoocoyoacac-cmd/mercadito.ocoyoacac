@@ -18,13 +18,11 @@ export default async function AdminAprobarVendedoresPage() {
   const pendingStores = await prisma.store.findMany({
     where: {
       isApproved: false,
-      subscription: {
-        contractSigned: true,
-      },
+      plan: "MEMBER",
     },
     include: {
       owner: { select: { id: true, name: true, email: true, phone: true } },
-      subscription: { select: { monthlyPriceCents: true, contractSignedAt: true, status: true } },
+      subscription: { select: { monthlyPriceCents: true, status: true } },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -38,7 +36,7 @@ export default async function AdminAprobarVendedoresPage() {
     },
     include: {
       owner: { select: { id: true, name: true, email: true, phone: true } },
-      subscription: { select: { startDate: true, endDate: true, status: true, contractSigned: true } },
+      subscription: { select: { startDate: true, endDate: true, status: true } },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -52,7 +50,7 @@ export default async function AdminAprobarVendedoresPage() {
     where: { isApproved: true },
     include: {
       owner: { select: { id: true, name: true, email: true, phone: true } },
-      subscription: { select: { monthlyPriceCents: true, status: true, contractSigned: true, contractSignedAt: true } },
+      subscription: { select: { monthlyPriceCents: true, status: true } },
     },
     orderBy: { updatedAt: "desc" },
     take: 50,
@@ -140,11 +138,6 @@ export default async function AdminAprobarVendedoresPage() {
                           (vence: {formatDateInMexico(sub.endDate)})
                         </span>
                       </div>
-                      {!sub.contractSigned && (
-                        <div className="mt-1 text-xs text-orange-600">
-                          ⚠ Sin contrato firmado
-                        </div>
-                      )}
                     </div>
                     <form
                       action={async () => {
@@ -192,9 +185,7 @@ export default async function AdminAprobarVendedoresPage() {
                     )}
                     {store.subscription && (
                       <div className="mt-2 text-sm">
-                        <span className="text-green-600">
-                          Contrato firmado: {formatDateInMexico(store.subscription.contractSignedAt)}
-                        </span>
+                        <span className="text-green-600">Membresía pagada</span>
                         <span className="ml-3">
                           {formatMoney(store.subscription.monthlyPriceCents)}/mes
                         </span>
@@ -229,7 +220,7 @@ export default async function AdminAprobarVendedoresPage() {
             </svg>
           }
           title="No hay solicitudes pendientes"
-          description="Los nuevos vendedores aparecerán aquí después de firmar el contrato."
+          description="Los nuevos vendedores aparecerán aquí después de adquirir la membresía."
         />
       )}
 
@@ -243,7 +234,6 @@ export default async function AdminAprobarVendedoresPage() {
                   <th className="px-4 py-3 font-medium">Tienda</th>
                   <th className="px-4 py-3 font-medium">Propietario</th>
                   <th className="px-4 py-3 font-medium">Precio</th>
-                  <th className="px-4 py-3 font-medium">Contrato</th>
                   <th className="px-4 py-3 font-medium">Estado</th>
                 </tr>
               </thead>
@@ -256,15 +246,6 @@ export default async function AdminAprobarVendedoresPage() {
                       {store.subscription
                         ? formatMoney(store.subscription.monthlyPriceCents)
                         : "-"}
-                    </td>
-                    <td className="px-4 py-3">
-                      {store.subscription?.contractSigned ? (
-                        <span className="text-green-600">
-                          ✓ {formatDateInMexico(store.subscription.contractSignedAt)}
-                        </span>
-                      ) : (
-                        <span className="text-orange-600">✗ Sin contrato</span>
-                      )}
                     </td>
                     <td className="px-4 py-3">
                       {store.subscription?.status === "TRIAL" ? (
