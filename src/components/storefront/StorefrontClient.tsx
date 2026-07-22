@@ -33,6 +33,7 @@ interface ProductData {
 
 interface StoreData {
   id: string;
+  slug: string;
   name: string;
   category: string;
   description: string | null;
@@ -45,15 +46,39 @@ interface StoreData {
   scheduleDays: string[] | null;
 }
 
+interface StorePromoProduct {
+  promoPriceCents: number | null;
+  quantity: number;
+  product: {
+    id: string;
+    name: string;
+    imageUrl: string | null;
+    priceCents: number;
+  };
+}
+
+interface StorePromotion {
+  id: string;
+  title: string;
+  description: string | null;
+  discountPercentage: number | null;
+  requiresCoupon: boolean;
+  products: StorePromoProduct[];
+}
+
+type FeaturedItem =
+  | { kind: "product"; product: ProductData }
+  | { kind: "promotion"; promotion: StorePromotion };
+
 export function StorefrontClient({
   store,
   products,
-  promoProductIds,
+  storePromotions,
   open,
 }: {
   store: StoreData;
   products: ProductData[];
-  promoProductIds: string[];
+  storePromotions: StorePromotion[];
   open: boolean;
 }) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -95,17 +120,29 @@ export function StorefrontClient({
 
   const featured = useMemo(() => {
     if (isServicios) return [];
+    const items: FeaturedItem[] = [];
+
+    storePromotions.forEach((promo) => {
+      items.push({ kind: "promotion", promotion: promo });
+    });
+
+    const promoProductIds = new Set(
+      storePromotions.flatMap((p) => p.products.map((pp) => pp.product.id))
+    );
     const seen = new Set<string>();
-    const result: ProductData[] = [];
-    const addIfNotSeen = (p: ProductData) => {
-      if (!seen.has(p.id)) { seen.add(p.id); result.push(p); }
+    const addProduct = (p: ProductData) => {
+      if (!seen.has(p.id)) { seen.add(p.id); items.push({ kind: "product", product: p }); }
     };
-    const promoIdSet = new Set(promoProductIds);
-    products.filter((p) => p.isPromotion || promoIdSet.has(p.id)).forEach(addIfNotSeen);
-    products.filter((p) => p.variants.length > 0).forEach(addIfNotSeen);
-    [...products].filter((p) => p.soldCount > 0).sort((a, b) => b.soldCount - a.soldCount).slice(0, 10).forEach(addIfNotSeen);
-    return result;
-  }, [products, isServicios, promoProductIds]);
+    products.filter((p) => p.isPromotion && !promoProductIds.has(p.id)).forEach(addProduct);
+    products.filter((p) => p.variants.length > 0 && !promoProductIds.has(p.id)).forEach(addProduct);
+    [...products]
+      .filter((p) => p.soldCount > 0 && !promoProductIds.has(p.id))
+      .sort((a, b) => b.soldCount - a.soldCount)
+      .slice(0, 10)
+      .forEach(addProduct);
+
+    return items;
+  }, [products, isServicios, storePromotions]);
 
   const filteredProducts = useMemo(() => {
     if (!searchQuery.trim()) return products;
@@ -119,8 +156,10 @@ export function StorefrontClient({
 
   const otherProducts = useMemo(() => {
     if (searchQuery) return filteredProducts;
-    const featuredIds = new Set(featured.map((p) => p.id));
-    return products.filter((p) => !featuredIds.has(p.id));
+    const featuredProductIds = new Set(
+      featured.filter((f) => f.kind === "product").map((f) => f.product.id)
+    );
+    return products.filter((p) => !featuredProductIds.has(p.id));
   }, [products, featured, searchQuery, filteredProducts]);
 
   return (
@@ -218,16 +257,20 @@ export function StorefrontClient({
               className="flex gap-3 overflow-x-auto pb-2"
               style={{ scrollbarWidth: "thin", msOverflowStyle: "auto" }}
             >
-              {featured.map((product, i) => (
-                <div key={product.id} className="flex-shrink-0 w-44">
-                  <ProductCard
-                    product={product}
-                    store={store}
-                    open={open}
-                    index={i}
-                    onQuickView={() => setQuickViewProduct(product)}
-                    onAddedToCart={fetchCartCount}
-                  />
+              {featured.map((item, i) => (
+                <div key={item.kind === "product" ? item.product.id : item.promotion.id} className="flex-shrink-0 w-44">
+                  {item.kind === "product" ? (
+                    <ProductCard
+                      product={item.product}
+                      store={store}
+                      open={open}
+                      index={i}
+                      onQuickView={() => setQuickViewProduct(item.product)}
+                      onAddedToCart={fetchCartCount}
+                    />
+                  ) : (
+                    <FeaturedPromoCard promotion={item.promotion} store={store} />
+                  )}
                 </div>
               ))}
             </div>
@@ -312,6 +355,89 @@ export function StorefrontClient({
         </Link>
       )}
     </>
+  );
+}
+
+function FeaturedPromoCard({ promotion, store }: { promotion: StorePromotion; store: StoreData }) {
+  const promoImages = promotion.products
+    .filter((pp) => pp.product.imageUrl)
+    .slice(0, 4);
+
+  const avgPrice = promotion.products.length > 0
+    ? Math.round(
+        promotion.products.reduce((sum, pp) => sum + (pp.promoPriceCents ?? pp.product.priceCents), 0) /
+        promotion.products.length
+      )
+    : 0;
+
+  const hasQuantity = promotion.products.some((pp) => pp.quantity > 1);
+
+  return (
+    <Link href={`/tienda/${store.slug}`} className="block">
+      <div className="group h-full rounded-xl border-2 border-[var(--accent)]/30 overflow-hidden bg-gradient-to-br from-[var(--accent-soft)] to-white transition-all duration-200 hover:shadow-lg hover:border-[var(--accent)]/60">
+        <div className="relative h-28 overflow-hidden bg-[var(--accent)]/5 flex items-center justify-center">
+          {promoImages.length > 0 ? (
+            <div className={`grid gap-1 p-2 w-full h-full ${
+              promoImages.length === 1 ? "grid-cols-1" :
+              promoImages.length === 2 ? "grid-cols-2" :
+              "grid-cols-2"
+            }`}>
+              {promoImages.map((pp) => (
+                <div key={pp.product.id} className="relative overflow-hidden rounded-lg bg-gray-100">
+                  <Image
+                    src={pp.product.imageUrl!}
+                    alt={pp.product.name}
+                    fill
+                    className="object-cover"
+                    sizes="80px"
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex h-full items-center justify-center">
+              <svg className="h-10 w-10 text-[var(--accent)]/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z" />
+              </svg>
+            </div>
+          )}
+          <div className="absolute top-2 left-2 z-10 flex gap-1">
+            {promotion.discountPercentage && (
+              <span className="inline-block rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white shadow">
+                -{promotion.discountPercentage}%
+              </span>
+            )}
+            {hasQuantity && (
+              <span className="inline-block rounded-full bg-[var(--accent)] px-2 py-0.5 text-[10px] font-bold text-white shadow">
+                {promotion.products.find((pp) => pp.quantity > 1)?.quantity}x1
+              </span>
+            )}
+            {promotion.requiresCoupon && (
+              <span className="inline-block rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white shadow">
+                Cupón
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="p-3">
+          <h3 className="text-sm font-bold text-[var(--accent)] truncate">{promotion.title}</h3>
+          {promotion.description && (
+            <p className="text-[11px] text-[color:var(--muted)] line-clamp-2 mt-0.5 leading-relaxed">
+              {promotion.description}
+            </p>
+          )}
+          <div className="mt-2 flex items-center gap-1">
+            {avgPrice > 0 && (
+              <span className="text-base font-bold text-[var(--accent)]">{formatMoney(avgPrice)}</span>
+            )}
+            <span className="text-[10px] text-[color:var(--muted)]">
+              / {promotion.products.length} {promotion.products.length === 1 ? "producto" : "productos"}
+            </span>
+          </div>
+        </div>
+      </div>
+    </Link>
   );
 }
 

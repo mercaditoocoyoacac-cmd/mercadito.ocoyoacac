@@ -16,6 +16,7 @@ export default async function StorefrontPage({
     where: { slug },
     select: {
       id: true,
+      slug: true,
       name: true,
       category: true,
       description: true,
@@ -59,26 +60,44 @@ export default async function StorefrontPage({
     },
   });
 
-  const multiPromoProducts = await prisma.promotionProduct.findMany({
+  const storePromotions = await prisma.promotion.findMany({
     where: {
-      promotion: {
-        storeId: store.id,
-        isActive: true,
-        OR: [
-          { endDate: null },
-          { endDate: { gte: new Date() } },
-        ],
+      storeId: store.id,
+      isActive: true,
+      OR: [
+        { endDate: null },
+        { endDate: { gte: new Date() } },
+      ],
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      discountPercentage: true,
+      requiresCoupon: true,
+      products: {
+        select: {
+          promoPriceCents: true,
+          quantity: true,
+          product: {
+            select: {
+              id: true,
+              name: true,
+              imageUrl: true,
+              priceCents: true,
+            },
+          },
+        },
       },
     },
-    select: { productId: true },
+    orderBy: { createdAt: "desc" },
   });
-  const promoProductIds = [...new Set(multiPromoProducts.map((pp) => pp.productId))];
 
   return (
     <StorefrontClient
       store={JSON.parse(JSON.stringify(store))}
       products={JSON.parse(JSON.stringify(products))}
-      promoProductIds={promoProductIds}
+      storePromotions={JSON.parse(JSON.stringify(storePromotions))}
       open={open}
     />
   );
