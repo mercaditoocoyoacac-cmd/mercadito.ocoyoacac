@@ -456,6 +456,18 @@ export function NavBar() {
                             <div className="text-xs text-[color:var(--muted)]">Códigos de descuento</div>
                           </div>
                         </button>
+                        <button
+                          onClick={() => navigateTo("/vendor/promociones")}
+                          className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-gray-50"
+                        >
+                          <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                          </svg>
+                          <div>
+                            <div className="font-medium">Promociones</div>
+                            <div className="text-xs text-[color:var(--muted)]">Ofertas multi-producto</div>
+                          </div>
+                        </button>
                       </div>
                     </div>
                     </div>
@@ -832,6 +844,15 @@ export function NavBar() {
                     }`}
                   >
                     Cupones
+                  </Link>
+                  <Link
+                    href="/vendor/promociones"
+                    onClick={() => setMenuOpen(false)}
+                    className={`rounded-lg px-4 py-3 text-sm font-medium ${
+                      pathname === "/vendor/promociones" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                    }`}
+                  >
+                    Promociones
                   </Link>
                 </>
               ) : isDelivery ? (

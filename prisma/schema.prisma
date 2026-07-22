@@ -112,6 +112,7 @@ model Store {
   products     Product[]
   orders       Order[]
   coupons      Coupon[]
+  promotions   Promotion[]
   subscription Subscription?
   paymentMethods StorePaymentMethod[]
 
@@ -221,6 +222,7 @@ model Product {
   variants   ProductVariant[]
   cartItems  CartItem[]
   orderItems OrderItem[]
+  promotionProducts PromotionProduct[]
 
   @@index([storeId])
   @@index([isActive])
@@ -243,6 +245,41 @@ model ProductVariant {
   cartItems  CartItem[]
   orderItems OrderItem[]
 
+  @@index([productId])
+}
+
+model Promotion {
+  id              String    @id @default(cuid())
+  title           String
+  description     String?
+  discountPercentage Int?
+  imageUrl        String?
+  startDate       DateTime?
+  endDate         DateTime?
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  storeId String
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  products PromotionProduct[]
+
+  @@index([storeId])
+  @@index([isActive])
+}
+
+model PromotionProduct {
+  id     String @id @default(cuid())
+  promoPriceCents Int?
+
+  promotionId String
+  promotion   Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([promotionId, productId])
+  @@index([promotionId])
   @@index([productId])
 }
 
