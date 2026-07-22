@@ -34,10 +34,13 @@ type MembershipCoupon = {
   maxUses: number | null;
   maxUsesPerStore: number | null;
   usedCount: number;
+  userRegisteredBefore: string | null;
+  storeCreatedBefore: string | null;
   isActive: boolean;
   startsAt: string | null;
   expiresAt: string | null;
   createdAt: string;
+  users: { user: User }[];
 };
 
 const MEMBERSHIP_PRICE = 83000;
@@ -64,6 +67,9 @@ const emptyMemberForm = {
   discountValue: 0,
   maxUses: "",
   maxUsesPerStore: "",
+  userIds: [] as string[],
+  userRegisteredBefore: "",
+  storeCreatedBefore: "",
   startsAt: "",
   expiresAt: "",
 };
@@ -217,6 +223,9 @@ export default function AdminCuponesPage() {
       discountValue: coupon.discountValue,
       maxUses: coupon.maxUses?.toString() || "",
       maxUsesPerStore: coupon.maxUsesPerStore?.toString() || "",
+      userIds: coupon.users?.map((u) => u.user.id) || [],
+      userRegisteredBefore: coupon.userRegisteredBefore ? new Date(coupon.userRegisteredBefore).toISOString().slice(0, 10) : "",
+      storeCreatedBefore: coupon.storeCreatedBefore ? new Date(coupon.storeCreatedBefore).toISOString().slice(0, 10) : "",
       startsAt: coupon.startsAt ? new Date(coupon.startsAt).toISOString().slice(0, 16) : "",
       expiresAt: coupon.expiresAt ? new Date(coupon.expiresAt).toISOString().slice(0, 16) : "",
     });
@@ -226,6 +235,15 @@ export default function AdminCuponesPage() {
   function memberDiscountedPrice(c: MembershipCoupon | { discountType: string; discountValue: number }) {
     if (c.discountType === "PERCENTAGE") return MEMBERSHIP_PRICE * (1 - c.discountValue / 100);
     return MEMBERSHIP_PRICE - c.discountValue;
+  }
+
+  function toggleMemberUserId(userId: string) {
+    setMemberForm((prev) => ({
+      ...prev,
+      userIds: prev.userIds.includes(userId)
+        ? prev.userIds.filter((id) => id !== userId)
+        : [...prev.userIds, userId],
+    }));
   }
 
   async function handleMemberSubmit(e: React.FormEvent) {
@@ -247,6 +265,9 @@ export default function AdminCuponesPage() {
     };
     if (memberForm.maxUses) body.maxUses = Number(memberForm.maxUses);
     if (memberForm.maxUsesPerStore) body.maxUsesPerStore = Number(memberForm.maxUsesPerStore);
+    if (memberForm.userIds.length > 0) body.userIds = memberForm.userIds;
+    if (memberForm.userRegisteredBefore) body.userRegisteredBefore = new Date(memberForm.userRegisteredBefore).toISOString();
+    if (memberForm.storeCreatedBefore) body.storeCreatedBefore = new Date(memberForm.storeCreatedBefore).toISOString();
     if (memberForm.startsAt) body.startsAt = new Date(memberForm.startsAt).toISOString();
     if (memberForm.expiresAt) body.expiresAt = new Date(memberForm.expiresAt).toISOString();
 
@@ -551,6 +572,39 @@ export default function AdminCuponesPage() {
                 <div>
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Usos máximos por tienda</label>
                   <input name="maxUsesPerStore" type="number" min="1" value={memberForm.maxUsesPerStore || ""} onChange={handleMemberChange} placeholder="Sin límite" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-medium text-[color:var(--muted)] mb-2">Usuarios específicos <span className="text-[color:var(--muted)]">(opcional — vacío = todos los usuarios)</span></label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto rounded-lg border border-[var(--border)] p-2">
+                    {users.length === 0 && <p className="text-xs text-[color:var(--muted)] col-span-3">Cargando usuarios...</p>}
+                    {users.map((u) => (
+                      <label key={u.id} className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer transition-all ${memberForm.userIds.includes(u.id) ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300" : "border-[var(--border)] hover:border-gray-300"}`}>
+                        <input type="checkbox" checked={memberForm.userIds.includes(u.id)} onChange={() => toggleMemberUserId(u.id)} className="sr-only" />
+                        <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${memberForm.userIds.includes(u.id) ? "border-emerald-500 bg-emerald-500" : "border-gray-300"}`}>
+                          {memberForm.userIds.includes(u.id) && (
+                            <svg className="h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                          )}
+                        </span>
+                        <span className="truncate">{u.name || u.email}</span>
+                      </label>
+                    ))}
+                  </div>
+                  {memberForm.userIds.length > 0 && (
+                    <p className="mt-1 text-xs text-emerald-600">{memberForm.userIds.length} usuario{memberForm.userIds.length > 1 ? "s" : ""} seleccionado{memberForm.userIds.length > 1 ? "s" : ""} — solo ellos podrán usar el cupón</p>
+                  )}
+                  {memberForm.userIds.length === 0 && (
+                    <p className="mt-1 text-xs text-[color:var(--muted)]">Sin selección = todos los usuarios pueden usar el cupón</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Usuarios registrados antes de</label>
+                  <input name="userRegisteredBefore" type="date" value={memberForm.userRegisteredBefore} onChange={handleMemberChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                  <p className="mt-0.5 text-xs text-[color:var(--muted)]">Solo usuarios con cuenta antes de esta fecha</p>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Tiendas creadas antes de</label>
+                  <input name="storeCreatedBefore" type="date" value={memberForm.storeCreatedBefore} onChange={handleMemberChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                  <p className="mt-0.5 text-xs text-[color:var(--muted)]">Solo tiendas registradas antes de esta fecha</p>
                 </div>
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Descripción (interna)</label>

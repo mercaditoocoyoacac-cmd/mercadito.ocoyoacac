@@ -10,6 +10,9 @@ const updateSchema = z.object({
   discountValue: z.number().int().min(1).optional(),
   maxUses: z.number().int().min(1).optional().nullable(),
   maxUsesPerStore: z.number().int().min(1).optional().nullable(),
+  userIds: z.array(z.string().min(1)).optional(),
+  userRegisteredBefore: z.string().optional().nullable(),
+  storeCreatedBefore: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
   startsAt: z.string().optional().nullable(),
   expiresAt: z.string().optional().nullable(),
@@ -59,8 +62,25 @@ export async function PUT(
   if (parsed.data.isActive !== undefined) data.isActive = parsed.data.isActive;
   if (parsed.data.startsAt !== undefined) data.startsAt = parsed.data.startsAt ? new Date(parsed.data.startsAt) : null;
   if (parsed.data.expiresAt !== undefined) data.expiresAt = parsed.data.expiresAt ? new Date(parsed.data.expiresAt) : null;
+  if (parsed.data.userRegisteredBefore !== undefined) data.userRegisteredBefore = parsed.data.userRegisteredBefore ? new Date(parsed.data.userRegisteredBefore) : null;
+  if (parsed.data.storeCreatedBefore !== undefined) data.storeCreatedBefore = parsed.data.storeCreatedBefore ? new Date(parsed.data.storeCreatedBefore) : null;
 
-  const coupon = await prisma.membershipCoupon.update({ where: { id }, data: data as any });
+  if (parsed.data.userIds) {
+    await prisma.membershipCouponUser.deleteMany({ where: { couponId: id } });
+    await prisma.membershipCouponUser.createMany({
+      data: parsed.data.userIds.map((userId) => ({ couponId: id, userId })),
+    });
+  }
+
+  const coupon = await prisma.membershipCoupon.update({
+    where: { id },
+    data: data as any,
+    include: {
+      users: {
+        include: { user: { select: { id: true, name: true, email: true } } },
+      },
+    },
+  });
 
   return NextResponse.json({ ok: true, coupon });
 }

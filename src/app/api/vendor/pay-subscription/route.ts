@@ -64,6 +64,21 @@ export async function POST(req: Request) {
       }
     }
 
+    const couponUsers = await prisma.membershipCouponUser.findMany({ where: { couponId: coupon.id }, select: { userId: true } });
+    if (couponUsers.length > 0 && !couponUsers.some((u) => u.userId === auth.userId)) {
+      return NextResponse.json({ ok: false, error: "Este cupón no está disponible para tu cuenta." }, { status: 400 });
+    }
+    if (coupon.userRegisteredBefore || coupon.storeCreatedBefore) {
+      const user = await prisma.user.findUnique({ where: { id: auth.userId }, select: { createdAt: true } });
+      const storeRecord = await prisma.store.findUnique({ where: { id: store.id }, select: { createdAt: true } });
+      if (coupon.userRegisteredBefore && user && user.createdAt >= coupon.userRegisteredBefore) {
+        return NextResponse.json({ ok: false, error: "Este cupón es solo para usuarios registrados antes de " + coupon.userRegisteredBefore.toLocaleDateString("es-MX") + "." }, { status: 400 });
+      }
+      if (coupon.storeCreatedBefore && storeRecord && storeRecord.createdAt >= coupon.storeCreatedBefore) {
+        return NextResponse.json({ ok: false, error: "Este cupón es solo para tiendas creadas antes de " + coupon.storeCreatedBefore.toLocaleDateString("es-MX") + "." }, { status: 400 });
+      }
+    }
+
     // Calculate discounted price
     if (coupon.discountType === "PERCENTAGE") {
       amountCents = Math.round(amountCents * (1 - coupon.discountValue / 100));

@@ -10,6 +10,9 @@ const createSchema = z.object({
   discountValue: z.number().int().min(1),
   maxUses: z.number().int().min(1).optional().nullable(),
   maxUsesPerStore: z.number().int().min(1).optional().nullable(),
+  userIds: z.array(z.string().min(1)).optional(),
+  userRegisteredBefore: z.string().optional().nullable(),
+  storeCreatedBefore: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
   startsAt: z.string().optional().nullable(),
   expiresAt: z.string().optional().nullable(),
@@ -20,6 +23,11 @@ export async function GET() {
   if (!auth.ok) return auth.res;
 
   const coupons = await prisma.membershipCoupon.findMany({
+    include: {
+      users: {
+        include: { user: { select: { id: true, name: true, email: true } } },
+      },
+    },
     orderBy: { createdAt: "desc" },
   });
 
@@ -67,8 +75,22 @@ export async function POST(req: Request) {
   };
   if (parsed.data.startsAt) data.startsAt = new Date(parsed.data.startsAt);
   if (parsed.data.expiresAt) data.expiresAt = new Date(parsed.data.expiresAt);
+  if (parsed.data.userRegisteredBefore) data.userRegisteredBefore = new Date(parsed.data.userRegisteredBefore);
+  if (parsed.data.storeCreatedBefore) data.storeCreatedBefore = new Date(parsed.data.storeCreatedBefore);
 
-  const coupon = await prisma.membershipCoupon.create({ data: data as any });
+  const coupon = await prisma.membershipCoupon.create({
+    data: {
+      ...data as any,
+      users: parsed.data.userIds ? {
+        create: parsed.data.userIds.map((userId) => ({ userId })),
+      } : undefined,
+    },
+    include: {
+      users: {
+        include: { user: { select: { id: true, name: true, email: true } } },
+      },
+    },
+  });
 
   return NextResponse.json({ ok: true, coupon });
 }
