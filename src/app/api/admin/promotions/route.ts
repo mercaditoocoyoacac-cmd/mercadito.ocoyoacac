@@ -13,6 +13,7 @@ const CreatePromotionSchema = z.object({
   endDate: z.string().optional(),
   productIds: z.array(z.string()).min(1, "Selecciona al menos un producto"),
   promoPrices: z.record(z.string(), z.number().int().min(0).optional()),
+  quantities: z.record(z.string(), z.number().int().min(1).optional()),
 });
 
 export async function GET() {
@@ -57,7 +58,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Tienda no encontrada." }, { status: 404 });
   }
 
-  const { storeId, title, description, discountPercentage, imageUrl, startDate, endDate, productIds, promoPrices } = parsed.data;
+  const { storeId, title, description, discountPercentage, imageUrl, startDate, endDate, productIds, promoPrices, quantities } = parsed.data;
 
   const promotion = await prisma.promotion.create({
     data: {
@@ -73,6 +74,7 @@ export async function POST(req: Request) {
         create: productIds.map((pid) => ({
           productId: pid,
           promoPriceCents: promoPrices[pid] || null,
+          quantity: quantities?.[pid] || 1,
         })),
       },
     },

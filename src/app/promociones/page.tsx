@@ -30,6 +30,7 @@ interface MultiPromoProduct {
 interface MultiPromoProductLink {
   id: string;
   promoPriceCents: number | null;
+  quantity: number;
   product: MultiPromoProduct;
 }
 
@@ -159,7 +160,14 @@ export default function PromocionesPage() {
                             </div>
                           )}
                           <div className="min-w-0">
-                            <div className="text-xs font-medium truncate">{pp.product.name}</div>
+                            <div className="text-xs font-medium truncate flex items-center gap-1">
+                              {pp.product.name}
+                              {(pp.quantity || 1) > 1 && (
+                                <span className="shrink-0 rounded bg-[var(--accent)] text-white px-1 py-0.5 text-[9px] font-bold leading-none">
+                                  {pp.quantity}x1
+                                </span>
+                              )}
+                            </div>
                             <div className="flex items-center gap-1">
                               {pp.promoPriceCents != null && (
                                 <span className="text-xs font-bold text-[var(--accent)]">

@@ -13,6 +13,7 @@ const CreatePromotionSchema = z.object({
   endDate: z.string().optional(),
   productIds: z.array(z.string()).min(1, "Selecciona al menos un producto"),
   promoPrices: z.record(z.string(), z.number().int().min(0).optional()),
+  quantities: z.record(z.string(), z.number().int().min(1).optional()),
 });
 
 export async function GET() {
@@ -61,7 +62,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const { title, description, discountPercentage, imageUrl, startDate, endDate, productIds, promoPrices } = parsed.data;
+  const { title, description, discountPercentage, imageUrl, startDate, endDate, productIds, promoPrices, quantities } = parsed.data;
 
   const promotion = await prisma.promotion.create({
     data: {
@@ -76,6 +77,7 @@ export async function POST(req: Request) {
         create: productIds.map((pid) => ({
           productId: pid,
           promoPriceCents: promoPrices[pid] || null,
+          quantity: quantities?.[pid] || 1,
         })),
       },
     },

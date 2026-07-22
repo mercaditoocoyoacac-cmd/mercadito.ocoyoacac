@@ -21,6 +21,7 @@ interface Store {
 interface PromotionProduct {
   id: string;
   promoPriceCents: number | null;
+  quantity: number;
   product: Product;
 }
 
@@ -55,6 +56,7 @@ export default function AdminPromocionesPage() {
   const [endDate, setEndDate] = useState("");
   const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
   const [promoPrices, setPromoPrices] = useState<Record<string, string>>({});
+  const [quantities, setQuantities] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -94,6 +96,7 @@ export default function AdminPromocionesPage() {
     setEndDate("");
     setSelectedProducts(new Set());
     setPromoPrices({});
+    setQuantities({});
     setEditingId(null);
     setShowForm(false);
     setError(null);
@@ -110,12 +113,15 @@ export default function AdminPromocionesPage() {
     setEndDate(promo.endDate ? promo.endDate.slice(0, 10) : "");
     setSelectedProducts(new Set(promo.products.map((pp) => pp.product.id)));
     const prices: Record<string, string> = {};
+    const qtys: Record<string, string> = {};
     promo.products.forEach((pp) => {
       if (pp.promoPriceCents != null) {
         prices[pp.product.id] = (pp.promoPriceCents / 100).toString();
       }
+      qtys[pp.product.id] = (pp.quantity || 1).toString();
     });
     setPromoPrices(prices);
+    setQuantities(qtys);
     setShowForm(true);
     setError(null);
   }
@@ -148,11 +154,14 @@ export default function AdminPromocionesPage() {
     setSaving(true);
 
     const prices: Record<string, number> = {};
+    const qtys: Record<string, number> = {};
     selectedProducts.forEach((pid) => {
       const raw = promoPrices[pid];
       if (raw && parseFloat(raw) > 0) {
         prices[pid] = Math.round(parseFloat(raw) * 100);
       }
+      const q = quantities[pid];
+      qtys[pid] = q ? parseInt(q) : 1;
     });
 
     const body = {
@@ -165,6 +174,7 @@ export default function AdminPromocionesPage() {
       endDate: endDate || undefined,
       productIds: Array.from(selectedProducts),
       promoPrices: prices,
+      quantities: qtys,
     };
 
     const url = editingId ? `/api/admin/promotions/${editingId}` : "/api/admin/promotions";
@@ -393,12 +403,20 @@ export default function AdminPromocionesPage() {
                       </div>
                     </div>
                     {selectedProducts.has(product.id) && (
-                      <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
+                      <div className="shrink-0 flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          value={quantities[product.id] || "1"}
+                          onChange={(e) => setQuantities((prev) => ({ ...prev, [product.id]: e.target.value }))}
+                          inputMode="numeric"
+                          className="w-12 rounded-md border border-[var(--border)] bg-white px-2 py-1 text-xs text-center outline-none focus:border-[var(--accent)]"
+                          placeholder="Cant"
+                          min="1"
+                        />
                         <input
                           value={promoPrices[product.id] || ""}
                           onChange={(e) => setPromoPrices((prev) => ({ ...prev, [product.id]: e.target.value }))}
                           inputMode="decimal"
-                          className="w-24 rounded-md border border-[var(--border)] bg-white px-2 py-1 text-xs outline-none focus:border-[var(--accent)]"
+                          className="w-20 rounded-md border border-[var(--border)] bg-white px-2 py-1 text-xs outline-none focus:border-[var(--accent)]"
                           placeholder="P. promo"
                         />
                       </div>
@@ -467,6 +485,11 @@ export default function AdminPromocionesPage() {
                           />
                         )}
                         <span className="text-xs font-medium">{pp.product.name}</span>
+                        {(pp.quantity || 1) > 1 && (
+                          <span className="rounded bg-[var(--accent)] text-white px-1 py-0.5 text-[9px] font-bold leading-none">
+                            {pp.quantity}x1
+                          </span>
+                        )}
                         {pp.promoPriceCents != null && (
                           <span className="text-xs text-[var(--accent)] font-bold">
                             {formatMoney(pp.promoPriceCents, "MXN")}

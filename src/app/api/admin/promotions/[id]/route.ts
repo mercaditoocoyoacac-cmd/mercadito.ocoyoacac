@@ -13,6 +13,7 @@ const UpdatePromotionSchema = z.object({
   isActive: z.boolean().optional(),
   productIds: z.array(z.string()).min(1).optional(),
   promoPrices: z.record(z.string(), z.number().int().min(0).optional()).optional(),
+  quantities: z.record(z.string(), z.number().int().min(1).optional()).optional(),
 });
 
 export async function PUT(
@@ -55,6 +56,7 @@ export async function PUT(
       create: data.productIds.map((pid) => ({
         productId: pid,
         promoPriceCents: data.promoPrices?.[pid] || null,
+        quantity: data.quantities?.[pid] || 1,
       })),
     };
   }

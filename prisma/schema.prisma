@@ -272,6 +272,7 @@ model Promotion {
 model PromotionProduct {
   id     String @id @default(cuid())
   promoPriceCents Int?
+  quantity        Int @default(1)
 
   promotionId String
   promotion   Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
