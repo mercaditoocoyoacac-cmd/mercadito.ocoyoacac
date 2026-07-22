@@ -36,6 +36,7 @@ type StorePromotion = {
   id: string;
   title: string;
   requiresCoupon: boolean;
+  discountPercentage: number | null;
   products: {
     promoPriceCents: number | null;
     quantity: number;
@@ -221,6 +222,9 @@ export default function CarritoPage() {
       if (!pp) continue;
       if (promo.requiresCoupon && !appliedCoupon) continue;
       if (pp.promoPriceCents != null) return pp.promoPriceCents;
+      if (promo.discountPercentage && promo.discountPercentage > 0) {
+        return Math.round(basePrice * (1 - promo.discountPercentage / 100));
+      }
     }
     if (item.product.isPromotion && item.product.promotionPriceCents != null) {
       if (!item.product.promotionEndDate || new Date(item.product.promotionEndDate) >= new Date()) {

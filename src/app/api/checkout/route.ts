@@ -173,12 +173,10 @@ export async function POST(req: Request) {
     },
   });
 
-  const promoMap = new Map<string, { promoPriceCents: number; quantity: number; requiresCoupon: boolean }>();
+  const promoMap = new Map<string, { promoPriceCents: number | null; discountPercentage: number | null; quantity: number; requiresCoupon: boolean }>();
   for (const promo of activePromotions) {
     for (const pp of promo.products) {
-      if (pp.promoPriceCents != null) {
-        promoMap.set(pp.productId, { promoPriceCents: pp.promoPriceCents, quantity: pp.quantity, requiresCoupon: promo.requiresCoupon });
-      }
+      promoMap.set(pp.productId, { promoPriceCents: pp.promoPriceCents, discountPercentage: promo.discountPercentage, quantity: pp.quantity, requiresCoupon: promo.requiresCoupon });
     }
   }
 
@@ -186,8 +184,12 @@ export async function POST(req: Request) {
     (sum: number, cartItem: typeof items[number]) => {
       let price = cartItem.variant?.priceCents ?? cartItem.product.priceCents;
       const promo = promoMap.get(cartItem.product.id);
-      if (promo && promo.promoPriceCents && (!promo.requiresCoupon || parsed.data.couponCode)) {
-        price = promo.promoPriceCents;
+      if (promo && (!promo.requiresCoupon || parsed.data.couponCode)) {
+        if (promo.promoPriceCents != null) {
+          price = promo.promoPriceCents;
+        } else if (promo.discountPercentage && promo.discountPercentage > 0) {
+          price = Math.round(price * (1 - promo.discountPercentage / 100));
+        }
       } else if (cartItem.product.isPromotion && cartItem.product.promotionPriceCents != null) {
         if (!cartItem.product.promotionEndDate || new Date(cartItem.product.promotionEndDate) >= new Date()) {
           price = cartItem.product.promotionPriceCents;
@@ -300,8 +302,12 @@ export async function POST(req: Request) {
         create: items.map((cartItem: typeof items[number]) => {
           let effectivePrice = cartItem.variant?.priceCents ?? cartItem.product.priceCents;
           const promo = promoMap.get(cartItem.product.id);
-          if (promo && promo.promoPriceCents && (!promo.requiresCoupon || parsed.data.couponCode)) {
-            effectivePrice = promo.promoPriceCents;
+          if (promo && (!promo.requiresCoupon || parsed.data.couponCode)) {
+            if (promo.promoPriceCents != null) {
+              effectivePrice = promo.promoPriceCents;
+            } else if (promo.discountPercentage && promo.discountPercentage > 0) {
+              effectivePrice = Math.round(effectivePrice * (1 - promo.discountPercentage / 100));
+            }
           } else if (cartItem.product.isPromotion && cartItem.product.promotionPriceCents != null) {
             if (!cartItem.product.promotionEndDate || new Date(cartItem.product.promotionEndDate) >= new Date()) {
               effectivePrice = cartItem.product.promotionPriceCents;
