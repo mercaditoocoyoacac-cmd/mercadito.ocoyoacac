@@ -34,8 +34,8 @@ export function OfflineDetector() {
         <Image
           src="/logo.png"
           alt="Mercadito Ocoyoacac"
-          width={120}
-          height={120}
+          width={150}
+          height={150}
           className="rounded-2xl"
           priority
         />
