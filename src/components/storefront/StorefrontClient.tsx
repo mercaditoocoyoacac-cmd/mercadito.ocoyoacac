@@ -359,6 +359,7 @@ export function StorefrontClient({
 }
 
 function FeaturedPromoCard({ promotion, store, index }: { promotion: StorePromotion; store: StoreData; index: number }) {
+  const [expanded, setExpanded] = useState(false);
   const promoImages = promotion.products
     .filter((pp) => pp.product.imageUrl)
     .slice(0, 4);
@@ -371,10 +372,11 @@ function FeaturedPromoCard({ promotion, store, index }: { promotion: StorePromot
   const hasQuantity = promotion.products.some((pp) => pp.quantity > 1);
 
   return (
-    <Link href={`/tienda/${store.slug}`} className="block">
+    <>
       <div
         style={{ animationDelay: `${index * 50}ms` }}
-        className="group h-full rounded-xl border border-gray-200 overflow-hidden bg-white transition-all duration-200 hover:shadow-lg fade-in"
+        className="group h-full rounded-xl border border-gray-200 overflow-hidden bg-white transition-all duration-200 hover:shadow-lg fade-in cursor-pointer"
+        onClick={() => setExpanded(true)}
       >
         <div className="relative h-44 overflow-hidden bg-gray-100 flex items-center justify-center">
           {promoImages.length > 0 ? (
@@ -432,7 +434,99 @@ function FeaturedPromoCard({ promotion, store, index }: { promotion: StorePromot
           </p>
         </div>
       </div>
-    </Link>
+
+      {expanded && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 p-0 sm:p-4" onClick={() => setExpanded(false)}>
+          <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl bg-white shadow-2xl animate-slide-up-sm" onClick={(e) => e.stopPropagation()}>
+            <button type="button" onClick={() => setExpanded(false)} className="absolute top-3 right-3 z-10 rounded-full bg-white/90 p-2 shadow-md border-none cursor-pointer hover:bg-white">
+              <svg className="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {promoImages.length > 0 ? (
+              <div className="relative h-56 sm:h-64 w-full bg-gray-100 grid grid-cols-2 gap-1 p-1">
+                {promoImages.map((pp) => (
+                  <div key={pp.product.id} className="relative overflow-hidden rounded-lg">
+                    <Image src={pp.product.imageUrl!} alt={pp.product.name} fill className="object-cover" sizes="200px" placeholder="blur" blurDataURL={shimmerBlur} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex h-40 items-center justify-center bg-gray-100">
+                <svg className="h-16 w-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z" />
+                </svg>
+              </div>
+            )}
+
+            <div className="p-5 space-y-4">
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h2 className="text-xl font-bold">{promotion.title}</h2>
+                  {promotion.discountPercentage ? (
+                    <span className="inline-block rounded-full bg-red-500 px-2.5 py-0.5 text-xs font-bold text-white">
+                      -{promotion.discountPercentage}%
+                    </span>
+                  ) : hasQuantity ? (
+                    <span className="inline-block rounded-full bg-green-600 px-2.5 py-0.5 text-xs font-bold text-white">
+                      {promotion.products.reduce((s, pp) => s + pp.quantity, 0)} productos
+                    </span>
+                  ) : null}
+                  {promotion.requiresCoupon && (
+                    <span className="inline-block rounded-full bg-amber-500 px-2.5 py-0.5 text-xs font-bold text-white">
+                      Requiere cupón
+                    </span>
+                  )}
+                </div>
+                {promotion.description && (
+                  <p className="mt-2 text-sm text-gray-600 leading-relaxed">{promotion.description}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Productos incluidos</h3>
+                {promotion.products.map((pp) => (
+                  <div key={pp.product.id} className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-2.5">
+                    {pp.product.imageUrl ? (
+                      <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg">
+                        <Image src={pp.product.imageUrl} alt={pp.product.name} fill className="object-cover" sizes="40px" />
+                      </div>
+                    ) : (
+                      <div className="h-10 w-10 shrink-0 rounded-lg bg-gray-200 flex items-center justify-center text-xs text-gray-400">📦</div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium truncate">{pp.product.name}</div>
+                      <div className="text-xs text-gray-400">
+                        {pp.quantity > 1 && <span className="font-medium text-gray-600">{pp.quantity}x </span>}
+                        {pp.promoPriceCents != null ? (
+                          <><span className="line-through">{formatMoney(pp.product.priceCents)}</span> <span className="font-bold text-[var(--accent)]">{formatMoney(pp.promoPriceCents)}</span></>
+                        ) : (
+                          <span className="font-bold text-[var(--accent)]">{formatMoney(pp.product.priceCents)}</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                <div>
+                  <span className="text-xs text-gray-400">Total</span>
+                  <div className="text-2xl font-bold text-[var(--accent)]">{formatMoney(totalPrice)}</div>
+                </div>
+                <Link
+                  href={`/tienda/${store.slug}`}
+                  className="rounded-xl bg-[var(--accent)] px-5 py-3 text-sm font-bold text-white hover:bg-[var(--accent-hover)] transition-colors"
+                >
+                  Ver tienda
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
