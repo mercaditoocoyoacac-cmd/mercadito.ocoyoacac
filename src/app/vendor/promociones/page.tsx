@@ -51,6 +51,7 @@ export default function VendorPromocionesPage() {
   const [promoPrices, setPromoPrices] = useState<Record<string, string>>({});
   const [quantities, setQuantities] = useState<Record<string, string>>({});
   const [requiresCoupon, setRequiresCoupon] = useState(false);
+  const [isPercentage, setIsPercentage] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -79,6 +80,7 @@ export default function VendorPromocionesPage() {
     setPromoPrices({});
     setQuantities({});
     setRequiresCoupon(false);
+    setIsPercentage(false);
     setEditingId(null);
     setShowForm(false);
     setError(null);
@@ -104,6 +106,7 @@ export default function VendorPromocionesPage() {
     setPromoPrices(prices);
     setQuantities(qtys);
     setRequiresCoupon(promo.requiresCoupon ?? false);
+    setIsPercentage(!!(promo.discountPercentage && promo.discountPercentage > 0));
     setShowForm(true);
     setError(null);
   }
@@ -151,13 +154,13 @@ export default function VendorPromocionesPage() {
     const body = {
       title: title.trim(),
       description: description.trim() || undefined,
-      discountPercentage: discountPct ? parseInt(discountPct) : undefined,
+      discountPercentage: isPercentage && discountPct ? parseInt(discountPct) : undefined,
       imageUrl: imageUrl || undefined,
       startDate: startDate || undefined,
       endDate: endDate || undefined,
       requiresCoupon,
       productIds: Array.from(selectedProducts),
-      promoPrices: prices,
+      promoPrices: isPercentage ? {} : prices,
       quantities: qtys,
     };
 
@@ -266,17 +269,7 @@ export default function VendorPromocionesPage() {
             />
           </label>
 
-          <div className="grid gap-3 sm:grid-cols-3">
-            <label className="block">
-              <div className="text-sm font-medium">% Descuento general</div>
-              <input
-                value={discountPct}
-                onChange={(e) => setDiscountPct(e.target.value)}
-                inputMode="numeric"
-                className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-                placeholder="Ej: 20"
-              />
-            </label>
+          <div className="grid gap-3 sm:grid-cols-2">
             <label className="block">
               <div className="text-sm font-medium">Inicio</div>
               <input
@@ -296,6 +289,38 @@ export default function VendorPromocionesPage() {
               />
             </label>
           </div>
+
+          <label className="flex items-center gap-3 cursor-pointer rounded-lg border border-[var(--accent)] bg-[var(--accent-soft)] p-3 transition-colors">
+            <input
+              type="checkbox"
+              checked={isPercentage}
+              onChange={(e) => setIsPercentage(e.target.checked)}
+              className="h-4 w-4 rounded border-[var(--border)] text-[var(--accent)] focus:ring-[var(--accent)]"
+            />
+            <div>
+              <div className="text-sm font-medium">
+                {isPercentage ? "Descuento por porcentaje" : "Precio fijo de promoción"}
+              </div>
+              <div className="text-xs text-[color:var(--muted)]">
+                {isPercentage
+                  ? "Se aplica un % de descuento a todos los productos seleccionados."
+                  : "Colocas el precio exacto de promoción por cada producto."}
+              </div>
+            </div>
+          </label>
+
+          {isPercentage ? (
+            <label className="block">
+              <div className="text-sm font-medium">% Descuento general</div>
+              <input
+                value={discountPct}
+                onChange={(e) => setDiscountPct(e.target.value)}
+                inputMode="numeric"
+                className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                placeholder="Ej: 20"
+              />
+            </label>
+          ) : null}
 
           <label className="flex items-center gap-3 cursor-pointer rounded-lg border border-[var(--border)] p-3 hover:bg-gray-50 transition-colors">
             <input
@@ -368,13 +393,15 @@ export default function VendorPromocionesPage() {
                           placeholder="Cant"
                           min="1"
                         />
-                        <input
-                          value={promoPrices[product.id] || ""}
-                          onChange={(e) => setPromoPrices((prev) => ({ ...prev, [product.id]: e.target.value }))}
-                          inputMode="decimal"
-                          className="w-20 rounded-md border border-[var(--border)] bg-white px-2 py-1 text-xs outline-none focus:border-[var(--accent)]"
-                          placeholder="P. promo"
-                        />
+                        {!isPercentage && (
+                          <input
+                            value={promoPrices[product.id] || ""}
+                            onChange={(e) => setPromoPrices((prev) => ({ ...prev, [product.id]: e.target.value }))}
+                            inputMode="decimal"
+                            className="w-20 rounded-md border border-[var(--border)] bg-white px-2 py-1 text-xs outline-none focus:border-[var(--accent)]"
+                            placeholder="P. promo"
+                          />
+                        )}
                       </div>
                     )}
                   </div>
