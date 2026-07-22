@@ -275,6 +275,11 @@ button:active {
 
 .dark .border-gray-100, .dark .border-gray-200, .dark .border-gray-300, .dark .border-gray-500 { border-color: var(--border); }
 
+.dark select, .dark select option {
+  background-color: #1a1a1a !important;
+  color: #E2E8F0 !important;
+}
+
 /* ===== Delivery dashboard animations ===== */
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(16px); }
