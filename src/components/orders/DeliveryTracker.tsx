@@ -118,11 +118,6 @@ export default function DeliveryTracker({
   const [pickupLoading, setPickupLoading] = useState(false);
   const [pickupScanning, setPickupScanning] = useState(false);
   const [pickupError, setPickupError] = useState<string | null>(null);
-  const [ratingOrderId, setRatingOrderId] = useState<string | null>(null);
-  const [ratingStore, setRatingStore] = useState(0);
-  const [ratingDelivery, setRatingDelivery] = useState(0);
-  const [ratingComment, setRatingComment] = useState("");
-  const [ratingSubmitting, setRatingSubmitting] = useState(false);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const scannerId = "pickup-qr-scanner";
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -220,41 +215,10 @@ export default function DeliveryTracker({
     });
     const data = (await res.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
     if (res.ok && data?.ok) {
-      setRatingOrderId(orderId);
-      setRatingStore(0);
-      setRatingDelivery(0);
-      setRatingComment("");
+      router.refresh();
     } else {
       toast.error(data?.error || "Código inválido.");
     }
-  }
-
-  async function submitRating() {
-    if (!ratingOrderId) return;
-    setRatingSubmitting(true);
-    const res = await fetch("/api/ratings", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        orderId: ratingOrderId,
-        storeScore: ratingStore,
-        deliveryScore: ratingDelivery > 0 ? ratingDelivery : undefined,
-        comment: ratingComment.trim() || undefined,
-      }),
-    });
-    setRatingSubmitting(false);
-    if (res.ok) {
-      toast.success("¡Gracias por calificar!");
-    } else {
-      toast.error("Error al guardar calificación.");
-    }
-    setRatingOrderId(null);
-    router.refresh();
-  }
-
-  function skipRating() {
-    setRatingOrderId(null);
-    router.refresh();
   }
 
   async function handlePickup(orderId: string, codeOverride?: string) {
@@ -868,73 +832,6 @@ export default function DeliveryTracker({
               ))}
             </motion.div>
           )}
-        </div>
-      )}
-
-      {/* Rating modal after delivery completion */}
-      {ratingOrderId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl space-y-5">
-            <h3 className="text-xl font-bold text-center">Califica tu experiencia</h3>
-            <p className="text-sm text-gray-500 text-center">Tu opinión nos ayuda a mejorar</p>
-
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700">Tienda *</label>
-              <div className="flex gap-2 justify-center text-4xl">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    type="button"
-                    onClick={() => setRatingStore(star)}
-                    className={`cursor-pointer transition-transform active:scale-125 ${star <= ratingStore ? "scale-110" : "opacity-40"} border-none bg-transparent`}
-                  >
-                    {star <= ratingStore ? "⭐" : "☆"}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700">Repartidor</label>
-              <div className="flex gap-2 justify-center text-4xl">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    type="button"
-                    onClick={() => setRatingDelivery(star)}
-                    className={`cursor-pointer transition-transform active:scale-125 ${star <= ratingDelivery ? "scale-110" : "opacity-40"} border-none bg-transparent`}
-                  >
-                    {star <= ratingDelivery ? "⭐" : "☆"}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <textarea
-              placeholder="Comentario (opcional)"
-              value={ratingComment}
-              onChange={(e) => setRatingComment(e.target.value)}
-              className="w-full rounded-xl border-2 border-gray-200 p-3 text-sm outline-none focus:border-[var(--accent)] resize-none h-20"
-            />
-
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={skipRating}
-                className="flex-1 rounded-xl bg-gray-200 py-3 text-sm font-bold text-gray-700 hover:bg-gray-300 border-none cursor-pointer"
-              >
-                Saltar
-              </button>
-              <button
-                type="button"
-                onClick={submitRating}
-                disabled={ratingStore === 0 || ratingSubmitting}
-                className="flex-1 rounded-xl bg-[var(--accent)] py-3 text-sm font-bold text-white hover:opacity-90 disabled:opacity-40 border-none cursor-pointer"
-              >
-                {ratingSubmitting ? "Enviando..." : "Enviar calificación"}
-              </button>
-            </div>
-          </div>
         </div>
       )}
     </>

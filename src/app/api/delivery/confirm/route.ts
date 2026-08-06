@@ -76,14 +76,15 @@ export async function POST(req: Request) {
   revalidatePath("/vendor/pedidos");
 
   if (newStatus === "COMPLETED") {
+    const ratingUrl = `${process.env.NEXTAUTH_URL || ""}/mis-pedidos/${orderId}`;
     await sendTextNotification(order.userId, {
       title: "Pedido entregado",
-      body: `Tu pedido en ${order.store.name} ha sido entregado.`,
+      body: `Tu pedido en ${order.store.name} ha sido entregado. ¡Califica tu experiencia!`,
       type: "ORDER_COMPLETED",
       url: `/mis-pedidos/${orderId}`,
     });
 
-    const message = `🛵 ¡Tu pedido de ${order.store.name} ha llegado! El repartidor ya está en tu domicilio.`;
+    const message = `🛵 ¡Tu pedido de ${order.store.name} ha llegado! ¿Cómo te fue? Cuéntanos calificando tu experiencia aquí: ${ratingUrl}`;
     await Promise.allSettled([
       sendWhatsAppMessage(order.customerPhone, message),
       sendSMS(order.customerPhone, message.replace(/[^\w\sáéíóúñ,.!¡¿?]/g, "")),
