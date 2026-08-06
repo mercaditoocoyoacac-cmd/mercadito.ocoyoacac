@@ -2,9 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { requireRole, requireUser } from "@/server/requireUser";
-import { sendTextNotification } from "@/server/notifications";
-import { sendWhatsAppMessage } from "@/server/whatsapp";
-import { sendSMS } from "@/server/sns";
+import { notifyCustomerOrderCompleted } from "@/server/notifications";
 import { appendStatusTimestamp } from "@/lib/statusTimestamps";
 
 export async function POST(req: Request) {
@@ -76,19 +74,7 @@ export async function POST(req: Request) {
   revalidatePath("/vendor/pedidos");
 
   if (newStatus === "COMPLETED") {
-    const ratingUrl = `${process.env.NEXTAUTH_URL || ""}/mis-pedidos/${orderId}`;
-    await sendTextNotification(order.userId, {
-      title: "Pedido entregado",
-      body: `Tu pedido en ${order.store.name} ha sido entregado. ¡Califica tu experiencia!`,
-      type: "ORDER_COMPLETED",
-      url: `/mis-pedidos/${orderId}`,
-    });
-
-    const message = `🛵 ¡Tu pedido de ${order.store.name} ha llegado! ¿Cómo te fue? Cuéntanos calificando tu experiencia aquí: ${ratingUrl}`;
-    await Promise.allSettled([
-      sendWhatsAppMessage(order.customerPhone, message),
-      sendSMS(order.customerPhone, message.replace(/[^\w\sáéíóúñ,.!¡¿?]/g, "")),
-    ]);
+    await notifyCustomerOrderCompleted(orderId);
   }
 
   return NextResponse.json({

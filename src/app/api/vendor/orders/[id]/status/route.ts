@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
 import { sendTextNotification } from "@/server/notifications";
+import { notifyCustomerOrderCompleted } from "@/server/notifications";
 import { sendPushToMultiple } from "@/server/push";
 import { appendStatusTimestamp } from "@/lib/statusTimestamps";
 
@@ -49,6 +50,10 @@ export async function POST(
       statusTimestamps: appendStatusTimestamp(currentTimestamps, parsed.data.status),
     },
   });
+
+  if (parsed.data.status === "COMPLETED") {
+    await notifyCustomerOrderCompleted(id);
+  }
 
   if (
     (parsed.data.status === "CONFIRMED" || parsed.data.status === "READY") &&

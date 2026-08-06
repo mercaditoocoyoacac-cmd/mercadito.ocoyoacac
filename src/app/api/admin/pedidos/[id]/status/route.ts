@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/server/prisma";
 import { requireRole } from "@/server/requireUser";
 import { sendTextNotification } from "@/server/notifications";
+import { notifyCustomerOrderCompleted } from "@/server/notifications";
 import { sendPushToMultiple } from "@/server/push";
 import { appendStatusTimestamp } from "@/lib/statusTimestamps";
 
@@ -101,6 +102,10 @@ export async function POST(
       statusTimestamps: appendStatusTimestamp(currentTs, newStatus),
     },
   });
+
+  if (newStatus === "COMPLETED") {
+    await notifyCustomerOrderCompleted(id);
+  }
 
   // Notify drivers when order becomes CONFIRMED/READY (DELIVERY, no driver assigned)
   if (

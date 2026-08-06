@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/server/prisma";
 import { requireRole } from "@/server/requireUser";
 import { revalidatePath } from "next/cache";
+import { notifyCustomerOrderCompleted } from "@/server/notifications";
 
 export async function POST(req: Request) {
   const auth = await requireRole("ADMIN");
@@ -41,6 +42,8 @@ export async function POST(req: Request) {
       statusTimestamps: { ...timestamps, COMPLETED: new Date().toISOString() },
     },
   });
+
+  await notifyCustomerOrderCompleted(orderId);
 
   revalidatePath("/admin/envios");
   revalidatePath(`/admin/pedidos/${orderId}`);
