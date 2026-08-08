@@ -31,11 +31,13 @@ export default function ZonasEnvioPage() {
   const [drawing, setDrawing] = useState(false);
   const [drawPoints, setDrawPoints] = useState<{ lat: number; lng: number }[]>([]);
   const [editingZone, setEditingZone] = useState<Partial<Zone> | null>(null);
+  const [editingPolygon, setEditingPolygon] = useState(false);
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [mapReady, setMapReady] = useState(false);
   const mapRef = useRef<google.maps.Map | null>(null);
   const clickListenerRef = useRef<google.maps.MapsEventListener | null>(null);
+  const draggingRef = useRef<number | null>(null);
 
   const loadZones = useCallback(async () => {
     const res = await fetch("/api/admin/delivery-zones");
@@ -51,13 +53,21 @@ export default function ZonasEnvioPage() {
   }, []);
 
   useEffect(() => {
-    if (!isLoaded || !mapReady || !mapRef.current || !drawing) return;
+    if (!isLoaded || !mapReady || !mapRef.current || (!drawing && !editingPolygon)) return;
     const map = mapRef.current;
     const listener = map.addListener("click", (e: google.maps.MapMouseEvent) => {
       const lat = e.latLng?.lat();
       const lng = e.latLng?.lng();
-      if (lat != null && lng != null) {
+      if (lat == null || lng == null) return;
+      if (drawing) {
         setDrawPoints((prev) => [...prev, { lat, lng }]);
+      } else if (editingPolygon && editingZone?.id) {
+        setEditingZone((prev) => {
+          const current = prev?.polygon ? [...prev.polygon] : [];
+          if (current.some((p) => Math.abs(p.lat - lat) < 0.00001 && Math.abs(p.lng - lng) < 0.00001)) return prev;
+          current.push({ lat, lng });
+          return { ...prev!, polygon: current };
+        });
       }
     });
     clickListenerRef.current = listener;
@@ -65,11 +75,12 @@ export default function ZonasEnvioPage() {
       google.maps.event.removeListener(listener);
       clickListenerRef.current = null;
     };
-  }, [isLoaded, mapReady, drawing]);
+  }, [isLoaded, mapReady, drawing, editingPolygon, editingZone?.id]);
 
   function startDrawing() {
     setDrawPoints([]);
     setDrawing(true);
+    setEditingPolygon(false);
     setEditingZone(null);
   }
 
@@ -98,6 +109,35 @@ export default function ZonasEnvioPage() {
     };
     setDrawPoints([]);
     setEditingZone(newZone);
+  }
+
+  function startPolygonEditing(zone: Zone) {
+    setDrawing(false);
+    setEditingPolygon(true);
+    setSelectedZoneId(zone.id);
+    setEditingZone({ ...zone, id: zone.id });
+    if (mapRef.current && zone.polygon?.length) {
+      const bounds = new google.maps.LatLngBounds();
+      zone.polygon.forEach((p) => bounds.extend(p));
+      mapRef.current.fitBounds(bounds, 50);
+    }
+  }
+
+  function movePolygonPoint(index: number, lat: number, lng: number) {
+    setEditingZone((prev) => {
+      if (!prev?.polygon) return prev;
+      const polygon = [...prev.polygon];
+      polygon[index] = { lat, lng };
+      return { ...prev, polygon };
+    });
+  }
+
+  function deletePolygonPoint(index: number) {
+    setEditingZone((prev) => {
+      if (!prev?.polygon) return prev;
+      const polygon = prev.polygon.filter((_, i) => i !== index);
+      return { ...prev, polygon };
+    });
   }
 
   const centerZone = useCallback((zone: Zone) => {
@@ -131,6 +171,7 @@ export default function ZonasEnvioPage() {
     }
     setSaving(false);
     setEditingZone(null);
+    setEditingPolygon(false);
     loadZones();
   }
 
@@ -221,9 +262,10 @@ export default function ZonasEnvioPage() {
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setEditingZone({ ...zone, id: zone.id });
+                        startPolygonEditing(zone);
                       }}
                       className="rounded p-1 text-[color:var(--muted)] hover:bg-gray-100"
+                      title="Editar polígono de la zona"
                     >
                       <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -291,10 +333,62 @@ export default function ZonasEnvioPage() {
               {!editingZone.polygon?.length && (
                 <p className="text-xs text-amber-600">Dibuja un polígono en el mapa para definir la zona.</p>
               )}
+
+              {editingZone.id && (
+                <div className="rounded-lg border border-[var(--border)] bg-white p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs font-medium">
+                      Polígono · {editingZone.polygon?.length ?? 0} puntos
+                    </div>
+                    {editingPolygon ? (
+                      <button
+                        type="button"
+                        onClick={() => setEditingPolygon(false)}
+                        className="rounded-md bg-gray-200 px-2 py-1 text-xs font-medium hover:bg-gray-300 transition-colors"
+                      >
+                        Terminar edición
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setEditingPolygon(true)}
+                        className="rounded-md bg-[var(--accent)] px-2 py-1 text-xs font-medium text-white hover:bg-[var(--accent-hover)] transition-colors"
+                      >
+                        Editar polígono
+                      </button>
+                    )}
+                  </div>
+                  {editingPolygon && (
+                    <div className="space-y-1.5">
+                      <p className="text-xs text-[color:var(--muted)]">
+                        Haz clic en el mapa para agregar un punto. Arrastra un punto para moverlo. Haz clic sobre un punto para eliminarlo.
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setEditingPolygon(false)}
+                          className="rounded-md border border-red-300 px-2 py-1 text-xs text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditingZone({ ...editingZone, polygon: editingZone.polygon?.slice(0, -1) ?? [] })}
+                          disabled={!editingZone.polygon?.length}
+                          className="rounded-md border border-[var(--border)] px-2 py-1 text-xs hover:bg-gray-50 disabled:opacity-40"
+                        >
+                          Deshacer último punto
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="flex gap-2">
                 <button
                   type="button"
-                  onClick={() => setEditingZone(null)}
+                  onClick={() => { setEditingZone(null); setEditingPolygon(false); }}
                   className="flex-1 rounded-md border border-[var(--border)] px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
                 >
                   Cancelar
@@ -340,6 +434,7 @@ export default function ZonasEnvioPage() {
           >
             {zones
               .filter((z) => z.polygon?.length > 0)
+              .filter((z) => !(editingPolygon && editingZone?.id === z.id))
               .map((zone) => (
                 <Polygon
                   key={zone.id}
@@ -375,6 +470,68 @@ export default function ZonasEnvioPage() {
                       fillOpacity: 1,
                       strokeColor: "#fff",
                       strokeWeight: 2,
+                    }}
+                    label={{
+                      text: `${i + 1}`,
+                      color: "#fff",
+                      fontSize: "10px",
+                    }}
+                  />
+                ))}
+              </>
+            )}
+
+            {editingPolygon && editingZone?.polygon && editingZone.polygon.length >= 3 && (
+              <>
+                <Polygon
+                  paths={editingZone.polygon}
+                  options={{
+                    fillColor: editingZone.color || "#22c55e",
+                    fillOpacity: 0.2,
+                    strokeColor: editingZone.color || "#22c55e",
+                    strokeWeight: 2.5,
+                    clickable: false,
+                  }}
+                />
+                <Polyline
+                  path={[...editingZone.polygon, editingZone.polygon[0]]}
+                  options={{
+                    strokeColor: editingZone.color || "#22c55e",
+                    strokeWeight: 2.5,
+                    strokeOpacity: 0.9,
+                  }}
+                />
+                {editingZone.polygon.map((p, i) => (
+                  <Marker
+                    key={`${p.lat}-${p.lng}-${i}`}
+                    position={p}
+                    draggable
+                    onDragStart={() => { draggingRef.current = i; }}
+                    onDragEnd={(e) => {
+                      const lat = e.latLng?.lat();
+                      const lng = e.latLng?.lng();
+                      const idx = draggingRef.current;
+                      draggingRef.current = null;
+                      if (lat != null && lng != null && idx != null) {
+                        movePolygonPoint(idx, lat, lng);
+                      }
+                    }}
+                    onClick={() => {
+                      const idx = draggingRef.current;
+                      if (idx != null) return;
+                      if ((editingZone.polygon?.length ?? 0) <= 3) {
+                        alert("Una zona necesita al menos 3 puntos.");
+                        return;
+                      }
+                      deletePolygonPoint(i);
+                    }}
+                    icon={{
+                      path: google.maps.SymbolPath.CIRCLE,
+                      scale: 7,
+                      fillColor: editingZone.color || "#22c55e",
+                      fillOpacity: 1,
+                      strokeColor: "#fff",
+                      strokeWeight: 2.5,
                     }}
                     label={{
                       text: `${i + 1}`,
