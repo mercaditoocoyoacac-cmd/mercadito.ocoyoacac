@@ -12,7 +12,7 @@ const RegisterSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
   name: z.string().min(2).max(80).optional(),
-  phone: z.string().optional(),
+  phone: z.string().refine((v) => v.replace(/\D/g, "").length >= 10, "El teléfono debe tener al menos 10 dígitos"),
   role: z.enum(["CUSTOMER", "VENDOR", "DELIVERY", "ADMIN"]).optional(),
   adminKey: z.string().optional(),
 });

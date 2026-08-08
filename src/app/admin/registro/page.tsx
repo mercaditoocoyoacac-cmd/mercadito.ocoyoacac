@@ -18,6 +18,7 @@ function generateSecurePassword() {
 
 export default function AdminRegistroPage() {
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [adminKey, setAdminKey] = useState("");
@@ -76,6 +77,7 @@ export default function AdminRegistroPage() {
             body: JSON.stringify({
               email,
               password,
+              phone,
               adminKey,
             }),
           });
@@ -114,6 +116,18 @@ export default function AdminRegistroPage() {
             required
             className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
             placeholder="admin@tu-dominio.com"
+          />
+        </label>
+
+        <label className="block">
+          <div className="text-sm font-medium">Teléfono</div>
+          <input
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            type="tel"
+            required
+            className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+            placeholder="722..."
           />
         </label>
 
