@@ -103,3 +103,12 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **Carrito** (`/carrito/page.tsx`) fetches `/api/delivery-settings` in both initial `useEffect` blocks and computes the preview fee from settings.
 - **UI**: `/admin/pedidos` (`AdminOrdersClient.tsx`) has a "Tarifa general de envío" panel — view summary or edit (5 numeric inputs: base, extra per segment, base km, segment km, fallback), saved via PUT with loading/error feedback. Server page (`/admin/pedidos/page.tsx`) loads `deliverySettings` row and passes to client with defaults fallback.
 - Deployed `9e72daa` — Ready on Vercel.
+
+## Zonas de riesgo + Ruta real (this session)
+- **Zonas de riesgo**: Removed color selector in `/admin/zonas-envio`; all zones render red (`RISK_COLOR = "#ef4444"`). `RISK_ZONE_EXTRA_CENTS = 2000` in `src/lib/geo.ts`. Checkout adds `$20 × nº de zonas de riesgo` where the customer falls, ON TOP of the base delivery fee (`src/app/api/checkout/route.ts`). API POST/PUT force `color: "#ef4444"` and `priceCents: 2000`; POST no longer requires `priceCents`.
+- **Real route distance**: New `src/server/directions.ts` with `getRouteDistanceKm(originLat, originLng, destLat, destLng)` — tries Google **Routes API (New)** (POST `computeRoutes`, fieldmask `routes.distanceMeters`) then falls back to **Directions API (legacy)**; 10-min in-memory TTL cache keyed by 4-decimal coords; 4s fetch timeout. Uses `GOOGLE_MAPS_API_KEY_SERVER` env var, falling back to `NEXT_PUBLIC_GOOGLE_MAPS_KEY`.
+- **Checkout** now uses route distance when available, else haversine straight-line (`routeKm ?? haversineDistance(...)`).
+- **`/api/delivery/distance`** (authed + rate-limited by IP, 10/min) returns `{ ok, routeKm, straightKm }` for the cart preview.
+- **Carrito** (`src/app/carrito/page.tsx`) has `routeKm` state; a `useEffect` fetches `/api/delivery/distance` when store+customer coords exist and fulfillmentType is DELIVERY; `deliveryFee` memo uses `routeKm ?? haversine`.
+- **BLOCKER — Google API not enabled**: Project `67218965388` has neither Routes API nor Directions API enabled (both return 403/REQUEST_DENIED). Until the user enables one of them in Google Cloud Console (and billing is active), the helper returns `null` and the system silently uses straight-line distance. Enable here: `https://console.developers.google.com/apis/api/routes.googleapis.com/overview?project=67218965388`. `.env.local` now also has `GOOGLE_MAPS_API_KEY_SERVER` (same key value as NEXT_PUBLIC for now).
+- Deployed `2d57063` — Ready on Vercel.
