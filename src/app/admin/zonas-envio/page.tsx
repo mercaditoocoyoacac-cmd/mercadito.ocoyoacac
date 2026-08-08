@@ -3,10 +3,12 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useJsApiLoader, GoogleMap, Polygon, Marker, Polyline } from "@react-google-maps/api";
 import { formatMoney } from "@/lib/format";
+import { RISK_ZONE_EXTRA_CENTS } from "@/lib/geo";
 
 const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY || "";
 const containerStyle = { width: "100%", height: "100%" };
 const defaultCenter = { lat: 19.2886, lng: -99.4498 };
+const RISK_COLOR = "#ef4444";
 
 interface Zone {
   id: string;
@@ -17,8 +19,6 @@ interface Zone {
   isActive: boolean;
   sortOrder: number;
 }
-
-const COLORS = ["#22c55e", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6", "#f97316", "#6366f1", "#84cc16"];
 
 export default function ZonasEnvioPage() {
   const { isLoaded } = useJsApiLoader({
@@ -102,8 +102,8 @@ export default function ZonasEnvioPage() {
     }
     const newZone: Partial<Zone> = {
       name: "",
-      color: COLORS[zones.length % COLORS.length],
-      priceCents: 2500,
+      color: RISK_COLOR,
+      priceCents: RISK_ZONE_EXTRA_CENTS,
       polygon: [...drawPoints],
       isActive: true,
     };
@@ -154,8 +154,8 @@ export default function ZonasEnvioPage() {
     setSaving(true);
     const body = {
       name: editingZone.name,
-      color: editingZone.color,
-      priceCents: editingZone.priceCents,
+      color: RISK_COLOR,
+      priceCents: RISK_ZONE_EXTRA_CENTS,
       polygon: editingZone.polygon,
       isActive: editingZone.isActive ?? true,
     };
@@ -185,7 +185,7 @@ export default function ZonasEnvioPage() {
   if (!isLoaded) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-semibold tracking-tight">Zonas de envío</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Zonas de riesgo</h1>
         <div className="h-[600px] rounded-xl bg-gray-100 animate-pulse flex items-center justify-center">
           <span className="text-sm text-gray-400">Cargando mapa...</span>
         </div>
@@ -197,9 +197,9 @@ export default function ZonasEnvioPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Zonas de envío</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Zonas de riesgo</h1>
           <p className="mt-1 text-sm text-[color:var(--muted)]">
-            Define zonas geográficas con costo de envío personalizado.
+            Las entregas dentro de una zona de riesgo suman {formatMoney(RISK_ZONE_EXTRA_CENTS, "MXN")} extra al costo de envío.
           </p>
         </div>
         <div className="flex gap-2">
@@ -237,7 +237,7 @@ export default function ZonasEnvioPage() {
         <div className="order-2 space-y-3 lg:order-1">
           {zones.length === 0 && !editingZone && (
             <div className="rounded-xl border border-dashed border-[var(--border)] p-6 text-center text-sm text-[color:var(--muted)]">
-              No hay zonas definidas. Haz clic en "Dibujar nueva zona" para comenzar.
+              No hay zonas de riesgo definidas. Haz clic en "Dibujar nueva zona" para comenzar.
             </div>
           )}
 
@@ -251,13 +251,13 @@ export default function ZonasEnvioPage() {
                   selectedZoneId === zone.id ? "border-[var(--accent)] ring-1 ring-[var(--accent)]" : "border-[var(--border)]"
                 }`}
               >
-                <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="h-4 w-4 rounded-full border border-white/50 shadow-sm" style={{ backgroundColor: zone.color }} />
                     <span className="font-medium text-sm">{zone.name}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-[var(--accent)]">{formatMoney(zone.priceCents, "MXN")}</span>
+                    <span className="text-sm font-semibold text-[var(--accent)]">+{formatMoney(RISK_ZONE_EXTRA_CENTS, "MXN")}</span>
                     <button
                       type="button"
                       onClick={(e) => {
@@ -296,7 +296,7 @@ export default function ZonasEnvioPage() {
 
           {editingZone && (
             <div className="rounded-xl border border-[var(--accent)] bg-blue-50/50 p-4 space-y-3">
-              <div className="text-sm font-medium">{editingZone.id ? "Editar zona" : "Nueva zona"}</div>
+              <div className="text-sm font-medium">{editingZone.id ? "Editar zona de riesgo" : "Nueva zona de riesgo"}</div>
               <input
                 type="text"
                 placeholder="Nombre de la zona"
@@ -304,31 +304,11 @@ export default function ZonasEnvioPage() {
                 onChange={(e) => setEditingZone({ ...editingZone, name: e.target.value })}
                 className="w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
               />
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <div className="text-xs text-[color:var(--muted)] mb-1">Color</div>
-                  <div className="flex flex-wrap gap-1">
-                    {COLORS.map((c) => (
-                      <button
-                        key={c}
-                        type="button"
-                        onClick={() => setEditingZone({ ...editingZone, color: c })}
-                        className={`h-6 w-6 rounded-full border-2 transition-all ${editingZone.color === c ? "border-gray-800 scale-110" : "border-transparent"}`}
-                        style={{ backgroundColor: c }}
-                      />
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-xs text-[color:var(--muted)] mb-1">Costo de envío</div>
-                  <input
-                    type="number"
-                    min={0}
-                    value={Math.round((editingZone.priceCents ?? 2500) / 100)}
-                    onChange={(e) => setEditingZone({ ...editingZone, priceCents: parseInt(e.target.value || "0") * 100 })}
-                    className="w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-                  />
-                </div>
+              <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2 flex items-center gap-2 text-sm">
+                <div className="h-3 w-3 rounded-full" style={{ backgroundColor: RISK_COLOR }} />
+                <span className="text-red-700">
+                  Zona de riesgo · Costo extra de <span className="font-semibold">{formatMoney(RISK_ZONE_EXTRA_CENTS, "MXN")}</span> sobre el envío
+                </span>
               </div>
               {!editingZone.polygon?.length && (
                 <p className="text-xs text-amber-600">Dibuja un polígono en el mapa para definir la zona.</p>
@@ -408,13 +388,13 @@ export default function ZonasEnvioPage() {
           <div className="rounded-xl border border-[var(--border)] p-4 space-y-2">
             <div className="text-sm font-medium">Leyenda</div>
             {zones.length === 0 && (
-              <div className="text-xs text-[color:var(--muted)]">Aún no hay zonas.</div>
+              <div className="text-xs text-[color:var(--muted)]">Aún no hay zonas de riesgo.</div>
             )}
-            {zones.sort((a, b) => a.priceCents - b.priceCents).map((zone) => (
+            {zones.sort((a, b) => a.name.localeCompare(b.name)).map((zone) => (
               <div key={zone.id} className="flex items-center gap-2 text-sm">
-                <div className="h-3 w-3 rounded-sm" style={{ backgroundColor: zone.color }} />
+                <div className="h-3 w-3 rounded-sm" style={{ backgroundColor: RISK_COLOR }} />
                 <span className="flex-1">{zone.name}</span>
-                <span className="font-medium text-xs">{formatMoney(zone.priceCents, "MXN")}</span>
+                <span className="font-medium text-xs">+{formatMoney(RISK_ZONE_EXTRA_CENTS, "MXN")}</span>
               </div>
             ))}
           </div>
@@ -440,9 +420,9 @@ export default function ZonasEnvioPage() {
                   key={zone.id}
                   paths={zone.polygon}
                   options={{
-                    fillColor: zone.color,
+                    fillColor: RISK_COLOR,
                     fillOpacity: selectedZoneId === zone.id ? 0.45 : 0.25,
-                    strokeColor: zone.color,
+                    strokeColor: RISK_COLOR,
                     strokeWeight: selectedZoneId === zone.id ? 3 : 2,
                     clickable: true,
                   }}
@@ -486,9 +466,9 @@ export default function ZonasEnvioPage() {
                 <Polygon
                   paths={editingZone.polygon}
                   options={{
-                    fillColor: editingZone.color || "#22c55e",
+                    fillColor: RISK_COLOR,
                     fillOpacity: 0.2,
-                    strokeColor: editingZone.color || "#22c55e",
+                    strokeColor: RISK_COLOR,
                     strokeWeight: 2.5,
                     clickable: false,
                   }}
@@ -496,7 +476,7 @@ export default function ZonasEnvioPage() {
                 <Polyline
                   path={[...editingZone.polygon, editingZone.polygon[0]]}
                   options={{
-                    strokeColor: editingZone.color || "#22c55e",
+                    strokeColor: RISK_COLOR,
                     strokeWeight: 2.5,
                     strokeOpacity: 0.9,
                   }}
@@ -528,7 +508,7 @@ export default function ZonasEnvioPage() {
                     icon={{
                       path: google.maps.SymbolPath.CIRCLE,
                       scale: 7,
-                      fillColor: editingZone.color || "#22c55e",
+                      fillColor: RISK_COLOR,
                       fillOpacity: 1,
                       strokeColor: "#fff",
                       strokeWeight: 2.5,

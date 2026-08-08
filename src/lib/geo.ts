@@ -4,6 +4,8 @@ const EXTRA_FEE_PER_SEGMENT_CENTS = 1000;
 const BASE_DISTANCE_KM = 2;
 const SEGMENT_KM = 2;
 
+export const RISK_ZONE_EXTRA_CENTS = 2000;
+
 export interface DeliveryFeeConfig {
   baseFeeCents?: number;
   extraFeePerSegmentCents?: number;

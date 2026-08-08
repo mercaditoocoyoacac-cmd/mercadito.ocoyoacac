@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/server/prisma";
 import { requireRole } from "@/server/requireUser";
+import { RISK_ZONE_EXTRA_CENTS } from "@/lib/geo";
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireRole("ADMIN");
@@ -21,8 +22,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     where: { id },
     data: {
       name: json.name ?? existing.name,
-      color: json.color ?? existing.color,
-      priceCents: json.priceCents ?? existing.priceCents,
+      color: "#ef4444",
+      priceCents: RISK_ZONE_EXTRA_CENTS,
       polygon: json.polygon ?? existing.polygon,
       isActive: json.isActive ?? existing.isActive,
       sortOrder: json.sortOrder ?? existing.sortOrder,

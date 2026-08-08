@@ -8,7 +8,7 @@ import { isStoreOpen } from "@/lib/schedule";
 import { sendTextNotification } from "@/server/notifications";
 import { notifyVendorNewOrder } from "@/server/whatsapp";
 import { sendPushNotification, sendPushToMultiple } from "@/server/push";
-import { calcDeliveryFeeCents, haversineDistance, pointInPolygon, type DeliveryFeeConfig } from "@/lib/geo";
+import { calcDeliveryFeeCents, haversineDistance, pointInPolygon, RISK_ZONE_EXTRA_CENTS, type DeliveryFeeConfig } from "@/lib/geo";
 
 function generateDeliveryCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -223,26 +223,22 @@ export async function POST(req: Request) {
         }
       : undefined;
     if (customerLat && customerLng) {
+      const storeLat = store.latitude;
+      const storeLng = store.longitude;
+      if (storeLat && storeLng) {
+        const distance = haversineDistance(storeLat, storeLng, customerLat, customerLng);
+        deliveryCents = calcDeliveryFeeCents(distance, feeConfig);
+      } else {
+        deliveryCents = feeConfig?.fallbackFeeCents ?? 2500;
+      }
       const zones = await prisma.deliveryZone.findMany({
         where: { isActive: true },
-        select: { priceCents: true, polygon: true },
+        select: { polygon: true },
       });
-      const matching = zones.find((z) => {
-        const poly = z.polygon as { lat: number; lng: number }[];
-        return pointInPolygon(customerLat, customerLng, poly);
-      });
-      if (matching) {
-        deliveryCents = matching.priceCents;
-      } else {
-        const storeLat = store.latitude;
-        const storeLng = store.longitude;
-        if (storeLat && storeLng) {
-          const distance = haversineDistance(storeLat, storeLng, customerLat, customerLng);
-          deliveryCents = calcDeliveryFeeCents(distance, feeConfig);
-        } else {
-          deliveryCents = feeConfig?.fallbackFeeCents ?? 2500;
-        }
-      }
+      const riskZoneCount = zones.filter((z) =>
+        pointInPolygon(customerLat, customerLng, z.polygon as { lat: number; lng: number }[]),
+      ).length;
+      deliveryCents += riskZoneCount * RISK_ZONE_EXTRA_CENTS;
     } else {
       deliveryCents = feeConfig?.fallbackFeeCents ?? 2500;
     }
