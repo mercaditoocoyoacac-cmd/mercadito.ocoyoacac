@@ -9,6 +9,7 @@ import { sendTextNotification } from "@/server/notifications";
 import { notifyVendorNewOrder } from "@/server/whatsapp";
 import { sendPushNotification, sendPushToMultiple } from "@/server/push";
 import { calcDeliveryFeeCents, haversineDistance, pointInPolygon, RISK_ZONE_EXTRA_CENTS, type DeliveryFeeConfig } from "@/lib/geo";
+import { getRouteDistanceKm } from "@/server/directions";
 
 function generateDeliveryCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -226,7 +227,8 @@ export async function POST(req: Request) {
       const storeLat = store.latitude;
       const storeLng = store.longitude;
       if (storeLat && storeLng) {
-        const distance = haversineDistance(storeLat, storeLng, customerLat, customerLng);
+        const routeKm = await getRouteDistanceKm(storeLat, storeLng, customerLat, customerLng);
+        const distance = routeKm ?? haversineDistance(storeLat, storeLng, customerLat, customerLng);
         deliveryCents = calcDeliveryFeeCents(distance, feeConfig);
       } else {
         deliveryCents = feeConfig?.fallbackFeeCents ?? 2500;

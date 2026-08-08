@@ -196,6 +196,8 @@ export default function CarritoPage() {
   const confirm = useConfirm();
 
   const store = items?.[0]?.product.store;
+  const storeLat = store?.latitude;
+  const storeLng = store?.longitude;
   const hasOnlinePayment = store?.hasOnlinePayment ?? store?.acceptsMercadoPago ?? false;
   const currency = items?.[0]?.product.currency ?? "MXN";
 
@@ -206,6 +208,7 @@ export default function CarritoPage() {
   const [customerAddress, setCustomerAddress] = useState("");
   const [customerLat, setCustomerLat] = useState<number | null>(null);
   const [customerLng, setCustomerLng] = useState<number | null>(null);
+  const [routeKm, setRouteKm] = useState<number | null>(null);
   const [notes, setNotes] = useState("");
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [updatingQty, setUpdatingQty] = useState<Record<string, boolean>>({});
@@ -253,11 +256,11 @@ export default function CarritoPage() {
     const storeLat = storeItem?.product.store.latitude;
     const storeLng = storeItem?.product.store.longitude;
     if (storeLat && storeLng && customerLat && customerLng) {
-      const dist = haversineDistance(storeLat, storeLng, customerLat, customerLng);
+      const dist = routeKm ?? haversineDistance(storeLat, storeLng, customerLat, customerLng);
       return calcDeliveryFeeCents(dist, deliverySettings ?? undefined);
     }
     return deliverySettings?.fallbackFeeCents ?? 2500;
-  }, [fulfillmentType, items, customerLat, customerLng, deliverySettings]);
+  }, [fulfillmentType, items, customerLat, customerLng, deliverySettings, routeKm]);
   const couponDiscount = appliedCoupon?.discountCents ?? 0;
   const total = subtotal + deliveryFee - couponDiscount;
 
@@ -366,6 +369,27 @@ export default function CarritoPage() {
       setLoading(false);
     })();
   }, []);
+
+  useEffect(() => {
+    if (fulfillmentType !== "DELIVERY" || !storeLat || !storeLng || !customerLat || !customerLng) {
+      setRouteKm(null);
+      return;
+    }
+    let cancelled = false;
+    const params = new URLSearchParams({
+      storeLat: String(storeLat),
+      storeLng: String(storeLng),
+      customerLat: String(customerLat),
+      customerLng: String(customerLng),
+    });
+    fetch(`/api/delivery/distance?${params.toString()}`)
+      .then((r) => r.json().catch(() => null))
+      .then((data) => {
+        if (!cancelled && data?.ok && data.routeKm != null) setRouteKm(data.routeKm);
+      })
+      .catch(() => { if (!cancelled) setRouteKm(null); });
+    return () => { cancelled = true; };
+  }, [fulfillmentType, storeLat, storeLng, customerLat, customerLng]);
 
   const updateQuantity = async (item: CartItem, delta: number) => {
     const next = Math.max(0, Math.min(99, item.quantity + delta));
