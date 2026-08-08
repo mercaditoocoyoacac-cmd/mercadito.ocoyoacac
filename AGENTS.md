@@ -93,3 +93,13 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - `src/app/vendor/page.tsx`: upsell banner for FREE stores
 - `src/app/api/vendor/store/route.ts`: returns store.plan
 - `src/app/api/cart/items/route.ts`: returns store.plan
+
+## Delivery Settings (last session)
+- **`DeliverySettings` model** added to `prisma/schema.prisma` (single row `id: 1`): `baseFeeCents` (2500), `extraFeePerSegmentCents` (1000), `baseDistanceKm` (2), `segmentKm` (2), `fallbackFeeCents` (2500).
+- **`/api/admin/delivery-settings`** GET/PUT (ADMIN-only, zod) — upserts row `id: 1`.
+- **`/api/delivery-settings`** public GET for the cart — returns settings or defaults.
+- **`calcDeliveryFeeCents(distanceKm, config?)`** in `src/lib/geo.ts` accepts optional `DeliveryFeeConfig`; old constants kept as fallback.
+- **Checkout** (`/api/checkout/route.ts`) builds `feeConfig` from `DeliverySettings`; zone pricing still takes precedence; fallback now uses `fallbackFeeCents`.
+- **Carrito** (`/carrito/page.tsx`) fetches `/api/delivery-settings` in both initial `useEffect` blocks and computes the preview fee from settings.
+- **UI**: `/admin/pedidos` (`AdminOrdersClient.tsx`) has a "Tarifa general de envío" panel — view summary or edit (5 numeric inputs: base, extra per segment, base km, segment km, fallback), saved via PUT with loading/error feedback. Server page (`/admin/pedidos/page.tsx`) loads `deliverySettings` row and passes to client with defaults fallback.
+- Deployed `9e72daa` — Ready on Vercel.
