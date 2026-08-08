@@ -46,7 +46,7 @@ type StorePromotion = {
 
 import { motion } from "framer-motion";
 import { formatMoney } from "@/lib/format";
-import { calcDeliveryFeeCents, haversineDistance } from "@/lib/geo";
+import { calcDeliveryFeeCents, haversineDistance, type DeliveryFeeConfig } from "@/lib/geo";
 import { bounceIn, cardSpring, fadeSlideUp } from "@/components/ui/MotionPresets";
 import { AnimatedList, AnimatedListItem } from "@/components/ui/AnimatedList";
 
@@ -214,6 +214,7 @@ export default function CarritoPage() {
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState("");
   const [couponStatus, setCouponStatus] = useState<"" | "active" | "inactive">("");
+  const [deliverySettings, setDeliverySettings] = useState<DeliveryFeeConfig | null>(null);
 
   const getEffectivePrice = useCallback((item: CartItem): number => {
     const basePrice = item.variant?.priceCents ?? item.product.priceCents;
@@ -253,10 +254,10 @@ export default function CarritoPage() {
     const storeLng = storeItem?.product.store.longitude;
     if (storeLat && storeLng && customerLat && customerLng) {
       const dist = haversineDistance(storeLat, storeLng, customerLat, customerLng);
-      return calcDeliveryFeeCents(dist);
+      return calcDeliveryFeeCents(dist, deliverySettings ?? undefined);
     }
-    return 2500;
-  }, [fulfillmentType, items, customerLat, customerLng]);
+    return deliverySettings?.fallbackFeeCents ?? 2500;
+  }, [fulfillmentType, items, customerLat, customerLng, deliverySettings]);
   const couponDiscount = appliedCoupon?.discountCents ?? 0;
   const total = subtotal + deliveryFee - couponDiscount;
 
@@ -264,9 +265,10 @@ export default function CarritoPage() {
     queueMicrotask(() => setLoading(true));
     setError(null);
 
-    const [cartRes, profileRes] = await Promise.all([
+    const [cartRes, profileRes, settingsRes] = await Promise.all([
       fetch("/api/cart/items"),
       fetch("/api/profile").catch(() => null),
+      fetch("/api/delivery-settings").catch(() => null),
     ]);
 
     if (cartRes.status === 401) {
@@ -302,15 +304,30 @@ export default function CarritoPage() {
       }
     }
 
+    if (settingsRes?.ok) {
+      const settingsData = await settingsRes.json();
+      if (settingsData.ok && settingsData.settings) {
+        const s = settingsData.settings;
+        setDeliverySettings({
+          baseFeeCents: s.baseFeeCents,
+          extraFeePerSegmentCents: s.extraFeePerSegmentCents,
+          baseDistanceKm: s.baseDistanceKm,
+          segmentKm: s.segmentKm,
+          fallbackFeeCents: s.fallbackFeeCents,
+        });
+      }
+    }
+
     setLoading(false);
   }
 
   useEffect(() => {
     (async () => {
       queueMicrotask(() => setLoading(true));
-      const [cartRes, profileRes] = await Promise.all([
+      const [cartRes, profileRes, settingsRes] = await Promise.all([
         fetch("/api/cart/items"),
         fetch("/api/profile").catch(() => null),
+        fetch("/api/delivery-settings").catch(() => null),
       ]);
       if (cartRes.status === 401) { router.push("/login?callbackUrl=/carrito"); return; }
       const cartData = await cartRes.json().catch(() => null);
@@ -331,6 +348,19 @@ export default function CarritoPage() {
           setCustomerAddress(addr);
           setCustomerLat(profileData.user.latitude);
           setCustomerLng(profileData.user.longitude);
+        }
+      }
+      if (settingsRes?.ok) {
+        const settingsData = await settingsRes.json();
+        if (settingsData.ok && settingsData.settings) {
+          const s = settingsData.settings;
+          setDeliverySettings({
+            baseFeeCents: s.baseFeeCents,
+            extraFeePerSegmentCents: s.extraFeePerSegmentCents,
+            baseDistanceKm: s.baseDistanceKm,
+            segmentKm: s.segmentKm,
+            fallbackFeeCents: s.fallbackFeeCents,
+          });
         }
       }
       setLoading(false);

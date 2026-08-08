@@ -603,6 +603,16 @@ model DeliveryZone {
   @@index([isActive])
 }
 
+model DeliverySettings {
+  id                        Int      @id @default(1)
+  baseFeeCents              Int      @default(2500)
+  extraFeePerSegmentCents   Int      @default(1000)
+  baseDistanceKm            Float    @default(2)
+  segmentKm                 Float    @default(2)
+  fallbackFeeCents          Int      @default(2500)
+  updatedAt                 DateTime @updatedAt
+}
+
 model ChatMessage {
   id         String   @id @default(cuid())
   orderId    String

@@ -29,5 +29,20 @@ export default async function AdminOrdersPage() {
     take: 100,
   });
 
-  return <AdminOrdersClient orders={orders.map(o => ({ ...o, createdAt: o.createdAt.toISOString() }))} />;
+  const settings = await prisma.deliverySettings.findUnique({ where: { id: 1 } });
+
+  return (
+    <AdminOrdersClient
+      orders={orders.map(o => ({ ...o, createdAt: o.createdAt.toISOString() }))}
+      deliverySettings={settings ?? {
+        id: 1,
+        baseFeeCents: 2500,
+        extraFeePerSegmentCents: 1000,
+        baseDistanceKm: 2,
+        segmentKm: 2,
+        fallbackFeeCents: 2500,
+        updatedAt: new Date(),
+      }}
+    />
+  );
 }

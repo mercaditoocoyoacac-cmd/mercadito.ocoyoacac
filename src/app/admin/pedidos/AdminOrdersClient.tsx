@@ -19,9 +19,29 @@ interface OrderData {
   deliveryUser: { email: string } | null;
 }
 
-export function AdminOrdersClient({ orders }: { orders: OrderData[] }) {
+interface DeliverySettingsData {
+  id: number;
+  baseFeeCents: number;
+  extraFeePerSegmentCents: number;
+  baseDistanceKm: number;
+  segmentKm: number;
+  fallbackFeeCents: number;
+  updatedAt: string | Date;
+}
+
+export function AdminOrdersClient({ orders, deliverySettings: initialSettings }: { orders: OrderData[]; deliverySettings: DeliverySettingsData }) {
   const router = useRouter();
   const [processing, setProcessing] = useState<Set<string>>(new Set());
+  const [editingFee, setEditingFee] = useState(false);
+  const [savingFee, setSavingFee] = useState(false);
+  const [feeError, setFeeError] = useState("");
+  const [feeSettings, setFeeSettings] = useState({
+    baseFeeCents: initialSettings.baseFeeCents,
+    extraFeePerSegmentCents: initialSettings.extraFeePerSegmentCents,
+    baseDistanceKm: initialSettings.baseDistanceKm,
+    segmentKm: initialSettings.segmentKm,
+    fallbackFeeCents: initialSettings.fallbackFeeCents,
+  });
 
   async function handleAdvance(orderId: string) {
     setProcessing((prev) => new Set(prev).add(orderId));
@@ -62,6 +82,34 @@ export function AdminOrdersClient({ orders }: { orders: OrderData[] }) {
     router.refresh();
   }
 
+  async function handleSaveFee() {
+    setSavingFee(true);
+    setFeeError("");
+    try {
+      const res = await fetch("/api/admin/delivery-settings", {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          baseFeeCents: feeSettings.baseFeeCents,
+          extraFeePerSegmentCents: feeSettings.extraFeePerSegmentCents,
+          baseDistanceKm: feeSettings.baseDistanceKm,
+          segmentKm: feeSettings.segmentKm,
+          fallbackFeeCents: feeSettings.fallbackFeeCents,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data?.ok) {
+        setFeeError(data?.error || "Error al guardar");
+      } else {
+        setEditingFee(false);
+        router.refresh();
+      }
+    } catch {
+      setFeeError("Error de red");
+    }
+    setSavingFee(false);
+  }
+
   function getStatusBadgeClass(status: string): string {
     switch (status) {
       case "COMPLETED": return "bg-green-100 text-green-800";
@@ -87,6 +135,147 @@ export function AdminOrdersClient({ orders }: { orders: OrderData[] }) {
         <p className="mt-1 text-sm text-[color:var(--muted)]">
           Avanza o cancela pedidos paso a paso
         </p>
+      </div>
+
+      {/* Delivery fee settings */}
+      <div className="rounded-xl border border-[var(--border)] mb-8 overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)]">
+          <div>
+            <h2 className="font-semibold">Tarifa general de envío</h2>
+            <p className="text-xs text-[color:var(--muted)] mt-0.5">
+              Se aplica a pedidos de entrega que no caen en ninguna zona configurada.
+            </p>
+          </div>
+          {!editingFee ? (
+            <button
+              type="button"
+              onClick={() => { setFeeSettings({
+                baseFeeCents: initialSettings.baseFeeCents,
+                extraFeePerSegmentCents: initialSettings.extraFeePerSegmentCents,
+                baseDistanceKm: initialSettings.baseDistanceKm,
+                segmentKm: initialSettings.segmentKm,
+                fallbackFeeCents: initialSettings.fallbackFeeCents,
+              }); setFeeError(""); setEditingFee(true); }}
+              className="rounded-lg bg-[var(--accent)] px-4 py-2 text-xs font-medium text-white hover:bg-[var(--accent-hover)] transition-colors"
+            >
+              Modificar
+            </button>
+          ) : (
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setEditingFee(false)}
+                disabled={savingFee}
+                className="rounded-lg border border-[var(--border)] px-4 py-2 text-xs font-medium hover:bg-gray-50 disabled:opacity-60"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveFee}
+                disabled={savingFee}
+                className="rounded-lg bg-[var(--accent)] px-4 py-2 text-xs font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60 transition-colors"
+              >
+                {savingFee ? "Guardando..." : "Guardar"}
+              </button>
+            </div>
+          )}
+        </div>
+
+        {editingFee ? (
+          <div className="p-5">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div>
+                <label className="text-xs text-[color:var(--muted)]">Tarifa base</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={feeSettings.baseFeeCents}
+                  onChange={(e) => setFeeSettings({ ...feeSettings, baseFeeCents: parseInt(e.target.value || "0", 10) })}
+                  className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                />
+                <div className="text-[10px] text-[color:var(--muted)] mt-1">Precio en centavos</div>
+              </div>
+              <div>
+                <label className="text-xs text-[color:var(--muted)]">Costo por segmento extra</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={feeSettings.extraFeePerSegmentCents}
+                  onChange={(e) => setFeeSettings({ ...feeSettings, extraFeePerSegmentCents: parseInt(e.target.value || "0", 10) })}
+                  className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                />
+                <div className="text-[10px] text-[color:var(--muted)] mt-1">Precio en centavos</div>
+              </div>
+              <div>
+                <label className="text-xs text-[color:var(--muted)]">Km gratis con tarifa base</label>
+                <input
+                  type="number"
+                  min={0}
+                  step={0.1}
+                  value={feeSettings.baseDistanceKm}
+                  onChange={(e) => setFeeSettings({ ...feeSettings, baseDistanceKm: parseFloat(e.target.value || "0") })}
+                  className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-[color:var(--muted)]">Km por segmento</label>
+                <input
+                  type="number"
+                  min={0.1}
+                  step={0.1}
+                  value={feeSettings.segmentKm}
+                  onChange={(e) => setFeeSettings({ ...feeSettings, segmentKm: parseFloat(e.target.value || "0") })}
+                  className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-[color:var(--muted)]">Tarifa sin coordenadas (fallback)</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={feeSettings.fallbackFeeCents}
+                  onChange={(e) => setFeeSettings({ ...feeSettings, fallbackFeeCents: parseInt(e.target.value || "0", 10) })}
+                  className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                />
+                <div className="text-[10px] text-[color:var(--muted)] mt-1">Precio en centavos</div>
+              </div>
+            </div>
+            {feeError && (
+              <div className="mt-3 rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700">
+                {feeError}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="px-5 py-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="rounded-lg bg-gray-50 px-4 py-3">
+              <div className="text-xs text-[color:var(--muted)]">Tarifa base</div>
+              <div className="mt-0.5 text-lg font-semibold">{formatMoney(initialSettings.baseFeeCents, "MXN")}</div>
+            </div>
+            <div className="rounded-lg bg-gray-50 px-4 py-3">
+              <div className="text-xs text-[color:var(--muted)]">Por segmento extra</div>
+              <div className="mt-0.5 text-lg font-semibold">{formatMoney(initialSettings.extraFeePerSegmentCents, "MXN")}</div>
+            </div>
+            <div className="rounded-lg bg-gray-50 px-4 py-3">
+              <div className="text-xs text-[color:var(--muted)]">Km gratis</div>
+              <div className="mt-0.5 text-lg font-semibold">{initialSettings.baseDistanceKm} km</div>
+            </div>
+            <div className="rounded-lg bg-gray-50 px-4 py-3">
+              <div className="text-xs text-[color:var(--muted)]">Km por segmento</div>
+              <div className="mt-0.5 text-lg font-semibold">{initialSettings.segmentKm} km</div>
+            </div>
+            <div className="rounded-lg bg-gray-50 px-4 py-3">
+              <div className="text-xs text-[color:var(--muted)]">Tarifa fallback</div>
+              <div className="mt-0.5 text-lg font-semibold">{formatMoney(initialSettings.fallbackFeeCents, "MXN")}</div>
+            </div>
+            <div className="rounded-lg bg-gray-50 px-4 py-3 flex items-center">
+              <span className="text-xs text-[color:var(--muted)]">
+                Las zonas configuradas en "Zonas Envío" tienen prioridad sobre esta tarifa.
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-5 mb-8">

@@ -4,6 +4,14 @@ const EXTRA_FEE_PER_SEGMENT_CENTS = 1000;
 const BASE_DISTANCE_KM = 2;
 const SEGMENT_KM = 2;
 
+export interface DeliveryFeeConfig {
+  baseFeeCents?: number;
+  extraFeePerSegmentCents?: number;
+  baseDistanceKm?: number;
+  segmentKm?: number;
+  fallbackFeeCents?: number;
+}
+
 export function haversineDistance(
   lat1: number,
   lon1: number,
@@ -29,11 +37,15 @@ export function formatDistance(km: number): string {
   return `${km.toFixed(1)}km`;
 }
 
-export function calcDeliveryFeeCents(distanceKm: number): number {
-  if (distanceKm <= 0) return BASE_FEE_CENTS;
-  if (distanceKm <= BASE_DISTANCE_KM) return BASE_FEE_CENTS;
-  const extraSegments = Math.ceil((distanceKm - BASE_DISTANCE_KM) / SEGMENT_KM);
-  return BASE_FEE_CENTS + extraSegments * EXTRA_FEE_PER_SEGMENT_CENTS;
+export function calcDeliveryFeeCents(distanceKm: number, config?: DeliveryFeeConfig): number {
+  const baseFee = config?.baseFeeCents ?? BASE_FEE_CENTS;
+  const extraFee = config?.extraFeePerSegmentCents ?? EXTRA_FEE_PER_SEGMENT_CENTS;
+  const baseDist = config?.baseDistanceKm ?? BASE_DISTANCE_KM;
+  const segment = config?.segmentKm ?? SEGMENT_KM;
+  if (distanceKm <= 0) return baseFee;
+  if (distanceKm <= baseDist) return baseFee;
+  const extraSegments = Math.ceil((distanceKm - baseDist) / segment);
+  return baseFee + extraSegments * extraFee;
 }
 
 function isNativeApp(): boolean {

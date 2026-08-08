@@ -8,7 +8,7 @@ import { isStoreOpen } from "@/lib/schedule";
 import { sendTextNotification } from "@/server/notifications";
 import { notifyVendorNewOrder } from "@/server/whatsapp";
 import { sendPushNotification, sendPushToMultiple } from "@/server/push";
-import { calcDeliveryFeeCents, haversineDistance, pointInPolygon } from "@/lib/geo";
+import { calcDeliveryFeeCents, haversineDistance, pointInPolygon, type DeliveryFeeConfig } from "@/lib/geo";
 
 function generateDeliveryCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -212,6 +212,16 @@ export async function POST(req: Request) {
   if (parsed.data.fulfillmentType === "DELIVERY") {
     const customerLat = parsed.data.customerLat;
     const customerLng = parsed.data.customerLng;
+    const settings = await prisma.deliverySettings.findUnique({ where: { id: 1 } });
+    const feeConfig: DeliveryFeeConfig | undefined = settings
+      ? {
+          baseFeeCents: settings.baseFeeCents,
+          extraFeePerSegmentCents: settings.extraFeePerSegmentCents,
+          baseDistanceKm: settings.baseDistanceKm,
+          segmentKm: settings.segmentKm,
+          fallbackFeeCents: settings.fallbackFeeCents,
+        }
+      : undefined;
     if (customerLat && customerLng) {
       const zones = await prisma.deliveryZone.findMany({
         where: { isActive: true },
@@ -228,13 +238,13 @@ export async function POST(req: Request) {
         const storeLng = store.longitude;
         if (storeLat && storeLng) {
           const distance = haversineDistance(storeLat, storeLng, customerLat, customerLng);
-          deliveryCents = calcDeliveryFeeCents(distance);
+          deliveryCents = calcDeliveryFeeCents(distance, feeConfig);
         } else {
-          deliveryCents = 2500;
+          deliveryCents = feeConfig?.fallbackFeeCents ?? 2500;
         }
       }
     } else {
-      deliveryCents = 2500;
+      deliveryCents = feeConfig?.fallbackFeeCents ?? 2500;
     }
   }
   let couponDiscountCents = 0;
