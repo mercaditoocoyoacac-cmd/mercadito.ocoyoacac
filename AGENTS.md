@@ -35,6 +35,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **Payment receipts**: `PaymentReceipt` model with sequential numbering (`REC-2026-07-0001`). Auto-generated on successful webhook payment. Vendor receipts page at `/vendor/recibos` with expandable details (period, coupon, payment reference).
 - **Membership confirmation emails**: Resend-powered HTML email sent on successful payment. Includes receipt number, period covered, amount paid, coupon savings, and what's included in Vende+.
 - **Membership coupon system**: Admin-editable `MembershipCoupon` model (code, % or fixed discount, max uses, dates). Admin page at `/admin/membresia-cupones`. Vendor coupon input on `/vendor/membresia` with validation API at `/api/vendor/membership-coupon`. Coupon encoded in MercadoPago external_reference for webhook tracking.
+- **Pagos por transferencia**: `Order.paymentMethod` ahora acepta `TRANSFERENCIA`. El cliente sube captura de comprobante (vía `/api/upload`) + referencia opcional desde `/carrito`. El vendedor configura datos bancarios (banco, titular, CLABE + toggle) en `/vendor/pagos` (API `/api/vendor/transfer-info`). La orden guarda `paymentEvidenceUrl`, `paymentReference`, `paymentVerified`, `paymentVerifiedAt`. El vendedor verifica el pago desde `/vendor/pedidos` (lista y detalle) vía `POST /api/vendor/orders/[id]/verify-payment` (notifica al cliente). El status route bloquea CONFIRMED/READY/OUT_FOR_DELIVERY si el pago por transferencia no está verificado. Checkout valida que la tienda acepte transferencia + que haya captura. Commit `68b7423`.
 
 ### In Progress
 - (none)
@@ -93,6 +94,11 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - `src/app/vendor/page.tsx`: upsell banner for FREE stores
 - `src/app/api/vendor/store/route.ts`: returns store.plan
 - `src/app/api/cart/items/route.ts`: returns store.plan
+- `prisma/schema.prisma`: Order model (paymentMethod incl. TRANSFERENCIA, paymentEvidenceUrl, paymentReference, paymentVerified, paymentVerifiedAt), Store model (acceptsTransferencia, transferBankName, transferAccountHolder, transferClabe)
+- `src/app/api/vendor/transfer-info/route.ts`: vendor GET/POST datos bancarios de transferencia (CLABE validada a 18 dígitos)
+- `src/app/api/vendor/orders/[id]/verify-payment/route.ts`: marca pago verificado + notifica al cliente
+- `src/app/vendor/pedidos/page.tsx` y `src/app/vendor/pedidos/[id]/page.tsx`: badge de transferencia, botón "Verificar pago", bloqueo de confirmar hasta verificar
+- `src/app/carrito/page.tsx`: selector TRANSFERENCIA, datos bancarios con copiar CLABE, subida de captura, referencia
 
 ## Delivery Settings (last session)
 - **`DeliverySettings` model** added to `prisma/schema.prisma` (single row `id: 1`): `baseFeeCents` (2500), `extraFeePerSegmentCents` (1000), `baseDistanceKm` (2), `segmentKm` (2), `fallbackFeeCents` (2500).
