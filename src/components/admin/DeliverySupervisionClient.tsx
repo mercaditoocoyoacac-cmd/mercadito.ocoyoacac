@@ -28,6 +28,7 @@ interface OrderData {
   status: string;
   fulfillmentType: string;
   paymentMethod: string;
+  paymentVerified?: boolean;
   customerName: string;
   customerPhone: string;
   customerAddress: string | null;
@@ -295,7 +296,13 @@ function OrderCard({ order, drivers, onRefresh }: { order: OrderData; drivers: D
             </div>
             <div className="rounded-lg bg-gray-50 p-2">
               <div className="text-[10px] text-[color:var(--muted)]">Pago</div>
-              <div className="text-sm font-semibold">{order.paymentMethod === "CASH" ? "Efectivo" : order.paymentMethod}</div>
+              <div className="text-sm font-semibold">
+                {order.paymentMethod === "CASH"
+                  ? "Efectivo"
+                  : order.paymentMethod === "TRANSFERENCIA"
+                  ? `Transferencia${order.paymentVerified ? " ✓" : " (sin verificar)"}`
+                  : "Pago en línea"}
+              </div>
             </div>
           </div>
 

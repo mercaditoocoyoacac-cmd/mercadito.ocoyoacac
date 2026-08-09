@@ -27,6 +27,51 @@ export default function PaymentMethodsPage() {
   const [saving, setSaving] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [transfer, setTransfer] = useState({
+    acceptsTransferencia: false,
+    transferBankName: "",
+    transferAccountHolder: "",
+    transferClabe: "",
+  });
+  const [transferSaving, setTransferSaving] = useState(false);
+  const [transferError, setTransferError] = useState("");
+  const [transferSuccess, setTransferSuccess] = useState(false);
+
+  async function loadTransfer() {
+    const res = await fetch("/api/vendor/transfer-info");
+    const data = await res.json();
+    if (data.ok && data.transfer) {
+      setTransfer({
+        acceptsTransferencia: data.transfer.acceptsTransferencia,
+        transferBankName: data.transfer.transferBankName || "",
+        transferAccountHolder: data.transfer.transferAccountHolder || "",
+        transferClabe: data.transfer.transferClabe || "",
+      });
+    }
+  }
+
+  async function saveTransfer() {
+    setTransferSaving(true);
+    setTransferError("");
+    setTransferSuccess(false);
+    try {
+      const res = await fetch("/api/vendor/transfer-info", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(transfer),
+      });
+      const data = await res.json();
+      if (!res.ok || !data?.ok) {
+        setTransferError(data?.error || "Error al guardar");
+      } else {
+        setTransferSuccess(true);
+        await loadTransfer();
+      }
+    } catch {
+      setTransferError("Error de red");
+    }
+    setTransferSaving(false);
+  }
 
   async function load() {
     setLoading(true);
@@ -48,6 +93,7 @@ export default function PaymentMethodsPage() {
         setMethods(data.methods);
         setProcessors(data.processors);
       }
+      await loadTransfer();
       setLoading(false);
     })();
   }, []);
@@ -124,6 +170,79 @@ export default function PaymentMethodsPage() {
           {error}
         </div>
       )}
+
+      <div className="mb-6 rounded-xl border border-[var(--border)] overflow-hidden">
+        <div className="border-b border-[var(--border)] px-5 py-4">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">🏦</span>
+            <div>
+              <div className="font-medium">Transferencia bancaria</div>
+              <div className="text-xs text-[color:var(--muted)]">
+                El cliente paga por SPEI/transferencia y sube una captura. Tú verificas el pago antes de preparar.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="px-5 py-4 space-y-3">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={transfer.acceptsTransferencia}
+              onChange={(e) => setTransfer({ ...transfer, acceptsTransferencia: e.target.checked })}
+              className="h-4 w-4 accent-[var(--accent)]"
+            />
+            <span className="text-sm font-medium">Aceptar pagos por transferencia</span>
+          </label>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="block">
+              <div className="text-sm font-medium">Banco</div>
+              <input
+                value={transfer.transferBankName}
+                onChange={(e) => setTransfer({ ...transfer, transferBankName: e.target.value })}
+                placeholder="p.ej. BBVA"
+                className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+              />
+            </label>
+            <label className="block">
+              <div className="text-sm font-medium">Titular de la cuenta</div>
+              <input
+                value={transfer.transferAccountHolder}
+                onChange={(e) => setTransfer({ ...transfer, transferAccountHolder: e.target.value })}
+                placeholder="Nombre del titular"
+                className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+              />
+            </label>
+          </div>
+          <label className="block">
+            <div className="text-sm font-medium">CLABE (18 dígitos)</div>
+            <input
+              value={transfer.transferClabe}
+              onChange={(e) => setTransfer({ ...transfer, transferClabe: e.target.value.replace(/\D/g, "").slice(0, 18) })}
+              placeholder="012345678901234567"
+              inputMode="numeric"
+              className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+            />
+          </label>
+          {transferError && (
+            <div className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700">
+              {transferError}
+            </div>
+          )}
+          {transferSuccess && (
+            <div className="rounded-md border border-green-500/30 bg-green-500/10 px-3 py-2 text-sm text-green-700">
+              Datos de transferencia guardados.
+            </div>
+          )}
+          <button
+            type="button"
+            disabled={transferSaving}
+            onClick={saveTransfer}
+            className="rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
+          >
+            {transferSaving ? "Guardando..." : "Guardar datos de transferencia"}
+          </button>
+        </div>
+      </div>
 
       <div className="space-y-4">
         {methods.map((m) => (

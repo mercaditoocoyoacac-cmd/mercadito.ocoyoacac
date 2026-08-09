@@ -5,9 +5,18 @@ import { getSession } from "@/server/session";
 import { revalidatePath } from "next/cache";
 import { formatMoney } from "@/lib/format";
 import { getStatusLabel, FULFILLMENT_LABELS } from "@/lib/labels";
+import { appendStatusTimestamp } from "@/lib/statusTimestamps";
+import { sendTextNotification } from "@/server/notifications";
 import VendorCodeQR from "@/components/vendor/VendorCodeQR";
 
 export const dynamic = "force-dynamic";
+
+function getPaymentLabel(method: string): string {
+  if (method === "CASH") return "Efectivo";
+  if (method === "ONLINE") return "Pago en línea";
+  if (method === "TRANSFERENCIA") return "Transferencia";
+  return method;
+}
 
 export default async function VendorPedidoPage({
   params,
@@ -102,6 +111,39 @@ export default async function VendorPedidoPage({
             {order.customerAddress && (
               <div className="text-sm text-[color:var(--muted)]">
                 {order.customerAddress}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <div className="text-sm font-medium mb-2">Pago</div>
+            <div className="text-sm">{getPaymentLabel(order.paymentMethod)}</div>
+            {order.paymentMethod === "TRANSFERENCIA" && (
+              <div className="mt-1.5 space-y-1.5">
+                <span
+                  className={`inline-block text-xs px-3 py-1 rounded-full font-medium ${
+                    order.paymentVerified ? "bg-green-100 text-green-800" : "bg-purple-100 text-purple-800"
+                  }`}
+                >
+                  {order.paymentVerified ? "✓ Pago verificado" : "⏳ Esperando verificación"}
+                </span>
+                {order.paymentReference && (
+                  <div className="text-xs text-[color:var(--muted)]">
+                    Referencia: <span className="font-mono">{order.paymentReference}</span>
+                  </div>
+                )}
+                {order.paymentEvidenceUrl && (
+                  <div>
+                    <a
+                      href={order.paymentEvidenceUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs text-[var(--accent)] hover:underline"
+                    >
+                      Ver captura del comprobante ↗
+                    </a>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -204,7 +246,52 @@ export default async function VendorPedidoPage({
           </div>
         )}
         <div className="border-t border-[var(--border)] px-5 py-4 flex gap-2 flex-wrap">
+          {order.status === "PENDING" && order.paymentMethod === "TRANSFERENCIA" && !order.paymentVerified && (
+            <form
+              action={async () => {
+                "use server";
+                await prisma.order.update({
+                  where: { id: order.id },
+                  data: {
+                    paymentVerified: true,
+                    paymentVerifiedAt: new Date(),
+                    statusTimestamps: appendStatusTimestamp(
+                      order.statusTimestamps as Record<string, string> | null,
+                      "PAYMENT_VERIFIED",
+                    ),
+                  },
+                });
+                const user = await prisma.user.findUnique({
+                  where: { id: order.userId },
+                  select: { id: true },
+                });
+                if (user) {
+                  await sendTextNotification(user.id, {
+                    title: "Pago verificado",
+                    body: `${store.name} confirmó tu transferencia. Ya prepara tu pedido.`,
+                    type: "PAYMENT_VERIFIED",
+                    url: "/pedidos",
+                  });
+                }
+                revalidatePath("/vendor/pedidos");
+                revalidatePath(`/vendor/pedidos/${order.id}`);
+              }}
+            >
+              <button title="Confirma que el pago por transferencia llegó a tu cuenta" className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700">
+                Verificar pago
+              </button>
+            </form>
+          )}
           {order.status === "PENDING" && (
+            order.paymentMethod === "TRANSFERENCIA" && !order.paymentVerified ? (
+              <button
+                disabled
+                title="Verifica el pago por transferencia antes de confirmar"
+                className="rounded-lg bg-gray-300 px-4 py-2 text-sm font-medium text-gray-500 cursor-not-allowed"
+              >
+                Verifica el pago para confirmar
+              </button>
+            ) : (
             <form
               action={async () => {
                 "use server";
@@ -220,6 +307,7 @@ export default async function VendorPedidoPage({
                 Confirmar pedido
               </button>
             </form>
+            )
           )}
           {order.status === "CONFIRMED" && (
             <form

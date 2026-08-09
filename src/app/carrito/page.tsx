@@ -28,7 +28,7 @@ type CartItem = {
     isPromotion: boolean;
     promotionPriceCents: number | null;
     promotionEndDate: string | null;
-    store: { id: string; name: string; slug: string; acceptsMercadoPago: boolean; hasOnlinePayment: boolean; latitude: number | null; longitude: number | null; plan: string };
+    store: { id: string; name: string; slug: string; acceptsMercadoPago: boolean; hasOnlinePayment: boolean; hasTransferencia: boolean; transferBankName: string | null; transferAccountHolder: string | null; transferClabe: string | null; latitude: number | null; longitude: number | null; plan: string };
   };
 };
 
@@ -199,10 +199,15 @@ export default function CarritoPage() {
   const storeLat = store?.latitude;
   const storeLng = store?.longitude;
   const hasOnlinePayment = store?.hasOnlinePayment ?? store?.acceptsMercadoPago ?? false;
+  const hasTransferencia = store?.hasTransferencia ?? false;
   const currency = items?.[0]?.product.currency ?? "MXN";
 
   const [fulfillmentType, setFulfillmentType] = useState<"PICKUP" | "DELIVERY">("PICKUP");
-  const [paymentMethod, setPaymentMethod] = useState<"CASH" | "ONLINE">("CASH");
+  const [paymentMethod, setPaymentMethod] = useState<"CASH" | "ONLINE" | "TRANSFERENCIA">("CASH");
+  const [paymentEvidenceUrl, setPaymentEvidenceUrl] = useState("");
+  const [paymentReference, setPaymentReference] = useState("");
+  const [evidenceUploading, setEvidenceUploading] = useState(false);
+  const [evidenceError, setEvidenceError] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
@@ -461,6 +466,10 @@ export default function CarritoPage() {
   };
 
   const handleCheckout = async () => {
+    if (paymentMethod === "TRANSFERENCIA" && !paymentEvidenceUrl) {
+      setError("Sube la captura de tu transferencia para continuar.");
+      return;
+    }
     setCheckoutLoading(true);
     setError(null);
     const body: Record<string, unknown> = {
@@ -474,6 +483,10 @@ export default function CarritoPage() {
       notes: notes || undefined,
     };
     if (appliedCoupon) body.couponCode = appliedCoupon.code;
+    if (paymentMethod === "TRANSFERENCIA") {
+      body.paymentEvidenceUrl = paymentEvidenceUrl || undefined;
+      body.paymentReference = paymentReference || undefined;
+    }
     const res = await fetch("/api/checkout", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -762,7 +775,7 @@ export default function CarritoPage() {
               </div>
 
               {/* Payment method */}
-              {hasOnlinePayment && (
+              {(hasOnlinePayment || hasTransferencia) && (
                 <div className="mt-4">
                   <label className="text-xs font-semibold text-[color:var(--muted)] uppercase tracking-wide">Método de pago</label>
                   <div className="mt-1.5 space-y-2">
@@ -778,19 +791,114 @@ export default function CarritoPage() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                       </svg>
                     </label>
-                    <label className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-all ${
-                      paymentMethod === "ONLINE" ? "border-[var(--accent)] bg-[var(--accent-soft)]" : "border-[var(--border)] hover:border-gray-300"
-                    }`}>
-                      <input type="radio" name="paymentMethod" value="ONLINE" checked={paymentMethod === "ONLINE"} onChange={() => setPaymentMethod("ONLINE")} className="h-4 w-4 accent-[var(--accent)]" />
-                      <div className="flex-1">
-                        <div className="text-sm font-medium">Tarjeta de crédito/débito</div>
-                        <div className="text-xs text-[color:var(--muted)]">Pago seguro en línea</div>
-                      </div>
-                      <svg className="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                      </svg>
-                    </label>
+                    {hasOnlinePayment && (
+                      <label className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-all ${
+                        paymentMethod === "ONLINE" ? "border-[var(--accent)] bg-[var(--accent-soft)]" : "border-[var(--border)] hover:border-gray-300"
+                      }`}>
+                        <input type="radio" name="paymentMethod" value="ONLINE" checked={paymentMethod === "ONLINE"} onChange={() => setPaymentMethod("ONLINE")} className="h-4 w-4 accent-[var(--accent)]" />
+                        <div className="flex-1">
+                          <div className="text-sm font-medium">Tarjeta de crédito/débito</div>
+                          <div className="text-xs text-[color:var(--muted)]">Pago seguro en línea</div>
+                        </div>
+                        <svg className="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        </svg>
+                      </label>
+                    )}
+                    {hasTransferencia && (
+                      <label className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-all ${
+                        paymentMethod === "TRANSFERENCIA" ? "border-[var(--accent)] bg-[var(--accent-soft)]" : "border-[var(--border)] hover:border-gray-300"
+                      }`}>
+                        <input type="radio" name="paymentMethod" value="TRANSFERENCIA" checked={paymentMethod === "TRANSFERENCIA"} onChange={() => setPaymentMethod("TRANSFERENCIA")} className="h-4 w-4 accent-[var(--accent)]" />
+                        <div className="flex-1">
+                          <div className="text-sm font-medium">Transferencia</div>
+                          <div className="text-xs text-[color:var(--muted)]">Paga por SPEI y sube tu captura</div>
+                        </div>
+                        <svg className="h-5 w-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </label>
+                    )}
                   </div>
+
+                  {paymentMethod === "TRANSFERENCIA" && (
+                    <div className="mt-3 rounded-lg border border-purple-500/30 bg-purple-500/5 p-4 space-y-3">
+                      <div className="text-xs font-semibold uppercase tracking-wide text-[color:var(--muted)]">Datos para transferir</div>
+                      {store?.transferBankName && (
+                        <div className="text-sm"><span className="font-medium">Banco:</span> {store.transferBankName}</div>
+                      )}
+                      {store?.transferAccountHolder && (
+                        <div className="text-sm"><span className="font-medium">Titular:</span> {store.transferAccountHolder}</div>
+                      )}
+                      {store?.transferClabe && (
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-sm"><span className="font-medium">CLABE:</span> <span className="font-mono tracking-wider">{store.transferClabe.replace(/(.{4})/g, "$1 ")}</span></span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard?.writeText(store.transferClabe ?? "");
+                              toast.success("CLABE copiada");
+                            }}
+                            className="rounded-md border border-[var(--border)] px-2 py-0.5 text-xs hover:border-[var(--accent)]"
+                          >
+                            Copiar
+                          </button>
+                        </div>
+                      )}
+
+                      <div>
+                        <label className="text-xs font-medium text-[color:var(--muted)]">Captura del comprobante (imagen)</label>
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp,image/gif"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            setEvidenceUploading(true);
+                            setEvidenceError("");
+                            try {
+                              const fd = new FormData();
+                              fd.append("file", file);
+                              const res = await fetch("/api/upload", { method: "POST", body: fd });
+                              const data = await res.json();
+                              if (!res.ok || !data.ok) {
+                                setEvidenceError(data.error || "Error al subir la captura.");
+                              } else {
+                                setPaymentEvidenceUrl(data.url);
+                              }
+                            } catch {
+                              setEvidenceError("Error de red al subir la captura.");
+                            }
+                            setEvidenceUploading(false);
+                          }}
+                          className="mt-1 block w-full text-sm"
+                        />
+                        {evidenceUploading && <div className="mt-1 text-xs text-[color:var(--muted)]">Subiendo captura...</div>}
+                        {evidenceError && <div className="mt-1 text-xs text-red-600">{evidenceError}</div>}
+                        {paymentEvidenceUrl && !evidenceUploading && (
+                          <div className="mt-2">
+                            <a href={paymentEvidenceUrl} target="_blank" rel="noreferrer" className="text-xs text-[var(--accent)] hover:underline">
+                              Ver captura subida ✓
+                            </a>
+                          </div>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-medium text-[color:var(--muted)]">Referencia de la transferencia (opcional)</label>
+                        <input
+                          value={paymentReference}
+                          onChange={(e) => setPaymentReference(e.target.value.slice(0, 40))}
+                          placeholder="Folio o referencia del SPEI"
+                          className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                        />
+                      </div>
+
+                      <p className="text-xs text-[color:var(--muted)]">
+                        Tu pedido se activará cuando el negocio verifique el pago. El total a transferir es <span className="font-semibold">{formatMoney(total, currency)}</span>.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </motion.div>
@@ -883,7 +991,9 @@ export default function CarritoPage() {
               </button>
 
               <p className="mt-3 text-center text-xs text-[color:var(--muted)]">
-                {hasOnlinePayment
+                {paymentMethod === "TRANSFERENCIA"
+                  ? "💜 Pagas por transferencia y el negocio verifica tu comprobante."
+                  : hasOnlinePayment
                   ? "🔒 Pago procesado de forma segura. Tus datos están protegidos."
                   : "💰 Pagas al recibir tu pedido."
               }</p>

@@ -50,6 +50,10 @@ export async function GET() {
               name: true,
               slug: true,
               acceptsMercadoPago: true,
+              acceptsTransferencia: true,
+              transferBankName: true,
+              transferAccountHolder: true,
+              transferClabe: true,
               latitude: true,
               longitude: true,
               paymentMethods: {
@@ -67,6 +71,8 @@ export async function GET() {
     item.product.store.paymentMethods.length > 0,
   );
 
+  const hasTransferencia = items.some((item) => item.product.store.acceptsTransferencia);
+
   const result = items.map((item) => ({
     ...item,
     product: {
@@ -75,6 +81,7 @@ export async function GET() {
         ...item.product.store,
         paymentMethods: undefined,
         hasOnlinePayment,
+        hasTransferencia,
       },
     },
   }));

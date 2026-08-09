@@ -320,7 +320,11 @@ export default function AdminDashboardClient({ data }: { data: StatsData }) {
                     <div className="text-xs text-[color:var(--muted)]">
                       {new Date(order.createdAt).toLocaleDateString("es-MX", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                       {order.fulfillmentType === "DELIVERY" ? " 🚚" : " 🏪"}
-                      {order.paymentMethod === "CASH" ? " 💵" : " 💳"}
+                      {order.paymentMethod === "CASH"
+                        ? " 💵"
+                        : order.paymentMethod === "TRANSFERENCIA"
+                        ? " 💜"
+                        : " 💳"}
                     </div>
                   </div>
                   <div className="text-right">

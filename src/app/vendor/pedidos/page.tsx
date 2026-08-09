@@ -40,6 +40,8 @@ export default async function VendorPedidosPage() {
       currency: true,
       createdAt: true,
       deliveryUserId: true,
+      paymentMethod: true,
+      paymentVerified: true,
       user: { select: { email: true } },
     },
     orderBy: { createdAt: "desc" },
@@ -159,6 +161,13 @@ export default async function VendorPedidosPage() {
                     <div className="text-xs mt-1">
                       {order.fulfillmentType === "DELIVERY" ? "📦 Entrega" : "🏪 Recoger"}
                     </div>
+                    {order.paymentMethod === "TRANSFERENCIA" && (
+                      <div className="text-xs mt-1">
+                        <span className={order.paymentVerified ? "text-green-600 font-medium" : "text-purple-700 font-medium"}>
+                          {order.paymentVerified ? "✓ Transferencia verificada" : "⏳ Transferencia sin verificar"}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="mt-3 flex gap-2 flex-wrap">
@@ -168,7 +177,36 @@ export default async function VendorPedidosPage() {
                   >
                     Ver detalle
                   </Link>
+                  {order.status === "PENDING" &&
+                    order.paymentMethod === "TRANSFERENCIA" &&
+                    !order.paymentVerified && (
+                      <form
+                        action={async () => {
+                          "use server";
+                          const c = (await cookies()).toString();
+                          await fetch(`${process.env.NEXTAUTH_URL}/api/vendor/orders/${order.id}/verify-payment`, {
+                            method: "POST",
+                            headers: { cookie: c },
+                          });
+                          revalidatePath("/vendor/pedidos");
+                          revalidatePath(`/vendor/pedidos/${order.id}`);
+                        }}
+                      >
+                        <button className="rounded-lg bg-purple-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-purple-700">
+                          Verificar pago
+                        </button>
+                      </form>
+                    )}
                   {order.status === "PENDING" && (
+                    order.paymentMethod === "TRANSFERENCIA" && !order.paymentVerified ? (
+                      <button
+                        disabled
+                        title="Verifica el pago por transferencia antes de confirmar"
+                        className="rounded-lg bg-gray-300 px-3 py-1.5 text-xs font-medium text-gray-500 cursor-not-allowed"
+                      >
+                        Verifica pago
+                      </button>
+                    ) : (
                     <form
                       action={async () => {
                         "use server";
@@ -186,6 +224,7 @@ export default async function VendorPedidosPage() {
                         Confirmar
                       </button>
                     </form>
+                    )
                   )}
                   {order.status === "CONFIRMED" && (
                     <form

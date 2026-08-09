@@ -107,6 +107,10 @@ model Store {
   mercadoPagoRefreshToken String?
   mercadoPagoPublicKey String?
   mercadoPagoAccountId String?
+  acceptsTransferencia Boolean @default(false)
+  transferBankName String?
+  transferAccountHolder String?
+  transferClabe String?
   openTime   String?
   closeTime  String?
   scheduleDays DayOfWeek[] @default([MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY])
@@ -439,6 +443,10 @@ model Order {
   status          OrderStatus     @default(PENDING)
   fulfillmentType FulfillmentType
   paymentMethod   String          @default("CASH")
+  paymentEvidenceUrl String?
+  paymentReference String?
+  paymentVerified Boolean         @default(false)
+  paymentVerifiedAt DateTime?
   customerName    String
   customerPhone   String
   customerAddress String?

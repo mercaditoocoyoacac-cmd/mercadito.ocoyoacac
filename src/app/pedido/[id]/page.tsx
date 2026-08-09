@@ -23,6 +23,10 @@ export default async function PedidoPage({
       id: true,
       status: true,
       fulfillmentType: true,
+      paymentMethod: true,
+      paymentEvidenceUrl: true,
+      paymentReference: true,
+      paymentVerified: true,
       customerName: true,
       customerPhone: true,
       customerAddress: true,
@@ -63,6 +67,16 @@ export default async function PedidoPage({
           <div>
             <div className="text-xs text-[color:var(--muted)]">Estado</div>
             <div className="font-medium">{order.status}</div>
+          </div>
+          <div>
+            <div className="text-xs text-[color:var(--muted)]">Pago</div>
+            <div className="font-medium">
+              {order.paymentMethod === "CASH"
+                ? "Efectivo"
+                : order.paymentMethod === "TRANSFERENCIA"
+                ? `Transferencia${order.paymentVerified ? " ✓ verificada" : " ⏳ en verificación"}`
+                : "Pago en línea"}
+            </div>
           </div>
           <div>
             <div className="text-xs text-[color:var(--muted)]">Cliente</div>

@@ -35,10 +35,21 @@ export async function POST(
 
   const order = await prisma.order.findFirst({
     where: { id, storeId: store.id },
-    select: { id: true, fulfillmentType: true, deliveryUserId: true, customerAddress: true, customerName: true, statusTimestamps: true },
+    select: { id: true, fulfillmentType: true, deliveryUserId: true, customerAddress: true, customerName: true, statusTimestamps: true, paymentMethod: true, paymentVerified: true },
   });
   if (!order) {
     return NextResponse.json({ ok: false, error: "Pedido no encontrado." }, { status: 404 });
+  }
+
+  if (
+    order.paymentMethod === "TRANSFERENCIA" &&
+    !order.paymentVerified &&
+    (parsed.data.status === "CONFIRMED" || parsed.data.status === "READY" || parsed.data.status === "OUT_FOR_DELIVERY")
+  ) {
+    return NextResponse.json(
+      { ok: false, error: "Primero verifica el pago por transferencia antes de confirmar." },
+      { status: 400 },
+    );
   }
 
   const currentTimestamps = order.statusTimestamps as Record<string, string> | null;

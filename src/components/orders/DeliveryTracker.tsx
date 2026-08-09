@@ -465,6 +465,10 @@ export default function DeliveryTracker({
                         <div className="mb-3">
                           {order.paymentMethod === "CASH" ? (
                             <CashBadge totalCents={order.totalCents} />
+                          ) : order.paymentMethod === "TRANSFERENCIA" ? (
+                            <div className="inline-flex items-center gap-2 rounded-lg bg-purple-100 px-4 py-2 text-base font-semibold text-purple-800">
+                              💜 Pagó por transferencia
+                            </div>
                           ) : (
                             <div className="inline-flex items-center gap-2 rounded-lg bg-blue-100 px-4 py-2 text-base font-semibold text-blue-800">
                               💳 Pagó con tarjeta

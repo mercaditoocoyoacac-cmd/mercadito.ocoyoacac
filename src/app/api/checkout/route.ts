@@ -22,7 +22,9 @@ function generateDeliveryCode(): string {
 
 const CheckoutSchema = z.object({
   fulfillmentType: z.enum(["PICKUP", "DELIVERY"]),
-  paymentMethod: z.enum(["CASH", "ONLINE"]).default("CASH"),
+  paymentMethod: z.enum(["CASH", "ONLINE", "TRANSFERENCIA"]).default("CASH"),
+  paymentEvidenceUrl: z.string().url().max(500).optional(),
+  paymentReference: z.string().max(40).optional(),
   customerName: z.string().min(2).max(80),
   customerPhone: z.string().min(6).max(30),
   customerAddress: z.string().max(140).optional(),
@@ -94,7 +96,7 @@ export async function POST(req: Request) {
           promotionPriceCents: true,
           promotionEndDate: true,
           stock: true,
-          store: { select: { isActive: true, openTime: true, closeTime: true, scheduleDays: true, category: true, latitude: true, longitude: true, plan: true } },
+          store: { select: { isActive: true, openTime: true, closeTime: true, scheduleDays: true, category: true, latitude: true, longitude: true, plan: true, acceptsTransferencia: true } },
         },
       },
     },
@@ -131,6 +133,20 @@ export async function POST(req: Request) {
       { ok: false, error: "Los envíos a domicilio requieren membresía Vende+. Elige recoger en tienda." },
       { status: 400 },
     );
+  }
+  if (parsed.data.paymentMethod === "TRANSFERENCIA") {
+    if (!store.acceptsTransferencia) {
+      return NextResponse.json(
+        { ok: false, error: "Esta tienda no acepta pagos por transferencia." },
+        { status: 400 },
+      );
+    }
+    if (!parsed.data.paymentEvidenceUrl) {
+      return NextResponse.json(
+        { ok: false, error: "Debes subir la captura de tu transferencia." },
+        { status: 400 },
+      );
+    }
   }
   if (!isStoreOpen(store)) {
     return NextResponse.json(
@@ -316,6 +332,8 @@ export async function POST(req: Request) {
       storeId,
       fulfillmentType: parsed.data.fulfillmentType,
       paymentMethod: parsed.data.paymentMethod,
+      paymentEvidenceUrl: parsed.data.paymentEvidenceUrl || null,
+      paymentReference: parsed.data.paymentReference?.trim() || null,
       customerName: parsed.data.customerName.trim(),
       customerPhone: parsed.data.customerPhone.trim(),
       customerAddress: parsed.data.customerAddress?.trim() || null,
