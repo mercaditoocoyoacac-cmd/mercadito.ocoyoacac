@@ -23,6 +23,7 @@ import {
   formatMoney,
   Toaster,
 } from "@/components/ui/design-system";
+import { calcDeliveryFeeCents, haversineDistance, type DeliveryFeeConfig } from "@/lib/geo";
 
 const LocationPicker = dynamic(
   () => import("@/components/maps/LocationPicker"),
