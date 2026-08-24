@@ -45,6 +45,7 @@ interface ProductData {
   isPromotion: boolean;
   promotionPriceCents: number | null;
   discountPercentage: number | null;
+  category: string;
   variants: VariantData[];
 }
 
