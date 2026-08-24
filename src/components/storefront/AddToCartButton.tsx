@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, useState } from "react";
+import { signIn } from "next-auth/react";
 import { formatMoney } from "@/lib/format";
 
 interface Variant {
@@ -98,7 +99,7 @@ export const AddToCartButton = memo(function AddToCartButton({
               | null;
             setLoading(false);
             if (res.status === 401) {
-              setMessage("Inicia sesión para agregar al carrito.");
+              signIn("credentials", { callbackUrl: window.location.href });
               return;
             }
             if (!res.ok || !data?.ok) {

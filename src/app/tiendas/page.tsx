@@ -3,6 +3,7 @@ import Image from "next/image";
 import { prisma } from "@/server/prisma";
 import { shimmerBlur } from "@/lib/images";
 import { CategoryFilter } from "@/components/ui/CategoryFilter";
+import { StoreCardWithProducts } from "@/components/storefront/StoreCardWithProducts";
 
 export const dynamic = "force-dynamic";
 
@@ -49,6 +50,38 @@ export default async function TiendasPage({
   const countMap = new Map(completedCounts.map((o) => [o.storeId, o._count.id]));
   stores.sort((a, b) => (countMap.get(b.id) || 0) - (countMap.get(a.id) || 0));
 
+  // Fetch top-selling products for each store (max 5, or all if few products)
+  const storesWithProducts = await Promise.all(
+    stores.map(async (store) => {
+      const products = await prisma.product.findMany({
+        where: { storeId: store.id, isActive: true },
+        orderBy: [{ soldCount: "desc" }, { createdAt: "desc" }],
+        take: 5,
+        select: {
+          id: true,
+          name: true,
+          priceCents: true,
+          currency: true,
+          imageUrl: true,
+          isUnavailable: true,
+          sellByWeight: true,
+          minWeightGrams: true,
+          maxWeightGrams: true,
+          soldCount: true,
+          isPromotion: true,
+          promotionPriceCents: true,
+          discountPercentage: true,
+          variants: {
+            where: { isActive: true },
+            select: { id: true, name: true, priceCents: true },
+            orderBy: { sortOrder: "asc" },
+          },
+        },
+      });
+      return { ...store, topProducts: products };
+    })
+  );
+
   const categoryLookup = Object.fromEntries(allCategories.map(c => [c.key, c]));
 
   return (
@@ -70,7 +103,7 @@ export default async function TiendasPage({
         />
       </div>
 
-      {stores.length === 0 ? (
+      {storesWithProducts.length === 0 ? (
         <div className="rounded-2xl border border-[var(--border)] bg-white p-12 text-center shadow-sm">
           <div className="mx-auto h-16 w-16 rounded-full bg-[var(--accent-soft)] flex items-center justify-center mb-4">
             <svg className="h-8 w-8 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -95,66 +128,14 @@ export default async function TiendasPage({
         </div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {stores.map((store: typeof stores[number], i: number) => (
-            <Link
+          {storesWithProducts.map((store, i) => (
+            <StoreCardWithProducts
               key={store.id}
-              style={{ animationDelay: `${i * 60}ms` }}
-              href={`/tienda/${store.slug}`}
-              className="group rounded-2xl border border-[var(--border)] bg-white overflow-hidden shadow-sm transition-all hover:shadow-lg hover:-translate-y-1 fade-in"
-            >
-              <div className="relative aspect-video bg-gradient-to-br from-[var(--accent-soft)] to-[var(--accent)] flex items-center justify-center">
-                {store.imageUrl ? (
-                  <Image
-                    src={store.imageUrl}
-                    alt={store.name}
-                    fill
-                    className="object-cover p-4 rounded-xl"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    priority={i < 6}
-                    placeholder="blur"
-                    blurDataURL={shimmerBlur}
-                  />
-                ) : (
-                  <div className="h-20 w-20 rounded-full bg-white/50 flex items-center justify-center text-3xl font-bold text-[var(--accent)]">
-                    {store.name.charAt(0).toUpperCase()}
-                  </div>
-                )}
-              </div>
-              <div className="p-5">
-                <div className="flex items-start justify-between gap-2">
-                  <h3 className="text-lg font-semibold group-hover:text-[var(--accent)] transition-colors">
-                    {store.name}
-                  </h3>
-                  {store.category && (
-                    <span className="shrink-0 rounded-full bg-[var(--accent-soft)] px-2 py-0.5 text-[10px] font-medium text-[var(--accent)]">
-                      {categoryLookup[store.category]?.icon || ""} {categoryLookup[store.category]?.label || store.category.replace(/_/g, " ")}
-                    </span>
-                  )}
-                </div>
-                {store.description ? (
-                  <p className="mt-2 text-sm text-[color:var(--muted)] line-clamp-2">
-                    {store.description}
-                  </p>
-                ) : null}
-                <div className="mt-4 flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-xs text-[color:var(--muted)]">
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                    </svg>
-                    {store._count.products} productos
-                  </div>
-                  {store.address ? (
-                    <div className="flex items-center gap-1 text-xs text-[color:var(--muted)]">
-                      <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      {store.address}
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            </Link>
+              store={store}
+              animationDelay={i * 60}
+              categoryLabel={categoryLookup[store.category]?.label || store.category?.replace(/_/g, " ")}
+              categoryIcon={categoryLookup[store.category]?.icon || ""}
+            />
           ))}
         </div>
       )}
