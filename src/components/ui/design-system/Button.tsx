@@ -14,6 +14,7 @@ interface ButtonProps extends Omit<HTMLMotionProps<"button">, "children"> {
   rightIcon?: ReactNode;
   fullWidth?: boolean;
   children?: ReactNode;
+  asChild?: boolean;
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
@@ -44,20 +45,23 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     children, 
     className = "",
     style,
+    asChild = false,
     ...props 
   }, ref) => {
     const isDisabled = disabled || loading;
+    const Comp = asChild ? "span" : "button";
 
     return (
       <motion.button
         ref={ref}
-        type="button"
-        disabled={isDisabled}
+        as={Comp}
+        type={asChild ? undefined : "button"}
+        disabled={asChild ? undefined : isDisabled}
         className={`
           inline-flex items-center justify-center font-semibold rounded-xl
           transition-all duration-200 ease-out
           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2
-          disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none
+          ${asChild ? "" : "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none"}
           ${variantClasses[variant]}
           ${sizeClasses[size]}
           ${fullWidth ? "w-full" : ""}
@@ -67,7 +71,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           ...style,
           transform: isDisabled ? undefined : style?.transform,
         }}
-        whileTap={{ scale: isDisabled ? 1 : 0.98 }}
+        whileTap={asChild ? undefined : { scale: isDisabled ? 1 : 0.98 }}
         {...props}
       >
         {loading ? (
