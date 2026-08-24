@@ -53,7 +53,7 @@ export default async function StorefrontPage({
       isPromotion: true,
       promotionPriceCents: true,
       discountPercentage: true,
-      category: true,
+      store: { select: { category: true } },
       variants: {
         where: { isActive: true },
         select: { id: true, name: true, priceCents: true },

@@ -45,7 +45,7 @@ interface ProductData {
   isPromotion: boolean;
   promotionPriceCents: number | null;
   discountPercentage: number | null;
-  category: string;
+  store: { category: string } | null;
   variants: VariantData[];
 }
 
@@ -160,7 +160,7 @@ export function StorefrontClient({
     if (isServicios) return [];
     const categoryMap = new Map<string, ProductData[]>();
     otherProducts.forEach((p) => {
-      const cat = p.category || "General";
+      const cat = p.store?.category || "General";
       if (!categoryMap.has(cat)) categoryMap.set(cat, []);
       categoryMap.get(cat)!.push(p);
     });
