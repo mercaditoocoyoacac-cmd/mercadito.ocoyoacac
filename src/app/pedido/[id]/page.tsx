@@ -60,7 +60,7 @@ export default async function PedidoPage({
     status: order.status as any,
     fulfillmentType: order.fulfillmentType,
     pickupCode: order.pickupCode ?? undefined,
-    deliveryAddress: order.customerAddress,
+    deliveryAddress: order.customerAddress ?? undefined,
     storeName: order.store.name,
     storePhone: order.store.phone,
     estimatedDelivery: order.arrivedAt ? formatDateTimeInMexico(new Date(new Date(order.arrivedAt).getTime() + 45 * 60000), { hour: "2-digit", minute: "2-digit" }) : undefined,
