@@ -59,7 +59,7 @@ export default async function PedidoPage({
     currentStatus: order.status as any,
     status: order.status as any,
     fulfillmentType: order.fulfillmentType,
-    pickupCode: order.pickupCode,
+    pickupCode: order.pickupCode ?? undefined,
     deliveryAddress: order.customerAddress,
     storeName: order.store.name,
     storePhone: order.store.phone,
