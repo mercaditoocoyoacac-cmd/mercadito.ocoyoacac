@@ -273,7 +273,7 @@ export function StorefrontClient({
             products={featuredProducts.map(p => ({
               ...p,
               currency: p.currency || "MXN",
-              description: p.description ?? undefined,
+              description: p.description ?? null,
             }))}
             onAddToCart={handleAddToCart}
             onQuickView={setQuickViewProduct}
