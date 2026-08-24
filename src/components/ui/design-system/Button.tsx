@@ -13,7 +13,7 @@ interface ButtonProps extends Omit<HTMLMotionProps<"button">, "children"> {
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
   fullWidth?: boolean;
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
