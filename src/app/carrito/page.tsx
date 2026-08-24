@@ -464,6 +464,18 @@ export default function CarritoPage() {
     else if (method.type === "transfer") setPaymentMethod("TRANSFERENCIA");
   };
 
+  const handleClearCart = async () => {
+    const itemsCopy = [...(items ?? [])];
+    for (const item of itemsCopy) {
+      await fetch("/api/cart/items", {
+        method: "DELETE",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ productId: item.product.id, variantId: item.variantId || undefined }),
+      });
+    }
+    await refresh();
+  };
+
   if (loading) return <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10"><SkeletonCard showImage={false} showTitle={true} showDescription={true} showFooter={true} /></main>;
 
   const hasUnavailable = (items ?? []).some((i) => i.product.isUnavailable);
