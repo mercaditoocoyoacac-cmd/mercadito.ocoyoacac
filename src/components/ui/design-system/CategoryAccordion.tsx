@@ -12,10 +12,10 @@ export interface CategoryData {
   products: Array<{
     id: string;
     name: string;
-    description?: string;
+    description?: string | null;
     priceCents: number;
     currency: string;
-    imageUrl?: string;
+    imageUrl?: string | null;
     isUnavailable: boolean;
     sellByWeight: boolean;
     minWeightGrams: number;
