@@ -29,7 +29,7 @@ export interface ProductCardData {
 interface ProductCardProps {
   product: ProductCardData;
   variant?: "default" | "compact" | "featured" | "horizontal";
-  onAddToCart: (data: { variantId?: string; weightGrams?: number }) => void;
+  onAddToCart: (data: { productId: string; variantId?: string; weightGrams?: number }) => void;
   onQuickView?: () => void;
   showQuickView?: boolean;
   className?: string;
@@ -144,7 +144,7 @@ export function ProductCard({
               size="sm"
               loading={loading}
               disabled={isBlocked}
-              onClick={() => onAddToCart({ variantId: selectedVariant || undefined, weightGrams: product.sellByWeight ? weight : undefined })}
+              onClick={() => onAddToCart({ productId: product.id, variantId: selectedVariant || undefined, weightGrams: product.sellByWeight ? weight : undefined })}
             >
               Agregar
             </Button>
@@ -246,7 +246,7 @@ export function ProductCard({
             loading={loading}
             disabled={isBlocked}
             fullWidth={!hasVariants && !product.sellByWeight}
-            onClick={() => onAddToCart({ variantId: selectedVariant || undefined, weightGrams: product.sellByWeight ? weight : undefined })}
+            onClick={() => onAddToCart({ productId: product.id, variantId: selectedVariant || undefined, weightGrams: product.sellByWeight ? weight : undefined })}
           >
             {loading ? "..." : product.isUnavailable ? "Agotado" : "Agregar"}
           </Button>
