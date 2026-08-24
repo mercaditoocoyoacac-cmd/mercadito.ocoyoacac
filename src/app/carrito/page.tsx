@@ -752,10 +752,7 @@ export default function CarritoPage() {
                         <AddressList
                           addresses={addresses}
                           selectedId={selectedAddressId}
-                          onSelect={(id) => {
-                            const addr = addresses.find(a => a.id === id);
-                            if (addr) handleAddressSelect(addr);
-                          }}
+                          onSelect={handleAddressSelect}
                           onAdd={handleAddAddress}
                           onEdit={handleEditAddress}
                           onDelete={handleDeleteAddress}
