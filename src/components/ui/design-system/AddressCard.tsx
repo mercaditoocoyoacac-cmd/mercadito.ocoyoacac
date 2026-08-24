@@ -144,7 +144,7 @@ export function AddressCard({
 interface AddressListProps {
   addresses: Address[];
   selectedId?: string | null;
-  onSelect: (id: string) => void;
+  onSelect: (address: Address) => void;
   onAdd: () => void;
   onEdit: (address: Address) => void;
   onDelete: (id: string) => void;
@@ -195,7 +195,7 @@ export function AddressList({
           key={address.id}
           address={address}
           isSelected={address.id === selectedId}
-          onSelect={() => onSelect(address.id)}
+          onSelect={() => onSelect(address)}
           onEdit={() => onEdit(address)}
           onDelete={() => onDelete(address.id)}
           onSetDefault={() => onSetDefault(address.id)}
