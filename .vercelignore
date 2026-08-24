@@ -1,0 +1,8 @@
+# Exclude imss-umf-turnos (separate project)
+imss-umf-turnos/
+
+# Exclude development files
+.env.local
+.env.*.local
+*.log
+*.tsbuildinfo

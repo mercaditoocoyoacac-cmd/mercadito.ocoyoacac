@@ -15,6 +15,8 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["@capacitor/core"],
   },
+  // Exclude imss-umf-turnos (separate project) from build
+  pageExtensions: ["ts", "tsx", "js", "jsx", "md", "mdx"],
 };
 
 export default nextConfig;
