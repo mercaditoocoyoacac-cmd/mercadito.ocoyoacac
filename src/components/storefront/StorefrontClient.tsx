@@ -273,6 +273,7 @@ export function StorefrontClient({
             products={featuredProducts.map(p => ({
               ...p,
               currency: p.currency || "MXN",
+              description: p.description ?? undefined,
             }))}
             onAddToCart={handleAddToCart}
             onQuickView={setQuickViewProduct}
@@ -355,6 +356,7 @@ export function StorefrontClient({
                   product={{
                     ...product,
                     currency: product.currency || "MXN",
+                    description: product.description ?? undefined,
                   }}
                   variant="default"
                   onAddToCart={handleAddToCart}
@@ -372,11 +374,11 @@ export function StorefrontClient({
             defaultOpen={categories.slice(0, 2).map(c => c.id)}
           />
         ) : otherProducts.length > 0 ? (
-          <ProductGrid
-            products={otherProducts.map(p => ({ ...p, currency: p.currency || "MXN" }))}
-            onAddToCart={handleAddToCart}
-            onQuickView={setQuickViewProduct}
-            variant="default"
+<ProductGrid
+              products={otherProducts.map(p => ({ ...p, currency: p.currency || "MXN", description: p.description ?? undefined }))}
+              onAddToCart={handleAddToCart}
+              onQuickView={setQuickViewProduct}
+              variant="default"
             emptyState={{
               title: "No hay productos",
               description: "Esta tienda no tiene productos publicados aún.",
