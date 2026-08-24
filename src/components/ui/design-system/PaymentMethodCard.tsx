@@ -19,9 +19,9 @@ export interface PaymentMethod {
     last4?: string;
     brand?: string;
     expiry?: string;
-    bankName?: string;
-    accountHolder?: string;
-    clabe?: string;
+    bankName?: string | null;
+    accountHolder?: string | null;
+    clabe?: string | null;
   };
 }
 
