@@ -142,13 +142,13 @@ export function CategoryAccordion({
                     ) : (
                       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" role="list">
                         {category.products.map((product) => (
-                          <ProductCardInCategory
-                            key={product.id}
-                            product={product}
-                            categoryId={category.id}
-                            onAddToCart={onAddToCart}
-                            onQuickView={onQuickView}
-                          />
+<ProductCardInCategory
+                          key={product.id}
+                          product={product}
+                          categoryId={category.id}
+                          onAddToCart={(data) => onAddToCart(product.id, data)}
+                          onQuickView={onQuickView}
+                        />
                         ))}
                       </div>
                     )}
