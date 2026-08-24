@@ -65,12 +65,12 @@ export default async function PedidoPage({
     storePhone: order.store.phone,
     estimatedDelivery: order.arrivedAt ? formatDateTimeInMexico(new Date(new Date(order.arrivedAt).getTime() + 45 * 60000), { hour: "2-digit", minute: "2-digit" }) : undefined,
     timestamps: {
-      PENDING: order.createdAt,
-      CONFIRMED: (order.statusTimestamps as Record<string, string | undefined>)?.CONFIRMED ? new Date((order.statusTimestamps as Record<string, string>)?.CONFIRMED) : undefined,
-      READY: (order.statusTimestamps as Record<string, string | undefined>)?.READY ? new Date((order.statusTimestamps as Record<string, string>)?.READY) : undefined,
-      OUT_FOR_DELIVERY: (order.statusTimestamps as Record<string, string | undefined>)?.OUT_FOR_DELIVERY ? new Date((order.statusTimestamps as Record<string, string>)?.OUT_FOR_DELIVERY) : undefined,
-      COMPLETED: (order.statusTimestamps as Record<string, string | undefined>)?.COMPLETED ? new Date((order.statusTimestamps as Record<string, string>)?.COMPLETED) : undefined,
-      CANCELLED: (order.statusTimestamps as Record<string, string | undefined>)?.CANCELLED ? new Date((order.statusTimestamps as Record<string, string>)?.CANCELLED) : undefined,
+      PENDING: order.createdAt.toISOString(),
+      CONFIRMED: (order.statusTimestamps as Record<string, string | undefined>)?.CONFIRMED || "",
+      READY: (order.statusTimestamps as Record<string, string | undefined>)?.READY || "",
+      OUT_FOR_DELIVERY: (order.statusTimestamps as Record<string, string | undefined>)?.OUT_FOR_DELIVERY || "",
+      COMPLETED: (order.statusTimestamps as Record<string, string | undefined>)?.COMPLETED || "",
+      CANCELLED: (order.statusTimestamps as Record<string, string | undefined>)?.CANCELLED || "",
     },
   };
 
