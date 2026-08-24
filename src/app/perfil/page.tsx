@@ -1,14 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import dynamic from "next/dynamic";
 import { EnableNotifications } from "@/components/ui/EnableNotifications";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Input,
+  Button,
+  Badge,
+  EmptyState,
+  Dialog,
+  Skeleton,
+  AddressCard,
+  AddressList,
+} from "@/components/ui/design-system";
 
 const LocationPicker = dynamic(
   () => import("@/components/maps/LocationPicker"),
-  { ssr: false, loading: () => <div className="h-64 w-full bg-gray-100 animate-pulse rounded-lg" /> }
+  { ssr: false, loading: () => <Skeleton className="h-64 w-full rounded-xl" /> }
 );
 
 interface ProfileData {
@@ -25,6 +39,20 @@ interface ProfileData {
   emailVerified: boolean;
   phoneVerified: boolean;
   role: string;
+  addresses?: Address[];
+}
+
+interface Address {
+  id: string;
+  label: string;
+  street: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  latitude?: number;
+  longitude?: number;
+  isDefault?: boolean;
+  instructions?: string;
 }
 
 export default function ProfilePage() {
@@ -45,7 +73,6 @@ export default function ProfilePage() {
   });
 
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
-
   const [activeOrders, setActiveOrders] = useState<any[]>([]);
 
   const [verifyModal, setVerifyModal] = useState<{ open: boolean; type: string; target: string }>({
@@ -57,12 +84,12 @@ export default function ProfilePage() {
   const [sendingCode, setSendingCode] = useState(false);
   const [verifying, setVerifying] = useState(false);
 
-  useState(() => {
+  useEffect(() => {
     fetchProfile();
     fetch("/api/profile/active-orders")
       .then(r => r.json())
       .then(data => { if (data.ok) setActiveOrders(data.orders); });
-  });
+  }, []);
 
   async function fetchProfile() {
     try {
@@ -181,9 +208,9 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-10 fade-in">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 w-48 rounded bg-gray-200"></div>
-          <div className="h-64 rounded-xl bg-gray-200"></div>
+        <div className="space-y-6">
+          <Skeleton className="h-8 w-48 rounded" />
+          <SkeletonCard showImage={false} showTitle={true} showDescription={true} showFooter={true} />
         </div>
       </main>
     );
@@ -192,138 +219,178 @@ export default function ProfilePage() {
   if (!profile) {
     return (
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-10 fade-in">
-        <p className="text-red-600">Error al cargar el perfil</p>
+        <EmptyState
+          illustration="store"
+          title="Error al cargar el perfil"
+          action={{ label: "Reintentar", onClick: fetchProfile, variant: "primary" }}
+        />
       </main>
     );
   }
 
+  const handleAddressSelect = (address: Address) => {
+    setFormData({
+      ...formData,
+      address: address.street,
+      city: address.city,
+      state: address.state,
+      zipCode: address.zipCode,
+    });
+    setLocation({ lat: address.latitude ?? null, lng: address.longitude ?? null });
+    toast.success(`Dirección "${address.label}" seleccionada`);
+  };
+
+  const handleAddAddress = () => {
+    const newAddress: Address = {
+      id: `addr_${Date.now()}`,
+      label: "Nueva dirección",
+      street: formData.address,
+      city: formData.city,
+      state: formData.state,
+      zipCode: formData.zipCode,
+      latitude: location?.lat,
+      longitude: location?.lng,
+    };
+    setProfile(prev => prev ? { ...prev, addresses: [...(prev.addresses || []), newAddress] } : null);
+    toast.success("Dirección agregada");
+  };
+
+  const handleEditAddress = (address: Address) => {
+    setFormData({
+      ...formData,
+      address: address.street,
+      city: address.city,
+      state: address.state,
+      zipCode: address.zipCode,
+    });
+    setLocation({ lat: address.latitude ?? null, lng: address.longitude ?? null });
+  };
+
+  const handleDeleteAddress = (id: string) => {
+    setProfile(prev => prev ? { ...prev, addresses: prev.addresses?.filter(a => a.id !== id) } : null);
+    toast.success("Dirección eliminada");
+  };
+
+  const handleSetDefaultAddress = (id: string) => {
+    setProfile(prev => prev ? { 
+      ...prev, 
+      addresses: prev.addresses?.map(a => ({ ...a, isDefault: a.id === id })) 
+    } : null);
+    toast.success("Dirección predeterminada actualizada");
+  };
+
   return (
-    <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-10 fade-in">
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Mi Perfil</h1>
-          <p className="mt-1 text-sm text-[color:var(--muted)]">
-            Actualiza tu información personal
-          </p>
+    <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-6 lg:py-10 fade-in">
+      <div className="mb-8">
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-bold">Mi Perfil</h1>
+            <p className="mt-1 text-sm text-[color:var(--muted)]">Actualiza tu información personal</p>
+          </div>
+          {profile.role === "ADMIN" && (
+            <Link href="/admin" className="shrink-0">
+              <Button variant="outline" leftIcon={
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+              }>
+                Panel Admin
+              </Button>
+            </Link>
+          )}
         </div>
-        {profile.role === "ADMIN" && (
-          <Link
-            href="/admin"
-            className="shrink-0 rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-700 transition-colors"
-          >
-            Ir al Panel Admin
-          </Link>
-        )}
       </div>
 
       {activeOrders.length > 0 && (
-        <div className="mt-6 space-y-3">
+        <div className="mb-6 space-y-3" role="list" aria-label="Pedidos activos">
           {activeOrders.map(o => (
-            <div key={o.id} className={`rounded-xl border-2 p-6 text-center ${
-              o.arrivedAt && o.status === "OUT_FOR_DELIVERY"
-                ? "border-orange-400 bg-orange-50 shadow-lg"
-                : "border-orange-200 bg-orange-50"
-            }`}>
-              <div className="text-3xl mb-2">
-                {o.arrivedAt ? "🛵" : "📦"}
-              </div>
-              <div className="text-base font-bold text-gray-900">
-                {o.arrivedAt ? "¡El repartidor está en camino a entregarte!" : "Pedido listo en " + o.store.name}
-              </div>
-              <div className="mt-3 inline-block rounded-xl bg-white px-6 py-3 shadow-inner">
-                <div className="font-mono text-4xl font-bold tracking-[0.25em] text-gray-900">
-                  {o.pickupCode}
+            <Card key={o.id} variant={o.arrivedAt && o.status === "OUT_FOR_DELIVERY" ? "elevated" : "outlined"} className={o.arrivedAt && o.status === "OUT_FOR_DELIVERY" ? "border-orange-300 bg-orange-50 shadow-lg" : "border-orange-200 bg-orange-50"}>
+              <CardContent className="p-6 text-center">
+                <div className="text-3xl mb-2">{o.arrivedAt ? "🛵" : "📦"}</div>
+                <div className="text-base font-bold text-gray-900">
+                  {o.arrivedAt ? "¡El repartidor está en camino a entregarte!" : "Pedido listo en " + o.store.name}
                 </div>
-              </div>
-              <div className="mt-2 text-xs text-gray-500">
-                {o.arrivedAt
-                  ? "Proporciona este código al repartidor para recibir tu pedido"
-                  : "Proporciona este código al recoger en tienda"}
-              </div>
-              <Link
-                href={`/mis-pedidos/${o.id}`}
-                className="mt-3 inline-block text-xs text-[var(--accent)] hover:underline"
-              >
-                Ver detalle del pedido →
-              </Link>
-            </div>
+                <div className="mt-3 inline-block rounded-xl bg-white px-6 py-3 shadow-inner">
+                  <div className="font-mono text-4xl font-bold tracking-[0.25em] text-gray-900">{o.pickupCode}</div>
+                </div>
+                <div className="mt-2 text-xs text-gray-500">
+                  {o.arrivedAt ? "Proporciona este código al repartidor" : "Proporciona este código al recoger en tienda"}
+                </div>
+                <Link href={`/mis-pedidos/${o.id}`} className="mt-3 inline-block text-xs text-[var(--accent)] hover:underline">
+                  Ver detalle del pedido →
+                </Link>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
 
       {error && (
-        <div className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-700">
+        <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-700" role="alert">
           {error}
         </div>
       )}
 
       {success && (
-        <div className="mt-4 rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-700">
+        <div className="mb-4 rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-700" role="status">
           {success}
         </div>
       )}
 
-      <div className="mt-6 rounded-xl border border-[var(--border)] bg-white p-6">
-        <h2 className="font-semibold">Notificaciones</h2>
-        <p className="mt-1 text-sm text-[color:var(--muted)]">
-          Recibe alertas cuando haya nuevos pedidos, entregas o actualizaciones
-        </p>
-        <div className="mt-4">
-          <EnableNotifications />
-        </div>
-      </div>
+      {/* Notifications Section */}
+      <Card variant="outlined" className="mb-6">
+        <CardHeader>
+          <CardTitle className="text-base">Notificaciones</CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <p className="text-sm text-[color:var(--muted)]">Recibe alertas cuando haya nuevos pedidos, entregas o actualizaciones</p>
+          <div className="mt-4"><EnableNotifications /></div>
+        </CardContent>
+      </Card>
 
-      <form onSubmit={handleSave} className="mt-6 space-y-6">
-        <div className="rounded-xl border border-[var(--border)] bg-white p-6">
-          <h2 className="font-semibold">Información personal</h2>
-          
-          <div className="mt-4 space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium">Nombres *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.nombres}
-                  onChange={(e) => setFormData({ ...formData, nombres: e.target.value })}
-                  className="mt-1 w-full rounded-lg border border-[var(--border)] px-4 py-2.5"
-                  placeholder="Juan"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Apellidos *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.apellidos}
-                  onChange={(e) => setFormData({ ...formData, apellidos: e.target.value })}
-                  className="mt-1 w-full rounded-lg border border-[var(--border)] px-4 py-2.5"
-                  placeholder="Pérez"
-                />
-              </div>
+      {/* Profile Form */}
+      <form onSubmit={handleSave} className="space-y-6">
+        <Card variant="outlined">
+          <CardHeader>
+            <CardTitle className="text-base">Información personal</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-5 pt-0">
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="Nombres *"
+                value={formData.nombres}
+                onChange={(e) => setFormData({ ...formData, nombres: e.target.value })}
+                placeholder="Juan"
+                required
+              />
+              <Input
+                label="Apellidos *"
+                value={formData.apellidos}
+                onChange={(e) => setFormData({ ...formData, apellidos: e.target.value })}
+                placeholder="Pérez"
+                required
+              />
             </div>
 
             <div>
               <label className="block text-sm font-medium">
                 Correo electrónico
-                {profile.emailVerified && <span className="ml-2 text-green-600">✓ Verificado</span>}
+                {profile.emailVerified && <Badge variant="success" size="sm" className="ml-2">Verificado</Badge>}
               </label>
               <div className="mt-1 flex gap-2">
-                <input
+                <Input
                   type="email"
                   value={profile.email}
                   disabled
-                  className="flex-1 rounded-lg border border-[var(--border)] bg-gray-50 px-4 py-2.5 text-gray-500"
+                  className="flex-1 bg-gray-50 text-gray-500"
                 />
                 {!profile.emailVerified && (
-                  <button
-                    type="button"
+                  <Button 
+                    variant="outline" 
                     onClick={() => sendVerificationCode("email")}
                     disabled={sendingCode}
-                    className="rounded-lg border border-[var(--accent)] px-4 py-2 text-sm text-[var(--accent)] hover:bg-[var(--accent-soft)] disabled:opacity-50"
+                    loading={sendingCode}
                   >
-                    {sendingCode ? "Enviando..." : "Verificar"}
-                  </button>
+                    Verificar
+                  </Button>
                 )}
               </div>
             </div>
@@ -331,84 +398,66 @@ export default function ProfilePage() {
             <div>
               <label className="block text-sm font-medium">
                 Teléfono
-                {profile.phoneVerified && <span className="ml-2 text-green-600">✓ Verificado</span>}
+                {profile.phoneVerified && <Badge variant="success" size="sm" className="ml-2">Verificado</Badge>}
               </label>
-              <div className="mt-1">
-                <input
+              <div className="mt-1 flex flex-col gap-2">
+                <Input
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full rounded-lg border border-[var(--border)] px-4 py-2.5"
                   placeholder="55 1234 5678"
                 />
                 {!profile.phoneVerified && formData.phone && (
-                  <button
-                    type="button"
+                  <Button 
+                    variant="outline" 
                     onClick={() => sendVerificationCode("phone")}
                     disabled={sendingCode}
-                    className="mt-2 rounded-lg border border-[var(--accent)] px-4 py-2 text-sm text-[var(--accent)] hover:bg-[var(--accent-soft)] disabled:opacity-50"
+                    loading={sendingCode}
                   >
-                    {sendingCode ? "Enviando..." : "Verificar teléfono"}
-                  </button>
+                    Verificar teléfono
+                  </Button>
                 )}
               </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="rounded-xl border border-[var(--border)] bg-white p-6">
-          <h2 className="font-semibold">Dirección</h2>
-          
-          <div className="mt-4 space-y-4">
-            <div>
-              <label className="block text-sm font-medium">Calle y número</label>
-              <input
-                type="text"
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-[var(--border)] px-4 py-2.5"
-                placeholder="Av. Principal #123"
+        <Card variant="outlined">
+          <CardHeader>
+            <CardTitle className="text-base">Dirección</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-5 pt-0">
+            <Input
+              label="Calle y número"
+              value={formData.address}
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              placeholder="Av. Principal #123"
+            />
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              <Input
+                label="Ciudad"
+                value={formData.city}
+                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                placeholder="Ocoyoacac"
+              />
+              <Input
+                label="Estado"
+                value={formData.state}
+                onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                placeholder="Estado de México"
+              />
+              <Input
+                label="C.P."
+                value={formData.zipCode}
+                onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
+                placeholder="52740"
               />
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div>
-                <label className="block text-sm font-medium">Ciudad</label>
-                <input
-                  type="text"
-                  value={formData.city}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  className="mt-1 w-full rounded-lg border border-[var(--border)] px-4 py-2.5"
-                  placeholder="Ocoyoacac"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Estado</label>
-                <input
-                  type="text"
-                  value={formData.state}
-                  onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                  className="mt-1 w-full rounded-lg border border-[var(--border)] px-4 py-2.5"
-                  placeholder="Estado de México"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">C.P.</label>
-                <input
-                  type="text"
-                  value={formData.zipCode}
-                  onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
-                  className="mt-1 w-full rounded-lg border border-[var(--border)] px-4 py-2.5"
-                  placeholder="52740"
-                />
-              </div>
-            </div>
-
-            <div className="mt-6">
+            <div>
               <label className="block text-sm font-medium">Ubicación en el mapa</label>
-              <p className="mt-1 text-xs text-[color:var(--muted)]">
-                Toca o haz clic en el mapa para marcar tu ubicación de entrega
-              </p>
+              <p className="mt-1 text-xs text-[color:var(--muted)]">Toca o haz clic en el mapa para marcar tu ubicación de entrega</p>
               <div className="mt-2">
                 <LocationPicker
                   latitude={location?.lat ?? null}
@@ -417,62 +466,69 @@ export default function ProfilePage() {
                 />
               </div>
               {location && (
-                <p className="mt-2 text-xs text-green-600">
-                  ✓ Ubicación seleccionada
+                <p className="mt-2 text-xs text-green-600 flex items-center gap-1">
+                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+                  Ubicación seleccionada
                 </p>
               )}
             </div>
-          </div>
-        </div>
 
-        <button
-          type="submit"
-          disabled={saving}
-          className="w-full rounded-xl bg-[var(--accent)] py-3 font-semibold text-white hover:bg-[var(--accent-hover)] disabled:opacity-50"
-        >
+            {/* Saved Addresses */}
+            {(profile.addresses && profile.addresses.length > 0) && (
+              <div className="pt-4 border-t border-[var(--border)]">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-medium">Direcciones guardadas</h4>
+                  <Button variant="ghost" size="sm" onClick={handleAddAddress} leftIcon={
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                  }>
+                    Agregar actual
+                  </Button>
+                </div>
+                <AddressList
+                  addresses={profile.addresses}
+                  onSelect={handleAddressSelect}
+                  onAdd={handleAddAddress}
+                  onEdit={handleEditAddress}
+                  onDelete={handleDeleteAddress}
+                  onSetDefault={handleSetDefaultAddress}
+                />
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Button type="submit" size="lg" fullWidth loading={saving}>
           {saving ? "Guardando..." : "Guardar cambios"}
-        </button>
+        </Button>
       </form>
 
-      {verifyModal.open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-semibold">Verificar {verifyModal.type === "email" ? "correo" : "teléfono"}</h3>
-            <p className="mt-2 text-sm text-[color:var(--muted)]">
-              Ingresa el código que enviamos a <strong>{verifyModal.target}</strong>
-            </p>
-            
-            <form onSubmit={handleVerifyCode} className="mt-4 space-y-4">
-              <input
-                type="text"
-                value={verifyCode}
-                onChange={(e) => setVerifyCode(e.target.value)}
-                className="w-full rounded-lg border border-[var(--border)] px-4 py-3 text-center text-2xl tracking-widest"
-                placeholder="000000"
-                maxLength={6}
-                required
-              />
-              
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setVerifyModal({ open: false, type: "", target: "" })}
-                  className="flex-1 rounded-lg border border-[var(--border)] py-2.5"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={verifying}
-                  className="flex-1 rounded-lg bg-[var(--accent)] py-2.5 font-semibold text-white disabled:opacity-50"
-                >
-                  {verifying ? "Verificando..." : "Verificar"}
-                </button>
-              </div>
-            </form>
+      {/* Verification Dialog */}
+      <Dialog
+        open={verifyModal.open}
+        onClose={() => setVerifyModal({ open: false, type: "", target: "" })}
+        title={`Verificar ${verifyModal.type === "email" ? "correo" : "teléfono"}`}
+        description={`Ingresa el código que enviamos a <strong>{verifyModal.target}</strong>`}
+        size="sm"
+      >
+        <form onSubmit={handleVerifyCode} className="space-y-4">
+          <Input
+            value={verifyCode}
+            onChange={(e) => setVerifyCode(e.target.value)}
+            placeholder="000000"
+            maxLength={6}
+            className="text-center text-2xl tracking-widest"
+            required
+          />
+          <div className="flex gap-3">
+            <Button variant="outline" type="button" onClick={() => setVerifyModal({ open: false, type: "", target: "" })} fullWidth>
+              Cancelar
+            </Button>
+            <Button type="submit" loading={verifying} fullWidth>
+              Verificar
+            </Button>
           </div>
-        </div>
-      )}
+        </form>
+      </Dialog>
     </main>
   );
 }

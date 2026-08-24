@@ -4,6 +4,7 @@ import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle, Input, Button, Badge, Stepper, StepPanel } from "@/components/ui/design-system";
 
 type RoleOption = "CUSTOMER" | "VENDOR" | "DELIVERY";
 
@@ -31,15 +32,22 @@ const roleLabels: Record<RoleOption, { title: string; desc: string }> = {
   DELIVERY: { title: "Repartir", desc: "Entrega pedidos y gana dinero" },
 };
 
-const roleColors: Record<RoleOption, { active: string; border: string; bg: string }> = {
-  CUSTOMER: { active: "border-rose-500 bg-rose-50", border: "border-rose-200", bg: "bg-rose-500" },
-  VENDOR: { active: "border-emerald-500 bg-emerald-50", border: "border-emerald-200", bg: "bg-emerald-500" },
-  DELIVERY: { active: "border-orange-500 bg-orange-50", border: "border-orange-200", bg: "bg-orange-500" },
+const roleColors: Record<RoleOption, { border: string; bg: string }> = {
+  CUSTOMER: { border: "border-rose-500", bg: "bg-rose-50" },
+  VENDOR: { border: "border-emerald-500", bg: "bg-emerald-50" },
+  DELIVERY: { border: "border-orange-500", bg: "bg-orange-50" },
+};
+
+const roleRedirects: Record<RoleOption, string> = {
+  CUSTOMER: "/tiendas",
+  VENDOR: "/vendor",
+  DELIVERY: "/delivery",
 };
 
 export default function RegistroPage() {
   const router = useRouter();
   const { data: session } = useSession();
+  const [step, setStep] = useState(0); // 0: role, 1: form
   const [selectedRole, setSelectedRole] = useState<RoleOption | null>(null);
   const [nombres, setNombres] = useState("");
   const [apellidos, setApellidos] = useState("");
@@ -128,164 +136,180 @@ export default function RegistroPage() {
     router.push(login?.url ?? roleRedirects[selectedRole]);
   }
 
-  const roleRedirects: Record<RoleOption, string> = {
-    CUSTOMER: "/tiendas",
-    VENDOR: "/vendor",
-    DELIVERY: "/delivery",
-  };
+  const steps = [
+    { label: "Rol", completed: step > 0 },
+    { label: "Datos", completed: step > 1 },
+  ];
 
   return (
-    <main className="mx-auto w-full max-w-md flex-1 px-4 py-10">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {isLoggedInVendorOrDelivery ? "Ser cliente también" : "Crear cuenta"}
-        </h1>
-        <p className="mt-2 text-sm text-[color:var(--muted)]">
-          {isLoggedInVendorOrDelivery
-            ? "Activa el modo cliente en tu cuenta para comprar en tiendas."
-            : "Únete a Mercadito Ocoyoacac"}
-        </p>
+    <main className="mx-auto w-full max-w-md flex-1 px-4 py-10 fade-in">
+      <div className="mb-8">
+        <Stepper steps={steps} current={step} showNumbers={true} className="mb-6" />
+        
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {isLoggedInVendorOrDelivery ? "Ser cliente también" : "Crear cuenta"}
+          </h1>
+          <p className="mt-2 text-sm text-[color:var(--muted)]">
+            {isLoggedInVendorOrDelivery
+              ? "Activa el modo cliente en tu cuenta para comprar en tiendas."
+              : "Únete a Mercadito Ocoyoacac"}
+          </p>
+        </div>
       </div>
 
       {isLoggedInVendorOrDelivery ? (
-        <div className="space-y-4">
-          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
+        <Card variant="outlined" className="border-rose-300 bg-rose-50 mb-6">
+          <CardContent className="p-4 text-sm text-rose-800 text-center">
             Sesión iniciada como <strong>{session?.user?.email}</strong> ({role?.toLowerCase()})
-          </div>
-          <button
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {isLoggedInVendorOrDelivery ? (
+        <div className="space-y-4">
+          <Button
+            variant="outline"
+            className="w-full border-rose-500 text-rose-600 hover:bg-rose-50"
             onClick={handleUpgrade}
             disabled={loading}
-            className="w-full rounded-md bg-rose-500 px-4 py-2 text-sm font-medium text-white hover:bg-rose-600 disabled:opacity-60"
+            loading={loading}
           >
-            {loading ? "Activando..." : "Activar modo cliente"}
-          </button>
-          <p className="text-xs text-[color:var(--muted)]">
+            Activar modo cliente
+          </Button>
+          <p className="text-xs text-[color:var(--muted)] text-center">
             Tu cuenta de {role === "VENDOR" ? "vendedor" : "repartidor"} se conservará. Podrás cambiar entre roles desde el menú.
           </p>
         </div>
       ) : (
-        <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-          <div>
-            <p className="text-sm font-medium mb-3">¿Para qué deseas tu cuenta?</p>
-            <div className="grid grid-cols-3 gap-3">
-              {(["CUSTOMER", "VENDOR", "DELIVERY"] as const).map((r) => {
-                const colors = roleColors[r];
-                const isSelected = selectedRole === r;
-                return (
-                  <button
-                    key={r}
-                    type="button"
-                    onClick={() => setSelectedRole(r)}
-                    className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 text-center transition-all ${
-                      isSelected
-                        ? colors.active + " shadow-sm scale-[1.03]"
-                        : "border-[var(--border)] bg-transparent hover:border-gray-300"
-                    }`}
-                  >
-                    <span className={isSelected ? "text-inherit" : "text-[color:var(--muted)]"}>
-                      {roleIcons[r]}
-                    </span>
-                    <div>
-                      <div className={`text-sm font-semibold ${isSelected ? "" : "text-[color:var(--muted)]"}`}>
-                        {roleLabels[r].title}
+        <StepPanel step={0} current={step}>
+          <Card variant="elevated">
+            <CardHeader>
+              <CardTitle className="text-base">¿Para qué deseas tu cuenta?</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="grid grid-cols-3 gap-3">
+                {(["CUSTOMER", "VENDOR", "DELIVERY"] as const).map((r) => {
+                  const colors = roleColors[r];
+                  const isSelected = selectedRole === r;
+                  return (
+                    <Button
+                      key={r}
+                      type="button"
+                      variant={isSelected ? "primary" : "outline"}
+                      className={`h-32 flex flex-col items-center gap-3 ${isSelected ? "shadow-lg" : ""}`}
+                      onClick={() => setSelectedRole(r)}
+                    >
+                      <span className={isSelected ? "text-white" : "text-[color:var(--muted)]"}>
+                        {roleIcons[r]}
+                      </span>
+                      <div className="text-center">
+                        <div className={`text-sm font-semibold ${isSelected ? "text-white" : ""}`}>
+                          {roleLabels[r].title}
+                        </div>
+                        <div className={`text-[10px] leading-tight mt-0.5 ${isSelected ? "text-white/80" : "text-[color:var(--muted)]"}`}>
+                          {roleLabels[r].desc}
+                        </div>
                       </div>
-                      <div className="text-[10px] leading-tight text-[color:var(--muted)] mt-0.5">
-                        {roleLabels[r].desc}
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-            <div className="grid grid-cols-2 gap-3">
-              <label className="block">
-                <div className="text-sm font-medium">Nombres</div>
-                <input
-                  value={nombres}
-                  onChange={(e) => setNombres(e.target.value)}
-                  className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-                  placeholder="Juan"
-                />
-              </label>
-              <label className="block">
-                <div className="text-sm font-medium">Apellidos</div>
-                <input
-                  value={apellidos}
-                  onChange={(e) => setApellidos(e.target.value)}
-                  className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-                  placeholder="Pérez"
-                />
-              </label>
-            </div>
-
-            <label className="block">
-              <div className="text-sm font-medium">Correo *</div>
-              <input
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                type="email"
-                required
-                className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-                placeholder="tu@correo.com"
-              />
-            </label>
-
-            <label className="block">
-              <div className="text-sm font-medium">Contraseña *</div>
-              <input
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                type="password"
-                required
-                minLength={8}
-                className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-                placeholder="Mínimo 8 caracteres"
-              />
-              <p className="mt-1 text-xs text-[color:var(--muted)]">Mínimo 8 caracteres</p>
-            </label>
-
-            <label className="block">
-              <div className="text-sm font-medium">Teléfono *</div>
-              <input
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                type="tel"
-                required
-                className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-                placeholder="722..."
-              />
-            </label>
-
-            {error ? (
-              <div className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700">
-                {error}
+                    </Button>
+                  );
+                })}
               </div>
-            ) : null}
-
-            <button
-              type="submit"
-              disabled={loading || !selectedRole}
-              className="w-full rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
-            >
-              {loading
-                ? "Creando cuenta..."
-                : selectedRole
-                  ? `Crear cuenta como ${roleLabels[selectedRole].title}`
-                  : "Selecciona una opción arriba"}
-            </button>
-          </form>
+              {error && step === 0 && (
+                <div className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-700" role="alert">
+                  {error}
+                </div>
+              )}
+              <Button
+                size="lg"
+                fullWidth
+                disabled={!selectedRole}
+                onClick={() => setStep(1)}
+              >
+                Continuar
+              </Button>
+            </CardContent>
+          </Card>
+        </StepPanel>
       )}
 
-      {!isLoggedInVendorOrDelivery && (
-        <>
-          <div className="mt-6 text-sm text-[color:var(--muted)]">
-            ¿Ya tienes cuenta?{" "}
-            <Link className="underline" href="/login">
-              Inicia sesión
-            </Link>
-          </div>
-        </>
+      <StepPanel step={1} current={step}>
+        <Card variant="elevated">
+          <CardHeader>
+            <CardTitle className="text-base">Completa tu registro</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-5 pt-0">
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  label="Nombres"
+                  value={nombres}
+                  onChange={(e) => setNombres(e.target.value)}
+                  placeholder="Juan"
+                />
+                <Input
+                  label="Apellidos"
+                  value={apellidos}
+                  onChange={(e) => setApellidos(e.target.value)}
+                  placeholder="Pérez"
+                />
+              </div>
+
+              <Input
+                label="Correo *"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="tu@correo.com"
+                required
+              />
+
+              <Input
+                label="Contraseña *"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Mínimo 8 caracteres"
+                required
+                minLength={8}
+              />
+              <p className="text-xs text-[color:var(--muted)]">Mínimo 8 caracteres</p>
+
+              <Input
+                label="Teléfono *"
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="722..."
+                required
+              />
+
+              {error && (
+                <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-700" role="alert">
+                  {error}
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <Button variant="outline" type="button" onClick={() => setStep(0)} fullWidth>
+                  ← Atrás
+                </Button>
+                <Button type="submit" size="lg" fullWidth loading={loading}>
+                  {loading ? "Creando cuenta..." : `Crear cuenta como ${selectedRole ? roleLabels[selectedRole].title : "..."}`}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </StepPanel>
+
+      {!isLoggedInVendorOrDelivery && step === 1 && (
+        <div className="mt-6 text-center text-sm text-[color:var(--muted)]">
+          ¿Ya tienes cuenta?{" "}
+          <Link className="underline font-medium text-[var(--accent)]" href="/login">
+            Inicia sesión
+          </Link>
+        </div>
       )}
     </main>
   );

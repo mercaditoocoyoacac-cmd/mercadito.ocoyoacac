@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
-import { FieldError } from "@/components/ui/FieldError";
+import { Card, CardContent, CardHeader, CardTitle, Input, Button, Badge } from "@/components/ui/design-system";
 
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
 const STORAGE_KEY = "mercadito_suggested_accounts";
@@ -99,133 +99,127 @@ export default function LoginPage() {
 
   return (
     <main className="mx-auto w-full max-w-md flex-1 px-4 py-10 fade-in">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">Iniciar sesión</h1>
-        <p className="mt-2 text-sm text-[color:var(--muted)]">
-          Accede con tu correo y contraseña.
-        </p>
-      </div>
-
-      <div className="mt-6">
-        {suggestions.length > 0 && (
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium text-[color:var(--muted)] uppercase tracking-wide">Cuentas sugeridas</span>
-              <button
-                type="button"
-                onClick={clearSuggestions}
-                className="text-xs text-[color:var(--muted)] hover:underline"
-              >
-                Limpiar
-              </button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {suggestions.map((acc) => (
-                <button
-                  key={acc}
-                  type="button"
-                  onClick={() => selectAccount(acc)}
-                  className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-xs font-medium text-left hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] transition-colors max-w-full"
-                >
-                  <div className="truncate">{acc}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <form className="space-y-4" onSubmit={handleSubmit} autoComplete="on">
-        <label className="block">
-          <div className="text-sm font-medium">Correo</div>
-          <input
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              if (fieldErrors.email) setFieldErrors((prev) => ({ ...prev, email: "" }));
-            }}
-            onBlur={() => {
-              if (!email.trim()) setFieldErrors((prev) => ({ ...prev, email: "Ingresa tu correo" }));
-              else setFieldErrors((prev) => ({ ...prev, email: "" }));
-            }}
-            type="email"
-            name="email"
-            autoComplete="email"
-            required
-            className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-            placeholder="tu@correo.com"
-          />
-          <FieldError message={fieldErrors.email} />
-        </label>
-
-        <label className="block">
-          <div className="text-sm font-medium">Contraseña</div>
-          <input
-            ref={passwordRef}
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              if (fieldErrors.password) setFieldErrors((prev) => ({ ...prev, password: "" }));
-            }}
-            onBlur={() => {
-              if (!password) setFieldErrors((prev) => ({ ...prev, password: "Ingresa tu contraseña" }));
-              else setFieldErrors((prev) => ({ ...prev, password: "" }));
-            }}
-            type="password"
-            name="password"
-            autoComplete="current-password"
-            required
-            className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-            placeholder="********"
-          />
-          <FieldError message={fieldErrors.password} />
-        </label>
-
-        <div className="text-right">
-          <Link href="/recuperar-contrasena" className="text-xs text-[var(--accent)] hover:underline">
-            ¿Olvidaste tu contraseña?
-          </Link>
+      <div className="mb-8 text-center">
+        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--accent-soft)]">
+          <svg className="h-8 w-8 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
         </div>
+        <h1 className="text-2xl font-semibold tracking-tight">Iniciar sesión</h1>
+        <p className="mt-2 text-sm text-[color:var(--muted)]">Accede con tu correo y contraseña</p>
+      </div>
 
-        {RECAPTCHA_SITE_KEY ? (
-          <div className="flex justify-center">
-            <ReCAPTCHA ref={captchaRef} sitekey={RECAPTCHA_SITE_KEY} />
+      <Card variant="elevated">
+        <CardHeader>
+          <CardTitle className="text-base">Bienvenido de nuevo</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-5 pt-0">
+          {suggestions.length > 0 && (
+            <div className="space-y-3 p-4 rounded-xl bg-[var(--accent-soft)]/50">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-[color:var(--muted)] uppercase tracking-wide">Cuentas sugeridas</span>
+                <Button variant="ghost" size="sm" onClick={clearSuggestions}>Limpiar</Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {suggestions.map((acc) => (
+                  <Button
+                    key={acc}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => selectAccount(acc)}
+                    className="text-left justify-start max-w-full"
+                  >
+                    <div className="truncate">{acc}</div>
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <form className="space-y-5" onSubmit={handleSubmit} autoComplete="on">
+            <Input
+              label="Correo electrónico"
+              type="email"
+              name="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (fieldErrors.email) setFieldErrors((prev) => ({ ...prev, email: "" }));
+              }}
+              onBlur={() => {
+                if (!email.trim()) setFieldErrors((prev) => ({ ...prev, email: "Ingresa tu correo" }));
+                else setFieldErrors((prev) => ({ ...prev, email: "" }));
+              }}
+              placeholder="tu@correo.com"
+              required
+              error={fieldErrors.email}
+            />
+
+            <Input
+              label="Contraseña"
+              type="password"
+              name="password"
+              autoComplete="current-password"
+              ref={passwordRef}
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (fieldErrors.password) setFieldErrors((prev) => ({ ...prev, password: "" }));
+              }}
+              onBlur={() => {
+                if (!password) setFieldErrors((prev) => ({ ...prev, password: "Ingresa tu contraseña" }));
+                else setFieldErrors((prev) => ({ ...prev, password: "" }));
+              }}
+              placeholder="********"
+              required
+              error={fieldErrors.password}
+            />
+
+            <div className="text-right">
+              <Link href="/recuperar-contrasena" className="text-xs text-[var(--accent)] hover:underline">
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </div>
+
+            {RECAPTCHA_SITE_KEY ? (
+              <div className="flex justify-center">
+                <ReCAPTCHA ref={captchaRef} sitekey={RECAPTCHA_SITE_KEY} />
+              </div>
+            ) : null}
+
+            {error && (
+              <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-700 flex items-center gap-2" role="alert">
+                <svg className="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <span>{error}</span>
+              </div>
+            )}
+
+            <Button type="submit" size="lg" fullWidth loading={loading}>
+              {loading ? "Entrando..." : "Entrar"}
+            </Button>
+          </form>
+
+          <div className="text-center text-sm text-[color:var(--muted)]">
+            ¿No tienes cuenta?{" "}
+            <Link className="underline font-medium text-[var(--accent)]" href="/registro">
+              Regístrate
+            </Link>
           </div>
-        ) : null}
 
-        {error ? (
-          <div className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700">
-            {error}
+          <div className="pt-4 border-t border-[var(--border)] space-y-2">
+            <Link href="/vendor/login" className="block text-sm text-[color:var(--muted)] hover:text-[var(--accent)] transition-colors">
+              ¿Eres vendedor? Portal de vendedores
+            </Link>
+            <Link href="/delivery/login" className="block text-sm text-[color:var(--muted)] hover:text-[var(--accent)] transition-colors">
+              ¿Eres repartidor? Portal de repartidores
+            </Link>
+            <Link href="/admin/login" className="block text-sm text-[color:var(--muted)] hover:text-[var(--accent)] transition-colors">
+              ¿Eres administrador? Portal de administración
+            </Link>
           </div>
-        ) : null}
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
-        >
-          {loading ? "Entrando..." : "Entrar"}
-        </button>
-      </form>
-      </div>
-
-      <div className="mt-6 text-sm text-[color:var(--muted)]">
-        ¿No tienes cuenta?{" "}
-        <Link className="underline" href="/registro">
-          Regístrate
-        </Link>
-      </div>
-
-      <div className="mt-4 flex flex-col gap-2 border-t border-[var(--border)] pt-4 text-sm text-[color:var(--muted)]">
-        <Link className="underline" href="/vendor/login">
-          ¿Eres vendedor? Portal de vendedores
-        </Link>
-        <Link className="underline" href="/delivery/login">
-          ¿Eres repartidor? Portal de repartidores
-        </Link>
-        <Link className="underline" href="/admin/login">
-          ¿Eres administrador? Portal de administración
-        </Link>
-      </div>
+        </CardContent>
+      </Card>
     </main>
   );
 }
