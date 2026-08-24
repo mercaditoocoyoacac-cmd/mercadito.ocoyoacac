@@ -21,10 +21,10 @@ export interface Address {
 interface AddressCardProps {
   address: Address;
   isSelected?: boolean;
-  onSelect?: () => void;
-  onEdit?: () => void;
-  onDelete?: () => void;
-  onSetDefault?: () => void;
+  onSelect?: (address: Address) => void;
+  onEdit?: (address: Address) => void;
+  onDelete?: (id: string) => void;
+  onSetDefault?: (id: string) => void;
   showActions?: boolean;
   compact?: boolean;
 }
@@ -54,10 +54,10 @@ export function AddressCard({
         ${onSelect ? "cursor-pointer" : ""}
         ${compact ? "p-3" : ""}
       `}
-      onClick={onSelect}
+      onClick={() => onSelect?.(address)}
       role={onSelect ? "button" : undefined}
       tabIndex={onSelect ? 0 : undefined}
-      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect?.(); }}}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect?.(address); }}}
     >
       {isSelected && (
         <div className="absolute -top-2 -right-2">
