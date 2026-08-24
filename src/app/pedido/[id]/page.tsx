@@ -62,7 +62,7 @@ export default async function PedidoPage({
     pickupCode: order.pickupCode ?? undefined,
     deliveryAddress: order.customerAddress ?? undefined,
     storeName: order.store.name,
-    storePhone: order.store.phone,
+    storePhone: order.store.phone ?? undefined,
     estimatedDelivery: order.arrivedAt ? formatDateTimeInMexico(new Date(new Date(order.arrivedAt).getTime() + 45 * 60000), { hour: "2-digit", minute: "2-digit" }) : undefined,
     timestamps: {
       PENDING: order.createdAt.toISOString(),
