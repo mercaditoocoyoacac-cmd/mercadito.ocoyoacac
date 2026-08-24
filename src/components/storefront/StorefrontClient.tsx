@@ -215,6 +215,7 @@ export function StorefrontClient({
       <StoreHeader
         store={{
           ...store,
+          description: store.description ?? undefined,
           rating: 4.5,
           reviewCount: 128,
           deliveryTime: "30-45 min",
