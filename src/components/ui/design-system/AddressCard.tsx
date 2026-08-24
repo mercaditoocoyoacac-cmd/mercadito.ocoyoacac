@@ -143,7 +143,7 @@ export function AddressCard({
 
 interface AddressListProps {
   addresses: Address[];
-  selectedId?: string;
+  selectedId?: string | null;
   onSelect: (id: string) => void;
   onAdd: () => void;
   onEdit: (address: Address) => void;
