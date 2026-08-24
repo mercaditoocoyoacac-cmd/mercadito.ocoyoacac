@@ -14,5 +14,8 @@ export { ProductCard, ProductGrid, ProductCarousel, type ProductCardProps, type 
 export { StoreHeader, StoreHero, type StoreHeaderProps, type StoreHeaderData } from "./StoreHeader";
 export { CategoryAccordion, type CategoryAccordionProps, type CategoryData } from "./CategoryAccordion";
 export { OrderTimeline, OrderStatusBadge, OrderProgressRing, type OrderTimelineProps, type OrderTimelineData, type OrderStatus } from "./OrderTimeline";
+export { CartFlyAnimation, useCartFly } from "./CartFlyAnimation";
+export { PageTransition, LayoutTransition, StaggerContainer, StaggerItem, HoverLift, TapScale, FadeInUp, SlideInRight, PulseRing, ShimmerEffect } from "./PageTransition";
+export { PWA } from "./PWA";
 export { formatMoney } from "@/lib/format";
 export { shimmerBlur } from "@/lib/images";

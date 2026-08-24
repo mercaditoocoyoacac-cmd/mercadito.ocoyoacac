@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Montserrat } from "next/font/google";
 import "./globals.css";
-import { Toaster } from "sonner";
 import { ConfirmProvider } from "@/components/ui/ConfirmDialog";
 import { SkipToContent } from "@/components/ui/SkipToContent";
 import { TopLoader } from "@/components/ui/TopLoader";
@@ -11,6 +10,7 @@ import { NavBar } from "@/components/layout/NavBar";
 import { FooterWithPrivacy } from "@/components/layout/FooterWithPrivacy";
 import { SupportButton } from "@/components/SupportButton";
 import { NotificationBubble } from "@/components/NotificationBubble";
+import { Toaster, PWA } from "@/components/ui/design-system";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -99,7 +99,8 @@ export default function RootLayout({
             <NavBar />
             <div id="main-content" className="flex flex-1 flex-col" style={{ paddingTop: "calc(4rem + env(safe-area-inset-top, 0px))" }}><AnimatedPageWrapper>{children}</AnimatedPageWrapper></div>
             <FooterWithPrivacy />
-            <Toaster position="top-right" richColors closeButton />
+            <Toaster />
+            <PWA />
             <SupportButton />
             <NotificationBubble />
           </ConfirmProvider>
