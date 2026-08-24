@@ -264,7 +264,7 @@ export default function ProfilePage() {
       state: address.state,
       zipCode: address.zipCode,
     });
-    setLocation({ lat: address.latitude ?? null, lng: address.longitude ?? null });
+    setLocation({ lat: address.latitude ?? 0, lng: address.longitude ?? 0 });
   };
 
   const handleDeleteAddress = (id: string) => {
