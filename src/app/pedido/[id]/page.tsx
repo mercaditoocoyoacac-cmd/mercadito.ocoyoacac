@@ -57,6 +57,7 @@ export default async function PedidoPage({
 
   const timelineData = {
     currentStatus: order.status as any,
+    status: order.status as any,
     fulfillmentType: order.fulfillmentType,
     pickupCode: order.pickupCode,
     deliveryAddress: order.customerAddress,
