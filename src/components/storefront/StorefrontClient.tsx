@@ -274,6 +274,7 @@ export function StorefrontClient({
               ...p,
               currency: p.currency || "MXN",
               description: p.description ?? null,
+              imageUrl: p.imageUrl ?? null,
             }))}
             onAddToCart={handleAddToCart}
             onQuickView={setQuickViewProduct}
@@ -357,6 +358,7 @@ export function StorefrontClient({
                     ...product,
                     currency: product.currency || "MXN",
                     description: product.description ?? undefined,
+                    imageUrl: product.imageUrl ?? undefined,
                   }}
                   variant="default"
                   onAddToCart={handleAddToCart}
@@ -375,17 +377,17 @@ export function StorefrontClient({
           />
         ) : otherProducts.length > 0 ? (
 <ProductGrid
-              products={otherProducts.map(p => ({ ...p, currency: p.currency || "MXN", description: p.description ?? undefined }))}
+              products={otherProducts.map(p => ({ ...p, currency: p.currency || "MXN", description: p.description ?? undefined, imageUrl: p.imageUrl ?? undefined }))}
               onAddToCart={handleAddToCart}
               onQuickView={setQuickViewProduct}
               variant="default"
-            emptyState={{
-              title: "No hay productos",
-              description: "Esta tienda no tiene productos publicados aún.",
-              actionLabel: "Ver tienda",
-              actionHref: `/tienda/${store.slug}`,
-            }}
-          />
+              emptyState={{
+                title: "No hay productos",
+                description: "Esta tienda no tiene productos publicados aún.",
+                actionLabel: "Ver tienda",
+                actionHref: `/tienda/${store.slug}`,
+              }}
+            />
         ) : (
           <EmptyState
             illustration="store"
