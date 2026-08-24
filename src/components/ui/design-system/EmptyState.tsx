@@ -19,6 +19,7 @@ interface EmptyStateProps {
     label: string;
     href?: string;
     onClick?: () => void;
+    variant?: "primary" | "secondary" | "outline" | "ghost";
   };
   className?: string;
   illustration?: "default" | "cart" | "search" | "orders" | "store" | "location" | "notifications";
@@ -108,7 +109,7 @@ export function EmptyState({
           )}
           {secondaryAction && (
             <Button
-              variant="ghost"
+              variant={secondaryAction.variant || "ghost"}
               size="md"
               fullWidth={!action}
               onClick={secondaryAction.onClick}
