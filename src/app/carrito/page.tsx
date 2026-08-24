@@ -40,6 +40,7 @@ type CartItem = {
     name: string;
     priceCents: number;
     currency: string;
+    imageUrl: string | null;
     sellByWeight: boolean;
     isUnavailable: boolean;
     isPromotion: boolean;
