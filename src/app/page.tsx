@@ -1,9 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import { shimmerBlur } from "@/lib/images";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
+import { Card, CardContent, Button, Skeleton, EmptyState, Badge } from "@/components/ui/design-system";
+import { shimmerBlur } from "@/lib/images";
 
 export const dynamic = "force-dynamic";
 
@@ -18,17 +19,31 @@ export default async function Home() {
 
   const storeCount = await prisma.store.count({ where: { isActive: true, isPublished: true } });
   const productCount = await prisma.product.count({ where: { isActive: true } });
+  const orderCount = await prisma.order.count({ where: { status: "COMPLETED" } });
 
   const featuredStores = await prisma.store.findMany({
     where: { isActive: true, isPublished: true },
-    select: { id: true, name: true, slug: true, imageUrl: true, description: true },
+    select: { id: true, name: true, slug: true, imageUrl: true, description: true, category: true },
     take: 6,
   });
+
+  const categoryLabels: Record<string, string> = {
+    CANASTA_BASICA: "Canasta básica",
+    FRUTAS_VERDURAS: "Frutas y verduras",
+    CARNES: "Carnes",
+    LACTEOS: "Lácteos",
+    PANADERIA: "Panadería",
+    BEBIDAS: "Bebidas",
+    SNACKS: "Snacks",
+    LIMPIEZA: "Limpieza",
+    SERVICIOS: "Servicios",
+    OTROS: "Otros",
+  };
 
   return (
     <main className="flex-1">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-amber-700 via-orange-600 to-rose-700 px-4 py-20 text-white">
+      <section className="relative overflow-hidden bg-gradient-to-br from-amber-700 via-orange-600 to-rose-700 px-4 py-20 lg:py-28 text-white">
         <div className="absolute inset-0 opacity-[0.08]">
           <svg className="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
             <defs>
@@ -46,19 +61,19 @@ export default async function Home() {
           <div className="absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-300 blur-3xl"></div>
         </div>
 
-        <div className="relative mx-auto max-w-6xl animate-slide-up">
+        <div className="relative mx-auto max-w-6xl">
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 rounded-full bg-amber-200/20 px-4 py-1.5 text-sm font-medium backdrop-blur-sm border border-amber-200/10">
               🛒 Compra local en Ocoyoacac
             </div>
 
-            <h1 className="mt-6 text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
+            <h1 className="mt-6 text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl leading-tight">
               Todo lo que{" "}
               <span className="text-amber-200">necesitas</span>,<br/>
               cerca de ti
             </h1>
 
-            <p className="mt-6 text-xl leading-relaxed text-white/90">
+            <p className="mt-6 text-xl leading-relaxed text-white/90 max-w-xl">
               Descubre los mejores productos de tu comunidad. Compra directo a vendedores locales
               y recibe tus pedidos en minutos.
             </p>
@@ -85,67 +100,71 @@ export default async function Home() {
       </section>
 
       {/* Quick Stats */}
-      <section className="mx-auto max-w-6xl px-4 py-10 animate-slide-up-sm">
-        <div className="flex flex-wrap items-center justify-center gap-8 text-center">
-          <div className="animate-fade-in">
-            <div className="text-4xl font-bold text-amber-600">{storeCount}</div>
-            <div className="text-sm text-stone-600">Tiendas locales</div>
-          </div>
-          <div className="h-12 w-px bg-amber-200"></div>
-          <div className="animate-fade-in animate-stagger-1">
-            <div className="text-4xl font-bold text-amber-600">{productCount}</div>
-            <div className="text-sm text-stone-600">Productos</div>
-          </div>
-          <div className="h-12 w-px bg-amber-200"></div>
-          <div className="animate-fade-in animate-stagger-2">
-            <div className="text-4xl font-bold text-amber-600">🚚</div>
-            <div className="text-sm text-stone-600">Entrega misma día</div>
-          </div>
+      <section className="mx-auto max-w-6xl px-4 py-12 lg:py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 lg:gap-8">
+          <StatCard
+            value={storeCount.toLocaleString()}
+            label="Tiendas locales"
+            icon={
+              <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+            }
+          />
+          <StatCard
+            value={productCount.toLocaleString()}
+            label="Productos disponibles"
+            icon={
+              <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+            }
+          />
+          <StatCard
+            value={`${orderCount.toLocaleString()}+`}
+            label="Pedidos entregados"
+            icon={
+              <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+              </svg>
+            }
+          />
         </div>
       </section>
 
       {/* How it works */}
-      <section className="bg-gradient-to-b from-amber-50 to-orange-50 py-20">
-        <div className="mx-auto max-w-4xl px-4 text-center animate-slide-up">
-          <h2 className="text-3xl font-bold text-stone-800">¿Cómo funciona?</h2>
+      <section className="bg-gradient-to-b from-amber-50 to-orange-50 py-20 lg:py-28">
+        <div className="mx-auto max-w-6xl px-4 text-center">
+          <h2 className="text-3xl lg:text-4xl font-bold text-stone-800">¿Cómo funciona?</h2>
           <p className="mt-3 text-stone-600">Tres pasos para recibir tus productos</p>
-          <div className="mt-12 grid gap-8 sm:grid-cols-3">
-            <div className="animate-slide-up-sm animate-stagger-1">
-              <div className="mx-auto h-20 w-20 rounded-3xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-3xl font-bold text-white shadow-lg shadow-amber-200">
-                1
-              </div>
-              <h3 className="mt-5 text-lg font-bold text-stone-800">Elige una tienda</h3>
-               <p className="mt-2 text-sm text-stone-600">
-                Explora las tiendas locales y encuentra lo que necesitas
-              </p>
-            </div>
-            <div className="animate-slide-up-sm animate-stagger-2">
-              <div className="mx-auto h-20 w-20 rounded-3xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center text-3xl font-bold text-white shadow-lg shadow-teal-200">
-                2
-              </div>
-              <h3 className="mt-5 text-lg font-bold text-stone-800">Agrega al carrito</h3>
-              <p className="mt-2 text-sm text-stone-600">
-                Elige tus productos y paga cuando recibas
-              </p>
-            </div>
-            <div className="animate-slide-up-sm animate-stagger-3">
-              <div className="mx-auto h-20 w-20 rounded-3xl bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center text-3xl font-bold text-white shadow-lg shadow-rose-200">
-                3
-              </div>
-              <h3 className="mt-5 text-lg font-bold text-stone-800">Recibe en casa</h3>
-              <p className="mt-2 text-sm text-stone-600">
-                Lo recibes el mismo día o pasando a recoger
-              </p>
-            </div>
+          <div className="mt-12 lg:mt-16 grid gap-8 sm:grid-cols-3">
+            <StepCard
+              number="1"
+              color="from-amber-500 to-orange-500"
+              title="Elige una tienda"
+              description="Explora las tiendas locales y encuentra lo que necesitas"
+            />
+            <StepCard
+              number="2"
+              color="from-teal-500 to-emerald-500"
+              title="Agrega al carrito"
+              description="Elige tus productos y paga cuando recibas"
+            />
+            <StepCard
+              number="3"
+              color="from-rose-500 to-rose-600"
+              title="Recibe en casa"
+              description="Lo recibes el mismo día o pasando a recoger"
+            />
           </div>
         </div>
       </section>
 
       {/* Featured Stores */}
       {featuredStores.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 py-20 animate-slide-up">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold text-stone-800">Tiendas destacadas</h2>
+        <section className="mx-auto max-w-6xl px-4 py-16 lg:py-24">
+          <div className="text-center mb-12 lg:mb-16">
+            <h2 className="text-3xl lg:text-4xl font-bold text-stone-800">Tiendas destacadas</h2>
             <p className="mt-2 text-stone-600">Descubre las tiendas más populares de tu comunidad</p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -153,38 +172,45 @@ export default async function Home() {
               <Link
                 key={store.id}
                 href={`/tienda/${store.slug}`}
-                className={`group rounded-2xl border border-amber-200 bg-gradient-to-b from-white to-amber-50/30 p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-amber-300 animate-slide-up-sm animate-stagger-${Math.min(idx + 1, 6)}`}
+                className="group rounded-2xl border border-[var(--border)] bg-white overflow-hidden shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
               >
-                {store.imageUrl ? (
-                  <div className="relative h-36 overflow-hidden rounded-xl">
+                <div className="relative aspect-video bg-gradient-to-br from-[var(--accent-soft)] to-[var(--accent)] flex items-center justify-center overflow-hidden">
+                  {store.imageUrl ? (
                     <Image
                       src={store.imageUrl}
                       alt={store.name}
                       fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      className="object-cover p-4 transition-transform duration-500 group-hover:scale-105"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       placeholder="blur"
                       blurDataURL={shimmerBlur}
                       priority={idx < 3}
                     />
+                  ) : (
+                    <div className="h-20 w-20 rounded-full bg-white/50 flex items-center justify-center text-5xl font-bold text-[var(--accent)]">
+                      {store.name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                </div>
+                <div className="p-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge variant="neutral" size="sm">
+                      {categoryLabels[store.category] || store.category?.replace(/_/g, " ")}
+                    </Badge>
                   </div>
-                ) : (
-                  <div className="flex h-36 items-center justify-center rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 text-5xl">
-                    🏪
-                  </div>
-                )}
-                <h3 className="mt-4 text-lg font-bold text-stone-800 group-hover:text-amber-700 transition-colors">
-                  {store.name}
-                </h3>
-                {store.description && (
-                  <p className="mt-1.5 text-sm text-stone-600 line-clamp-2">
-                    {store.description}
-                  </p>
-                )}
+                  <h3 className="text-lg font-semibold text-stone-800 group-hover:text-[var(--accent)] transition-colors line-clamp-1">
+                    {store.name}
+                  </h3>
+                  {store.description && (
+                    <p className="mt-2 text-sm text-stone-600 line-clamp-2">
+                      {store.description}
+                    </p>
+                  )}
+                </div>
               </Link>
             ))}
           </div>
-          <div className="mt-10 text-center">
+          <div className="mt-12 text-center">
             <Link
               href="/tiendas"
               className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 px-6 py-3 text-sm font-bold text-white shadow-md transition-all duration-300 hover:shadow-lg hover:from-amber-700 hover:to-orange-700 active:scale-[0.97]"
@@ -198,16 +224,35 @@ export default async function Home() {
         </section>
       )}
 
+      {/* Categories CTA */}
+      <section className="bg-white py-16 lg:py-24 border-t border-[var(--border)]">
+        <div className="mx-auto max-w-6xl px-4 text-center">
+          <h2 className="text-3xl lg:text-4xl font-bold text-stone-800">Compra por categoría</h2>
+          <p className="mt-3 text-stone-600">Encuentra exactamente lo que buscas</p>
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+            {Object.entries(categoryLabels).map(([key, label]) => (
+              <Link
+                key={key}
+                href={`/tiendas?category=${key}`}
+                className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 py-2.5 text-sm font-medium text-stone-700 hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)] transition-all"
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-amber-700 via-orange-600 to-rose-700 py-20 text-white">
+      <section className="relative overflow-hidden bg-gradient-to-br from-amber-700 via-orange-600 to-rose-700 py-20 lg:py-28 text-white">
         <div className="absolute inset-0 opacity-[0.06]">
           <svg className="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
             <rect width="100" height="100" fill="url(#pueblo)" />
           </svg>
         </div>
-        <div className="relative mx-auto max-w-4xl px-4 text-center animate-slide-up">
-          <h2 className="text-3xl font-bold">¿Listo para comprar?</h2>
-          <p className="mt-3 text-amber-100">
+        <div className="relative mx-auto max-w-4xl px-4 text-center">
+          <h2 className="text-3xl lg:text-4xl font-bold">¿Listo para comprar?</h2>
+          <p className="mt-3 text-amber-100 text-lg">
             Explora las tiendas de tu zona y encuentra lo que necesitas
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -228,7 +273,7 @@ export default async function Home() {
       </section>
 
       {/* Footer Links */}
-      <section className="mx-auto max-w-6xl px-4 py-10 text-center">
+      <section className="mx-auto max-w-6xl px-4 py-10 text-center border-t border-[var(--border)]">
         <div className="flex flex-wrap items-center justify-center gap-8 text-sm">
           <Link href="/login" className="text-stone-600 hover:text-stone-800 transition-colors hover:underline">
             Iniciar sesión
@@ -242,5 +287,31 @@ export default async function Home() {
         </div>
       </section>
     </main>
+  );
+}
+
+function StatCard({ value, label, icon }: { value: string; label: string; icon: React.ReactNode }) {
+  return (
+    <Card variant="elevated" className="text-center p-6 lg:p-8">
+      <CardContent className="flex flex-col items-center gap-3">
+        <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--accent)]">
+          {icon}
+        </div>
+        <div className="text-4xl lg:text-5xl font-bold text-amber-600">{value}</div>
+        <div className="text-sm text-stone-600">{label}</div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function StepCard({ number, color, title, description }: { number: string; color: string; title: string; description: string }) {
+  return (
+    <div className="animate-slide-up-sm">
+      <div className={`mx-auto h-20 w-20 rounded-3xl bg-gradient-to-br ${color} flex items-center justify-center text-3xl font-bold text-white shadow-lg`}>
+        {number}
+      </div>
+      <h3 className="mt-5 text-lg font-bold text-stone-800">{title}</h3>
+      <p className="mt-2 text-sm text-stone-600">{description}</p>
+    </div>
   );
 }

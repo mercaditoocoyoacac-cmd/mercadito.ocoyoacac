@@ -4,6 +4,7 @@ import { prisma } from "@/server/prisma";
 import { shimmerBlur } from "@/lib/images";
 import { CategoryFilter } from "@/components/ui/CategoryFilter";
 import { StoreCardWithProducts } from "@/components/storefront/StoreCardWithProducts";
+import { Card, CardContent, Button, Skeleton, SkeletonStoreCard, EmptyState, Badge } from "@/components/ui/design-system";
 
 export const dynamic = "force-dynamic";
 
@@ -37,6 +38,7 @@ export default async function TiendasPage({
       description: true, 
       address: true,
       imageUrl: true,
+      plan: true,
       _count: { select: { products: { where: { isActive: true } } } },
     },
   });
@@ -85,69 +87,102 @@ export default async function TiendasPage({
   const categoryLookup = Object.fromEntries(allCategories.map(c => [c.key, c]));
 
   return (
-    <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 fade-in">
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold tracking-tight">
-          Tiendas en Ocoyoacac
-        </h1>
-        <p className="mx-auto mt-3 max-w-lg text-[color:var(--muted)]">
-          Descubre los mejores negocios locales y sus productos frescos.
-        </p>
-      </div>
-
-      <div className="mb-6">
-        <CategoryFilter
-          categories={allCategories}
-          selected={category}
-          baseUrl="/tiendas"
-        />
-      </div>
-
-      {storesWithProducts.length === 0 ? (
-        <div className="rounded-2xl border border-[var(--border)] bg-white p-12 text-center shadow-sm">
-          <div className="mx-auto h-16 w-16 rounded-full bg-[var(--accent-soft)] flex items-center justify-center mb-4">
-            <svg className="h-8 w-8 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+    <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 lg:py-16">
+      {/* Header */}
+      <div className="mb-10 lg:mb-12">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Tiendas en Ocoyoacac</h1>
+            <p className="mt-2 text-[color:var(--muted)] max-w-lg">
+              Descubre los mejores negocios locales y sus productos frescos.
+            </p>
+          </div>
+          <Link
+            href="/vendor/registro"
+            className="inline-flex items-center gap-2 rounded-xl bg-[var(--accent)] px-6 py-3 font-semibold text-white shadow-lg transition-all hover:scale-105 hover:bg-[var(--accent-hover)] shrink-0"
+          >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
-          </div>
-          <h2 className="text-xl font-semibold">Aún no hay tiendas</h2>
-          <p className="mt-2 text-[color:var(--muted)]">
-            Sé el primero en registrar tu negocio en Mercadito.
-          </p>
-          <div className="mt-6">
-            <Link
-              href="/vendor/registro"
-              className="inline-flex items-center gap-2 rounded-xl bg-[var(--accent)] px-6 py-3 font-semibold text-white shadow-lg transition-transform hover:scale-105 hover:bg-[var(--accent-hover)]"
-            >
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              Registrar mi negocio
-            </Link>
-          </div>
+            Registrar mi negocio
+          </Link>
         </div>
+
+        {/* Category Filter */}
+        <div className="mb-6">
+          <CategoryFilter
+            categories={allCategories}
+            selected={category}
+            baseUrl="/tiendas"
+          />
+        </div>
+      </div>
+
+      {/* Stores Grid */}
+      {storesWithProducts.length === 0 ? (
+        <EmptyState
+          illustration="store"
+          title="Aún no hay tiendas"
+          description={validCategory 
+            ? `No hay tiendas en la categoría "${categoryLookup[validCategory]?.label || validCategory}"` 
+            : "Sé el primero en registrar tu negocio en Mercadito."
+          }
+          action={{ label: "Registrar mi negocio", href: "/vendor/registro", variant: "primary" }}
+          secondaryAction={{ label: "Ver todas las categorías", href: "/tiendas", variant: "outline" }}
+        />
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {storesWithProducts.map((store, i) => (
-            <StoreCardWithProducts
-              key={store.id}
-              store={store}
-              animationDelay={i * 60}
-              categoryLabel={categoryLookup[store.category]?.label || store.category?.replace(/_/g, " ")}
-              categoryIcon={categoryLookup[store.category]?.icon || ""}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {storesWithProducts.map((store, i) => (
+              <StoreCardWithProducts
+                key={store.id}
+                store={store}
+                animationDelay={i * 60}
+                categoryLabel={categoryLookup[store.category]?.label || store.category?.replace(/_/g, " ")}
+                categoryIcon={categoryLookup[store.category]?.icon || ""}
+              />
+            ))}
+          </div>
+
+          {/* Stats Bar */}
+          <div className="mt-12">
+            <Card variant="outlined" className="bg-gradient-to-r from-amber-50 to-orange-50">
+              <CardContent className="px-6 py-4">
+                <div className="flex flex-wrap items-center justify-center gap-8 text-center">
+                  <div>
+                    <div className="text-2xl lg:text-3xl font-bold text-amber-600">{storesWithProducts.length}</div>
+                    <div className="text-sm text-stone-600">Tiendas activas</div>
+                  </div>
+                  <div className="h-8 w-px bg-amber-200 hidden lg:block"></div>
+                  <div>
+                    <div className="text-2xl lg:text-3xl font-bold text-amber-600">
+                      {storesWithProducts.reduce((sum, s) => sum + s._count.products, 0).toLocaleString()}
+                    </div>
+                    <div className="text-sm text-stone-600">Productos totales</div>
+                  </div>
+                  <div className="h-8 w-px bg-amber-200 hidden lg:block"></div>
+                  <div>
+                    <div className="text-2xl lg:text-3xl font-bold text-amber-600">
+                      {storesWithProducts.filter(s => s.plan === "MEMBER").length}
+                    </div>
+                    <div className="text-sm text-stone-600">Con Vende+</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </>
       )}
 
-      <div className="mt-12 rounded-2xl bg-[var(--accent-soft)] p-8 text-center">
-        <h3 className="text-lg font-semibold">¿Tienes un negocio?</h3>
-        <p className="mt-2 text-sm text-[color:var(--muted)]">
+      {/* CTA Section */}
+      <div className="mt-12 lg:mt-16 rounded-2xl bg-gradient-to-r from-amber-700 via-orange-600 to-rose-700 p-8 lg:p-12 text-center text-white">
+        <h3 className="text-lg lg:text-xl font-semibold">¿Tienes un negocio?</h3>
+        <p className="mt-2 text-sm lg:text-base text-amber-100 max-w-2xl mx-auto">
           Llega a más clientes creando tu tienda en Mercadito. Pregunta por nuestras promociones de registro.
         </p>
         <Link
           href="/vendor/upgrade"
-          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[var(--accent)] px-6 py-2.5 text-sm font-semibold text-white transition-transform hover:scale-105 hover:bg-[var(--accent-hover)]"
+          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-amber-700 shadow-lg transition-all hover:scale-105 hover:bg-amber-50"
         >
           Crear tienda
         </Link>
