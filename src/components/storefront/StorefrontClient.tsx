@@ -216,6 +216,7 @@ export function StorefrontClient({
         store={{
           ...store,
           description: store.description ?? undefined,
+          phone: store.phone ?? undefined,
           rating: 4.5,
           reviewCount: 128,
           deliveryTime: "30-45 min",
