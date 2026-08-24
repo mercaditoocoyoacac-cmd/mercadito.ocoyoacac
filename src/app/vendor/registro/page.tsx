@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { RegistroTutorial } from "@/components/ui/RegistroTutorial";
 
-const STEPS = ["Cuenta", "Tu tienda", "Primer producto"];
+const STEPS = ["Cuenta", "Tu tienda"];
 
 function slugify(input: string) {
   return input
@@ -41,10 +41,6 @@ export default function VendorRegistroPage() {
   const [storePhone, setStorePhone] = useState("");
   const [address, setAddress] = useState("");
   const [imageUrl, setImageUrl] = useState("");
-
-  // Step 2 fields
-  const [productName, setProductName] = useState("");
-  const [productPrice, setProductPrice] = useState("");
 
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -116,29 +112,8 @@ export default function VendorRegistroPage() {
       try { data = JSON.parse(text); } catch {}
       setLoading(false);
       if (!res.ok || !data?.ok) { setError(data?.error || "No se pudo crear la tienda."); return; }
-      setStep(2);
-      return;
-    }
-
-    if (step === 2) {
-      const priceNumber = Number(productPrice);
-      if (productName.trim() && (!Number.isFinite(priceNumber) || priceNumber <= 0)) {
-        setError("Si agregas un producto, el precio debe ser mayor a 0.");
-        return;
-      }
-      setLoading(true);
-      if (productName.trim()) {
-        await fetch("/api/vendor/products", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({
-            name: productName.trim(),
-            priceCents: Math.round(priceNumber * 100),
-          }),
-        }).catch(() => {});
-      }
-      setLoading(false);
       router.push("/vendor");
+      return;
     }
   }
 
@@ -176,7 +151,7 @@ export default function VendorRegistroPage() {
         {step === 0 && !session?.user?.id && (
           <>
             <h1 className="text-2xl font-semibold tracking-tight">Crea tu cuenta</h1>
-            <p className="text-sm text-[color:var(--muted)]">Paso 1 de 3 — tus datos para acceder.</p>
+            <p className="text-sm text-[color:var(--muted)]">Paso 1 de 2 — tus datos para acceder.</p>
 
             <label className="block">
               <div className="text-sm font-medium">Nombre o nombre del negocio</div>
@@ -218,7 +193,7 @@ export default function VendorRegistroPage() {
         {step === 1 && (
           <>
             <h1 className="text-2xl font-semibold tracking-tight">Tu tienda</h1>
-            <p className="text-sm text-[color:var(--muted)]">Paso 2 de 3 — cuéntanos de tu negocio.</p>
+            <p className="text-sm text-[color:var(--muted)]">Paso 2 de 2 — cuéntanos de tu negocio.</p>
 
             <div className="space-y-2">
               <div className="text-sm font-medium">Logo de la tienda</div>
@@ -272,47 +247,8 @@ export default function VendorRegistroPage() {
             <div className="flex items-center justify-between pt-2">
               <button type="button" onClick={() => setStep(0)} className="text-sm text-[color:var(--muted)] hover:text-[var(--accent)]">← Atrás</button>
               <button type="submit" disabled={loading || uploading} className="rounded-md bg-[var(--accent)] px-6 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60">
-                {loading ? "Creando..." : "Guardar y continuar"}
+                {loading ? "Creando tienda..." : "Crear tienda e ir al panel"}
               </button>
-            </div>
-          </>
-        )}
-
-        {step === 2 && (
-          <>
-            <h1 className="text-2xl font-semibold tracking-tight">Primer producto</h1>
-            <p className="text-sm text-[color:var(--muted)]">Paso 3 de 3 — opcional. Puedes agregar más después.</p>
-
-            <div className="rounded-lg border border-[var(--border)] bg-[var(--accent-soft)]/30 p-4">
-              <p className="text-sm text-[color:var(--muted)] mb-3">
-                Agrega tu primer producto para empezar a vender. Solo necesitas nombre y precio.
-              </p>
-
-              <label className="block">
-                <div className="text-sm font-medium">Nombre del producto</div>
-                <input value={productName} onChange={(e) => setProductName(e.target.value)} className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]" placeholder="Ej: Concha de vainilla" />
-              </label>
-
-              <label className="block mt-3">
-                <div className="text-sm font-medium">Precio (MXN)</div>
-                <input value={productPrice} onChange={(e) => setProductPrice(e.target.value)} inputMode="decimal" className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]" placeholder="Ej: 25.00" />
-              </label>
-            </div>
-
-            {error ? (
-              <div className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700">{error}</div>
-            ) : null}
-
-            <div className="flex items-center justify-between pt-2">
-              <button type="button" onClick={() => setStep(1)} className="text-sm text-[color:var(--muted)] hover:text-[var(--accent)]">← Atrás</button>
-              <div className="flex gap-2">
-                <button type="submit" disabled={loading} className="rounded-md border border-[var(--border)] px-4 py-2 text-sm font-medium hover:bg-[var(--accent-soft)] disabled:opacity-60">
-                  Saltar
-                </button>
-                <button type="submit" disabled={loading} className="rounded-md bg-[var(--accent)] px-6 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60">
-                  {loading ? "Guardando..." : "Guardar e ir al panel"}
-                </button>
-              </div>
             </div>
           </>
         )}
