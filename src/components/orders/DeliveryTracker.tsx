@@ -235,7 +235,6 @@ export default function DeliveryTracker({
       setPickupOrderId(null);
       setPickupCode("");
       setPickupError(null);
-      stopScanner();
       router.refresh();
     } else {
       setPickupError(data?.error || "Código inválido");
