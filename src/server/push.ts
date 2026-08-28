@@ -204,6 +204,43 @@ export async function sendVendorReminder() {
   console.log(`[CRON] Vendor reminder sent to ${tokens.length} devices`);
 }
 
+export async function sendEmptyStoreSuspensionWarning() {
+  const storesWithoutProducts = await prisma.store.findMany({
+    where: {
+      isActive: true,
+      products: { none: {} },
+    },
+    include: {
+      owner: { select: { pushToken: true, id: true, name: true } },
+    },
+  });
+
+  if (storesWithoutProducts.length === 0) {
+    console.log("[CRON] No active stores without products found");
+    return;
+  }
+
+  const tokens = storesWithoutProducts
+    .map((s) => s.owner?.pushToken)
+    .filter(Boolean) as string[];
+
+  if (tokens.length === 0) {
+    console.log("[CRON] No store owners with push tokens found");
+    return;
+  }
+
+  await sendPushToMultiple(tokens, {
+    title: "⚠️ Tu tienda será suspendida el 1 de septiembre",
+    body: "Hola! Notamos que tu tienda no tiene productos registrados. A partir del 1ro de septiembre de 2026, las tiendas sin productos serán suspendidas. Agrega al menos un producto en /vendor/productos para mantener tu tienda activa. ¡Estamos para ayudarte!",
+    url: "/vendor/productos",
+    type: "STORE_SUSPENSION_WARNING",
+  });
+
+  console.log(
+    `[CRON] Suspension warning sent to ${tokens.length} store owners (${storesWithoutProducts.length} stores without products)`
+  );
+}
+
 export async function sendPromotionsToStoreCustomers(storeId: string, storeName: string) {
   const promoRows = await prisma.promotion.findMany({
     where: {
@@ -262,4 +299,60 @@ export async function sendPromotionsToStoreCustomers(storeId: string, storeName:
     });
     console.log(`[PUSH] Promo "${promo.title}" → ${tokens.length} clientes de ${storeName}`);
   }
+}
+
+export async function sendDailyCustomerReminder() {
+  const users = await prisma.user.findMany({
+    where: {
+      pushToken: { not: null },
+      role: "CUSTOMER",
+      isActive: true,
+    },
+    select: { pushToken: true, id: true },
+  });
+
+  if (users.length === 0) {
+    console.log("[CRON] No active customers with push tokens found");
+    return;
+  }
+
+  const tokens = users.map((u) => u.pushToken).filter(Boolean) as string[];
+
+  const messages = [
+    {
+      title: "🍽️ ¿Se te antoja algo?",
+      body: "Pídelo por Mercadito Ocoyoacac y recíbelo en la puerta de tu casa. ¡Rápido, fácil y delicioso!",
+      url: "/tiendas",
+      type: "DAILY_REMINDER",
+    },
+    {
+      title: "😋 ¿Hambre? ¡Mercadito te salva!",
+      body: "Tus tiendas favoritas de Ocoyoacac a un toque. Haz tu pedido ahora y disfruta sin cocinar.",
+      url: "/tiendas",
+      type: "DAILY_REMINDER",
+    },
+    {
+      title: "🛍️ ¿Qué se te antoja hoy?",
+      body: "Descubre promociones y nuevos productos en Mercadito Ocoyoacac. ¡Tu antojo te espera!",
+      url: "/tiendas",
+      type: "DAILY_REMINDER",
+    },
+    {
+      title: "🌮 Antojo repentino?",
+      body: "Ordena en Mercadito Ocoyoacac y recíbelo en minutos. ¡No dejes que el hambre te gane!",
+      url: "/tiendas",
+      type: "DAILY_REMINDER",
+    },
+    {
+      title: "🥤 ¿Sed o antojo?",
+      body: "Refrescos, snacks, comida casera... todo en Mercadito Ocoyoacac. Pide ahora y relájate.",
+      url: "/tiendas",
+      type: "DAILY_REMINDER",
+    },
+  ];
+
+  const message = messages[new Date().getDay() % messages.length];
+
+  await sendPushToMultiple(tokens, message);
+  console.log(`[CRON] Daily customer reminder sent to ${tokens.length} devices`);
 }
