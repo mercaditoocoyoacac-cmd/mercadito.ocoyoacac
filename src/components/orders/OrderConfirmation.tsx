@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import QRCode from "qrcode";
+import { useState } from "react";
+
 type Props = {
   order: {
     id: string;
@@ -13,19 +13,9 @@ type Props = {
 };
 
 export default function OrderConfirmation({ order }: Props) {
-  const [qrCode, setQrCode] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-
-  useEffect(() => {
-    if (order.pickupCode && order.status === "OUT_FOR_DELIVERY") {
-      QRCode.toDataURL(
-        JSON.stringify({ orderId: order.id, code: order.pickupCode }),
-        { width: 250, margin: 2 }
-      ).then(setQrCode);
-    }
-  }, [order.pickupCode, order.id, order.status]);
 
   if (order.status !== "OUT_FOR_DELIVERY") {
     return null;
@@ -74,26 +64,19 @@ export default function OrderConfirmation({ order }: Props) {
     <div className="mt-6 rounded-xl border-2 border-orange-500 bg-orange-50 p-5">
       <div className="text-center">
         <h3 className="text-lg font-semibold text-orange-700">
-          Tu repartir está en camino
+          Tu repartidor está en camino
         </h3>
         <p className="mt-1 text-sm text-orange-600">
-          Cuando llegue, muuéstrale este código QR para confirmar la entrega
+          Cuando llegue, dale este código alfanumérico para confirmar la entrega
         </p>
       </div>
 
-      {qrCode && (
-        <div className="mt-4 flex justify-center">
-          <div className="rounded-xl border-4 border-white bg-white p-3 shadow-lg">
-            <img src={qrCode} alt="Código QR" className="h-48 w-48" />
-          </div>
-        </div>
-      )}
-
       {order.pickupCode && (
         <div className="mt-4 text-center">
-          <p className="text-xs text-orange-600">O muestra este código al repartidor:</p>
-          <div className="mt-1 font-mono text-3xl font-bold tracking-widest text-orange-700">
-            {order.pickupCode}
+          <div className="rounded-xl border-4 border-orange-200 bg-white p-6 shadow-lg inline-block">
+            <div className="font-mono text-4xl font-bold tracking-widest text-orange-700">
+              {order.pickupCode}
+            </div>
           </div>
         </div>
       )}

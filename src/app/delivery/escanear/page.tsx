@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { formatMoney } from "@/lib/format";
-import { startQrScanner, stopQrScanner } from "@/lib/scanner";
-import type { Html5Qrcode } from "html5-qrcode";
+import Link from "next/link";
 
 interface OrderInfo {
   id: string;
@@ -19,7 +18,6 @@ interface OrderInfo {
 }
 
 export default function DeliveryScanPage() {
-  const [mode, setMode] = useState<"qr" | "code">("qr");
   const [manualCode, setManualCode] = useState("");
   const [orderInfo, setOrderInfo] = useState<OrderInfo | null>(null);
   const [loading, setLoading] = useState(false);
@@ -27,9 +25,6 @@ export default function DeliveryScanPage() {
   const [confirming, setConfirming] = useState(false);
   const [confirmingDelivery, setConfirmingDelivery] = useState(false);
   const [scannedCode, setScannedCode] = useState("");
-  const [scanning, setScanning] = useState(false);
-  const scannerRef = useRef<Html5Qrcode | null>(null);
-  const scannerId = "qr-scanner";
 
   async function lookupCode(code: string) {
     setLoading(true);
@@ -43,7 +38,6 @@ export default function DeliveryScanPage() {
 
       if (data.ok) {
         setOrderInfo(data.order);
-        stopScanner();
       } else {
         setError(data.error || "Código no encontrado");
       }
@@ -53,42 +47,6 @@ export default function DeliveryScanPage() {
       setLoading(false);
     }
   }
-
-  const stopScanner = useCallback(async () => {
-    stopQrScanner(scannerRef.current);
-    scannerRef.current = null;
-    setScanning(false);
-  }, []);
-
-  async function startScanner() {
-    setError(null);
-    setScanning(true);
-
-    const scanner = await startQrScanner(
-      scannerId,
-      (code) => {
-        if (code.length >= 4 && code.length <= 10) {
-          stopScanner();
-          lookupCode(code);
-        }
-      },
-      (msg) => setError(msg),
-    );
-
-    if (scanner) {
-      scannerRef.current = scanner;
-    } else {
-      setScanning(false);
-      if (!error) setError("No se pudo iniciar la cámara. Usa el código manual.");
-    }
-  }
-
-  useEffect(() => {
-    if (mode === "qr" && !scannerRef.current && !orderInfo) {
-      startScanner();
-    }
-    return () => { stopScanner(); };
-  }, [mode, orderInfo, stopScanner]);
 
   async function confirmPickup() {
     if (!orderInfo) return;
@@ -159,80 +117,42 @@ export default function DeliveryScanPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold">Escanear / Código</h1>
-          <p className="mt-1 text-sm text-gray-500">Escanea el código QR o ingrésalo manualmente</p>
+          <h1 className="text-2xl font-bold">Código de entrega</h1>
+          <p className="mt-1 text-sm text-gray-500">Ingresa el código alfanumérico para confirmar recogida o entrega</p>
         </div>
 
         {!orderInfo ? (
-          <>
-            <div className="mb-4">
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <form onSubmit={handleManualSubmit} className="space-y-4">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Código alfanumérico
+                </label>
+                <input
+                  type="text"
+                  value={manualCode}
+                  onChange={(e) => setManualCode(e.target.value.toUpperCase())}
+                  placeholder="Ej: ABC123"
+                  className="w-full rounded-xl border-2 border-gray-200 px-4 py-4 text-center text-2xl tracking-widest uppercase focus:border-orange-500 focus:outline-none"
+                  maxLength={10}
+                  autoFocus
+                />
+              </div>
               <button
-                onClick={async () => {
-                  await stopScanner();
-                  setMode(mode === "qr" ? "code" : "qr");
-                }}
-                className="w-full rounded-xl border-2 border-orange-500 py-3 font-semibold text-orange-600 transition-colors hover:bg-orange-50"
+                type="submit"
+                disabled={loading || manualCode.length < 4}
+                className="w-full rounded-xl bg-orange-500 py-4 text-lg font-bold text-white transition-colors hover:bg-orange-600 disabled:opacity-50"
               >
-                {mode === "qr" ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                    Cambiar a código manual
-                  </span>
-                ) : (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                    </svg>
-                    Cambiar a escanear QR
-                  </span>
-                )}
+                {loading ? "Buscando..." : "Buscar pedido"}
               </button>
-            </div>
+            </form>
 
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-              {mode === "qr" ? (
-                <div>
-                  <div id={scannerId} className="w-full overflow-hidden rounded-xl bg-gray-100" style={{ minHeight: 280 }} />
-                  {scanning && (
-                    <p className="mt-3 text-center text-sm text-gray-500">
-                      Apunta la cámara al código QR del paquete
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <form onSubmit={handleManualSubmit} className="space-y-4">
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-gray-700">
-                      Código de entrega
-                    </label>
-                    <input
-                      type="text"
-                      value={manualCode}
-                      onChange={(e) => setManualCode(e.target.value.toUpperCase())}
-                      placeholder="Ej: ABC123"
-                      className="w-full rounded-xl border-2 border-gray-200 px-4 py-4 text-center text-2xl tracking-widest uppercase focus:border-orange-500 focus:outline-none"
-                      maxLength={6}
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={loading || manualCode.length < 4}
-                    className="w-full rounded-xl bg-orange-500 py-4 text-lg font-bold text-white transition-colors hover:bg-orange-600 disabled:opacity-50"
-                  >
-                    {loading ? "Buscando..." : "Buscar pedido"}
-                  </button>
-                </form>
-              )}
-
-              {error && (
-                <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-center text-sm text-red-600">
-                  {error}
-                </div>
-              )}
-            </div>
-          </>
+            {error && (
+              <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-center text-sm text-red-600">
+                {error}
+              </div>
+            )}
+          </div>
         ) : (
           <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <div className="mb-4 rounded-xl bg-green-500 p-4 text-center text-white">
@@ -296,9 +216,9 @@ export default function DeliveryScanPage() {
         )}
 
         <div className="mt-6 text-center">
-          <a href="/delivery" className="text-sm text-gray-500 hover:text-orange-600 hover:underline">
+          <Link href="/delivery" className="text-sm text-gray-500 hover:text-orange-600 hover:underline">
             ← Volver al panel
-          </a>
+          </Link>
         </div>
       </div>
     </main>

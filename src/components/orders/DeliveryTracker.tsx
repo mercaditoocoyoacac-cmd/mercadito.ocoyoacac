@@ -6,8 +6,6 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { haversineDistance, formatDistance, getMapsUrl, openMapsUrl } from "@/lib/geo";
-import { startQrScanner, stopQrScanner } from "@/lib/scanner";
-import type { Html5Qrcode } from "html5-qrcode";
 import DeliveryChat from "@/components/chat/DeliveryChat";
 import { getStatusLabel } from "@/lib/labels";
 
@@ -116,10 +114,7 @@ export default function DeliveryTracker({
   const [pickupOrderId, setPickupOrderId] = useState<string | null>(null);
   const [pickupCode, setPickupCode] = useState("");
   const [pickupLoading, setPickupLoading] = useState(false);
-  const [pickupScanning, setPickupScanning] = useState(false);
   const [pickupError, setPickupError] = useState<string | null>(null);
-  const scannerRef = useRef<Html5Qrcode | null>(null);
-  const scannerId = "pickup-qr-scanner";
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const hasGeo = useSyncExternalStore(() => () => {}, () => 'geolocation' in navigator, () => false);
 
@@ -171,14 +166,13 @@ export default function DeliveryTracker({
     });
     const data = (await res.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
     if (res.ok && data?.ok) {
-      toast.success("Pedido aceptado — escanea el código de la tienda");
+      toast.success("Pedido aceptado — ingresa el código de recogida de la tienda");
       setPickupOrderId(orderId);
       setPickupCode("");
       setPickupError(null);
       setShowMyDeliveries(true);
       setClaimingOrder(null);
       router.refresh();
-      setTimeout(() => startPickupScanner(orderId), 600);
     } else {
       toast.error(data?.error || "No se pudo aceptar el pedido.");
       setClaimingOrder(null);
@@ -247,40 +241,6 @@ export default function DeliveryTracker({
       setPickupError(data?.error || "Código inválido");
     }
   }
-
-  async function startPickupScanner(orderId: string) {
-    setPickupError(null);
-    setPickupScanning(true);
-
-    const scanner = await startQrScanner(
-      scannerId,
-      (code) => {
-        if (code.length >= 4 && code.length <= 10) {
-          stopScanner();
-          setPickupCode(code);
-          handlePickup(orderId, code);
-        }
-      },
-      (msg) => setPickupError(msg),
-    );
-
-    if (scanner) {
-      scannerRef.current = scanner;
-    } else {
-      setPickupScanning(false);
-      if (!pickupError) setPickupError("No se pudo iniciar la cámara. Ingresa el código manualmente.");
-    }
-  }
-
-  const stopScanner = useCallback(async () => {
-    stopQrScanner(scannerRef.current);
-    scannerRef.current = null;
-    setPickupScanning(false);
-  }, []);
-
-  useEffect(() => {
-    return () => { stopScanner(); };
-  }, [stopScanner]);
 
   function getDistanceToOrder(orderLat: number | null, orderLng: number | null): string | null {
     if (!driverLat || !driverLng || !orderLat || !orderLng) return null;
@@ -583,37 +543,17 @@ export default function DeliveryTracker({
                                   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
                                   </svg>
-                                  Escanea o ingresa el código
+                                  Ingresa el código de recogida
                                 </span>
                                 <button
                                   type="button"
-                                  onClick={() => { setPickupOrderId(null); setPickupCode(""); setPickupError(null); stopScanner(); }}
+                                  onClick={() => { setPickupOrderId(null); setPickupCode(""); setPickupError(null); }}
                                   className="text-xs font-medium text-gray-500 hover:text-gray-700 bg-transparent border-none p-0 cursor-pointer"
                                 >
                                   Cancelar
                                 </button>
                               </div>
 
-                              {/* QR scanner */}
-                              <div id={scannerId} className="w-full overflow-hidden rounded-lg bg-gray-200 mb-3" style={{ minHeight: 200 }} />
-
-                              {!pickupScanning && !pickupCode && (
-                                <button
-                                  type="button"
-                                  onClick={() => { if (pickupOrderId) startPickupScanner(pickupOrderId); }}
-                                  className="w-full rounded-lg bg-blue-600 py-2 text-sm font-bold text-white hover:bg-blue-700 mb-3 border-none cursor-pointer"
-                                >
-                                  📷 Activar cámara
-                                </button>
-                              )}
-
-                              {pickupScanning && (
-                                <p className="text-xs text-center text-gray-500 mb-3">
-                                  Apunta al código QR de la tienda
-                                </p>
-                              )}
-
-                              {/* Manual code */}
                               <div className="flex items-center gap-2">
                                 <input
                                   type="text"
@@ -646,7 +586,7 @@ export default function DeliveryTracker({
                                 setPickupOrderId(order.id);
                                 setPickupCode("");
                                 setPickupError(null);
-                                setTimeout(() => startPickupScanner(order.id), 300);
+                                
                               }}
                               className="w-full rounded-xl bg-green-600 py-3 text-base font-bold text-white hover:bg-green-700 shadow-sm active:scale-95 transition-transform border-none cursor-pointer flex items-center justify-center gap-2"
                             >
