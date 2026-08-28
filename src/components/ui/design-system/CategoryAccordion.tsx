@@ -180,7 +180,7 @@ export function CategoryAccordion({
 interface ProductCardInCategoryProps {
   product: CategoryData["products"][0];
   categoryId: string;
-  onAddToCart: (productId: string, data: { variantId?: string; weightGrams?: number }) => void;
+  onAddToCart: (data: { variantId?: string; weightGrams?: number }) => void;
   onQuickView?: (product: CategoryData["products"][0]) => void;
 }
 
@@ -292,7 +292,7 @@ function ProductCardInCategory({
             disabled={isBlocked}
             onClick={() => {
               setLoading(true);
-              onAddToCart(product.id, {
+              onAddToCart({
                 variantId: selectedVariant || undefined,
                 weightGrams: product.sellByWeight ? weight : undefined,
               });

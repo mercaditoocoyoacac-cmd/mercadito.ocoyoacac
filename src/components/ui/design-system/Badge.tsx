@@ -14,6 +14,7 @@ interface BadgeProps {
   shape?: BadgeShape;
   dot?: boolean;
   dotColor?: string;
+  leftIcon?: ReactNode;
   className?: string;
   onClick?: () => void;
 }
@@ -47,6 +48,7 @@ export function Badge({
   shape = "pill", 
   dot = false, 
   dotColor, 
+  leftIcon,
   className = "", 
   onClick 
 }: BadgeProps) {
@@ -67,6 +69,7 @@ export function Badge({
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
     >
+      {leftIcon && <span className="flex-shrink-0">{leftIcon}</span>}
       {dot && (
         <span
           className="w-1.5 h-1.5 rounded-full flex-shrink-0"

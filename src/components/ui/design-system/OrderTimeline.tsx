@@ -3,6 +3,7 @@
 import { type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { formatDateTimeInMexico } from "@/lib/dates";
+import { Button } from "./Button";
 
 export type OrderStatus = 
   | "PENDING" 

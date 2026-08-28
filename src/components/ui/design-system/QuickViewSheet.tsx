@@ -147,7 +147,7 @@ export function QuickViewSheet({
                 </div>
               )}
               {product.isPromotion && product.discountPercentage != null && (
-                <PromoBadge discountPercentage={product.discountPercentage} size="md" className="absolute top-3 left-3 z-10" />
+                <PromoBadge discountPercentage={product.discountPercentage} size="md" />
               )}
               {product.soldCount > 50 && (
                 <Badge variant="success" size="sm" className="absolute top-3 right-3 z-10" dot>

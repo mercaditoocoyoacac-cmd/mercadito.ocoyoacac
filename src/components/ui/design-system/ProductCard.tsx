@@ -181,7 +181,7 @@ export function ProductCard({
           </div>
         )}
         {product.isPromotion && product.discountPercentage != null && (
-          <PromoBadge discountPercentage={product.discountPercentage} size="sm" className="absolute top-2 left-2 z-10" />
+          <PromoBadge discountPercentage={product.discountPercentage} size="sm" />
         )}
         {onQuickView && showQuickView && (
           <button
@@ -266,15 +266,7 @@ export function ProductGrid({
   className = "",
   emptyState,
   skeletonCount = 6
-}: {
-  products: ProductCardData[];
-  onAddToCart: (data: { productId: string; variantId?: string; weightGrams?: number }) => void;
-  onQuickView?: (product: ProductCardData) => void;
-  variant?: "default" | "compact" | "featured";
-  className?: string;
-  emptyState?: { title: string; description: string; actionLabel: string; actionHref: string };
-  skeletonCount?: number;
-}) {
+}: ProductGridProps) {
   if (products.length === 0) {
     return emptyState ? (
       <div className="rounded-xl border-2 border-dashed border-[var(--border)] p-8 text-center">
@@ -305,13 +297,22 @@ export function ProductGrid({
           key={product.id}
           product={product}
           variant={variant}
-          onAddToCart={(data) => onAddToCart({ productId: product.id, ...data })}
+          onAddToCart={onAddToCart}
           onQuickView={onQuickView ? () => onQuickView(product) : undefined}
           showQuickView={!!onQuickView}
         />
       ))}
     </div>
   );
+}
+
+interface ProductCarouselProps {
+  products: ProductCardData[];
+  onAddToCart: (data: { productId: string; variantId?: string; weightGrams?: number }) => void;
+  onQuickView?: (product: ProductCardData) => void;
+  title?: string;
+  showTitle?: boolean;
+  className?: string;
 }
 
 export function ProductCarousel({ 
@@ -321,14 +322,7 @@ export function ProductCarousel({
   title = "Productos",
   showTitle = true,
   className = ""
-}: {
-  products: ProductCardData[];
-  onAddToCart: (data: { productId: string; variantId?: string; weightGrams?: number }) => void;
-  onQuickView?: (product: ProductCardData) => void;
-  title?: string;
-  showTitle?: boolean;
-  className?: string;
-}) {
+}: ProductCarouselProps) {
   return (
     <div className={className}>
       {showTitle && <h3 className="text-lg font-semibold mb-3">{title}</h3>}
@@ -338,7 +332,7 @@ export function ProductCarousel({
             <ProductCard
               product={product}
               variant="compact"
-              onAddToCart={(data) => onAddToCart({ productId: product.id, ...data })}
+              onAddToCart={onAddToCart}
               onQuickView={onQuickView ? () => onQuickView(product) : undefined}
               showQuickView={!!onQuickView}
             />

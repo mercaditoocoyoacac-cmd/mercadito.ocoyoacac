@@ -15,6 +15,9 @@ interface BaseInputProps {
   required?: boolean;
 }
 
+export interface InputProps extends BaseInputProps, Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {}
+export interface TextareaProps extends BaseInputProps, Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "size"> { rows?: number; }
+
 const sizeClasses: Record<InputSize, string> = {
   sm: "px-3 py-1.5 text-sm",
   md: "px-4 py-2.5 text-sm",
@@ -27,7 +30,7 @@ const labelSizeClasses: Record<InputSize, string> = {
   lg: "text-base",
 };
 
-export const Input = forwardRef<HTMLInputElement, BaseInputProps & Omit<InputHTMLAttributes<HTMLInputElement>, "size">>(
+export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ 
     label, 
     hint, 
@@ -48,14 +51,14 @@ export const Input = forwardRef<HTMLInputElement, BaseInputProps & Omit<InputHTM
     return (
       <div className={`${fullWidth ? "w-full" : ""} ${className}`}>
         {label && (
-          <label htmlFor={inputId} className={`block font-medium mb-1.5 ${labelSizeClasses[size]} text-[var(--foreground)]`}>
+          <label htmlFor={inputId} className={`block mb-1.5 font-medium text-sm text-[var(--foreground)] ${labelSizeClasses[size]}`}>
             {label}
             {required && <span className="text-red-500 ml-1" aria-hidden="true">*</span>}
           </label>
         )}
         <div className="relative">
           {leftIcon && (
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[color:var(--muted)] pointer-events-none" aria-hidden="true">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[color:var(--muted)] pointer-events-none flex items-center justify-center">
               {leftIcon}
             </div>
           )}
@@ -68,16 +71,15 @@ export const Input = forwardRef<HTMLInputElement, BaseInputProps & Omit<InputHTM
               focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/20 focus:border-[var(--accent)]
               disabled:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60
               ${error ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : "border-[var(--border)]"}
-              ${sizeClasses[size]}
               ${leftIcon ? "pl-10" : ""}
-              ${rightIcon ? "pr-10" : ""}
+              ${sizeClasses[size]}
             `}
             aria-invalid={error ? "true" : "false"}
             aria-describedby={errorId || hintId}
             {...props}
           />
           {rightIcon && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[color:var(--muted)] pointer-events-none" aria-hidden="true">
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[color:var(--muted)] pointer-events-none flex items-center justify-center">
               {rightIcon}
             </div>
           )}
@@ -100,17 +102,19 @@ export const Input = forwardRef<HTMLInputElement, BaseInputProps & Omit<InputHTM
 
 Input.displayName = "Input";
 
-export const Textarea = forwardRef<HTMLTextAreaElement, BaseInputProps & Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "size">>(
+export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ 
     label, 
     hint, 
     error, 
+    leftIcon, 
+    rightIcon, 
     size = "md", 
     fullWidth = true, 
     required, 
+    rows = 4,
     className = "", 
     id, 
-    rows = 3, 
     ...props 
   }, ref) => {
     const inputId = id || label?.toLowerCase().replace(/\s+/g, "-");
@@ -120,12 +124,17 @@ export const Textarea = forwardRef<HTMLTextAreaElement, BaseInputProps & Omit<Te
     return (
       <div className={`${fullWidth ? "w-full" : ""} ${className}`}>
         {label && (
-          <label htmlFor={inputId} className={`block font-medium mb-1.5 ${labelSizeClasses[size]} text-[var(--foreground)]`}>
+          <label htmlFor={inputId} className={`block mb-1.5 font-medium text-sm text-[var(--foreground)] ${labelSizeClasses[size]}`}>
             {label}
             {required && <span className="text-red-500 ml-1" aria-hidden="true">*</span>}
           </label>
         )}
         <div className="relative">
+          {leftIcon && (
+            <div className="absolute left-3 top-3 text-[color:var(--muted)] pointer-events-none flex items-center justify-center">
+              {leftIcon}
+            </div>
+          )}
           <textarea
             ref={ref}
             id={inputId}
@@ -136,12 +145,18 @@ export const Textarea = forwardRef<HTMLTextAreaElement, BaseInputProps & Omit<Te
               focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/20 focus:border-[var(--accent)]
               disabled:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60
               ${error ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : "border-[var(--border)]"}
+              ${leftIcon ? "pl-10" : ""}
               ${sizeClasses[size]}
             `}
             aria-invalid={error ? "true" : "false"}
             aria-describedby={errorId || hintId}
             {...props}
           />
+          {rightIcon && (
+            <div className="absolute right-3 top-3 text-[color:var(--muted)] pointer-events-none flex items-center justify-center">
+              {rightIcon}
+            </div>
+          )}
         </div>
         {error && (
           <p id={errorId} className="mt-1.5 text-xs text-red-600 flex items-center gap-1" role="alert">
@@ -161,4 +176,4 @@ export const Textarea = forwardRef<HTMLTextAreaElement, BaseInputProps & Omit<Te
 
 Textarea.displayName = "Textarea";
 
-export type { InputHTMLAttributes, TextareaHTMLAttributes };
+export type { InputProps, TextareaProps, InputSize };

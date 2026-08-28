@@ -48,55 +48,32 @@ export function SkeletonText({ lines = 3, className = "", lineHeight = "1.5", ..
         <Skeleton
           key={i}
           className={`h-4 w-full ${i === lines - 1 ? "w-3/4" : ""} mb-2`}
-          rounded="sm"
-          animation={props.animation}
+          {...props}
         />
       ))}
     </div>
   );
 }
 
-export function SkeletonCard({ 
-  className = "", 
-  showImage = true, 
-  showTitle = true, 
-  showDescription = true, 
-  showFooter = false,
-  ...props 
-}: {
-  className?: string;
-  showImage?: boolean;
-  showTitle?: boolean;
-  showDescription?: boolean;
-  showFooter?: boolean;
-} & Omit<SkeletonProps, "rounded">) {
+export function SkeletonCard({ className = "", ...props }: { className?: string } & Omit<SkeletonProps, "rounded">) {
   return (
-    <div className={`rounded-2xl border border-[var(--border)] bg-white overflow-hidden ${className}`} {...props}>
-      {showImage && (
-        <Skeleton className="aspect-video w-full" rounded="none" animation={props.animation} />
-      )}
-      <div className="p-5 space-y-3">
-        {showTitle && <Skeleton className="h-6 w-3/4" rounded="sm" animation={props.animation} />}
-        {showDescription && <SkeletonText lines={2} className="w-full" animation={props.animation} />}
-        {showFooter && (
-          <div className="flex items-center justify-between pt-2">
-            <Skeleton className="h-5 w-20" rounded="sm" animation={props.animation} />
-            <Skeleton className="h-5 w-16" rounded="sm" animation={props.animation} />
-          </div>
-        )}
-      </div>
+    <div className={className} {...props}>
+      <Skeleton className="aspect-square w-full mb-3" />
+      <Skeleton className="h-4 w-3/4 mb-2" />
+      <Skeleton className="h-4 w-1/2" />
     </div>
   );
 }
 
 export function SkeletonProductCard({ className = "", ...props }: { className?: string } & Omit<SkeletonProps, "rounded">) {
   return (
-    <div className={`group rounded-xl border border-[var(--border)] bg-white overflow-hidden shadow-sm ${className}`} {...props}>
-      <Skeleton className="aspect-square w-full" rounded="none" animation={props.animation} />
-      <div className="p-3 space-y-2">
-        <Skeleton className="h-4 w-3/4" rounded="sm" animation={props.animation} />
-        <Skeleton className="h-5 w-1/3" rounded="sm" animation={props.animation} />
-        <Skeleton className="h-8 w-full" rounded="md" animation={props.animation} />
+    <div className={`group rounded-xl border border-[var(--border)] bg-white overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 ${className}`} {...props}>
+      <div className="relative aspect-square bg-[var(--accent-soft)] flex items-center justify-center overflow-hidden">
+        <Skeleton className="w-full h-full" />
+      </div>
+      <div className="p-4 flex-1 flex flex-col">
+        <SkeletonText lines={2} className="mb-2" />
+        <Skeleton className="h-6 w-1/4 mt-auto" />
       </div>
     </div>
   );
@@ -104,29 +81,26 @@ export function SkeletonProductCard({ className = "", ...props }: { className?: 
 
 export function SkeletonStoreCard({ className = "", ...props }: { className?: string } & Omit<SkeletonProps, "rounded">) {
   return (
-    <div className={`group rounded-2xl border border-[var(--border)] bg-white overflow-hidden shadow-sm ${className}`} {...props}>
-      <Skeleton className="aspect-video w-full" rounded="none" animation={props.animation} />
-      <div className="p-5 space-y-3">
-        <Skeleton className="h-6 w-1/2" rounded="sm" animation={props.animation} />
-        <SkeletonText lines={2} animation={props.animation} />
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-4 w-24" rounded="sm" animation={props.animation} />
-          <Skeleton className="h-4 w-20" rounded="sm" animation={props.animation} />
+    <div className={`group rounded-xl border border-[var(--border)] bg-white overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 ${className}`} {...props}>
+      <div className="relative aspect-square bg-[var(--accent-soft)] flex items-center justify-center overflow-hidden">
+        <Skeleton className="w-full h-full" />
+      </div>
+      <div className="p-4 flex-1 flex flex-col">
+        <SkeletonText lines={2} className="mb-2" />
+        <div className="mt-auto flex items-center justify-between">
+          <Skeleton className="h-5 w-24" />
+          <Skeleton className="h-8 w-16 rounded-lg" />
         </div>
       </div>
     </div>
   );
 }
 
-export function SkeletonList({ items = 5, className = "", children }: { 
-  items?: number; 
-  className?: string;
-  children?: (index: number) => ReactNode;
-}) {
+export function SkeletonList({ items = 5, className = "", ...props }: { items?: number; className?: string } & Omit<SkeletonProps, "rounded">) {
   return (
-    <div className={`space-y-4 ${className}`}>
+    <div className={`space-y-4 ${className}`} {...props}>
       {Array.from({ length: items }).map((_, i) => (
-        <div key={i}>{children ? children(i) : <SkeletonCard />}</div>
+        <SkeletonCard key={i} />
       ))}
     </div>
   );
@@ -134,9 +108,9 @@ export function SkeletonList({ items = 5, className = "", children }: {
 
 export function SkeletonGrid({ 
   items = 6, 
-  cols = { base: 1, sm: 2, lg: 3 }, 
-  className = "", 
-  children 
+  cols = { base: 1, sm: 2, md: 3, lg: 4, xl: 4 },
+  className = "",
+  children,
 }: { 
   items?: number; 
   cols?: { base?: number; sm?: number; md?: number; lg?: number; xl?: number };
@@ -159,3 +133,5 @@ export function SkeletonGrid({
     </div>
   );
 }
+
+export type { SkeletonProps };

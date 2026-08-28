@@ -100,3 +100,5 @@ export const CardImage = forwardRef<HTMLDivElement, { src: string; alt: string; 
   )
 );
 CardImage.displayName = "CardImage";
+
+export type { CardProps };
