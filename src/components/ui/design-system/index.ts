@@ -17,5 +17,6 @@ export { OrderTimeline, OrderStatusBadge, OrderProgressRing, type OrderTimelineP
 export { CartFlyAnimation, useCartFly } from "./CartFlyAnimation";
 export { PageTransition, LayoutTransition, StaggerContainer, StaggerItem, HoverLift, TapScale, FadeInUp, SlideInRight, PulseRing, ShimmerEffect } from "./PageTransition";
 export { PWA } from "./PWA";
+export { MobileAppBanner } from "./MobileAppBanner";
 export { formatMoney } from "@/lib/format";
 export { shimmerBlur } from "@/lib/images";

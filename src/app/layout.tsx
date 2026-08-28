@@ -10,7 +10,7 @@ import { NavBar } from "@/components/layout/NavBar";
 import { FooterWithPrivacy } from "@/components/layout/FooterWithPrivacy";
 import { SupportButton } from "@/components/SupportButton";
 import { NotificationBubble } from "@/components/NotificationBubble";
-import { Toaster, PWA } from "@/components/ui/design-system";
+import { Toaster, PWA, MobileAppBanner } from "@/components/ui/design-system";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -101,6 +101,7 @@ export default function RootLayout({
             <FooterWithPrivacy />
             <Toaster />
             <PWA />
+            <MobileAppBanner />
             <SupportButton />
             <NotificationBubble />
           </ConfirmProvider>
