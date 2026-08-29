@@ -55,12 +55,26 @@ export function SkeletonText({ lines = 3, className = "", lineHeight = "1.5", ..
   );
 }
 
-export function SkeletonCard({ className = "", ...props }: { className?: string } & Omit<SkeletonProps, "rounded">) {
+export function SkeletonCard({ 
+  className = "", 
+  showImage = true, 
+  showTitle = true, 
+  showDescription = true, 
+  showFooter = true,
+  ...props 
+}: { 
+  className?: string; 
+  showImage?: boolean; 
+  showTitle?: boolean; 
+  showDescription?: boolean; 
+  showFooter?: boolean;
+} & Omit<SkeletonProps, "rounded">) {
   return (
     <div className={className} {...props}>
-      <Skeleton className="aspect-square w-full mb-3" />
-      <Skeleton className="h-4 w-3/4 mb-2" />
-      <Skeleton className="h-4 w-1/2" />
+      {showImage && <Skeleton className="aspect-square w-full mb-3" />}
+      {showTitle && <Skeleton className="h-4 w-3/4 mb-2" />}
+      {showDescription && <Skeleton className="h-4 w-1/2 mb-2" />}
+      {showFooter && <Skeleton className="h-6 w-1/4" />}
     </div>
   );
 }
