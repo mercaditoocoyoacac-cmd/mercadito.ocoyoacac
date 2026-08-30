@@ -15,7 +15,7 @@ export function MobileAppBanner() {
     setIsAndroid(android);
     setIsStandalone(standalone);
 
-    if (android && !standalone && !localStorage.getItem("mobile-app-banner-dismissed")) {
+    if (android && !standalone && !localStorage.getItem("mobile-app-banner-dismissed") && !localStorage.getItem("mobile-app-banner-continue-web")) {
       const timer = setTimeout(() => {
         setShowBanner(true);
       }, 5000);
@@ -26,16 +26,17 @@ export function MobileAppBanner() {
 
   if (!showBanner || !isAndroid || isStandalone) return null;
 
-  const playStoreUrl = "https://play.google.com/store/apps/details?id=com.mercadito.ocoyoacac";
+  const playStoreUrl = "https://play.google.com/store/apps/details?id=com.mercadito.ocoyoacac.app.compras";
 
   const handleDownload = () => {
-    window.location.href = playStoreUrl;
+    window.open(playStoreUrl, "_blank", "noopener,noreferrer");
     setShowBanner(false);
     localStorage.setItem("mobile-app-banner-dismissed", "true");
   };
 
   const handleContinueWeb = () => {
     setShowBanner(false);
+    localStorage.setItem("mobile-app-banner-continue-web", "true");
   };
 
   const handleDismiss = () => {
