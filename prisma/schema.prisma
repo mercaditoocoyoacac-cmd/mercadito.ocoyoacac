@@ -78,6 +78,7 @@ model User {
   supportMessages SupportMessage[]
   couponUsers CouponUser[]
   membershipCouponUsers MembershipCouponUser[]
+  campaignsCreated Campaign[]
 
   @@index([role])
   @@index([isActive])
@@ -128,6 +129,7 @@ model Store {
   paymentMethods StorePaymentMethod[]
   receipts     PaymentReceipt[]
   couponStores CouponStore[]
+  campaigns Campaign[]
 
   @@index([ownerId])
   @@index([isActive, isPublished])
@@ -162,6 +164,8 @@ model Category {
   updatedAt DateTime @updatedAt
 
   @@index([sortOrder, isActive])
+
+  campaigns Campaign[]
 }
 
 model Subscription {
@@ -634,4 +638,42 @@ model ChatMessage {
 
   @@index([orderId, createdAt])
   @@index([orderId])
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENT
+  CANCELLED
+}
+
+enum CampaignSegment {
+  ALL_USERS
+  CUSTOMERS
+  STORE_CUSTOMERS
+  BY_CATEGORY
+}
+
+model Campaign {
+  id             String          @id @default(cuid())
+  title          String
+  body           String
+  url            String          @default("/tiendas")
+  segment        CampaignSegment @default(ALL_USERS)
+  status         CampaignStatus  @default(DRAFT)
+  scheduledAt    DateTime?
+  sentAt         DateTime?
+  recipientCount Int             @default(0)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  createdById String
+  createdBy   User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  categoryId  String?
+  category    Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  storeId     String?
+  store       Store?    @relation(fields: [storeId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([scheduledAt])
 }
