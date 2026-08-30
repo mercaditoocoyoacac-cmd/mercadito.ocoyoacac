@@ -73,16 +73,16 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         )}
       );
 
-    const baseClasses = `
-      inline-flex items-center justify-center font-semibold rounded-xl
-      transition-all duration-200 ease-out
-      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2
-      disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none
-      ${variantClasses[variant]}
-      ${sizeClasses[size]}
-      ${fullWidth ? "w-full" : ""}
-      ${className}
-    `;
+    const baseClasses = [
+      "inline-flex items-center justify-center font-semibold rounded-xl",
+      "transition-all duration-200 ease-out",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2",
+      "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none",
+      variantClasses[variant],
+      sizeClasses[size],
+      fullWidth ? "w-full" : "",
+      className,
+    ].join(" ");
 
     const commonProps = {
       ref,
