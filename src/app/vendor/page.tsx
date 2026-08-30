@@ -286,7 +286,7 @@ export default async function VendorDashboard() {
         </div>
       )}
 
-      {store.plan === "FREE" && (
+      {!subscriptionActive && (
         <div className="mx-4 mt-4 overflow-hidden rounded-2xl border border-amber-300/50 bg-gradient-to-r from-amber-50 via-yellow-50 to-orange-50 shadow-sm">
           <div className="flex flex-col sm:flex-row items-center gap-4 p-5">
             <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-amber-400/30">
@@ -353,7 +353,7 @@ export default async function VendorDashboard() {
             <div>
               <div className="inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-1.5 text-sm font-medium backdrop-blur-sm">
                 🏪 {store.name}
-                {store.plan === "MEMBER" && (
+                {subscriptionActive && (
                   <span className="inline-flex items-center gap-1 rounded-full bg-amber-400/30 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
                     👑 Vende+
                   </span>

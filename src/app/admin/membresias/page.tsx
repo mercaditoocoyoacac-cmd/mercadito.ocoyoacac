@@ -242,7 +242,7 @@ export default async function AdminSubscriptionsPage() {
                       });
                       await prisma.store.update({
                         where: { id: store.id },
-                        data: { isPublished: true },
+                        data: { isPublished: true, plan: "MEMBER" },
                       });
                       revalidatePath("/admin/membresias");
                     }}>
@@ -261,6 +261,10 @@ export default async function AdminSubscriptionsPage() {
                           startDate: new Date(),
                           endDate: trialEnd,
                         },
+                      });
+                      await prisma.store.update({
+                        where: { id: store.id },
+                        data: { plan: "MEMBER" },
                       });
                       revalidatePath("/admin/membresias");
                     }}>
@@ -424,7 +428,7 @@ data: { isPublished: true },
                       });
                       await prisma.store.update({
                         where: { id: store.id },
-                        data: { isPublished: true },
+                        data: { isPublished: true, plan: "MEMBER" },
                       });
                       revalidatePath("/admin/membresias");
                     }}>
@@ -466,6 +470,10 @@ data: { isPublished: true },
                           startDate: new Date(),
                           endDate: trialEnd,
                         },
+                      });
+                      await prisma.store.update({
+                        where: { id: store.id },
+                        data: { plan: "MEMBER" },
                       });
                         if (!store.owner.trialUsed) {
                           await prisma.user.update({

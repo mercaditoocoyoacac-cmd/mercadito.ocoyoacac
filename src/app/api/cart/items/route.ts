@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
 import { isStoreOpen } from "@/lib/schedule";
+import { isStorePremium } from "@/lib/membership";
 
 const AddSchema = z.object({
   productId: z.string().min(1),
@@ -56,6 +57,8 @@ export async function GET() {
               transferClabe: true,
               latitude: true,
               longitude: true,
+              plan: true,
+              subscription: { select: { status: true, endDate: true } },
               paymentMethods: {
                 where: { isActive: true, status: "APPROVED" },
                 select: { processor: true, label: true },
@@ -82,6 +85,7 @@ export async function GET() {
         paymentMethods: undefined,
         hasOnlinePayment,
         hasTransferencia,
+        isPremium: isStorePremium(item.product.store),
       },
     },
   }));

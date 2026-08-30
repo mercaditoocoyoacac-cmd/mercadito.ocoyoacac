@@ -15,7 +15,17 @@ export async function GET(req: Request) {
 
   try {
     const stores = await prisma.store.findMany({
-      where: { isActive: true, isPublished: true, plan: "MEMBER" },
+      where: {
+        isActive: true,
+        isPublished: true,
+        plan: "MEMBER",
+        subscription: {
+          is: {
+            status: { in: ["ACTIVE", "TRIAL"] },
+            endDate: { gt: new Date() },
+          },
+        },
+      },
       select: {
         id: true,
         name: true,

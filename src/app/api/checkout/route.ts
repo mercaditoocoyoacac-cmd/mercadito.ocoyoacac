@@ -10,6 +10,7 @@ import { notifyVendorNewOrder } from "@/server/whatsapp";
 import { sendPushNotification, sendPushToMultiple } from "@/server/push";
 import { calcDeliveryFeeCents, haversineDistance, pointInPolygon, RISK_ZONE_EXTRA_CENTS, type DeliveryFeeConfig } from "@/lib/geo";
 import { getRouteDistanceKm } from "@/server/directions";
+import { isStorePremium } from "@/lib/membership";
 
 function generateDeliveryCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -96,7 +97,7 @@ export async function POST(req: Request) {
           promotionPriceCents: true,
           promotionEndDate: true,
           stock: true,
-          store: { select: { isActive: true, openTime: true, closeTime: true, scheduleDays: true, category: true, latitude: true, longitude: true, plan: true, acceptsTransferencia: true } },
+          store: { select: { isActive: true, openTime: true, closeTime: true, scheduleDays: true, category: true, latitude: true, longitude: true, plan: true, acceptsTransferencia: true, subscription: { select: { status: true, endDate: true } } } },
         },
       },
     },
@@ -128,7 +129,7 @@ export async function POST(req: Request) {
   }
 
   const store = items[0]!.product.store;
-  if (parsed.data.fulfillmentType === "DELIVERY" && store.plan === "FREE") {
+  if (parsed.data.fulfillmentType === "DELIVERY" && !isStorePremium(store)) {
     return NextResponse.json(
       { ok: false, error: "Los envíos a domicilio requieren membresía Vende+. Elige recoger en tienda." },
       { status: 400 },

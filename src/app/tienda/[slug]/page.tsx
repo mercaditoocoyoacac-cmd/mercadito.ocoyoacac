@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { prisma } from "@/server/prisma";
 import { isStoreOpen } from "@/lib/schedule";
+import { isStorePremium } from "@/lib/membership";
 import { StorefrontClient } from "@/components/storefront/StorefrontClient";
 
 export const dynamic = "force-dynamic";
@@ -29,6 +30,7 @@ export default async function StorefrontPage({
       scheduleDays: true,
       scheduleDetails: true,
       plan: true,
+      subscription: { select: { status: true, endDate: true } },
     },
   });
   if (!store || !store.isActive) return notFound();
@@ -62,7 +64,7 @@ export default async function StorefrontPage({
     },
   });
 
-  const storePromotions = store.plan === "MEMBER" ? await prisma.promotion.findMany({
+  const storePromotions = isStorePremium(store) ? await prisma.promotion.findMany({
     where: {
       storeId: store.id,
       isActive: true,

@@ -54,7 +54,7 @@ export default function VendorPromocionesPage() {
   const [isPercentage, setIsPercentage] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [storePlan, setStorePlan] = useState<string>("MEMBER");
+  const [isPremium, setIsPremium] = useState(true);
   const [showUpsell, setShowUpsell] = useState(false);
 
   async function fetchData() {
@@ -68,7 +68,11 @@ export default function VendorPromocionesPage() {
     const storeData = await storeRes.json();
     if (promoData.ok) setPromotions(promoData.promotions);
     if (prodData.ok) setProducts(prodData.products?.filter((p: Product & { isActive: boolean }) => p.isActive !== false) || prodData.products || []);
-    if (storeData.ok && storeData.store) setStorePlan(storeData.store.plan || "MEMBER");
+    if (storeData.ok && storeData.store) {
+      const sub = storeData.store.subscription;
+      const premium = sub && (sub.status === "ACTIVE" || sub.status === "TRIAL") && new Date(sub.endDate) > new Date();
+      setIsPremium(!!premium);
+    }
     setLoading(false);
   }
 
@@ -239,7 +243,7 @@ export default function VendorPromocionesPage() {
         <button
           type="button"
           onClick={() => {
-            if (storePlan === "FREE") { setShowUpsell(true); return; }
+            if (!isPremium) { setShowUpsell(true); return; }
             resetForm(); setShowForm(true);
           }}
           className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)]"

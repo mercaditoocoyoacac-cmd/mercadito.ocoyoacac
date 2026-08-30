@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
 import { sendPushToAdmins } from "@/server/push";
+import { isStorePremium } from "@/lib/membership";
 
 const CreatePromotionSchema = z.object({
   title: z.string().min(2).max(100),
@@ -48,12 +49,12 @@ export async function POST(req: Request) {
 
   const store = await prisma.store.findFirst({
     where: { ownerId: auth.userId },
-    select: { id: true, name: true, plan: true },
+    select: { id: true, name: true, plan: true, subscription: { select: { status: true, endDate: true } } },
   });
   if (!store) {
     return NextResponse.json({ ok: false, error: "No tienes tienda" }, { status: 400 });
   }
-  if (store.plan === "FREE") {
+  if (!isStorePremium(store)) {
     return NextResponse.json({ ok: false, error: "Las promociones requieren membresía Vende+." }, { status: 403 });
   }
 
