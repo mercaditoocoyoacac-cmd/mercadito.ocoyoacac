@@ -34,68 +34,86 @@ const sizeClasses: Record<ButtonSize, string> = {
   xl: "px-8 py-4 text-lg gap-3",
 };
 
+function getButtonContent(
+  loading: boolean,
+  leftIcon: ReactNode | undefined,
+  rightIcon: ReactNode | undefined,
+  children: ReactNode
+) {
+  if (loading) {
+    return (
+      <svg
+        className="animate-spin h-4 w-4 sm:h-5 sm:w-5"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+      </svg>
+    );
+    return (
+      <>
+        {leftIcon && <span className="flex-shrink-0" aria-hidden="true">{leftIcon}</span>}
+        <span className="truncate">{children}</span>
+        {rightIcon && <span className="flex-shrink-0" aria-hidden="true">{rightIcon}</span>}
+      </>
+    );
+  }
+
+function getBaseClasses(
+  variant: ButtonVariant,
+  size: ButtonSize,
+  fullWidth: boolean,
+  className: string,
+  variantClasses: Record<ButtonVariant, string>,
+  sizeClasses: Record<ButtonSize, string>
+) {
+  return [
+    "inline-flex items-center justify-center font-semibold rounded-xl",
+    "transition-all duration-200 ease-out",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2",
+    "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none",
+    variantClasses[variant],
+    sizeClasses[size],
+    fullWidth ? "w-full" : "",
+    className,
+  ].join(" ");
+}
+
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ 
-    variant = "primary", 
-    size = "md", 
-    loading = false, 
-    leftIcon, 
-    rightIcon, 
-    fullWidth = false, 
-    disabled, 
-    children, 
+  ({
+    variant = "primary",
+    size = "md",
+    loading = false,
+    leftIcon,
+    rightIcon,
+    fullWidth = false,
+    disabled,
+    children,
     className = "",
     style,
     asChild = false,
-    ...props 
+    ...props
   }, ref) => {
     const isDisabled = disabled || loading;
 
-    const buttonContent = (
-      <>
-        {loading ? (
-          <svg
-            className="animate-spin h-4 w-4 sm:h-5 sm:w-5"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
-        ) : (
-          <>
-            {leftIcon && <span className="flex-shrink-0" aria-hidden="true">{leftIcon}</span>}
-            <span className="truncate">{children}</span>
-            {rightIcon && !loading && <span className="flex-shrink-0" aria-hidden="true">{rightIcon}</span>}
-          </>
-        )}
-      );
+    const buttonContent = getButtonContent(loading, leftIcon, rightIcon, children);
 
-    const baseClasses = [
-      "inline-flex items-center justify-center font-semibold rounded-xl",
-      "transition-all duration-200 ease-out",
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2",
-      "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none",
-      variantClasses[variant],
-      sizeClasses[size],
-      fullWidth ? "w-full" : "",
-      className,
-    ].join(" ");
+    const baseClasses = getBaseClasses(variant, size, fullWidth, className, variantClasses, sizeClasses);
 
     if (asChild) {
       return (
         <Slot {...props}>
           <motion.button
             ref={ref}
-            disabled={isDisabled}
+            disabled={true}
             className={baseClasses}
             style={{
-              ...style,
-              transform: isDisabled ? undefined : style?.transform,
+              transform: false,
             }}
-            whileTap={{ scale: isDisabled ? 1 : 0.98 }}
+            whileTap={{ scale: 0.98 }}
             {...props}
           >
             {buttonContent}
@@ -107,13 +125,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <motion.button
         ref={ref}
-        disabled={isDisabled}
+        disabled={true}
         className={baseClasses}
-        style={{
-          ...style,
-          transform: isDisabled ? undefined : style?.transform,
-        }}
-        whileTap={{ scale: isDisabled ? 1 : 0.98 }}
+        whileTap={{ scale: 0.98 }}
         {...props}
       >
         {buttonContent}
