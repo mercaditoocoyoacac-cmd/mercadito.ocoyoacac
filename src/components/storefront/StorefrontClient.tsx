@@ -421,13 +421,16 @@ onQuickView={(product) => setQuickViewProduct({ ...product, store } as any)}
               ...product,
               description: product.description ?? undefined,
               imageUrl: product.imageUrl ?? undefined,
+              formatMoney: (cents: number, currency: string) => {
+                return new Intl.NumberFormat("es-MX", { style: "currency", currency }).format(cents / 100);
+              },
             };
             return (
               <QuickViewSheet
                 open={!!quickViewProduct}
                 onClose={() => setQuickViewProduct(null)}
                 product={productForSheet}
-                onAddToCart={handleAddToCart}
+                onAddToCart={(data) => handleAddToCart({ productId: product.id, ...data })}
               />
             );
           })()
