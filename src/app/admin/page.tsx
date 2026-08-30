@@ -18,17 +18,11 @@ export default async function AdminDashboard() {
     redirect("/admin/login");
   }
 
-  const now = new Date();
-  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-  const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
-
   const [
     totalUsers, customerCount, vendorCount, deliveryCount,
     totalStores, activeStores, totalProducts, totalOrders,
-    pendingOrders, completedOrders, cancelledOrders, outForDeliveryOrders,
-    confirmedOrders, readyOrders,
-    totalRevenue, completedOrdersFull, recentOrders, subscriptions,
-    dailyOrdersRaw, storeRevenueRaw, categoryCounts,
+    pendingOrders, totalRevenue, activeSubscriptions,
+    recentOrders,
   ] = await Promise.all([
     prisma.user.count(),
     prisma.user.count({ where: { role: "CUSTOMER" } }),
@@ -39,18 +33,13 @@ export default async function AdminDashboard() {
     prisma.product.count(),
     prisma.order.count(),
     prisma.order.count({ where: { status: "PENDING" } }),
-    prisma.order.count({ where: { status: "COMPLETED" } }),
-    prisma.order.count({ where: { status: "CANCELLED" } }),
-    prisma.order.count({ where: { status: "OUT_FOR_DELIVERY" } }),
-    prisma.order.count({ where: { status: "CONFIRMED" } }),
-    prisma.order.count({ where: { status: "READY" } }),
     prisma.order.aggregate({
       where: { status: "COMPLETED" },
       _sum: { totalCents: true },
     }),
-    prisma.order.findMany({
-      where: { status: "COMPLETED", createdAt: { gte: thirtyDaysAgo } },
-      select: { totalCents: true, createdAt: true, storeId: true },
+    prisma.subscription.findMany({
+      where: { status: { in: ["ACTIVE", "TRIAL"] } },
+      select: { monthlyPriceCents: true },
     }),
     prisma.order.findMany({
       take: 10,
@@ -62,103 +51,26 @@ export default async function AdminDashboard() {
         store: { select: { name: true } },
       },
     }),
-    prisma.subscription.findMany({
-      select: { status: true, monthlyPriceCents: true },
-    }),
-    prisma.order.findMany({
-      where: { createdAt: { gte: fourteenDaysAgo } },
-      select: { createdAt: true },
-    }),
-    prisma.order.groupBy({
-      by: ["storeId"],
-      where: { status: "COMPLETED" },
-      _sum: { totalCents: true },
-      orderBy: { _sum: { totalCents: "desc" } },
-      take: 5,
-    }),
-    prisma.store.groupBy({
-      by: ["category"],
-      _count: true,
-    }),
   ]);
 
-  const storeNames = await prisma.store.findMany({
-    where: { id: { in: storeRevenueRaw.map((s) => s.storeId) } },
-    select: { id: true, name: true },
-  });
-  const storeNameMap = Object.fromEntries(storeNames.map((s) => [s.id, s.name]));
-
-  const topVendors = storeRevenueRaw.map((s) => ({
-    name: storeNameMap[s.storeId] || "Desconocida",
-    revenueCents: s._sum.totalCents || 0,
-  }));
-
-  const dayMap = new Map<string, { revenue: number; orders: number }>();
-  for (let i = 0; i < 30; i++) {
-    const d = new Date(thirtyDaysAgo.getTime() + i * 24 * 60 * 60 * 1000);
-    dayMap.set(d.toISOString().slice(0, 10), { revenue: 0, orders: 0 });
-  }
-  for (const o of completedOrdersFull) {
-    const key = o.createdAt.toISOString().slice(0, 10);
-    const entry = dayMap.get(key);
-    if (entry) { entry.revenue += o.totalCents; entry.orders += 1; }
-  }
-  const revenueByDay = Array.from(dayMap.entries()).map(([date, d]) => ({
-    date: date.slice(5), revenue: d.revenue, orders: d.orders,
-  }));
-
-  const orderDayMap = new Map<string, number>();
-  for (let i = 0; i < 14; i++) {
-    const d = new Date(fourteenDaysAgo.getTime() + i * 24 * 60 * 60 * 1000);
-    orderDayMap.set(d.toISOString().slice(0, 10), 0);
-  }
-  for (const o of dailyOrdersRaw) {
-    const key = o.createdAt.toISOString().slice(0, 10);
-    if (orderDayMap.has(key)) orderDayMap.set(key, orderDayMap.get(key)! + 1);
-  }
-  const ordersByDay = Array.from(orderDayMap.entries()).map(([date, count]) => ({
-    date: date.slice(5), count,
-  }));
-
-  const statusCounts = [
-    { name: "Pendientes", value: pendingOrders, color: "#eab308" },
-    { name: "Confirmados", value: confirmedOrders, color: "#a855f7" },
-    { name: "Listos", value: readyOrders, color: "#3b82f6" },
-    { name: "En camino", value: outForDeliveryOrders, color: "#f97316" },
-    { name: "Completados", value: completedOrders, color: "#22c55e" },
-    { name: "Cancelados", value: cancelledOrders, color: "#ef4444" },
-  ];
-
-  const subByStatus = [
-    { name: "Activas", value: subscriptions.filter((s) => s.status === "ACTIVE").length, color: "#22c55e" },
-    { name: "Trial", value: subscriptions.filter((s) => s.status === "TRIAL").length, color: "#3b82f6" },
-    { name: "Vencidas", value: subscriptions.filter((s) => s.status === "EXPIRED").length, color: "#ef4444" },
-    { name: "Canceladas", value: subscriptions.filter((s) => s.status === "CANCELLED").length, color: "#6b7280" },
-  ];
-
-  const activeSubs = subscriptions.filter((s) => s.status === "ACTIVE" || s.status === "TRIAL");
-  const monthlySubRevenue = activeSubs.reduce((sum, s) => sum + s.monthlyPriceCents, 0);
-
-  const categories = categoryCounts.map((c) => ({ name: c.category, count: c._count }));
+  const monthlyRevenueCents = activeSubscriptions.reduce((sum, s) => sum + s.monthlyPriceCents, 0);
 
   const stats = {
-    totals: { totalUsers, customerCount, vendorCount, deliveryCount, totalStores, activeStores, totalProducts, totalOrders },
-    revenue: { totalCents: totalRevenue._sum.totalCents || 0, byDay: revenueByDay, topVendors },
+    totals: {
+      totalUsers, customerCount, vendorCount, deliveryCount,
+      totalStores, activeStores, totalProducts, totalOrders, pendingOrders,
+    },
+    revenue: { totalCents: totalRevenue._sum.totalCents || 0 },
+    subscriptions: {
+      activeCount: activeSubscriptions.length,
+      monthlyRevenueCents,
+    },
     orders: {
-      statusCounts,
-      byDay: ordersByDay,
       recentOrders: recentOrders.map((o) => ({
         ...o,
         createdAt: o.createdAt.toISOString(),
       })),
     },
-    subscriptions: {
-      total: subscriptions.length,
-      byStatus: subByStatus,
-      activeCount: activeSubs.length,
-      monthlyRevenueCents: monthlySubRevenue,
-    },
-    categories,
   };
 
   return <AdminDashboardClient data={stats} />;
