@@ -379,7 +379,7 @@ onQuickView={(product: ProductData) => setQuickViewProduct({ ...product, store }
 <ProductGrid
               products={otherProducts.map(p => ({ ...p, currency: p.currency || "MXN", description: p.description ?? undefined, imageUrl: p.imageUrl ?? undefined }))}
 onAddToCart={handleAddToCart}
-              onQuickView={(product: ProductData) => setQuickViewProduct({ ...product, store } as any)}
+onQuickView={(product) => setQuickViewProduct({ ...product, store } as any)}
               variant="default"
               emptyState={{
                 title: "No hay productos",
