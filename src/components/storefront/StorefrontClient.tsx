@@ -371,7 +371,7 @@ export function StorefrontClient({
         ) : categories.length > 0 ? (
           <CategoryAccordion
             categories={categories}
-            onAddToCart={handleAddToCart}
+            onAddToCart={(productId, data) => handleAddToCart({ productId, ...data })}
             onQuickView={setQuickViewProduct}
             defaultOpen={categories.slice(0, 2).map(c => c.id)}
           />
