@@ -415,12 +415,17 @@ onQuickView={(product) => setQuickViewProduct({ ...product, store } as any)}
 
         {/* Quick View Sheet */}
         {quickViewProduct && (
-          <QuickViewSheet
-            open={!!quickViewProduct}
-            onClose={() => setQuickViewProduct(null)}
-            product={quickViewProduct}
-            onAddToCart={handleAddToCart}
-          />
+          (() => {
+            const product = quickViewProduct;
+            return (
+              <QuickViewSheet
+                open={!!quickViewProduct}
+                onClose={() => setQuickViewProduct(null)}
+                product={product}
+                onAddToCart={handleAddToCart}
+              />
+            );
+          })()
         )}
       </main>
     </>
