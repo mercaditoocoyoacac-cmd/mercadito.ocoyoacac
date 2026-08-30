@@ -1,21 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Capacitor } from "@capacitor/core";
 
 export function MobileAppBanner() {
   const [showBanner, setShowBanner] = useState(false);
   const [isAndroid, setIsAndroid] = useState(false);
-  const [isStandalone, setIsStandalone] = useState(false);
+  const [isApp, setIsApp] = useState(false);
 
   useEffect(() => {
     const ua = navigator.userAgent.toLowerCase();
     const android = /android/i.test(ua);
     const standalone = window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true;
+    const nativeApp = Capacitor.isNativePlatform();
 
     setIsAndroid(android);
-    setIsStandalone(standalone);
+    setIsApp(standalone || nativeApp);
 
-    if (android && !standalone && !localStorage.getItem("mobile-app-banner-dismissed") && !localStorage.getItem("mobile-app-banner-continue-web")) {
+    if (android && !standalone && !nativeApp && !localStorage.getItem("mobile-app-banner-dismissed") && !localStorage.getItem("mobile-app-banner-continue-web")) {
       const timer = setTimeout(() => {
         setShowBanner(true);
       }, 5000);
@@ -24,7 +26,7 @@ export function MobileAppBanner() {
     }
   }, []);
 
-  if (!showBanner || !isAndroid || isStandalone) return null;
+  if (!showBanner || !isAndroid || isApp) return null;
 
   const playStoreUrl = "https://play.google.com/store/apps/details?id=com.mercadito.ocoyoacac.app.compras";
 
