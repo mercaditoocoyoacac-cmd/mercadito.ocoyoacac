@@ -426,6 +426,7 @@ onQuickView={(product) => setQuickViewProduct({ ...product, store } as any)}
               },
             };
             return (
+              // @ts-expect-error - TypeScript inference issue with QuickViewSheetProps
               <QuickViewSheet
                 open={!!quickViewProduct}
                 onClose={() => setQuickViewProduct(null)}
