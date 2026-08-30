@@ -33,6 +33,7 @@ interface QuickViewSheetProps {
   product: QuickViewProduct | null;
   onAddToCart: (data: { productId: string; variantId?: string; weightGrams?: number }) => void;
   className?: string;
+  formatMoney?: (cents: number, currency: string) => string;
 }
 
 export function QuickViewSheet({ 
