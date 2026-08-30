@@ -2,6 +2,7 @@
 
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
 import { motion, type HTMLMotionProps } from "framer-motion";
+import { Slot } from "@radix-ui/react-slot";
 
 export type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger" | "success";
 export type ButtonSize = "sm" | "md" | "lg" | "xl";
@@ -49,31 +50,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ...props 
   }, ref) => {
     const isDisabled = disabled || loading;
-    const Comp = asChild ? "span" : "button";
 
-    return (
-      <motion.button
-        ref={ref}
-        as={Comp}
-        type={asChild ? undefined : "button"}
-        disabled={asChild ? undefined : isDisabled}
-        className={`
-          inline-flex items-center justify-center font-semibold rounded-xl
-          transition-all duration-200 ease-out
-          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2
-          ${asChild ? "" : "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none"}
-          ${variantClasses[variant]}
-          ${sizeClasses[size]}
-          ${fullWidth ? "w-full" : ""}
-          ${className}
-        `}
-        style={{
-          ...style,
-          transform: isDisabled ? undefined : style?.transform,
-        }}
-        whileTap={asChild ? undefined : { scale: isDisabled ? 1 : 0.98 }}
-        {...props}
-      >
+    const buttonContent = (
+      <>
         {loading ? (
           <svg
             className="animate-spin h-4 w-4 sm:h-5 sm:w-5"
@@ -91,7 +70,65 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             <span className="truncate">{children}</span>
             {rightIcon && !loading && <span className="flex-shrink-0" aria-hidden="true">{rightIcon}</span>}
           </>
-        )}
+        )
+      </>
+    );
+
+    const baseClasses = `
+      inline-flex items-center justify-center font-semibold rounded-xl
+      transition-all duration-200 ease-out
+      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2
+      disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none
+      ${variantClasses[variant]}
+      ${sizeClasses[size]}
+      ${fullWidth ? "w-full" : ""}
+      ${className}
+    `;
+
+    const commonProps = {
+      ref,
+      disabled: isDisabled,
+      className: baseClasses,
+      style: {
+        ...style,
+        transform: isDisabled ? undefined : style?.transform,
+      },
+      ...props,
+    };
+
+    if (asChild) {
+      return (
+        <Slot {...props}>
+          <motion.button
+            ref={ref}
+            disabled={isDisabled}
+            className={baseClasses}
+            style={{
+              ...style,
+              transform: isDisabled ? undefined : style?.transform,
+            }}
+            whileTap={{ scale: isDisabled ? 1 : 0.98 }}
+            {...props}
+          >
+            {buttonContent}
+          </motion.button>
+        </Slot>
+      );
+    }
+
+    return (
+      <motion.button
+        ref={ref}
+        disabled={isDisabled}
+        className={baseClasses}
+        style={{
+          ...style,
+          transform: isDisabled ? undefined : style?.transform,
+        }}
+        whileTap={{ scale: isDisabled ? 1 : 0.98 }}
+        {...props}
+      >
+        {buttonContent}
       </motion.button>
     );
   }
