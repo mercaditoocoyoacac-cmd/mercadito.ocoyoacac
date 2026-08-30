@@ -53,3 +53,6 @@ prisma/dev.db-journal
 # prisma config
 prisma.config.ts
 .env*.local
+
+# separate project: imss-umf-turnos (independent git repo)
+/imss-umf-turnos/
