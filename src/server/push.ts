@@ -154,7 +154,10 @@ export async function sendPushToAdmins(data: PushData) {
   const admins = await prisma.user.findMany({
     where: {
       pushToken: { not: null },
-      role: "ADMIN",
+      OR: [
+        { role: "ADMIN" },
+        { additionalRoles: { contains: "ADMIN" } },
+      ],
     },
     select: { pushToken: true },
   });
