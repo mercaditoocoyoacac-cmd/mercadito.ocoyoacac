@@ -84,17 +84,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       className,
     ].join(" ");
 
-    const commonProps = {
-      ref,
-      disabled: isDisabled,
-      className: baseClasses,
-      style: {
-        ...style,
-        transform: isDisabled ? undefined : style?.transform,
-      },
-      ...props,
-    };
-
     if (asChild) {
       return (
         <Slot {...props}>
