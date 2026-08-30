@@ -71,8 +71,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             {rightIcon && !loading && <span className="flex-shrink-0" aria-hidden="true">{rightIcon}</span>}
           </>
         )
-      </>
-    );
+      );
 
     const baseClasses = `
       inline-flex items-center justify-center font-semibold rounded-xl
