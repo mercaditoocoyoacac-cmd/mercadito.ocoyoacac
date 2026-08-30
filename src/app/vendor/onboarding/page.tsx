@@ -109,7 +109,7 @@ export default function VendorOnboardingPage() {
             setError(msg ?? "No se pudo crear la tienda.");
             return;
           }
-          router.push("/vendor");
+          router.push("/vendor/completar-registro");
         }}
       >
         <div className="space-y-2">

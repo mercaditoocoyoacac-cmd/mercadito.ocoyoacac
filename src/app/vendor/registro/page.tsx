@@ -112,7 +112,7 @@ export default function VendorRegistroPage() {
       try { data = JSON.parse(text); } catch {}
       setLoading(false);
       if (!res.ok || !data?.ok) { setError(data?.error || "No se pudo crear la tienda."); return; }
-      router.push("/vendor");
+      router.push("/vendor/completar-registro");
       return;
     }
   }
