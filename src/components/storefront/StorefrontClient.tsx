@@ -460,20 +460,22 @@ function ProductCarousel({
     <div className={`mb-8 ${className}`}>
       {showTitle && <h3 className="text-lg font-semibold mb-3">{title}</h3>}
       <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory -mx-1 px-1" style={{ scrollBehavior: "smooth" }}>
-        {products.map((product) => (
-          <div key={product.id} className="flex-shrink-0 w-40 sm:w-44 snap-center" style={{ scrollSnapAlign: "center" }}>
-            <ProductCard
-              product={{
-                ...product,
-                currency: product.currency || "MXN",
-              }}
-              variant="compact"
-              onAddToCart={onAddToCart}
-              onQuickView={onQuickView ? () => onQuickView(product) : undefined}
-              showQuickView={!!onQuickView}
-            />
-          </div>
-        ))}
+{products.map((product) => (
+            <div key={product.id} className="flex-shrink-0 w-40 sm:w-44 snap-center" style={{ scrollSnapAlign: "center" }}>
+              <ProductCard
+                product={{
+                  ...product,
+                  currency: product.currency || "MXN",
+                  description: product.description ?? undefined,
+                  imageUrl: product.imageUrl ?? undefined,
+                }}
+                variant="compact"
+                onAddToCart={onAddToCart}
+                onQuickView={onQuickView ? () => onQuickView(product) : undefined}
+                showQuickView={!!onQuickView}
+              />
+            </div>
+          ))}
       </div>
     </div>
   );
