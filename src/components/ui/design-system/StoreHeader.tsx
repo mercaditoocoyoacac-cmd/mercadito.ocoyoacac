@@ -32,7 +32,7 @@ export interface StoreHeaderData {
   distance?: string;
 }
 
-interface StoreHeaderProps {
+export interface StoreHeaderProps {
   store: StoreHeaderData;
   isOpen: boolean;
   onBack: () => void;

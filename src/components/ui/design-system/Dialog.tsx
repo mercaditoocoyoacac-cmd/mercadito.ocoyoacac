@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "./Button";
 import { createPortal } from "react-dom";
 
-interface DialogProps {
+export interface DialogProps {
   open: boolean;
   onClose: () => void;
   title?: string;
@@ -147,7 +147,7 @@ export function Dialog({
   return createPortal(dialogContent, document.body);
 }
 
-interface ConfirmDialogProps {
+export interface ConfirmDialogProps {
   open: boolean;
   onClose: () => void;
   onConfirm: () => void;
@@ -198,7 +198,7 @@ export function ConfirmDialog({
   );
 }
 
-interface AlertDialogProps {
+export interface AlertDialogProps {
   open: boolean;
   onClose: () => void;
   title: string;

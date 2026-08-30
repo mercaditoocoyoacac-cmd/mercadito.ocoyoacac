@@ -28,7 +28,7 @@ export interface CategoryData {
   }>;
 }
 
-interface CategoryAccordionProps {
+export interface CategoryAccordionProps {
   categories: CategoryData[];
   onAddToCart: (productId: string, data: { variantId?: string; weightGrams?: number }) => void;
   onQuickView?: (product: CategoryData["products"][0]) => void;

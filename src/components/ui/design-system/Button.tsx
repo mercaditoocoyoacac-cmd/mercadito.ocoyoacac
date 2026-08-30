@@ -7,7 +7,7 @@ import { Slot } from "@radix-ui/react-slot";
 export type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger" | "success";
 export type ButtonSize = "sm" | "md" | "lg" | "xl";
 
-interface ButtonProps extends Omit<HTMLMotionProps<"button">, "children"> {
+export interface ButtonProps extends Omit<HTMLMotionProps<"button">, "children"> {
   variant?: ButtonVariant;
   size?: ButtonSize;
   loading?: boolean;
@@ -53,14 +53,16 @@ function getButtonContent(
         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
       </svg>
     );
-    return (
-      <>
-        {leftIcon && <span className="flex-shrink-0" aria-hidden="true">{leftIcon}</span>}
-        <span className="truncate">{children}</span>
-        {rightIcon && <span className="flex-shrink-0" aria-hidden="true">{rightIcon}</span>}
-      </>
-    );
   }
+
+  return (
+    <>
+      {leftIcon && <span className="flex-shrink-0" aria-hidden="true">{leftIcon}</span>}
+      <span className="truncate">{children}</span>
+      {rightIcon && <span className="flex-shrink-0" aria-hidden="true">{rightIcon}</span>}
+    </>
+  );
+}
 
 function getBaseClasses(
   variant: ButtonVariant,
@@ -105,14 +107,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     if (asChild) {
       return (
-        <Slot {...props}>
+        <Slot>
           <motion.button
             ref={ref}
-            disabled={true}
+            disabled={isDisabled}
             className={baseClasses}
-            style={{
-              transform: false,
-            }}
             whileTap={{ scale: 0.98 }}
             {...props}
           >
@@ -125,7 +124,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <motion.button
         ref={ref}
-        disabled={true}
+        disabled={isDisabled}
         className={baseClasses}
         whileTap={{ scale: 0.98 }}
         {...props}

@@ -27,7 +27,7 @@ export interface QuickViewProduct {
   variants?: { id: string; name: string; priceCents: number }[];
 }
 
-interface QuickViewSheetProps {
+export interface QuickViewSheetProps {
   open: boolean;
   onClose: () => void;
   product: QuickViewProduct | null;

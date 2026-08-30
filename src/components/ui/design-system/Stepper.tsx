@@ -3,14 +3,14 @@
 import { type ReactNode } from "react";
 import { motion } from "framer-motion";
 
-interface Step {
+export interface Step {
   label: string;
   href?: string;
   disabled?: boolean;
   completed?: boolean;
 }
 
-interface StepperProps {
+export interface StepperProps {
   steps: Step[];
   current: number;
   className?: string;
@@ -108,7 +108,7 @@ export function Stepper({
 
 interface StepContentProps {
   current: number;
-  children: ReactNode;
+  children: ReactNode | ((current: number) => ReactNode);
   className?: string;
 }
 

@@ -5,7 +5,8 @@ export { Badge, StatusBadge, PromoBadge, StockBadge, type BadgeProps, type Badge
 export { Skeleton, SkeletonText, SkeletonCard, SkeletonProductCard, SkeletonStoreCard, SkeletonList, SkeletonGrid, type SkeletonProps } from "./Skeleton";
 export { EmptyState, EmptyStateCard, EmptyStateFullScreen, type EmptyStateProps } from "./EmptyState";
 export { Dialog, ConfirmDialog, AlertDialog, type DialogProps, type ConfirmDialogProps, type AlertDialogProps } from "./Dialog";
-export { BottomSheet, QuickViewSheet, QuickViewTrigger, type BottomSheetProps, type QuickViewSheetProps } from "./BottomSheet";
+export { BottomSheet, type BottomSheetProps, type QuickViewSheetProps } from "./BottomSheet";
+export { QuickViewSheet, QuickViewTrigger } from "./QuickViewSheet";
 export { Toaster, toast, ToastAction, CartToast, type ToastOptions } from "./Toast";
 export { Stepper, StepContent, StepPanel, type StepperProps, type Step } from "./Stepper";
 export { AddressCard, AddressList, type AddressCardProps, type AddressListProps, type Address } from "./AddressCard";

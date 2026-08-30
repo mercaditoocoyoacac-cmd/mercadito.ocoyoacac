@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Button } from "./Button";
@@ -26,13 +26,28 @@ export interface ProductCardData {
   variants?: { id: string; name: string; priceCents: number }[];
 }
 
-interface ProductCardProps {
+export interface ProductCardProps {
   product: ProductCardData;
   variant?: "default" | "compact" | "featured" | "horizontal";
   onAddToCart: (data: { productId: string; variantId?: string; weightGrams?: number }) => void;
   onQuickView?: () => void;
   showQuickView?: boolean;
   className?: string;
+}
+
+export interface ProductGridProps {
+  products: ProductCardData[];
+  onAddToCart: (data: { productId: string; variantId?: string; weightGrams?: number }) => void;
+  onQuickView?: (product: ProductCardData) => void;
+  variant?: "default" | "compact" | "featured" | "horizontal";
+  className?: string;
+  emptyState?: {
+    title: string;
+    description: string;
+    actionLabel: string;
+    actionHref: string;
+  };
+  skeletonCount?: number;
 }
 
 export function ProductCard({ 
@@ -256,8 +271,6 @@ export function ProductCard({
   );
 }
 
-import { useState } from "react";
-
 export function ProductGrid({ 
   products, 
   onAddToCart, 
@@ -288,6 +301,7 @@ export function ProductGrid({
     default: "grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
     compact: "grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
     featured: "grid gap-6 sm:grid-cols-2 lg:grid-cols-3",
+    horizontal: "grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
   };
 
   return (

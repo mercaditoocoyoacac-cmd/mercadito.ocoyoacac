@@ -18,7 +18,7 @@ export interface Address {
   instructions?: string;
 }
 
-interface AddressCardProps {
+export interface AddressCardProps {
   address: Address;
   isSelected?: boolean;
   onSelect?: (address: Address) => void;
@@ -141,7 +141,7 @@ export function AddressCard({
   );
 }
 
-interface AddressListProps {
+export interface AddressListProps {
   addresses: Address[];
   selectedId?: string | null;
   onSelect: (address: Address) => void;

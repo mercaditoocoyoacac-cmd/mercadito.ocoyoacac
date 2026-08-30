@@ -75,7 +75,7 @@ export interface OrderTimelineData {
   estimatedDelivery?: string;
 }
 
-interface OrderTimelineProps {
+export interface OrderTimelineProps {
   data: OrderTimelineData;
   variant?: "default" | "compact" | "card";
   className?: string;

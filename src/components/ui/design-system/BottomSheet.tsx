@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
 import { Button } from "./Button";
 
-interface BottomSheetProps {
+export interface BottomSheetProps {
   open: boolean;
   onClose: () => void;
   title?: string;
@@ -215,7 +215,7 @@ export function BottomSheet({
   return createPortal(sheetContent, document.body);
 }
 
-interface QuickViewSheetProps {
+export interface QuickViewSheetProps {
   open: boolean;
   onClose: () => void;
   product: {

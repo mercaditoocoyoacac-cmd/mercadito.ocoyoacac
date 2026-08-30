@@ -55,7 +55,7 @@ const typeColors: Record<PaymentMethodType, { bg: string; text: string; border: 
   wallet: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200" },
 };
 
-interface PaymentMethodCardProps {
+export interface PaymentMethodCardProps {
   method: PaymentMethod;
   isSelected?: boolean;
   onSelect?: () => void;
@@ -211,7 +211,7 @@ export function PaymentMethodCard({
   );
 }
 
-interface PaymentMethodListProps {
+export interface PaymentMethodListProps {
   methods: PaymentMethod[];
   selectedId?: string;
   onSelect: (id: string) => void;

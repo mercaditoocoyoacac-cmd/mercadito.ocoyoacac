@@ -7,7 +7,7 @@ export type BadgeVariant = "default" | "success" | "warning" | "danger" | "info"
 export type BadgeSize = "sm" | "md" | "lg";
 export type BadgeShape = "rounded" | "pill" | "square";
 
-interface BadgeProps {
+export interface BadgeProps {
   children: ReactNode;
   variant?: BadgeVariant;
   size?: BadgeSize;

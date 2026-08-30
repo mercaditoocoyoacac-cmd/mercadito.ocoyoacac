@@ -1,13 +1,14 @@
 "use client";
 
 import { forwardRef, type ReactNode, type HTMLAttributes } from "react";
-import { motion } from "framer-motion";
+import { motion, type HTMLMotionProps } from "framer-motion";
 
-interface CardProps extends HTMLAttributes<HTMLDivElement> {
+export interface CardProps extends Omit<HTMLMotionProps<"div">, "children"> {
   variant?: "default" | "elevated" | "outlined" | "ghost";
   padding?: "none" | "sm" | "md" | "lg";
   hover?: boolean;
   asChild?: boolean;
+  children?: ReactNode;
 }
 
 const variantClasses = {
@@ -34,23 +35,36 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
     children, 
     ...props 
   }, ref) => {
-    const Component = asChild ? motion.div : "div";
-    
+    const classes = `
+      rounded-2xl transition-all duration-300 ease-out
+      ${variantClasses[variant]}
+      ${paddingClasses[padding]}
+      ${hover && !asChild ? "hover:shadow-xl hover:-translate-y-1 cursor-pointer" : ""}
+      ${className}
+    `;
+
+    if (asChild) {
+      return (
+        <motion.div
+          ref={ref}
+          className={classes}
+          whileTap={hover ? { scale: 0.99 } : undefined}
+          {...props}
+        >
+          {children}
+        </motion.div>
+      );
+    }
+
     return (
-      <Component
+      <motion.div
         ref={ref}
-        className={`
-          rounded-2xl transition-all duration-300 ease-out
-          ${variantClasses[variant]}
-          ${paddingClasses[padding]}
-          ${hover && !asChild ? "hover:shadow-xl hover:-translate-y-1 cursor-pointer" : ""}
-          ${className}
-        `}
-        whileTap={hover && !asChild ? { scale: 0.99 } : undefined}
+        className={classes}
+        whileTap={hover ? { scale: 0.99 } : undefined}
         {...props}
       >
         {children}
-      </Component>
+      </motion.div>
     );
   }
 );
@@ -100,5 +114,3 @@ export const CardImage = forwardRef<HTMLDivElement, { src: string; alt: string; 
   )
 );
 CardImage.displayName = "CardImage";
-
-export type { CardProps };

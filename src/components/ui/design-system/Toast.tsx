@@ -1,6 +1,8 @@
 "use client";
 
-import { Toaster as SonnerToaster, toast as sonnerToast, type ToastOptions, type ExternalToast } from "sonner";
+import { Toaster as SonnerToaster, toast as sonnerToast, type ExternalToast } from "sonner";
+
+export type ToastOptions = ExternalToast;
 
 export function Toaster() {
   return (
@@ -16,11 +18,11 @@ export function Toaster() {
           cancelButton: "rounded-lg border border-[var(--border)] hover:bg-[var(--accent-soft)]",
         },
         style: {
-          "--normal-bg": "white",
-          "--error-bg": "#fef2f2",
-          "--success-bg": "#f0fdf4",
-          "--warning-bg": "#fffbeb",
-          "--info-bg": "#eff6ff",
+          ["--normal-bg" as string]: "white",
+          ["--error-bg" as string]: "#fef2f2",
+          ["--success-bg" as string]: "#f0fdf4",
+          ["--warning-bg" as string]: "#fffbeb",
+          ["--info-bg" as string]: "#eff6ff",
         },
       }}
     />
@@ -60,12 +62,11 @@ export const toast = {
   
   promise: <T,>(
     promise: Promise<T>,
-    messages: { loading: string; success: string | ((data: T) => string); error: string | ((error: any) => string) },
-    options?: ToastOptions
-  ) => sonnerToast.promise(promise, messages, options),
+    messages: { loading: string; success: string | ((data: T) => string); error: string | ((error: any) => string) }
+  ) => sonnerToast.promise(promise, { ...messages }),
 
   custom: (component: React.ReactNode, options?: ToastOptions) => 
-    sonnerToast.custom(component, options),
+    sonnerToast.custom(() => component as React.ReactElement, options),
 
   dismiss: (toastId?: string | number) => sonnerToast.dismiss(toastId),
 };
@@ -135,3 +136,4 @@ export function CartToast({
     </div>
   );
 }
+
