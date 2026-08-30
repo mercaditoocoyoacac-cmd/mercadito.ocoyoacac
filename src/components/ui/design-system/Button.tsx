@@ -70,7 +70,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             <span className="truncate">{children}</span>
             {rightIcon && !loading && <span className="flex-shrink-0" aria-hidden="true">{rightIcon}</span>}
           </>
-        )
+        )}
       );
 
     const baseClasses = `
