@@ -372,14 +372,14 @@ export function StorefrontClient({
           <CategoryAccordion
             categories={categories}
             onAddToCart={(productId, data) => handleAddToCart({ productId, ...data })}
-onQuickView={(product) => setQuickViewProduct({ ...product, store } as any)}
+onQuickView={(product: ProductData) => setQuickViewProduct({ ...product, store } as any)}
             defaultOpen={categories.slice(0, 2).map(c => c.id)}
           />
         ) : otherProducts.length > 0 ? (
 <ProductGrid
               products={otherProducts.map(p => ({ ...p, currency: p.currency || "MXN", description: p.description ?? undefined, imageUrl: p.imageUrl ?? undefined }))}
-              onAddToCart={handleAddToCart}
-onQuickView={(product) => setQuickViewProduct({ ...product, store } as any)}
+onAddToCart={handleAddToCart}
+              onQuickView={(product: ProductData) => setQuickViewProduct({ ...product, store } as any)}
               variant="default"
               emptyState={{
                 title: "No hay productos",
