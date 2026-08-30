@@ -738,15 +738,6 @@ export function NavBar() {
                     Usuarios
                   </Link>
                   <Link
-                    href="/admin/aprobacion"
-                    onClick={() => setMenuOpen(false)}
-                    className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                      pathname === "/admin/aprobacion" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
-                    }`}
-                  >
-                    Aprobar Vend.
-                  </Link>
-                  <Link
                     href="/admin/pedidos"
                     onClick={() => setMenuOpen(false)}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${

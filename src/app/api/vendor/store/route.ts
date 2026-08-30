@@ -105,6 +105,7 @@ export async function POST(req: Request) {
         imageUrl: parsed.data.imageUrl ?? null,
         ownerId: auth.userId,
         isPublished: true,
+        isApproved: true,
         plan: "FREE",
       },
       select: { id: true, name: true, slug: true },
