@@ -3,6 +3,7 @@
 import { type ReactNode, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "./Badge";
+import { formatMoney } from "@/lib/format";
 
 export interface CategoryData {
   id: string;
@@ -249,12 +250,12 @@ function ProductCardInCategory({
         <h4 className="font-medium text-sm line-clamp-1">{product.name}</h4>
         <div className="mt-2 flex items-center justify-between">
           <span className="text-sm font-semibold text-[var(--accent)]">
-            {product.currency === "MXN" ? "$" : product.currency} {effectivePrice.toLocaleString()}
+            {formatMoney(effectivePrice, product.currency)}
             {product.sellByWeight && <span className="text-xs font-normal text-[color:var(--muted)]">/kg</span>}
           </span>
           {product.isPromotion && product.promotionPriceCents != null && (
             <span className="text-xs text-[color:var(--muted)] line-through">
-              {product.currency === "MXN" ? "$" : product.currency} {product.priceCents.toLocaleString()}
+              {formatMoney(product.priceCents, product.currency)}
             </span>
           )}
         </div>
@@ -268,7 +269,7 @@ function ProductCardInCategory({
             >
               <option value="">Seleccionar</option>
               {product.variants?.map((v) => (
-                <option key={v.id} value={v.id}>{v.name} — ${v.priceCents.toLocaleString()}</option>
+                <option key={v.id} value={v.id}>{v.name} — {formatMoney(v.priceCents, product.currency)}</option>
               ))}
             </select>
           )}
