@@ -15,6 +15,10 @@
     {
       "path": "/api/cron/daily-customer-reminder",
       "schedule": "0 21 * * *"
+    },
+    {
+      "path": "/api/cron/reset-memberships",
+      "schedule": "0 6 1 9 *"
     }
   ]
 }
