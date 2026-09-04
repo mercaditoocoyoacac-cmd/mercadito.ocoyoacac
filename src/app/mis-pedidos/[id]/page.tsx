@@ -11,12 +11,20 @@ import { ArrivalConfirmButton } from "@/components/orders/ArrivalConfirmButton";
 import { formatMoney } from "@/lib/format";
 import { getStatusLabel } from "@/lib/labels";
 
-const statusSteps = [
+const deliverySteps = [
+  { status: "PENDING", label: "Pedido recibido", icon: "📋" },
+  { status: "CONFIRMED", label: "Confirmado", icon: "✅" },
+  { status: "READY", label: "Listo para entregar", icon: "📦" },
+  { status: "OUT_FOR_DELIVERY", label: "En camino", icon: "🚚" },
+  { status: "COMPLETED", label: "Entregado", icon: "🎉" },
+];
+
+const pickupSteps = [
   { status: "PENDING", label: "Pedido recibido", icon: "📋" },
   { status: "CONFIRMED", label: "Confirmado", icon: "✅" },
   { status: "READY", label: "Listo para recoger", icon: "📦" },
-  { status: "OUT_FOR_DELIVERY", label: "En camino", icon: "🚚" },
-  { status: "COMPLETED", label: "Entregado", icon: "🎉" },
+  { status: "OUT_FOR_DELIVERY", label: "Disponible para recoger", icon: "💛" },
+  { status: "COMPLETED", label: "Recogido", icon: "🎉" },
 ];
 
 function getStatusColor(status: string) {
@@ -29,6 +37,13 @@ function getStatusColor(status: string) {
     CANCELLED: "border-red-500 bg-red-50",
   };
   return colors[status] || "border-gray-500 bg-gray-50";
+}
+
+function getOrderStatusLabel(status: string, fulfillmentType: string) {
+  if (fulfillmentType === "PICKUP" && status === "OUT_FOR_DELIVERY") {
+    return "Listo para recoger";
+  }
+  return getStatusLabel(status);
 }
 
 export const dynamic = "force-dynamic";
@@ -71,6 +86,7 @@ export default async function PedidoDetallePage({
 
   if (!order) return notFound();
 
+  const statusSteps = order.fulfillmentType === "PICKUP" ? pickupSteps : deliverySteps;
   const currentStepIndex = statusSteps.findIndex((s) => s.status === order.status);
   const isCancelled = order.status === "CANCELLED";
 
@@ -103,7 +119,7 @@ export default async function PedidoDetallePage({
               </p>
             </div>
             <div className={`rounded-lg px-4 py-2 ${getStatusColor(order.status)} border-l-4`}>
-              <span className="font-semibold">{getStatusLabel(order.status)}</span>
+              <span className="font-semibold">{getOrderStatusLabel(order.status, order.fulfillmentType)}</span>
             </div>
           </div>
         </div>
@@ -186,7 +202,7 @@ export default async function PedidoDetallePage({
           </div>
         </div>
 
-        {order.arrivedAt && order.status === "OUT_FOR_DELIVERY" && order.pickupCode && (
+        {order.fulfillmentType === "DELIVERY" && order.arrivedAt && order.status === "OUT_FOR_DELIVERY" && order.pickupCode && (
           <div className={`rounded-xl border-2 p-8 text-center ${
             order.arrivalConfirmedAt
               ? "border-green-400 bg-green-50"
@@ -231,7 +247,7 @@ export default async function PedidoDetallePage({
           </div>
         )}
 
-        {order.status === "OUT_FOR_DELIVERY" && (
+        {order.fulfillmentType === "DELIVERY" && order.status === "OUT_FOR_DELIVERY" && (
           <DeliveryChat orderId={order.id} currentUserId={session.user.id} currentUserRole="CUSTOMER" />
         )}
 

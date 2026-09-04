@@ -89,7 +89,7 @@ export default async function PedidoPage({
             </p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <OrderStatusBadge status={order.status as any} size="lg" />
+            <OrderStatusBadge status={order.status as any} size="lg" fulfillmentType={order.fulfillmentType} />
           </div>
         </div>
       </div>

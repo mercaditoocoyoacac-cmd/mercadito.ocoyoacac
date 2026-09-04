@@ -106,7 +106,7 @@ export default async function MisPedidosPage() {
                         <span className="font-mono text-sm font-semibold text-[var(--foreground)]">
                           #{order.id.slice(-8).toUpperCase()}
                         </span>
-                        <OrderStatusBadge status={order.status as any} size="md" />
+                        <OrderStatusBadge status={order.status as any} size="md" fulfillmentType={order.fulfillmentType} />
                         <Badge variant="neutral" size="sm">
                           {order.fulfillmentType === "PICKUP" ? "📍 Recoger en tienda" : "🚚 Entrega a domicilio"}
                         </Badge>

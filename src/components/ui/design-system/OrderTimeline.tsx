@@ -99,6 +99,15 @@ export function OrderTimeline({
   const isCompleted = currentStatus === "COMPLETED";
   const isCancelled = currentStatus === "CANCELLED";
 
+  const effectiveConfig: Record<OrderStatus, { label: string; icon: ReactNode; color: string; description: string }> = { ...statusConfig };
+  if (fulfillmentType === "PICKUP" && effectiveConfig.OUT_FOR_DELIVERY) {
+    effectiveConfig.OUT_FOR_DELIVERY = {
+      ...effectiveConfig.OUT_FOR_DELIVERY,
+      label: "Listo para recoger",
+      description: "Tu pedido ya está listo para recoger en la tienda",
+    };
+  }
+
   if (variant === "compact") {
     return (
       <motion.div
@@ -109,7 +118,7 @@ export function OrderTimeline({
         aria-label="Estado del pedido"
       >
         {statusOrder.slice(0, isCancelled ? 1 : (isCompleted ? 5 : currentIndex + 1)).map((status, index) => {
-          const config = statusConfig[status];
+          const config = effectiveConfig[status];
           const isActive = index === currentIndex && !isCompleted && !isCancelled;
           const isPast = index < currentIndex;
           const isFuture = index > currentIndex;
@@ -159,7 +168,7 @@ export function OrderTimeline({
     return (
       <div className={`space-y-4 ${className}`} role="list" aria-label="Timeline del pedido">
         {statusOrder.slice(0, isCancelled ? 1 : (isCompleted ? 5 : currentIndex + 1)).map((status, index) => {
-          const config = statusConfig[status];
+          const config = effectiveConfig[status];
           const isActive = index === currentIndex && !isCompleted && !isCancelled;
           const isPast = index < currentIndex;
           const isFuture = index > currentIndex;
@@ -266,7 +275,7 @@ export function OrderTimeline({
   return (
     <div className={`space-y-3 ${className}`} role="list" aria-label="Timeline del pedido">
       {statusOrder.slice(0, isCancelled ? 1 : (isCompleted ? 5 : currentIndex + 1)).map((status, index) => {
-        const config = statusConfig[status];
+        const config = effectiveConfig[status];
         const isActive = index === currentIndex && !isCompleted && !isCancelled;
         const isPast = index < currentIndex;
         const isFuture = index > currentIndex;
@@ -371,12 +380,17 @@ function getColorName(hex: string): string {
 
 export function OrderStatusBadge({ 
   status, 
-  size = "md" 
+  size = "md",
+  fulfillmentType
 }: { 
   status: OrderStatus; 
   size?: "sm" | "md" | "lg"; 
+  fulfillmentType?: "PICKUP" | "DELIVERY";
 }) {
-  const config = statusConfig[status];
+  let config = statusConfig[status];
+  if (fulfillmentType === "PICKUP" && config && status === "OUT_FOR_DELIVERY") {
+    config = { ...config, label: "Listo para recoger" };
+  }
   const sizeClasses = {
     sm: "px-2 py-0.5 text-[10px]",
     md: "px-2.5 py-1 text-xs",
