@@ -466,6 +466,8 @@ model Order {
   statusTimestamps Json?          @default("{}")
   arrivedAt              DateTime?
   arrivalConfirmedAt     DateTime?
+  readyReminderSent            Boolean     @default(false)
+  satisfactionSurveySent       Boolean     @default(false)
   couponDiscountCents    Int?
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt

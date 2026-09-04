@@ -77,14 +77,56 @@ export async function notifyCustomerOrderCompleted(orderId: string) {
   if (order.userId) {
     await sendTextNotification(order.userId, {
       title: "Pedido entregado",
-      body: `Tu pedido en ${order.store?.name || "la tienda"} ha sido entregado. ¡Califica tu experiencia!`,
+      body: `Tu pedido en ${order.store?.name || "la tienda"} ha sido entregado.`,
       type: "ORDER_COMPLETED",
       url: `/mis-pedidos/${orderId}`,
     });
   }
 
   if (order.customerPhone) {
-    const message = `🛵 ¡Tu pedido de ${order.store?.name || "la tienda"} ha llegado! ¿Cómo te fue? Cuéntanos calificando tu experiencia aquí: ${ratingUrl}`;
+    const message = `🛵 ¡Tu pedido de ${order.store?.name || "la tienda"} ha llegado!`;
+    await Promise.allSettled([
+      sendWhatsAppMessage(order.customerPhone, message),
+      sendSMS(order.customerPhone, message.replace(/[^\w\sáéíóúñ,.!¡¿?]/g, "")),
+    ]);
+  }
+
+  await sendSatisfactionSurvey(orderId);
+}
+
+export async function sendSatisfactionSurvey(orderId: string) {
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    select: {
+      userId: true,
+      customerPhone: true,
+      store: { select: { name: true } },
+      satisfactionSurveySent: true,
+    },
+  });
+
+  if (!order) return;
+
+  if (order.satisfactionSurveySent) return;
+
+  const ratingUrl = `${process.env.NEXTAUTH_URL || ""}/mis-pedidos/${orderId}`;
+
+  await prisma.order.update({
+    where: { id: orderId },
+    data: { satisfactionSurveySent: true },
+  });
+
+  if (order.userId) {
+    await sendTextNotification(order.userId, {
+      title: "Cuéntanos cómo te fue",
+      body: `¿Cómo te fue con tu pedido en ${order.store?.name || "la tienda"}? Tu opinión nos ayuda a mejorar. ¡Califica tu experiencia!`,
+      type: "SATISFACTION_SURVEY",
+      url: `/mis-pedidos/${orderId}`,
+    });
+  }
+
+  if (order.customerPhone) {
+    const message = `📝 ¿Cómo te fue con tu pedido de ${order.store?.name || "la tienda"}? Tu opinión nos ayuda a mejorar. Califica tu experiencia aquí: ${ratingUrl}`;
     await Promise.allSettled([
       sendWhatsAppMessage(order.customerPhone, message),
       sendSMS(order.customerPhone, message.replace(/[^\w\sáéíóúñ,.!¡¿?]/g, "")),

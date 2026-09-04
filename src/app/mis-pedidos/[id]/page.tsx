@@ -6,6 +6,7 @@ import { OrderCancelButton } from "@/components/orders/OrderCancelButton";
 import { PullToRefreshWrapper } from "@/components/ui/PullToRefreshWrapper";
 import { OrderAutoRefresh } from "@/components/orders/OrderAutoRefresh";
 import OrderRatingForm from "@/components/orders/OrderRatingForm";
+import OrderConfirmation from "@/components/orders/OrderConfirmation";
 import DeliveryChat from "@/components/chat/DeliveryChat";
 import { ArrivalConfirmButton } from "@/components/orders/ArrivalConfirmButton";
 import { formatMoney } from "@/lib/format";
@@ -252,6 +253,11 @@ export default async function PedidoDetallePage({
         {order.fulfillmentType === "DELIVERY" && order.status === "OUT_FOR_DELIVERY" && (
           <DeliveryChat orderId={order.id} currentUserId={session.user.id} currentUserRole="CUSTOMER" />
         )}
+
+        {(order.fulfillmentType === "DELIVERY" && order.status === "OUT_FOR_DELIVERY") ||
+          (order.fulfillmentType === "PICKUP" && order.status === "READY") ? (
+          <OrderConfirmation order={order} />
+        ) : null}
 
         <div className="rounded-xl border border-[var(--border)] overflow-hidden">
           <div className="bg-[var(--accent-soft)] px-6 py-3">

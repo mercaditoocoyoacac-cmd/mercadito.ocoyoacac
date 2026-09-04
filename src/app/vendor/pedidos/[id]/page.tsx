@@ -48,7 +48,20 @@ export default async function VendorPedidoPage({
 
   if (!order) notFound();
 
-  if (!order) notFound();
+  const vendorSteps = order.fulfillmentType === "PICKUP"
+    ? [
+        { status: "PENDING", label: "Pedido pendiente", icon: "📋", active: "bg-yellow-100 text-yellow-800" },
+        { status: "CONFIRMED", label: "En preparación", icon: "✅", active: "bg-blue-100 text-blue-800" },
+        { status: "READY", label: "Listo para recoger", icon: "📦", active: "bg-orange-100 text-orange-800" },
+        { status: "COMPLETED", label: "Recogido", icon: "🎉", active: "bg-green-100 text-green-800" },
+      ]
+    : [
+        { status: "PENDING", label: "Pedido pendiente", icon: "📋", active: "bg-yellow-100 text-yellow-800" },
+        { status: "CONFIRMED", label: "En preparación", icon: "✅", active: "bg-blue-100 text-blue-800" },
+        { status: "READY", label: "Listo para entregar", icon: "📦", active: "bg-purple-100 text-purple-800" },
+        { status: "OUT_FOR_DELIVERY", label: "En camino", icon: "🚚", active: "bg-orange-100 text-orange-800" },
+        { status: "COMPLETED", label: "Entregado", icon: "🎉", active: "bg-green-100 text-green-800" },
+      ];
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10">
@@ -95,7 +108,15 @@ export default async function VendorPedidoPage({
                   : "bg-blue-100 text-blue-800"
               }`}
             >
-              {order.fulfillmentType === "PICKUP" && order.status === "OUT_FOR_DELIVERY" ? "Listo para recoger" : getStatusLabel(order.status) === "Listo" ? "Listo para entrega" : getStatusLabel(order.status)}
+              {order.fulfillmentType === "PICKUP" && order.status === "COMPLETED"
+                ? "Recogido"
+                : order.fulfillmentType === "PICKUP" && order.status === "READY"
+                  ? "Listo para recoger"
+                  : order.fulfillmentType === "PICKUP" && order.status === "OUT_FOR_DELIVERY"
+                    ? "Listo para recoger"
+                    : getStatusLabel(order.status) === "Listo"
+                      ? "Listo para entrega"
+                      : getStatusLabel(order.status)}
             </div>
             <div className="text-xs text-[color:var(--muted)] mt-1">
               {FULFILLMENT_LABELS[order.fulfillmentType]}
@@ -235,15 +256,19 @@ export default async function VendorPedidoPage({
 
         {order.status !== "CANCELLED" && order.status !== "COMPLETED" && (
           <div className="border-t border-[var(--border)] px-5 py-3 bg-gray-50/50">
-            <div className="flex flex-wrap gap-1 text-[11px] text-[color:var(--muted)]">
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-yellow-100 text-yellow-800">📋 Pendiente</span>
-              <span className="text-[color:var(--muted)]">→</span>
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-blue-100 text-blue-800">✅ Confirmado</span>
-              <span className="text-[color:var(--muted)]">→</span>
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-purple-100 text-purple-800">📦 Listo</span>
-              {order.fulfillmentType === "DELIVERY" && <><span className="text-[color:var(--muted)]">→</span><span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-orange-100 text-orange-800">🚚 En camino</span></>}
-              <span className="text-[color:var(--muted)]">→</span>
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-100 text-green-800">🎉 Entregado</span>
+            <div className="flex flex-wrap items-center gap-1 text-[11px] text-[color:var(--muted)]">
+              {vendorSteps.map((step, i) => {
+                const stepIdx = vendorSteps.findIndex((s) => s.status === order.status);
+                const reached = i <= stepIdx;
+                return (
+                  <span key={step.status} className="flex flex-wrap items-center gap-1">
+                    {i > 0 && <span className="text-[color:var(--muted)]">→</span>}
+                    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded ${reached ? step.active : "bg-gray-100 text-gray-400"}`}>
+                      {step.icon} {step.label}
+                    </span>
+                  </span>
+                );
+              })}
             </div>
           </div>
         )}
@@ -384,8 +409,15 @@ export default async function VendorPedidoPage({
                 "use server";
                 await prisma.order.update({
                   where: { id: order.id },
-                  data: { status: "COMPLETED" },
+                  data: {
+                    status: "COMPLETED",
+                    statusTimestamps: appendStatusTimestamp(
+                      order.statusTimestamps as Record<string, string> | null,
+                      "COMPLETED",
+                    ),
+                  },
                 });
+                await notifyCustomerOrderCompleted(order.id);
                 revalidatePath("/vendor/pedidos");
                 revalidatePath(`/vendor/pedidos/${order.id}`);
               }}

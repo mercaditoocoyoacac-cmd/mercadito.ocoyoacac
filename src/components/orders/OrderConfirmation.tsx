@@ -6,6 +6,7 @@ type Props = {
   order: {
     id: string;
     status: string;
+    fulfillmentType?: "PICKUP" | "DELIVERY";
     pickupCode: string | null;
     totalCents: number;
     currency: string;
@@ -17,7 +18,13 @@ export default function OrderConfirmation({ order }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  if (order.status !== "OUT_FOR_DELIVERY") {
+  const isPickup = order.fulfillmentType === "PICKUP";
+
+  const canConfirm = isPickup
+    ? order.status === "READY"
+    : order.status === "OUT_FOR_DELIVERY";
+
+  if (!canConfirm) {
     return null;
   }
 
@@ -31,7 +38,9 @@ export default function OrderConfirmation({ order }: Props) {
         </div>
         <div className="text-lg font-semibold text-green-700">¡Pedido recibido!</div>
         <p className="mt-1 text-sm text-green-600">
-          El repartidor ha entregado el pedido.
+          {isPickup
+            ? "Recogiste tu pedido en la tienda."
+            : "El repartidor ha entregado el pedido."}
         </p>
       </div>
     );
@@ -64,10 +73,12 @@ export default function OrderConfirmation({ order }: Props) {
     <div className="mt-6 rounded-xl border-2 border-orange-500 bg-orange-50 p-5">
       <div className="text-center">
         <h3 className="text-lg font-semibold text-orange-700">
-          Tu repartidor está en camino
+          {isPickup ? "Tu pedido está listo para recoger" : "Tu repartidor está en camino"}
         </h3>
         <p className="mt-1 text-sm text-orange-600">
-          Cuando llegue, dale este código alfanumérico para confirmar la entrega
+          {isPickup
+            ? "Pasa por tu pedido a la tienda. Cuando lo tengas, confírmalo aquí para cerrar el pedido."
+            : "Cuando llegue, dale este código alfanumérico para confirmar la entrega"}
         </p>
       </div>
 
@@ -78,6 +89,9 @@ export default function OrderConfirmation({ order }: Props) {
               {order.pickupCode}
             </div>
           </div>
+          {isPickup && (
+            <p className="mt-2 text-xs text-orange-600">Muestra este código al recoger tu pedido</p>
+          )}
         </div>
       )}
 
@@ -87,7 +101,11 @@ export default function OrderConfirmation({ order }: Props) {
           disabled={confirming}
           className="w-full rounded-lg bg-green-600 px-4 py-3 text-base font-semibold text-white hover:bg-green-700 disabled:opacity-50"
         >
-          {confirming ? "Confirmando..." : "Confirmar que recibí el pedido"}
+          {confirming
+            ? "Confirmando..."
+            : isPickup
+              ? "Confirmar que ya recogí mi pedido"
+              : "Confirmar que recibí el pedido"}
         </button>
       </div>
 

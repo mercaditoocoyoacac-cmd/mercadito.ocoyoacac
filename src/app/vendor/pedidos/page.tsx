@@ -5,6 +5,8 @@ import { getSession } from "@/server/session";
 import { revalidatePath } from "next/cache";
 import { formatMoney } from "@/lib/format";
 import { getStatusLabel } from "@/lib/labels";
+import { appendStatusTimestamp } from "@/lib/statusTimestamps";
+import { notifyCustomerOrderCompleted } from "@/server/notifications";
 
 export const dynamic = "force-dynamic";
 
@@ -39,6 +41,7 @@ export default async function VendorPedidosPage() {
       totalCents: true,
       currency: true,
       createdAt: true,
+      statusTimestamps: true,
       deliveryUserId: true,
       paymentMethod: true,
       paymentVerified: true,
@@ -156,7 +159,11 @@ export default async function VendorPedidosPage() {
                           : "bg-blue-100 text-blue-800"
                       }`}
                     >
-                      {order.fulfillmentType === "PICKUP" && order.status === "OUT_FOR_DELIVERY" ? "Listo para recoger" : getStatusLabel(order.status)}
+                      {order.fulfillmentType === "PICKUP" && order.status === "COMPLETED"
+                        ? "Recogido"
+                        : order.fulfillmentType === "PICKUP" && order.status === "READY"
+                          ? "Listo para recoger"
+                          : getStatusLabel(order.status)}
                     </div>
                     <div className="text-xs mt-1">
                       {order.fulfillmentType === "DELIVERY" ? "📦 Entrega" : "🏪 Recoger"}
@@ -283,8 +290,15 @@ export default async function VendorPedidosPage() {
                         "use server";
                         await prisma.order.update({
                           where: { id: order.id },
-                          data: { status: "COMPLETED" },
+                          data: {
+                            status: "COMPLETED",
+                            statusTimestamps: appendStatusTimestamp(
+                              order.statusTimestamps as Record<string, string> | null,
+                              "COMPLETED",
+                            ),
+                          },
                         });
+                        await notifyCustomerOrderCompleted(order.id);
                         revalidatePath("/vendor/pedidos");
                         revalidatePath(`/vendor/pedidos/${order.id}`);
                       }}
