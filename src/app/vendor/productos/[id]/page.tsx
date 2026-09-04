@@ -48,6 +48,8 @@ interface Product {
   sellByWeight: boolean;
   minWeightGrams: number;
   maxWeightGrams: number;
+  isService: boolean;
+  showPrice: boolean;
   isPromotion: boolean;
   promotionPriceCents: number | null;
   discountPercentage: number | null;
@@ -86,6 +88,8 @@ export default function EditarProductoPage() {
   const [sellByWeight, setSellByWeight] = useState(false);
   const [minWeightGrams, setMinWeightGrams] = useState("100");
   const [maxWeightGrams, setMaxWeightGrams] = useState("5000");
+  const [isService, setIsService] = useState(false);
+  const [showPrice, setShowPrice] = useState(true);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [variants, setVariants] = useState<VariantEntry[]>([]);
   const [isPromotion, setIsPromotion] = useState(false);
@@ -117,6 +121,8 @@ export default function EditarProductoPage() {
           setSellByWeight(found.sellByWeight || false);
           setMinWeightGrams(found.minWeightGrams?.toString() || "100");
           setMaxWeightGrams(found.maxWeightGrams?.toString() || "5000");
+          setIsService(found.isService || false);
+          setShowPrice(found.showPrice != null ? found.showPrice : true);
           setIsPromotion(found.isPromotion || false);
           setPromotionPrice(found.promotionPriceCents != null ? (found.promotionPriceCents / 100).toString() : "");
           setDiscountPercentage(found.discountPercentage != null ? found.discountPercentage.toString() : "");
@@ -204,9 +210,9 @@ export default function EditarProductoPage() {
     setError(null);
 
     const priceNumber = Number(price);
-    if (!Number.isFinite(priceNumber) || priceNumber <= 0) {
+    if (Number.isNaN(priceNumber) || priceNumber < 0 || (!isService && priceNumber <= 0)) {
       setSaving(false);
-      setError("El precio debe ser mayor a 0.");
+      setError(isService ? "Precio no válido." : "El precio debe ser mayor a 0.");
       return;
     }
 
@@ -223,6 +229,8 @@ export default function EditarProductoPage() {
         sellByWeight,
         minWeightGrams: sellByWeight ? parseInt(minWeightGrams) || 100 : undefined,
         maxWeightGrams: sellByWeight ? parseInt(maxWeightGrams) || 5000 : undefined,
+        isService,
+        showPrice: isService ? showPrice : true,
         variants: buildVariantsPayload(),
         isPromotion,
         promotionPriceCents: isPromotion && promotionPrice ? Math.round(Number(promotionPrice) * 100) : null,
@@ -269,9 +277,9 @@ export default function EditarProductoPage() {
     setError(null);
 
     const priceNumber = Number(price);
-    if (!Number.isFinite(priceNumber) || priceNumber <= 0) {
+    if (Number.isNaN(priceNumber) || priceNumber < 0 || (!isService && priceNumber <= 0)) {
       setDuplicating(false);
-      setError("El precio debe ser mayor a 0.");
+      setError(isService ? "Precio no válido." : "El precio debe ser mayor a 0.");
       return;
     }
 
@@ -288,6 +296,8 @@ export default function EditarProductoPage() {
         sellByWeight,
         minWeightGrams: sellByWeight ? parseInt(minWeightGrams) || 100 : undefined,
         maxWeightGrams: sellByWeight ? parseInt(maxWeightGrams) || 5000 : undefined,
+        isService,
+        showPrice: isService ? showPrice : true,
         variants: buildVariantsPayload(),
         isPromotion,
         promotionPriceCents: isPromotion && promotionPrice ? Math.round(Number(promotionPrice) * 100) : undefined,
@@ -352,17 +362,60 @@ export default function EditarProductoPage() {
         <label className="block">
           <div className="text-sm font-medium">
             Precio {sellByWeight ? "por kg (MXN)" : "(MXN)"}
-            <HelpTip text={sellByWeight ? "Precio por kilogramo. Ej: 150 = $150/kg" : "¿Cuánto cobras por este producto?"} />
+            {isService && <span className="text-xs font-normal text-[color:var(--muted)]"> (opcional para servicios)</span>}
+            <HelpTip text={sellByWeight ? "Precio por kilogramo. Ej: 150 = $150/kg" : isService ? "Escribe tu precio base. Si ocultas el precio, se guardará solo de forma interna." : "¿Cuánto cobras por este producto?"} />
           </div>
           <input
             value={price}
             onChange={(e) => setPrice(e.target.value)}
-            required
+            required={!isService}
             inputMode="decimal"
             className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
             placeholder={sellByWeight ? "Ej: 150.00 (precio por kg)" : "Ej: 25.00"}
           />
         </label>
+
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="isService"
+            checked={isService}
+            onChange={(e) => {
+              setIsService(e.target.checked);
+              if (e.target.checked) setShowPrice(true);
+            }}
+            className="rounded border-[var(--border)]"
+          />
+          <label htmlFor="isService" className="text-sm cursor-pointer">
+            Es un servicio / cita (masajes, consultas, citas, etc.)
+          </label>
+        </div>
+
+        {isService && (
+          <div className="rounded-md border border-[var(--border)] bg-[var(--surface)] px-4 py-3 space-y-3">
+            <p className="text-sm text-[color:var(--muted)]">
+              Los servicios no se venden por carrito: el cliente verá un botón{" "}
+              <span className="font-medium">“Asignar cita”</span> que lo llevará a tu WhatsApp.
+            </p>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="showPrice"
+                checked={showPrice}
+                onChange={(e) => setShowPrice(e.target.checked)}
+                className="rounded border-[var(--border)]"
+              />
+              <label htmlFor="showPrice" className="text-sm cursor-pointer">
+                Mostrar el precio de este servicio
+              </label>
+            </div>
+            {!showPrice && (
+              <p className="text-xs text-[color:var(--muted)]">
+                El cliente verá “Precio a cotizar” en lugar de tu precio.
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="flex items-center gap-2">
           <input

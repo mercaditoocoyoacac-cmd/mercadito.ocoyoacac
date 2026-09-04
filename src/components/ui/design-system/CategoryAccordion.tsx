@@ -21,6 +21,8 @@ export interface CategoryData {
     sellByWeight: boolean;
     minWeightGrams: number;
     maxWeightGrams: number;
+    isService?: boolean;
+    showPrice?: boolean;
     soldCount: number;
     isPromotion: boolean;
     promotionPriceCents: number | null;
@@ -32,6 +34,7 @@ export interface CategoryData {
 export interface CategoryAccordionProps {
   categories: CategoryData[];
   onAddToCart: (productId: string, data: { variantId?: string; weightGrams?: number }) => void;
+  onBookAppointment?: (product: CategoryData["products"][0]) => string;
   onQuickView?: (product: CategoryData["products"][0]) => void;
   defaultOpen?: string[];
   className?: string;
@@ -41,6 +44,7 @@ export interface CategoryAccordionProps {
 export function CategoryAccordion({ 
   categories, 
   onAddToCart, 
+  onBookAppointment,
   onQuickView, 
   defaultOpen = [],
   className = "",
@@ -148,6 +152,7 @@ export function CategoryAccordion({
                           product={product}
                           categoryId={category.id}
                           onAddToCart={(data) => onAddToCart(product.id, data)}
+                          onBookAppointment={onBookAppointment ? onBookAppointment(product) : undefined}
                           onQuickView={onQuickView}
                         />
                         ))}
@@ -182,6 +187,7 @@ interface ProductCardInCategoryProps {
   product: CategoryData["products"][0];
   categoryId: string;
   onAddToCart: (data: { variantId?: string; weightGrams?: number }) => void;
+  onBookAppointment?: string;
   onQuickView?: (product: CategoryData["products"][0]) => void;
 }
 
@@ -189,11 +195,15 @@ function ProductCardInCategory({
   product, 
   categoryId, 
   onAddToCart, 
+  onBookAppointment,
   onQuickView 
 }: ProductCardInCategoryProps) {
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
   const [weight, setWeight] = useState(product.minWeightGrams || 500);
   const [loading, setLoading] = useState(false);
+
+  const isService = product.isService === true;
+  const showServicePrice = product.showPrice !== false;
 
   const hasVariants = product.variants && product.variants.length > 0;
   const effectivePrice = hasVariants && selectedVariant
@@ -250,8 +260,14 @@ function ProductCardInCategory({
         <h4 className="font-medium text-sm line-clamp-1">{product.name}</h4>
         <div className="mt-2 flex items-center justify-between">
           <span className="text-sm font-semibold text-[var(--accent)]">
-            {formatMoney(effectivePrice, product.currency)}
-            {product.sellByWeight && <span className="text-xs font-normal text-[color:var(--muted)]">/kg</span>}
+            {isService && !showServicePrice ? (
+              "Precio a cotizar"
+            ) : (
+              <>
+                {formatMoney(effectivePrice, product.currency)}
+                {product.sellByWeight && <span className="text-xs font-normal text-[color:var(--muted)]">/kg</span>}
+              </>
+            )}
           </span>
           {product.isPromotion && product.promotionPriceCents != null && (
             <span className="text-xs text-[color:var(--muted)] line-through">
@@ -260,6 +276,23 @@ function ProductCardInCategory({
           )}
         </div>
         <div className="mt-3 pt-3 border-t border-[var(--border)] flex items-center gap-2">
+          {isService ? (
+            onBookAppointment ? (
+              <a
+                href={onBookAppointment}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 rounded-lg px-3 py-2 text-xs font-medium text-center bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]"
+              >
+                Asignar cita
+              </a>
+            ) : (
+              <span className="flex-1 rounded-lg px-3 py-2 text-xs font-medium text-center bg-[var(--accent)] text-white">
+                Asignar cita
+              </span>
+            )
+          ) : (
+            <>
           {hasVariants && (
             <select
               value={selectedVariant || ""}
@@ -309,6 +342,8 @@ function ProductCardInCategory({
           >
             {loading ? "..." : product.isUnavailable ? "Agotado" : "Agregar"}
           </button>
+            </>
+          )}
         </div>
       </div>
     </article>

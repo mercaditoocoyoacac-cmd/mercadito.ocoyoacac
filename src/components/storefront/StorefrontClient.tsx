@@ -41,6 +41,8 @@ interface ProductData {
   sellByWeight: boolean;
   minWeightGrams: number;
   maxWeightGrams: number;
+  isService?: boolean;
+  showPrice?: boolean;
   soldCount: number;
   isPromotion: boolean;
   promotionPriceCents: number | null;
@@ -209,6 +211,15 @@ export function StorefrontClient({
     }
   };
 
+  const bookAppointmentHref = (product: { name: string }) => {
+    if (!store.phone) return "";
+    const number = store.phone.replace(/\D/g, "");
+    const message = encodeURIComponent(
+      `Hola ${store.name}, me gustaría agendar una cita para: ${product.name}`,
+    );
+    return `https://api.whatsapp.com/send?phone=${number}&text=${message}`;
+  };
+
   return (
     <>
       {/* Store Header */}
@@ -277,6 +288,7 @@ export function StorefrontClient({
               imageUrl: p.imageUrl ?? null,
             }))}
             onAddToCart={handleAddToCart}
+            onBookAppointment={bookAppointmentHref}
             onQuickView={setQuickViewProduct}
             title="Más vendidos"
             showTitle={true}
@@ -362,6 +374,7 @@ export function StorefrontClient({
                   }}
                   variant="default"
                   onAddToCart={handleAddToCart}
+                  onBookAppointment={product.isService ? bookAppointmentHref(product) : undefined}
                   onQuickView={() => setQuickViewProduct(product)}
                   showQuickView={true}
                 />
@@ -372,6 +385,7 @@ export function StorefrontClient({
           <CategoryAccordion
             categories={categories}
             onAddToCart={(productId, data) => handleAddToCart({ productId, ...data })}
+            onBookAppointment={(product) => product.isService ? bookAppointmentHref(product) : ""}
 onQuickView={(product) => setQuickViewProduct({ ...product, store } as any)}
             defaultOpen={categories.slice(0, 2).map(c => c.id)}
           />
@@ -379,6 +393,7 @@ onQuickView={(product) => setQuickViewProduct({ ...product, store } as any)}
 <ProductGrid
               products={otherProducts.map(p => ({ ...p, currency: p.currency || "MXN", description: p.description ?? undefined, imageUrl: p.imageUrl ?? undefined }))}
               onAddToCart={handleAddToCart}
+              onBookAppointment={(product) => product.isService ? bookAppointmentHref(product) : ""}
               onQuickView={(product) => setQuickViewProduct({ ...product, store } as any)}
               variant="default"
               emptyState={{
@@ -443,6 +458,7 @@ onQuickView={(product) => setQuickViewProduct({ ...product, store } as any)}
 function ProductCarousel({ 
   products, 
   onAddToCart, 
+  onBookAppointment,
   onQuickView,
   title = "Productos",
   showTitle = true,
@@ -450,6 +466,7 @@ function ProductCarousel({
 }: {
   products: ProductData[];
   onAddToCart: (data: { productId: string; variantId?: string; weightGrams?: number }) => void;
+  onBookAppointment?: (product: ProductData) => string;
   onQuickView?: (product: ProductData) => void;
   title?: string;
   showTitle?: boolean;
@@ -470,6 +487,7 @@ function ProductCarousel({
                 }}
                 variant="compact"
                 onAddToCart={onAddToCart}
+                onBookAppointment={onBookAppointment ? onBookAppointment(product) : undefined}
                 onQuickView={onQuickView ? () => onQuickView(product) : undefined}
                 showQuickView={!!onQuickView}
               />

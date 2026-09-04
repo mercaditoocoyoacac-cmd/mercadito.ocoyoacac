@@ -49,6 +49,8 @@ export async function PUT(
       sellByWeight: parsed.data.sellByWeight,
       minWeightGrams: parsed.data.minWeightGrams,
       maxWeightGrams: parsed.data.maxWeightGrams,
+      isService: parsed.data.isService,
+      showPrice: parsed.data.showPrice,
       isPromotion: parsed.data.isPromotion,
       promotionPriceCents: parsed.data.promotionPriceCents,
       discountPercentage: parsed.data.discountPercentage,

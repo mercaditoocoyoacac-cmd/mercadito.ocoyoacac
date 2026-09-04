@@ -112,6 +112,7 @@ export async function POST(req: Request) {
       id: true,
       isActive: true,
       isUnavailable: true,
+      isService: true,
       storeId: true,
       store: { select: { isActive: true, openTime: true, closeTime: true, scheduleDays: true, category: true, plan: true } },
     },
@@ -123,7 +124,7 @@ export async function POST(req: Request) {
     );
   }
 
-  if (product.store.category === "SERVICIOS") {
+  if (product.isService || product.store.category === "SERVICIOS") {
     return NextResponse.json(
       { ok: false, error: "Los servicios no se pueden agregar al carrito. Contacta al negocio para agendar una cita." },
       { status: 400 },

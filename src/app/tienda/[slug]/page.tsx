@@ -51,6 +51,8 @@ export default async function StorefrontPage({
       sellByWeight: true,
       minWeightGrams: true,
       maxWeightGrams: true,
+      isService: true,
+      showPrice: true,
       soldCount: true,
       isPromotion: true,
       promotionPriceCents: true,

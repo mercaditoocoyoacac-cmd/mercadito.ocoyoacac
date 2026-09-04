@@ -40,6 +40,8 @@ export async function GET(req: Request) {
       sellByWeight: true,
       minWeightGrams: true,
       maxWeightGrams: true,
+      isService: true,
+      showPrice: true,
       isPromotion: true,
       promotionPriceCents: true,
       discountPercentage: true,
@@ -93,6 +95,8 @@ export async function POST(req: Request) {
       sellByWeight: parsed.data.sellByWeight ?? false,
       minWeightGrams: parsed.data.minWeightGrams,
       maxWeightGrams: parsed.data.maxWeightGrams,
+      isService: parsed.data.isService ?? false,
+      showPrice: parsed.data.showPrice ?? true,
       variants: parsed.data.variants?.length
         ? { create: parsed.data.variants }
         : undefined,

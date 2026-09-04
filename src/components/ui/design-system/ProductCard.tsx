@@ -19,6 +19,8 @@ export interface ProductCardData {
   sellByWeight: boolean;
   minWeightGrams: number;
   maxWeightGrams: number;
+  isService?: boolean;
+  showPrice?: boolean;
   soldCount: number;
   isPromotion: boolean;
   promotionPriceCents: number | null;
@@ -30,6 +32,7 @@ export interface ProductCardProps {
   product: ProductCardData;
   variant?: "default" | "compact" | "featured" | "horizontal";
   onAddToCart: (data: { productId: string; variantId?: string; weightGrams?: number }) => void;
+  onBookAppointment?: string;
   onQuickView?: () => void;
   showQuickView?: boolean;
   className?: string;
@@ -38,6 +41,7 @@ export interface ProductCardProps {
 export interface ProductGridProps {
   products: ProductCardData[];
   onAddToCart: (data: { productId: string; variantId?: string; weightGrams?: number }) => void;
+  onBookAppointment?: (product: ProductCardData) => string;
   onQuickView?: (product: ProductCardData) => void;
   variant?: "default" | "compact" | "featured" | "horizontal";
   className?: string;
@@ -54,6 +58,7 @@ export function ProductCard({
   product, 
   variant = "default", 
   onAddToCart, 
+  onBookAppointment,
   onQuickView, 
   showQuickView = false,
   className = "" 
@@ -61,6 +66,9 @@ export function ProductCard({
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
   const [weight, setWeight] = useState(product.minWeightGrams || 500);
   const [loading, setLoading] = useState(false);
+
+  const isService = product.isService === true;
+  const showServicePrice = product.showPrice !== false;
 
   const hasVariants = product.variants && product.variants.length > 0;
   const effectivePrice = hasVariants && selectedVariant
@@ -120,8 +128,14 @@ export function ProductCard({
             {product.description && <p className="text-xs text-[color:var(--muted)] line-clamp-2 mt-1">{product.description}</p>}
             <div className="mt-2 flex items-center gap-2">
               <span className="text-sm font-semibold text-[var(--accent)]">
-                {formatMoney(effectivePrice, product.currency)}
-                {product.sellByWeight && <span className="text-xs font-normal text-[color:var(--muted)]">/kg</span>}
+                {isService && !showServicePrice ? (
+                  "Precio a cotizar"
+                ) : (
+                  <>
+                    {formatMoney(effectivePrice, product.currency)}
+                    {product.sellByWeight && <span className="text-xs font-normal text-[color:var(--muted)]">/kg</span>}
+                  </>
+                )}
               </span>
               {product.isPromotion && product.promotionPriceCents != null && (
                 <span className="text-xs text-[color:var(--muted)] line-through">{formatMoney(product.priceCents, product.currency)}</span>
@@ -129,6 +143,23 @@ export function ProductCard({
             </div>
           </div>
           <div className="mt-3 pt-3 border-t border-[var(--border)] flex items-center gap-2">
+            {isService ? (
+              <Button
+                variant="primary"
+                size="sm"
+                fullWidth
+                asChild={!!onBookAppointment}
+              >
+                {onBookAppointment ? (
+                  <a href={onBookAppointment} target="_blank" rel="noopener noreferrer">
+                    Asignar cita
+                  </a>
+                ) : (
+                  <span>Asignar cita</span>
+                )}
+              </Button>
+            ) : (
+            <>
             {hasVariants && (
               <select
                 value={selectedVariant || ""}
@@ -163,6 +194,8 @@ export function ProductCard({
             >
               Agregar
             </Button>
+            </>
+            )}
           </div>
         </div>
       </motion.article>
@@ -198,7 +231,7 @@ export function ProductCard({
         {product.isPromotion && product.discountPercentage != null && (
           <PromoBadge discountPercentage={product.discountPercentage} size="sm" />
         )}
-        {onQuickView && showQuickView && (
+        {onQuickView && showQuickView && !isService && (
           <button
             type="button"
             onClick={onQuickView}
@@ -219,14 +252,37 @@ export function ProductCard({
         )}
         <div className="mt-2 flex items-center justify-between">
           <span className="text-sm font-semibold text-[var(--accent)]">
-            {formatMoney(effectivePrice, product.currency)}
-            {product.sellByWeight && <span className="text-xs font-normal text-[color:var(--muted)]">/kg</span>}
+            {isService && !showServicePrice ? (
+              "Precio a cotizar"
+            ) : (
+              <>
+                {formatMoney(effectivePrice, product.currency)}
+                {product.sellByWeight && <span className="text-xs font-normal text-[color:var(--muted)]">/kg</span>}
+              </>
+            )}
           </span>
           {product.isPromotion && product.promotionPriceCents != null && (
             <span className="text-xs text-[color:var(--muted)] line-through">{formatMoney(product.priceCents, product.currency)}</span>
           )}
         </div>
         <div className="mt-3 pt-3 border-t border-[var(--border)] flex items-center gap-2">
+          {isService ? (
+            <Button
+              variant={variant === "compact" ? "ghost" : "primary"}
+              size={variant === "compact" ? "sm" : "md"}
+              fullWidth
+              asChild={!!onBookAppointment}
+            >
+              {onBookAppointment ? (
+                <a href={onBookAppointment} target="_blank" rel="noopener noreferrer">
+                  Asignar cita
+                </a>
+              ) : (
+                <span>Asignar cita</span>
+              )}
+            </Button>
+          ) : (
+            <>
           {hasVariants && (
             <select
               value={selectedVariant || ""}
@@ -265,6 +321,8 @@ export function ProductCard({
           >
             {loading ? "..." : product.isUnavailable ? "Agotado" : "Agregar"}
           </Button>
+            </>
+          )}
         </div>
       </div>
     </motion.article>
@@ -274,6 +332,7 @@ export function ProductCard({
 export function ProductGrid({ 
   products, 
   onAddToCart, 
+  onBookAppointment,
   onQuickView,
   variant = "default",
   className = "",
@@ -312,6 +371,7 @@ export function ProductGrid({
           product={product}
           variant={variant}
           onAddToCart={onAddToCart}
+          onBookAppointment={onBookAppointment ? onBookAppointment(product) : undefined}
           onQuickView={onQuickView ? () => onQuickView(product) : undefined}
           showQuickView={!!onQuickView}
         />
@@ -323,6 +383,7 @@ export function ProductGrid({
 interface ProductCarouselProps {
   products: ProductCardData[];
   onAddToCart: (data: { productId: string; variantId?: string; weightGrams?: number }) => void;
+  onBookAppointment?: (product: ProductCardData) => string;
   onQuickView?: (product: ProductCardData) => void;
   title?: string;
   showTitle?: boolean;
@@ -332,6 +393,7 @@ interface ProductCarouselProps {
 export function ProductCarousel({ 
   products, 
   onAddToCart, 
+  onBookAppointment,
   onQuickView,
   title = "Productos",
   showTitle = true,
@@ -347,6 +409,7 @@ export function ProductCarousel({
               product={product}
               variant="compact"
               onAddToCart={onAddToCart}
+              onBookAppointment={onBookAppointment ? onBookAppointment(product) : undefined}
               onQuickView={onQuickView ? () => onQuickView(product) : undefined}
               showQuickView={!!onQuickView}
             />

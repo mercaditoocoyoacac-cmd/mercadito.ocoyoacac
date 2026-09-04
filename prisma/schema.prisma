@@ -249,6 +249,9 @@ model Product {
   maxWeightGrams Int     @default(5000)
   sortOrder      Int     @default(0)
 
+  isService Boolean @default(false)
+  showPrice Boolean @default(true)
+
   soldCount           Int      @default(0)
   isPromotion         Boolean  @default(false)
   promotionPriceCents Int?

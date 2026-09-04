@@ -49,6 +49,8 @@ export default function NuevoProductoPage() {
   const [sellByWeight, setSellByWeight] = useState(false);
   const [minWeightGrams, setMinWeightGrams] = useState("100");
   const [maxWeightGrams, setMaxWeightGrams] = useState("5000");
+  const [isService, setIsService] = useState(false);
+  const [showPrice, setShowPrice] = useState(true);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [variants, setVariants] = useState<VariantEntry[]>([]);
   const [isPromotion, setIsPromotion] = useState(false);
@@ -124,7 +126,8 @@ export default function NuevoProductoPage() {
           const errors: Record<string, string> = {};
           if (!name.trim()) errors.name = "El nombre es obligatorio";
           const priceNumber = Number(price);
-          if (!Number.isFinite(priceNumber) || priceNumber <= 0) errors.price = "El precio debe ser mayor a 0";
+          if (!Number.isFinite(priceNumber) || priceNumber < 0) errors.price = "El precio no puede ser negativo";
+          if (!isService && (!Number.isFinite(priceNumber) || priceNumber <= 0)) errors.price = "El precio debe ser mayor a 0";
           variants.forEach((v, _i) => {
             if (v.name.trim() && (!Number.isFinite(Number(v.price)) || Number(v.price) <= 0)) {
               errors[`variant_${v.key}_price`] = `El precio de "${v.name}" debe ser mayor a 0`;
@@ -155,6 +158,8 @@ export default function NuevoProductoPage() {
               sku: sku.trim() || undefined,
               stock: stock.trim() === "" ? -1 : parseInt(stock) || 0,
               sellByWeight,
+              isService,
+              showPrice: isService ? showPrice : true,
               minWeightGrams: sellByWeight ? parseInt(minWeightGrams) || 100 : undefined,
               maxWeightGrams: sellByWeight ? parseInt(maxWeightGrams) || 5000 : undefined,
               variants: variantsPayload.length > 0 ? variantsPayload : undefined,
@@ -206,7 +211,8 @@ export default function NuevoProductoPage() {
         <label className="block">
           <div className="text-sm font-medium">
             Precio {sellByWeight ? "por kg (MXN)" : "(MXN)"}
-            <HelpTip text={sellByWeight ? "Precio por kilogramo. Ej: 150 = $150/kg" : "¿Cuánto cobras por este producto? Solo números, ej: 25.00"} />
+            {isService && <span className="text-xs font-normal text-[color:var(--muted)]"> (opcional para servicios)</span>}
+            <HelpTip text={sellByWeight ? "Precio por kilogramo. Ej: 150 = $150/kg" : isService ? "Escribe tu precio base. Si ocultas el precio, se guardará solo de forma interna." : "¿Cuánto cobras por este producto? Solo números, ej: 25.00"} />
           </div>
           <input
             value={price}
@@ -216,16 +222,60 @@ export default function NuevoProductoPage() {
             }}
             onBlur={() => {
               const n = Number(price);
+              if (isService) { setFieldErrors((prev) => ({ ...prev, price: "" })); return; }
               if (!Number.isFinite(n) || n <= 0) setFieldErrors((prev) => ({ ...prev, price: "El precio debe ser mayor a 0" }));
               else setFieldErrors((prev) => ({ ...prev, price: "" }));
             }}
-            required
+            required={!isService}
             inputMode="decimal"
             className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
             placeholder={sellByWeight ? "Ej: 150.00 (precio por kg)" : "Ej: 25.00"}
           />
           <FieldError message={fieldErrors.price} />
         </label>
+
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="isService"
+            checked={isService}
+            onChange={(e) => {
+              setIsService(e.target.checked);
+              if (e.target.checked) setShowPrice(true);
+              if (fieldErrors.price) setFieldErrors((prev) => ({ ...prev, price: "" }));
+            }}
+            className="rounded border-[var(--border)]"
+          />
+          <label htmlFor="isService" className="text-sm cursor-pointer">
+            Es un servicio / cita (masajes, consultas, citas, etc.)
+          </label>
+        </div>
+
+        {isService && (
+          <div className="rounded-md border border-[var(--border)] bg-[var(--surface)] px-4 py-3 space-y-3">
+            <p className="text-sm text-[color:var(--muted)]">
+              Los servicios no se venden por carrito: el cliente verá un botón{" "}
+              <span className="font-medium">“Asignar cita”</span> que lo llevará a tu WhatsApp.
+            </p>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="showPrice"
+                checked={showPrice}
+                onChange={(e) => setShowPrice(e.target.checked)}
+                className="rounded border-[var(--border)]"
+              />
+              <label htmlFor="showPrice" className="text-sm cursor-pointer">
+                Mostrar el precio de este servicio
+              </label>
+            </div>
+            {!showPrice && (
+              <p className="text-xs text-[color:var(--muted)]">
+                El cliente verá “Precio a cotizar” en lugar de tu precio. El precio que escribas arriba se guarda de forma interna.
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="flex items-center gap-2">
           <input
