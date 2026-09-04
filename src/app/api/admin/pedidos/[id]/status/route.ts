@@ -1,13 +1,16 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { OrderStatus } from "@prisma/client";
 import { prisma } from "@/server/prisma";
 import { requireRole } from "@/server/requireUser";
 import { sendTextNotification } from "@/server/notifications";
 import { notifyCustomerOrderCompleted } from "@/server/notifications";
+import { notifyCustomerOrderReadyForPickup } from "@/server/notifications";
 import { sendPushToMultiple } from "@/server/push";
 import { appendStatusTimestamp } from "@/lib/statusTimestamps";
 
 const STATUS_FLOW = ["PENDING", "CONFIRMED", "READY", "OUT_FOR_DELIVERY", "COMPLETED"] as const;
+const PICKUP_STATUS_FLOW = ["PENDING", "CONFIRMED", "READY", "COMPLETED"] as const;
 
 const ActionSchema = z.object({
   action: z.enum(["advance", "cancel"]),
@@ -86,12 +89,13 @@ export async function POST(
   }
 
   // action === "advance"
-  const currentIdx = STATUS_FLOW.indexOf(order.status as typeof STATUS_FLOW[number]);
-  if (currentIdx === -1 || currentIdx >= STATUS_FLOW.length - 1) {
+  const flow: readonly string[] = order.fulfillmentType === "PICKUP" ? PICKUP_STATUS_FLOW : STATUS_FLOW;
+  const currentIdx = flow.indexOf(order.status);
+  if (currentIdx === -1 || currentIdx >= flow.length - 1) {
     return NextResponse.json({ ok: false, error: "El pedido ya está en su estado final" }, { status: 400 });
   }
 
-  const newStatus = STATUS_FLOW[currentIdx + 1];
+  const newStatus = flow[currentIdx + 1] as OrderStatus;
 
   const currentTs = order.statusTimestamps as Record<string, string> | null;
 
@@ -105,6 +109,10 @@ export async function POST(
 
   if (newStatus === "COMPLETED") {
     await notifyCustomerOrderCompleted(id);
+  }
+
+  if (newStatus === "READY" && order.fulfillmentType === "PICKUP") {
+    await notifyCustomerOrderReadyForPickup(id);
   }
 
   // Notify drivers when order becomes CONFIRMED/READY (DELIVERY, no driver assigned)

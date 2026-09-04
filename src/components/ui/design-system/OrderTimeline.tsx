@@ -95,11 +95,34 @@ export function OrderTimeline({
   onTrackDriver
 }: OrderTimelineProps) {
   const { currentStatus, timestamps, fulfillmentType, pickupCode, deliveryAddress, storeName, storePhone, driverName, driverPhone, driverLocation, estimatedDelivery } = data;
-  const currentIndex = statusOrder.indexOf(currentStatus);
+
+  const steps: OrderStatus[] = fulfillmentType === "PICKUP"
+    ? ["PENDING", "CONFIRMED", "READY"]
+    : ["PENDING", "CONFIRMED", "READY", "OUT_FOR_DELIVERY", "COMPLETED"];
+
+  let currentIndex = steps.indexOf(currentStatus);
   const isCompleted = currentStatus === "COMPLETED";
   const isCancelled = currentStatus === "CANCELLED";
+  // For pickup, the order finishes at the READY milestone ("Recogido / Completado").
+  if (fulfillmentType === "PICKUP" && isCompleted) {
+    currentIndex = steps.length;
+  }
 
   const effectiveConfig: Record<OrderStatus, { label: string; icon: ReactNode; color: string; description: string }> = { ...statusConfig };
+  if (fulfillmentType === "PICKUP" && effectiveConfig.READY) {
+    effectiveConfig.READY = {
+      ...effectiveConfig.READY,
+      label: "Listo para recoger",
+      description: "Tu pedido ya está listo para recoger en la tienda",
+    };
+  }
+  if (fulfillmentType === "PICKUP" && effectiveConfig.COMPLETED) {
+    effectiveConfig.COMPLETED = {
+      ...effectiveConfig.COMPLETED,
+      label: "Recogido",
+      description: "Recogiste tu pedido en la tienda",
+    };
+  }
   if (fulfillmentType === "PICKUP" && effectiveConfig.OUT_FOR_DELIVERY) {
     effectiveConfig.OUT_FOR_DELIVERY = {
       ...effectiveConfig.OUT_FOR_DELIVERY,
@@ -117,7 +140,7 @@ export function OrderTimeline({
         role="list"
         aria-label="Estado del pedido"
       >
-        {statusOrder.slice(0, isCancelled ? 1 : (isCompleted ? 5 : currentIndex + 1)).map((status, index) => {
+        {steps.slice(0, isCancelled ? 1 : (isCompleted ? steps.length : currentIndex + 1)).map((status, index) => {
           const config = effectiveConfig[status];
           const isActive = index === currentIndex && !isCompleted && !isCancelled;
           const isPast = index < currentIndex;
@@ -167,7 +190,7 @@ export function OrderTimeline({
   if (variant === "card") {
     return (
       <div className={`space-y-4 ${className}`} role="list" aria-label="Timeline del pedido">
-        {statusOrder.slice(0, isCancelled ? 1 : (isCompleted ? 5 : currentIndex + 1)).map((status, index) => {
+        {steps.slice(0, isCancelled ? 1 : (isCompleted ? steps.length : currentIndex + 1)).map((status, index) => {
           const config = effectiveConfig[status];
           const isActive = index === currentIndex && !isCompleted && !isCancelled;
           const isPast = index < currentIndex;
@@ -198,7 +221,7 @@ export function OrderTimeline({
                     config.icon
                   )}
                 </div>
-                {index < statusOrder.length - 1 && (
+                {index < steps.length - 1 && (
                   <div className={`
                     absolute left-5 top-12 bottom-12 w-px
                     ${isPast ? `bg-${getColorName(config.color)}` : "bg-gray-200"}
@@ -274,7 +297,7 @@ export function OrderTimeline({
 
   return (
     <div className={`space-y-3 ${className}`} role="list" aria-label="Timeline del pedido">
-      {statusOrder.slice(0, isCancelled ? 1 : (isCompleted ? 5 : currentIndex + 1)).map((status, index) => {
+      {steps.slice(0, isCancelled ? 1 : (isCompleted ? steps.length : currentIndex + 1)).map((status, index) => {
         const config = effectiveConfig[status];
         const isActive = index === currentIndex && !isCompleted && !isCancelled;
         const isPast = index < currentIndex;
@@ -305,7 +328,7 @@ export function OrderTimeline({
                   config.icon
                 )}
               </div>
-              {index < statusOrder.length - 1 && (
+              {index < steps.length - 1 && (
                 <div className={`
                   absolute left-4 top-10 bottom-10 w-px
                   ${isPast ? `bg-${getColorName(config.color)}` : "bg-gray-200"}
@@ -388,8 +411,14 @@ export function OrderStatusBadge({
   fulfillmentType?: "PICKUP" | "DELIVERY";
 }) {
   let config = statusConfig[status];
-  if (fulfillmentType === "PICKUP" && config && status === "OUT_FOR_DELIVERY") {
-    config = { ...config, label: "Listo para recoger" };
+  if (fulfillmentType === "PICKUP" && config) {
+    if (status === "OUT_FOR_DELIVERY") {
+      config = { ...config, label: "Listo para recoger" };
+    } else if (status === "READY") {
+      config = { ...config, label: "Listo para recoger" };
+    } else if (status === "COMPLETED") {
+      config = { ...config, label: "Recogido" };
+    }
   }
   const sizeClasses = {
     sm: "px-2 py-0.5 text-[10px]",

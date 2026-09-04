@@ -30,6 +30,36 @@ export async function sendTextNotification(userId: string, data: NotificationDat
   }
 }
 
+export async function notifyCustomerOrderReadyForPickup(orderId: string) {
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    select: {
+      userId: true,
+      customerPhone: true,
+      store: { select: { name: true } },
+    },
+  });
+
+  if (!order) return;
+
+  if (order.userId) {
+    await sendTextNotification(order.userId, {
+      title: "Tu pedido está listo",
+      body: `Tu pedido en ${order.store?.name || "la tienda"} ya está listo. ¡Pasa a recogerlo a la tienda!`,
+      type: "ORDER_READY",
+      url: `/mis-pedidos/${orderId}`,
+    });
+  }
+
+  if (order.customerPhone) {
+    const message = `🎉 ¡Tu pedido de ${order.store?.name || "la tienda"} ya está listo! Pasa por él a la tienda para recogerlo.`;
+    await Promise.allSettled([
+      sendWhatsAppMessage(order.customerPhone, message),
+      sendSMS(order.customerPhone, message.replace(/[^\w\sáéíóúñ,.!¡¿?]/g, "")),
+    ]);
+  }
+}
+
 export async function notifyCustomerOrderCompleted(orderId: string) {
   const order = await prisma.order.findUnique({
     where: { id: orderId },

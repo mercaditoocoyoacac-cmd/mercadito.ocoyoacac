@@ -6,10 +6,14 @@ import { formatMoney } from "@/lib/format";
 import { getStatusLabel } from "@/lib/labels";
 
 const STATUS_FLOW = ["PENDING", "CONFIRMED", "READY", "OUT_FOR_DELIVERY", "COMPLETED"];
+const PICKUP_STATUS_FLOW = ["PENDING", "CONFIRMED", "READY", "COMPLETED"];
 
 function getAdvanceLabel(status: string, fulfillmentType: string) {
-  if (fulfillmentType === "PICKUP" && status === "OUT_FOR_DELIVERY") {
+  if (fulfillmentType === "PICKUP" && status === "READY") {
     return "Listo para recoger";
+  }
+  if (fulfillmentType === "PICKUP" && status === "COMPLETED") {
+    return "Recogido";
   }
   return getStatusLabel(status);
 }
@@ -317,9 +321,10 @@ export function AdminOrdersClient({ orders, deliverySettings: initialSettings }:
         ) : (
           <div className="divide-y divide-[var(--border)]">
             {orders.map((order) => {
-              const flowIdx = STATUS_FLOW.indexOf(order.status);
+              const flow = order.fulfillmentType === "PICKUP" ? PICKUP_STATUS_FLOW : STATUS_FLOW;
+              const flowIdx = flow.indexOf(order.status);
               const isTerminal = order.status === "COMPLETED" || order.status === "CANCELLED";
-              const canAdvance = !isTerminal && order.status !== "CANCELLED" && flowIdx < STATUS_FLOW.length - 1;
+              const canAdvance = !isTerminal && order.status !== "CANCELLED" && flowIdx < flow.length - 1;
               const canCancel = !isTerminal;
               const isBusy = processing.has(order.id);
 
@@ -363,7 +368,7 @@ export function AdminOrdersClient({ orders, deliverySettings: initialSettings }:
 
                   {/* Step indicator */}
                   <div className="mt-3 flex items-center gap-1">
-                    {STATUS_FLOW.map((s, i) => {
+                    {flow.map((s, i) => {
                       const isActive = flowIdx >= i;
                       const isCurrent = order.status === s;
                       return (
@@ -377,8 +382,8 @@ export function AdminOrdersClient({ orders, deliverySettings: initialSettings }:
                                   : "bg-gray-200"
                             }`}
                           />
-                          {i < STATUS_FLOW.length - 1 && (
-                            <div className={`h-0.5 flex-1 ${isActive && i < STATUS_FLOW.length - 1 ? "bg-[var(--accent-soft)]" : "bg-gray-200"}`} />
+                          {i < flow.length - 1 && (
+                            <div className={`h-0.5 flex-1 ${isActive && i < flow.length - 1 ? "bg-[var(--accent-soft)]" : "bg-gray-200"}`} />
                           )}
                         </div>
                       );
@@ -395,7 +400,7 @@ export function AdminOrdersClient({ orders, deliverySettings: initialSettings }:
                           disabled={isBusy}
                           className="rounded-lg bg-[var(--accent)] px-4 py-2 text-xs font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
                         >
-                          {isBusy ? "..." : `Avanzar a ${getAdvanceLabel(STATUS_FLOW[flowIdx + 1], order.fulfillmentType)}`}
+                          {isBusy ? "..." : `Avanzar a ${getAdvanceLabel(flow[flowIdx + 1], order.fulfillmentType)}`}
                         </button>
                       )}
                       {canCancel && (

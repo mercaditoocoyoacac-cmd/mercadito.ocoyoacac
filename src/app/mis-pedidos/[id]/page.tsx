@@ -20,10 +20,9 @@ const deliverySteps = [
 ];
 
 const pickupSteps = [
-  { status: "PENDING", label: "Pedido recibido", icon: "📋" },
-  { status: "CONFIRMED", label: "Confirmado", icon: "✅" },
+  { status: "PENDING", label: "Pedido pendiente", icon: "📋" },
+  { status: "CONFIRMED", label: "En preparación", icon: "✅" },
   { status: "READY", label: "Listo para recoger", icon: "📦" },
-  { status: "OUT_FOR_DELIVERY", label: "Disponible para recoger", icon: "💛" },
   { status: "COMPLETED", label: "Recogido", icon: "🎉" },
 ];
 
@@ -40,7 +39,10 @@ function getStatusColor(status: string) {
 }
 
 function getOrderStatusLabel(status: string, fulfillmentType: string) {
-  if (fulfillmentType === "PICKUP" && status === "OUT_FOR_DELIVERY") {
+  if (fulfillmentType === "PICKUP" && status === "COMPLETED") {
+    return "Recogido";
+  }
+  if (fulfillmentType === "PICKUP" && status === "READY") {
     return "Listo para recoger";
   }
   return getStatusLabel(status);

@@ -7,6 +7,8 @@ import { formatMoney } from "@/lib/format";
 import { getStatusLabel, FULFILLMENT_LABELS } from "@/lib/labels";
 import { appendStatusTimestamp } from "@/lib/statusTimestamps";
 import { sendTextNotification } from "@/server/notifications";
+import { notifyCustomerOrderReadyForPickup } from "@/server/notifications";
+import { notifyCustomerOrderCompleted } from "@/server/notifications";
 import VendorCodeQR from "@/components/vendor/VendorCodeQR";
 
 export const dynamic = "force-dynamic";
@@ -315,13 +317,22 @@ export default async function VendorPedidoPage({
                 "use server";
                 await prisma.order.update({
                   where: { id: order.id },
-                  data: { status: "READY" },
+                  data: {
+                    status: "READY",
+                    statusTimestamps: appendStatusTimestamp(
+                      order.statusTimestamps as Record<string, string> | null,
+                      "READY",
+                    ),
+                  },
                 });
+                if (order.fulfillmentType === "PICKUP") {
+                  await notifyCustomerOrderReadyForPickup(order.id);
+                }
                 revalidatePath("/vendor/pedidos");
                 revalidatePath(`/vendor/pedidos/${order.id}`);
               }}
             >
-              <button title="Marca el pedido como preparado y listo para entregar" className="rounded-lg bg-yellow-600 px-4 py-2 text-sm font-medium text-white hover:bg-yellow-700">
+              <button title="Marca el pedido como preparado y listo para recoger" className="rounded-lg bg-yellow-600 px-4 py-2 text-sm font-medium text-white hover:bg-yellow-700">
                 Marcar listo
               </button>
             </form>
@@ -349,8 +360,15 @@ export default async function VendorPedidoPage({
                 "use server";
                 await prisma.order.update({
                   where: { id: order.id },
-                  data: { status: "COMPLETED" },
+                  data: {
+                    status: "COMPLETED",
+                    statusTimestamps: appendStatusTimestamp(
+                      order.statusTimestamps as Record<string, string> | null,
+                      "COMPLETED",
+                    ),
+                  },
                 });
+                await notifyCustomerOrderCompleted(order.id);
                 revalidatePath("/vendor/pedidos");
                 revalidatePath(`/vendor/pedidos/${order.id}`);
               }}

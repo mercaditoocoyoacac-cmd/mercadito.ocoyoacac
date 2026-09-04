@@ -4,6 +4,7 @@ import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
 import { sendTextNotification } from "@/server/notifications";
 import { notifyCustomerOrderCompleted } from "@/server/notifications";
+import { notifyCustomerOrderReadyForPickup } from "@/server/notifications";
 import { sendPushToMultiple } from "@/server/push";
 import { appendStatusTimestamp } from "@/lib/statusTimestamps";
 
@@ -64,6 +65,10 @@ export async function POST(
 
   if (parsed.data.status === "COMPLETED") {
     await notifyCustomerOrderCompleted(id);
+  }
+
+  if (parsed.data.status === "READY" && order.fulfillmentType === "PICKUP") {
+    await notifyCustomerOrderReadyForPickup(id);
   }
 
   if (
