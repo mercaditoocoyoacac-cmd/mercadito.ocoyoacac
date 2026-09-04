@@ -66,6 +66,8 @@ export default async function VendorProductosPage({
       stock: true,
       isUnavailable: true,
       sellByWeight: true,
+      isService: true,
+      showPrice: true,
       sortOrder: true,
     },
   });
@@ -159,11 +161,20 @@ export default async function VendorProductosPage({
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="font-medium truncate group-hover:text-[var(--accent)]">
-                        {product.name}
+                      <div className="flex items-center gap-2">
+                        <div className="font-medium truncate group-hover:text-[var(--accent)]">
+                          {product.name}
+                        </div>
+                        {product.isService && (
+                          <span className="inline-flex shrink-0 items-center rounded-full bg-[var(--info-soft)] px-2 py-0.5 text-[10px] font-semibold text-[var(--info)]">
+                            Servicio
+                          </span>
+                        )}
                       </div>
                       <div className="mt-0.5 text-lg font-semibold">
-                        {formatMoney(product.priceCents, product.currency)}
+                        {product.isService && !product.showPrice
+                          ? "Precio a cotizar"
+                          : formatMoney(product.priceCents, product.currency)}
                       </div>
                       {(product as { sellByWeight?: boolean }).sellByWeight && (
                         <div className="text-xs text-[color:var(--muted)]">/ kg · venta por peso</div>

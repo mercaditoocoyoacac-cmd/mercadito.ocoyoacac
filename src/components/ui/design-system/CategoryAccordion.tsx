@@ -257,7 +257,14 @@ function ProductCardInCategory({
         )}
       </div>
       <div className="p-3">
-        <h4 className="font-medium text-sm line-clamp-1">{product.name}</h4>
+        <div className="flex items-start justify-between gap-2">
+          <h4 className="font-medium text-sm line-clamp-1">{product.name}</h4>
+          {isService && (
+            <span className="shrink-0 rounded-full bg-[var(--info-soft)] px-2 py-0.5 text-[10px] font-semibold text-[var(--info)]">
+              Servicio
+            </span>
+          )}
+        </div>
         <div className="mt-2 flex items-center justify-between">
           <span className="text-sm font-semibold text-[var(--accent)]">
             {isService && !showServicePrice ? (

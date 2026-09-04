@@ -123,6 +123,7 @@ export function ProductCard({
           <div>
             <div className="flex items-center gap-2 mb-1">
               <h4 className="font-medium text-sm truncate">{product.name}</h4>
+              {isService && <span className="shrink-0 rounded-full bg-[var(--info-soft)] px-2 py-0.5 text-[10px] font-semibold text-[var(--info)]">Servicio</span>}
               {product.isPromotion && product.discountPercentage && <PromoBadge discountPercentage={product.discountPercentage} size="sm" />}
             </div>
             {product.description && <p className="text-xs text-[color:var(--muted)] line-clamp-2 mt-1">{product.description}</p>}
@@ -246,7 +247,14 @@ export function ProductCard({
         )}
       </div>
       <div className="p-4 flex-1 flex flex-col">
-        <h4 className="font-medium text-sm line-clamp-1">{product.name}</h4>
+        <div className="flex items-start justify-between gap-2">
+          <h4 className="font-medium text-sm line-clamp-1">{product.name}</h4>
+          {isService && (
+            <span className="shrink-0 rounded-full bg-[var(--info-soft)] px-2 py-0.5 text-[10px] font-semibold text-[var(--info)]">
+              Servicio
+            </span>
+          )}
+        </div>
         {product.description && variant !== "compact" && (
           <p className="mt-1 text-xs text-[color:var(--muted)] line-clamp-2">{product.description}</p>
         )}
