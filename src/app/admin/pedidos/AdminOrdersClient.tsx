@@ -7,6 +7,13 @@ import { getStatusLabel } from "@/lib/labels";
 
 const STATUS_FLOW = ["PENDING", "CONFIRMED", "READY", "OUT_FOR_DELIVERY", "COMPLETED"];
 
+function getAdvanceLabel(status: string, fulfillmentType: string) {
+  if (fulfillmentType === "PICKUP" && status === "OUT_FOR_DELIVERY") {
+    return "Listo para recoger";
+  }
+  return getStatusLabel(status);
+}
+
 interface OrderData {
   id: string;
   status: string;
@@ -388,7 +395,7 @@ export function AdminOrdersClient({ orders, deliverySettings: initialSettings }:
                           disabled={isBusy}
                           className="rounded-lg bg-[var(--accent)] px-4 py-2 text-xs font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
                         >
-                          {isBusy ? "..." : `Avanzar a ${getStatusLabel(STATUS_FLOW[flowIdx + 1])}`}
+                          {isBusy ? "..." : `Avanzar a ${getAdvanceLabel(STATUS_FLOW[flowIdx + 1], order.fulfillmentType)}`}
                         </button>
                       )}
                       {canCancel && (

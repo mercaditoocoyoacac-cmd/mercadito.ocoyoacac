@@ -93,7 +93,7 @@ export default async function VendorPedidoPage({
                   : "bg-blue-100 text-blue-800"
               }`}
             >
-              {getStatusLabel(order.status) === "Listo" ? "Listo para entrega" : getStatusLabel(order.status)}
+              {order.fulfillmentType === "PICKUP" && order.status === "OUT_FOR_DELIVERY" ? "Listo para recoger" : getStatusLabel(order.status) === "Listo" ? "Listo para entrega" : getStatusLabel(order.status)}
             </div>
             <div className="text-xs text-[color:var(--muted)] mt-1">
               {FULFILLMENT_LABELS[order.fulfillmentType]}

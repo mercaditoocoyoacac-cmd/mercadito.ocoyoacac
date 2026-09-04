@@ -10,6 +10,7 @@ import { NavBar } from "@/components/layout/NavBar";
 import { FooterWithPrivacy } from "@/components/layout/FooterWithPrivacy";
 import { SupportButton } from "@/components/SupportButton";
 import { NotificationBubble } from "@/components/NotificationBubble";
+import { OfflineDetector } from "@/components/OfflineDetector";
 import { Toaster, PWA, MobileAppBanner } from "@/components/ui/design-system";
 
 const inter = Inter({
@@ -94,6 +95,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: `(function(){try{var s=localStorage.getItem("darkMode"),d=s!==null?s==="true":window.matchMedia("(prefers-color-scheme:dark)").matches;if(d)document.documentElement.classList.add("dark")}catch(e){}})()` }} />
         <SkipToContent />
         <TopLoader />
+        <OfflineDetector />
         <Providers>
           <ConfirmProvider>
             <NavBar />

@@ -156,7 +156,7 @@ export default async function VendorPedidosPage() {
                           : "bg-blue-100 text-blue-800"
                       }`}
                     >
-                      {getStatusLabel(order.status)}
+                      {order.fulfillmentType === "PICKUP" && order.status === "OUT_FOR_DELIVERY" ? "Listo para recoger" : getStatusLabel(order.status)}
                     </div>
                     <div className="text-xs mt-1">
                       {order.fulfillmentType === "DELIVERY" ? "📦 Entrega" : "🏪 Recoger"}
@@ -269,6 +269,12 @@ export default async function VendorPedidosPage() {
                     !order.deliveryUserId && (
                       <div className="rounded-lg bg-gray-100 px-3 py-1.5 text-xs text-gray-500">
                         Esperando repartidor
+                      </div>
+                    )}
+                  {order.status === "READY" &&
+                    order.fulfillmentType === "PICKUP" && (
+                      <div className="rounded-lg bg-orange-100 px-3 py-1.5 text-xs font-medium text-orange-800">
+                        📦 Listo para recoger — avisa al cliente que puede pasar a la tienda
                       </div>
                     )}
                   {order.status === "OUT_FOR_DELIVERY" && (
