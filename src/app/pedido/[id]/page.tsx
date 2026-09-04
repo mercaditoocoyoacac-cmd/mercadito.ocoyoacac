@@ -8,6 +8,7 @@ import { OrderCancelButton } from "@/components/orders/OrderCancelButton";
 import { formatMoney } from "@/lib/format";
 import { formatDateTimeInMexico } from "@/lib/dates";
 import { Card, CardContent, CardHeader, CardTitle, Button, Badge, OrderTimeline, OrderStatusBadge } from "@/components/ui/design-system";
+import { maybeSendReadyReminder } from "@/server/readyReminder";
 
 export default async function PedidoPage({
   params,
@@ -48,6 +49,8 @@ export default async function PedidoPage({
     },
   });
   if (!order) return notFound();
+
+  await maybeSendReadyReminder(order.id);
 
   const paymentMethodLabels: Record<string, string> = {
     CASH: "Efectivo",

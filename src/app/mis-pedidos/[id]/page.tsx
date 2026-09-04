@@ -11,6 +11,7 @@ import DeliveryChat from "@/components/chat/DeliveryChat";
 import { ArrivalConfirmButton } from "@/components/orders/ArrivalConfirmButton";
 import { formatMoney } from "@/lib/format";
 import { getStatusLabel } from "@/lib/labels";
+import { maybeSendReadyReminder } from "@/server/readyReminder";
 
 const deliverySteps = [
   { status: "PENDING", label: "Pedido recibido", icon: "📋" },
@@ -88,6 +89,8 @@ export default async function PedidoDetallePage({
   });
 
   if (!order) return notFound();
+
+  await maybeSendReadyReminder(order.id);
 
   const statusSteps = order.fulfillmentType === "PICKUP" ? pickupSteps : deliverySteps;
   const currentStepIndex = statusSteps.findIndex((s) => s.status === order.status);

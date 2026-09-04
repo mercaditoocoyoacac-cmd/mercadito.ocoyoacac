@@ -19,10 +19,6 @@
     {
       "path": "/api/cron/reset-memberships",
       "schedule": "0 6 1 9 *"
-    },
-    {
-      "path": "/api/cron/ready-reminder",
-      "schedule": "*/5 * * * *"
     }
   ]
 }
