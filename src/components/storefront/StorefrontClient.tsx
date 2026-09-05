@@ -93,11 +93,13 @@ export function StorefrontClient({
   products,
   storePromotions,
   open,
+  isPremium,
 }: {
   store: StoreData;
   products: ProductData[];
   storePromotions: StorePromotion[];
   open: boolean;
+  isPremium: boolean;
 }) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
@@ -248,6 +250,23 @@ export function StorefrontClient({
       />
 
       <main className="mx-auto max-w-6xl flex-1 px-4 pb-20">
+        {/* No-delivery notice for free membership stores */}
+        {!isPremium && (
+          <div className="mb-6 flex items-start gap-3 rounded-xl border border-[var(--warning)]/30 bg-[var(--warning-soft)] px-4 py-3">
+            <svg className="h-5 w-5 shrink-0 text-[var(--warning)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2-1m6 0l2 1m-2-1v-4a1 1 0 011-1h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 01.293.707V16l-2 1m-6-3h4m-8 3h8" />
+            </svg>
+            <div>
+              <div className="text-sm font-semibold text-[var(--warning)]">
+                Esta tienda no cuenta con envío a domicilio
+              </div>
+              <p className="text-xs text-[var(--warning)] opacity-90">
+                Elige “Recoger en tienda” al hacer tu pedido.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Search Bar */}
         <div className="relative mb-6">
           <svg

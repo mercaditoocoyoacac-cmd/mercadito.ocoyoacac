@@ -36,6 +36,7 @@ export default async function StorefrontPage({
   if (!store || !store.isActive) return notFound();
 
   const open = store.category === "SERVICIOS" ? true : isStoreOpen(store as any);
+  const isPremium = isStorePremium(store);
 
   const products = await prisma.product.findMany({
     where: { storeId: store.id, isActive: true },
@@ -105,6 +106,7 @@ export default async function StorefrontPage({
       products={JSON.parse(JSON.stringify(products))}
       storePromotions={JSON.parse(JSON.stringify(storePromotions))}
       open={open}
+      isPremium={isPremium}
     />
   );
 }
