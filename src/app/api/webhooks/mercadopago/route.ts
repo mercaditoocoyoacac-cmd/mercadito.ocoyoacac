@@ -3,6 +3,10 @@ import { prisma } from "@/server/prisma";
 import { sendTextNotification } from "@/server/notifications";
 import { generateReceipt } from "@/server/email/receipt";
 import { sendMembershipActivationEmail } from "@/server/email/membership";
+import {
+  membershipPlanPriceCents,
+  membershipPlanLabel,
+} from "@/lib/membership";
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -29,17 +33,14 @@ export async function POST(req: Request) {
 
         // Subscription payment
         if (externalRef.startsWith("sub_")) {
-          // Parse: sub_{storeId} or sub_{storeId}_c_{couponCode}
-          const refBody = externalRef.slice(4);
-          let storeId: string;
-          let couponCode: string | null = null;
-          const couponIdx = refBody.indexOf("_c_");
-          if (couponIdx !== -1) {
-            storeId = refBody.slice(0, couponIdx);
-            couponCode = refBody.slice(couponIdx + 3);
-          } else {
-            storeId = refBody;
-          }
+          const match = externalRef.match(
+            /^sub_([^_]+)(?:_p_(SOLO_DELIVERY|MEMBER))?(?:_c_(.*))?$/,
+          );
+          const storeId = match?.[1] || externalRef.slice(4).split("_")[0];
+          const plan = match?.[2] === "SOLO_DELIVERY" ? "SOLO_DELIVERY" : "MEMBER";
+          const couponCode = match?.[3] || null;
+          const planPriceCents = membershipPlanPriceCents(plan);
+          const planLabel = membershipPlanLabel(plan);
           const now = new Date();
           const endDate = new Date();
           endDate.setMonth(endDate.getMonth() + 1);
@@ -57,6 +58,7 @@ export async function POST(req: Request) {
               data: {
                 status: "ACTIVE",
                 endDate: newEnd,
+                monthlyPriceCents: planPriceCents,
                 paymentMethod: "MERCADO_PAGO",
                 paymentReference: paymentInfo.id?.toString(),
                 // Set discount for first payment
@@ -71,7 +73,7 @@ export async function POST(req: Request) {
                 status: "ACTIVE",
                 endDate,
                 startDate: now,
-                monthlyPriceCents: 83000,
+                monthlyPriceCents: planPriceCents,
                 paymentMethod: "MERCADO_PAGO",
                 paymentReference: paymentInfo.id?.toString(),
                 discountEndDate: new Date(now.getFullYear() + 1, now.getMonth(), now.getDate()),
@@ -79,10 +81,10 @@ export async function POST(req: Request) {
             });
           }
 
-          // Re-publish store and upgrade plan
+          // Re-publish store and set plan
           await prisma.store.update({
             where: { id: storeId },
-            data: { isPublished: true, plan: "MEMBER" },
+            data: { isPublished: true, plan },
           });
 
           // Track membership coupon usage
@@ -112,7 +114,7 @@ export async function POST(req: Request) {
               select: { discountType: true, discountValue: true },
             });
             if (coupon) {
-              const base = 83000;
+              const base = planPriceCents;
               if (coupon.discountType === "PERCENTAGE") {
                 couponSavings = Math.round(base * coupon.discountValue / 100);
               } else {
@@ -123,14 +125,14 @@ export async function POST(req: Request) {
 
           const amountPaid = paymentInfo.transaction_amount
             ? Math.round(paymentInfo.transaction_amount * 100)
-            : 83000;
+            : planPriceCents;
 
           // Generate receipt
           const receipt = await generateReceipt({
             storeId,
             subscriptionId: store?.subscription?.id,
             amountCents: amountPaid,
-            description: "Membresía Vende+ — 1 mes",
+            description: `Membresía ${planLabel} — 1 mes`,
             periodStart: sub ? (sub.endDate > now ? sub.endDate : now) : now,
             periodEnd: endDate,
             couponCode,
@@ -145,6 +147,7 @@ export async function POST(req: Request) {
               to: store.owner.email,
               vendorName: store.owner.name || "Vendedor",
               storeName: store.name,
+              planName: planLabel,
               periodStart: receipt.periodStart,
               periodEnd: receipt.periodEnd,
               amountCents: receipt.amountCents,
@@ -158,7 +161,7 @@ export async function POST(req: Request) {
           if (store?.ownerId) {
             await sendTextNotification(store.ownerId, {
               title: "Membresía activada",
-              body: `Pago recibido. Tu membresía para ${store.name} está activa hasta ${endDate.toLocaleDateString("es-MX")}.`,
+              body: `Pago recibido. Tu membresía ${planLabel} para ${store.name} está activa hasta ${endDate.toLocaleDateString("es-MX")}.`,
               type: "MEMBERSHIP",
               url: "/vendor/membresia",
             });

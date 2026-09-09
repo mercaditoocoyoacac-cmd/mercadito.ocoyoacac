@@ -258,10 +258,10 @@ export function StorefrontClient({
             </svg>
             <div>
               <div className="text-sm font-semibold text-[var(--warning)]">
-                Esta tienda no cuenta con envío a domicilio
+                Accede a alguna membresía para obtener todos los beneficios
               </div>
               <p className="text-xs text-[var(--warning)] opacity-90">
-                Elige “Recoger en tienda” al hacer tu pedido.
+                Activa Solo Delivery o Vende+ para habilitar el envío a domicilio y más. Por ahora elige “Recoger en tienda”.
               </p>
             </div>
           </div>

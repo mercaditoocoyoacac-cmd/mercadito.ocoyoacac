@@ -15,6 +15,7 @@ interface SendMembershipEmailParams {
   to: string;
   vendorName: string;
   storeName: string;
+  planName?: string;
   periodStart: Date;
   periodEnd: Date;
   amountCents: number;
@@ -28,6 +29,7 @@ export async function sendMembershipActivationEmail(params: SendMembershipEmailP
     to,
     vendorName,
     storeName,
+    planName = "Vende+",
     periodStart,
     periodEnd,
     amountCents,
@@ -57,7 +59,7 @@ export async function sendMembershipActivationEmail(params: SendMembershipEmailP
     <div style="text-align:center;margin-bottom:32px;">
       <div style="font-size:32px;margin-bottom:8px;">🎉</div>
       <h1 style="font-size:24px;font-weight:700;color:#16a34a;margin:0;">¡Membresía Activada!</h1>
-      <p style="color:#6b7280;margin-top:8px;font-size:14px;">Tu plan Vende+ está listo</p>
+      <p style="color:#6b7280;margin-top:8px;font-size:14px;">Tu plan ${planName} está listo</p>
     </div>
 
     <!-- Receipt Card -->
@@ -78,7 +80,7 @@ export async function sendMembershipActivationEmail(params: SendMembershipEmailP
         </tr>
         <tr>
           <td style="padding:8px 0;color:#6b7280;">Plan</td>
-          <td style="padding:8px 0;text-align:right;font-weight:500;color:#111827;">Vende+ (Mensual)</td>
+          <td style="padding:8px 0;text-align:right;font-weight:500;color:#111827;">${planName} (Mensual)</td>
         </tr>
         <tr>
           <td style="padding:8px 0;color:#6b7280;">Periodo cubierto</td>
@@ -98,7 +100,7 @@ export async function sendMembershipActivationEmail(params: SendMembershipEmailP
 
     <!-- What's included -->
     <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;padding:24px;margin-bottom:24px;">
-      <h2 style="font-size:16px;font-weight:600;color:#111827;margin:0 0 12px;">Tu plan Vende+ incluye:</h2>
+      <h2 style="font-size:16px;font-weight:600;color:#111827;margin:0 0 12px;">Tu plan ${planName} incluye:</h2>
       <ul style="list-style:none;padding:0;margin:0;font-size:14px;color:#374151;">
         <li style="padding:6px 0;">✅ Envío a domicilio con repartidores locales</li>
         <li style="padding:6px 0;">✅ Promociones multi-producto y cupones de descuento</li>
@@ -121,7 +123,7 @@ export async function sendMembershipActivationEmail(params: SendMembershipEmailP
     const result = await getResend().emails.send({
       from: FROM_EMAIL,
       to: [to],
-      subject: `¡Membresía Vende+ activada! — Recibo ${receiptNumber}`,
+      subject: `¡Membresía ${planName} activada! — Recibo ${receiptNumber}`,
       html,
     });
     return { ok: true, id: result.data?.id };

@@ -8,6 +8,7 @@ import { formatMoney } from "@/lib/format";
 type MembershipCoupon = {
   id: string;
   code: string;
+  plan?: string;
   description: string | null;
   discountType: "PERCENTAGE" | "FIXED";
   discountValue: number;
@@ -20,9 +21,11 @@ type MembershipCoupon = {
 };
 
 const MEMBERSHIP_PRICE = 83000;
+const SOLO_DELIVERY_PRICE = 29900;
 
 const emptyForm = {
   code: "",
+  plan: "MEMBER" as "SOLO_DELIVERY" | "MEMBER",
   description: "",
   discountType: "PERCENTAGE" as "PERCENTAGE" | "FIXED",
   discountValue: 0,
@@ -66,6 +69,7 @@ export default function AdminMembresiaCuponesPage() {
     setEditingId(coupon.id);
     setForm({
       code: coupon.code,
+      plan: coupon.plan === "SOLO_DELIVERY" ? "SOLO_DELIVERY" : "MEMBER",
       description: coupon.description || "",
       discountType: coupon.discountType,
       discountValue: coupon.discountValue,
@@ -90,6 +94,7 @@ export default function AdminMembresiaCuponesPage() {
     setSaving(true);
     const body: Record<string, unknown> = {
       code: form.code,
+      plan: form.plan,
       description: form.description || undefined,
       discountType: form.discountType,
       discountValue: Number(form.discountValue),
@@ -147,10 +152,11 @@ export default function AdminMembresiaCuponesPage() {
   }
 
   function discountedPrice(c: MembershipCoupon) {
+    const base = c.plan === "SOLO_DELIVERY" ? SOLO_DELIVERY_PRICE : MEMBERSHIP_PRICE;
     if (c.discountType === "PERCENTAGE") {
-      return MEMBERSHIP_PRICE * (1 - c.discountValue / 100);
+      return base * (1 - c.discountValue / 100);
     }
-    return MEMBERSHIP_PRICE - c.discountValue;
+    return base - c.discountValue;
   }
 
   if (loading) {
@@ -163,7 +169,7 @@ export default function AdminMembresiaCuponesPage() {
         <div>
           <h1 className="text-2xl font-bold">Cupones de Membresía</h1>
           <p className="text-sm text-[color:var(--muted)]">
-            Cupones que aplican descuento en el pago de la membresía Vende+ ({formatMoney(MEMBERSHIP_PRICE, "MXN")}/mes)
+            Cupones que aplican descuento en el pago de las membresías: Solo Delivery ({formatMoney(SOLO_DELIVERY_PRICE, "MXN")}/mes) y Vende+ ({formatMoney(MEMBERSHIP_PRICE, "MXN")}/mes). Cada cupón es exclusivo de una membresía.
           </p>
         </div>
         <button
@@ -188,6 +194,13 @@ export default function AdminMembresiaCuponesPage() {
                 required
                 className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm uppercase"
               />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Membresía *</label>
+              <select name="plan" value={form.plan} onChange={handleChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm">
+                <option value="MEMBER">Vende+ ({formatMoney(MEMBERSHIP_PRICE, "MXN")})</option>
+                <option value="SOLO_DELIVERY">Solo Delivery ({formatMoney(SOLO_DELIVERY_PRICE, "MXN")})</option>
+              </select>
             </div>
             <div>
               <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Tipo *</label>
@@ -215,6 +228,7 @@ export default function AdminMembresiaCuponesPage() {
                   Precio final: <span className="font-semibold">{formatMoney(discountedPrice({
                     id: "",
                     code: "",
+                    plan: form.plan,
                     description: null,
                     discountType: form.discountType,
                     discountValue: Number(form.discountValue),
@@ -224,7 +238,7 @@ export default function AdminMembresiaCuponesPage() {
                     startsAt: null,
                     expiresAt: null,
                     createdAt: "",
-                  }), "MXN")}/mes</span>
+                  }), "MXN")}/mes</span> <span className="line-through">{formatMoney(form.plan === "SOLO_DELIVERY" ? SOLO_DELIVERY_PRICE : MEMBERSHIP_PRICE, "MXN")}</span>
                 </p>
               )}
             </div>
@@ -282,6 +296,7 @@ export default function AdminMembresiaCuponesPage() {
           <thead>
             <tr className="border-b border-[var(--border)] bg-gray-50">
               <th className="px-4 py-3 text-left font-medium">Código</th>
+              <th className="px-4 py-3 text-left font-medium">Membresía</th>
               <th className="px-4 py-3 text-left font-medium">Descripción</th>
               <th className="px-4 py-3 text-left font-medium">Descuento</th>
               <th className="px-4 py-3 text-left font-medium">Precio final</th>
@@ -294,7 +309,7 @@ export default function AdminMembresiaCuponesPage() {
           <tbody>
             {coupons.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-[color:var(--muted)]">
+                <td colSpan={9} className="px-4 py-8 text-center text-[color:var(--muted)]">
                   Sin cupones de membresía aún
                 </td>
               </tr>
@@ -303,20 +318,28 @@ export default function AdminMembresiaCuponesPage() {
               const now = new Date();
               const expired = coupon.expiresAt && new Date(coupon.expiresAt) < now;
               const notStarted = coupon.startsAt && new Date(coupon.startsAt) > now;
+              const couponBase = coupon.plan === "SOLO_DELIVERY" ? SOLO_DELIVERY_PRICE : MEMBERSHIP_PRICE;
               const finalPrice = discountedPrice(coupon);
               return (
                 <tr key={coupon.id} style={{ animationDelay: `${idx * 40}ms` }} className="border-b border-[var(--border)] hover:bg-gray-50 fade-in">
                   <td className="px-4 py-3 font-mono font-bold">{coupon.code}</td>
+                  <td className="px-4 py-3">
+                    {coupon.plan === "SOLO_DELIVERY" ? (
+                      <span className="rounded-full bg-sky-100 px-2 py-0.5 text-xs font-medium text-sky-700">Solo Delivery</span>
+                    ) : (
+                      <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">Vende+</span>
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-xs text-[color:var(--muted)]">{coupon.description || "—"}</td>
                   <td className="px-4 py-3 font-semibold">{discountLabel(coupon)}</td>
                   <td className="px-4 py-3">
-                    {finalPrice < MEMBERSHIP_PRICE ? (
+                    {finalPrice < couponBase ? (
                       <span>
                         <span className="text-green-600 font-semibold">{formatMoney(finalPrice, "MXN")}</span>
-                        <span className="ml-1 text-xs text-[color:var(--muted)] line-through">{formatMoney(MEMBERSHIP_PRICE, "MXN")}</span>
+                        <span className="ml-1 text-xs text-[color:var(--muted)] line-through">{formatMoney(couponBase, "MXN")}</span>
                       </span>
                     ) : (
-                      <span className="text-[color:var(--muted)]">{formatMoney(MEMBERSHIP_PRICE, "MXN")}</span>
+                      <span className="text-[color:var(--muted)]">{formatMoney(couponBase, "MXN")}</span>
                     )}
                   </td>
                   <td className="px-4 py-3">{coupon.usedCount}{coupon.maxUses ? ` / ${coupon.maxUses}` : ""}</td>

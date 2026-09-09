@@ -6,6 +6,7 @@ import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { formatDateInMexico, formatDateTimeInMexico } from "@/lib/dates";
 import { formatMoney } from "@/lib/format";
+import { membershipPlanLabel } from "@/lib/membership";
 import { VendorCoachMarks } from "@/components/ui/VendorCoachMarks";
 import { PullToRefreshWrapper } from "@/components/ui/PullToRefreshWrapper";
 
@@ -119,7 +120,7 @@ export default async function VendorDashboard() {
               Ya utilizaste tu prueba gratuita de 30 días.
             </p>
             <p className="mt-2 text-white/70">
-              Para continuar usando la plataforma, adquiere la membresía Vende+ o contacta a un administrador.
+              Para continuar usando la plataforma, adquiere una membresía (Solo Delivery o Vende+) o contacta a un administrador.
             </p>
             <div className="mt-8 flex justify-center gap-4">
               <Link
@@ -255,7 +256,7 @@ export default async function VendorDashboard() {
               </div>
               <div className={`text-sm ${isTrial ? "text-emerald-700" : "text-yellow-700"}`}>
                 {isTrial
-                  ? `Tu prueba termina el ${formatDateInMexico(store.subscription!.endDate, { day: "numeric", month: "long" })}. Adquiere Vende+ para continuar.`
+                  ? `Tu prueba termina el ${formatDateInMexico(store.subscription!.endDate, { day: "numeric", month: "long" })}. Adquiere una membresía (Solo Delivery o Vende+) para continuar.`
                   : "Tu tienda no está visible. Contacta al admin para activar."}
               </div>
             </div>
@@ -271,11 +272,11 @@ export default async function VendorDashboard() {
             </div>
             <div className="flex-1 text-center sm:text-left">
               <div className="flex items-center justify-center sm:justify-start gap-2">
-                <h3 className="text-base font-bold text-amber-900">Desbloquea Vende+</h3>
+                <h3 className="text-base font-bold text-amber-900">Desbloquea una membresía</h3>
                 <span className="inline-flex items-center rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-700">Premium</span>
               </div>
               <p className="mt-1 text-sm text-amber-800/80">
-                Envíos a domicilio, promociones, pagos en línea y más.
+                Envíos a domicilio, promociones, pagos en línea y más. Desde $299/mes con Solo Delivery.
               </p>
               <div className="mt-2 flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1 text-xs text-amber-700/70">
                 <span className="flex items-center gap-1"><span className="text-amber-500">✓</span> Envío a domicilio</span>
@@ -285,13 +286,13 @@ export default async function VendorDashboard() {
               </div>
             </div>
             <a href="/vendor/membresia" className="shrink-0 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-amber-500/25 transition-all hover:shadow-xl hover:shadow-amber-500/30 hover:scale-[1.02] active:scale-[0.98]">
-              $830/mes →
+              Ver planes →
             </a>
           </div>
         </div>
       )}
 
-      {store.plan === "MEMBER" && subscriptionActive && (
+      {(store.plan === "MEMBER" || store.plan === "SOLO_DELIVERY") && subscriptionActive && (
         <div className="mx-4 mt-4 overflow-hidden rounded-2xl border border-amber-300/40 bg-gradient-to-r from-amber-50/80 via-yellow-50/60 to-orange-50/80 shadow-sm">
           <div className="flex flex-col sm:flex-row items-center gap-4 p-5">
             <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-500 shadow-lg shadow-amber-400/30">
@@ -299,11 +300,11 @@ export default async function VendorDashboard() {
             </div>
             <div className="flex-1 text-center sm:text-left">
               <div className="flex items-center justify-center sm:justify-start gap-2">
-                <h3 className="text-base font-bold text-amber-900">Vende+ Activa</h3>
+                <h3 className="text-base font-bold text-amber-900">{membershipPlanLabel(store.plan)} Activa</h3>
                 <span className="inline-flex items-center rounded-full bg-green-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-green-700">Activa</span>
               </div>
               <p className="mt-1 text-sm text-amber-800/80">
-                Tu membresía premium está activa. Disfruta de todos los beneficios.
+                Tu membresía está activa. Disfruta de todos los beneficios.
               </p>
               <div className="mt-2 flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1 text-xs text-amber-700/70">
                 <span className="flex items-center gap-1"><span className="text-green-500">✓</span> Envío a domicilio</span>
@@ -332,14 +333,14 @@ export default async function VendorDashboard() {
                 🏪 {store.name}
                 {subscriptionActive && (
                   <span className="inline-flex items-center gap-1 rounded-full bg-amber-400/30 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
-                    👑 Vende+
+                    👑 {membershipPlanLabel(store.plan)}
                   </span>
                 )}
               </div>
               <h1 className="mt-4 text-3xl font-bold">Mi Tienda</h1>
               <p className="mt-2 text-white/80">
                 {store.isPublished && store.isActive
-                  ? (subscriptionActive ? "✓ Tu tienda está activa con Vende+" : "✓ Tu tienda está publicada y visible para clientes")
+                  ? (subscriptionActive ? `✓ Tu tienda está activa con ${membershipPlanLabel(store.plan)}` : "✓ Tu tienda está publicada y visible para clientes")
                   : "Tu tienda no es visible para clientes"}
               </p>
             </div>

@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
-
-const FULL_PRICE_CENTS = 83000;
-const DISCOUNTED_PRICE_CENTS = 49800;
-const GRACE_DATE = new Date("2026-08-01T00:00:00.000Z");
+import {
+  VENDE_PLUS_FULL_PRICE_CENTS,
+  VENDE_PLUS_DISCOUNTED_PRICE_CENTS,
+  GRACE_DATE,
+  SOLO_DELIVERY_PRICE_CENTS,
+  membershipPlanLabel,
+} from "@/lib/membership";
 
 export async function POST(req: Request) {
   const auth = await requireUser();
@@ -12,6 +15,8 @@ export async function POST(req: Request) {
 
   const body = await req.json().catch(() => ({}));
   const couponCode: string | undefined = body.couponCode;
+  const plan = body.plan === "SOLO_DELIVERY" ? "SOLO_DELIVERY" : "MEMBER";
+  const planLabel = membershipPlanLabel(plan);
 
   const store = await prisma.store.findFirst({
     where: { ownerId: auth.userId },
@@ -32,7 +37,11 @@ export async function POST(req: Request) {
 
   // Determine base price
   const isDiscounted = sub?.discountEndDate ? now < sub.discountEndDate : false;
-  let amountCents = isDiscounted ? DISCOUNTED_PRICE_CENTS : FULL_PRICE_CENTS;
+  let amountCents = plan === "SOLO_DELIVERY"
+    ? SOLO_DELIVERY_PRICE_CENTS
+    : isDiscounted
+      ? VENDE_PLUS_DISCOUNTED_PRICE_CENTS
+      : VENDE_PLUS_FULL_PRICE_CENTS;
   let appliedCouponCode: string | null = null;
 
   // Apply membership coupon if provided
@@ -42,6 +51,12 @@ export async function POST(req: Request) {
     });
     if (!coupon) {
       return NextResponse.json({ ok: false, error: "Cupón no encontrado." }, { status: 400 });
+    }
+    if (coupon.plan && coupon.plan !== plan) {
+      return NextResponse.json(
+        { ok: false, error: `Este cupón solo aplica para la membresía ${membershipPlanLabel(coupon.plan)}.` },
+        { status: 400 },
+      );
     }
     if (!coupon.isActive) {
       return NextResponse.json({ ok: false, error: "Este cupón está inactivo." }, { status: 400 });
@@ -94,10 +109,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Pasarela de pago no configurada. Contacta al administrador." }, { status: 500 });
   }
 
-  // Encode coupon code in external reference for webhook tracking
-  const externalRef = appliedCouponCode
-    ? `sub_${store.id}_c_${appliedCouponCode}`
-    : `sub_${store.id}`;
+  // Encode plan + coupon code in external reference for webhook tracking
+  const externalRef = `sub_${store.id}_p_${plan}${
+    appliedCouponCode ? `_c_${appliedCouponCode}` : ""
+  }`;
   const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
 
   try {
@@ -111,8 +126,8 @@ export async function POST(req: Request) {
         items: [
           {
             title: appliedCouponCode
-              ? `Membresía Mercadito Ocoyoacac - 1 mes (${appliedCouponCode})`
-              : "Membresía Mercadito Ocoyoacac - 1 mes",
+              ? `Membresía ${planLabel} - 1 mes (${appliedCouponCode})`
+              : `Membresía ${planLabel} - 1 mes`,
             description: `Suscripción mensual para ${store.name}${appliedCouponCode ? ` — cupón ${appliedCouponCode}` : ""}`,
             quantity: 1,
             unit_price: amountCents / 100,
@@ -145,6 +160,7 @@ export async function POST(req: Request) {
       initPoint: data.init_point,
       finalPrice: amountCents,
       couponApplied: appliedCouponCode,
+      plan,
     });
   } catch (e) {
     console.error("pay-subscription error:", e);

@@ -190,20 +190,39 @@ export function WelcomeVendePlus() {
           </div>
         </div>
 
-        <div className="mt-4 rounded-xl border border-[var(--accent)] bg-[var(--accent-soft)] p-4 text-left">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="font-semibold">💎 Vende+ — {formatMoney(83000)}/mes</div>
-              <p className="text-xs text-[color:var(--muted)]">
-                Envíos a domicilio, promociones, cupones, notificaciones y pagos en línea.
-              </p>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <div className="rounded-xl border border-sky-300 bg-sky-50 p-4 text-left">
+            <div className="flex flex-col gap-3">
+              <div>
+                <div className="font-semibold">⚡ Solo Delivery — {formatMoney(29900)}/mes</div>
+                <p className="text-xs text-[color:var(--muted)]">
+                  Todas las funciones con envío a domicilio a un precio fijo.
+                </p>
+              </div>
+              <a
+                href="/vendor/membresia"
+                className="rounded-lg bg-sky-500 px-4 py-2 text-center text-sm font-medium text-white hover:bg-sky-600"
+              >
+                Elegir Solo Delivery
+              </a>
             </div>
-            <a
-              href="/vendor/membresia"
-              className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)]"
-            >
-              Mejorar a Vende+
-            </a>
+          </div>
+
+          <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-left">
+            <div className="flex flex-col gap-3">
+              <div>
+                <div className="font-semibold">💎 Vende+ — {formatMoney(49800)}/mes</div>
+                <p className="text-xs text-[color:var(--muted)]">
+                  El plan completo: promociones, cupones, notificaciones y pagos en línea. 40% off los primeros 12 meses.
+                </p>
+              </div>
+              <a
+                href="/vendor/membresia"
+                className="rounded-lg bg-amber-500 px-4 py-2 text-center text-sm font-medium text-white hover:bg-amber-600"
+              >
+                Elegir Vende+
+              </a>
+            </div>
           </div>
         </div>
 

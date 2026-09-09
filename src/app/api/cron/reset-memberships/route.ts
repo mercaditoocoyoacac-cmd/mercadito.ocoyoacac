@@ -28,7 +28,7 @@ export async function GET(req: Request) {
     });
 
     const stores = await prisma.store.updateMany({
-      where: { plan: "MEMBER" },
+      where: { plan: { in: ["MEMBER", "SOLO_DELIVERY"] } },
       data: { plan: "FREE" },
     });
 

@@ -20,6 +20,7 @@ enum Role {
 
 enum StorePlan {
   FREE
+  SOLO_DELIVERY
   MEMBER
 }
 
@@ -417,6 +418,7 @@ model CouponUser {
 model MembershipCoupon {
   id              String   @id @default(cuid())
   code            String   @unique
+  plan            StorePlan @default(MEMBER)
   description     String?
   discountType    String   // PERCENTAGE or FIXED
   discountValue   Int      // percentage (1-100) or cents off the membership price

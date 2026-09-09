@@ -5,6 +5,7 @@ import { requireRole } from "@/server/requireUser";
 
 const updateSchema = z.object({
   code: z.string().min(2).max(30).transform((s) => s.toUpperCase().trim()).optional(),
+  plan: z.enum(["SOLO_DELIVERY", "MEMBER"]).optional(),
   description: z.string().max(200).optional().nullable(),
   discountType: z.enum(["PERCENTAGE", "FIXED"]).optional(),
   discountValue: z.number().int().min(1).optional(),
@@ -54,6 +55,7 @@ export async function PUT(
 
   const data: Record<string, unknown> = {};
   if (parsed.data.code !== undefined) data.code = parsed.data.code;
+  if (parsed.data.plan !== undefined) data.plan = parsed.data.plan;
   if (parsed.data.description !== undefined) data.description = parsed.data.description;
   if (parsed.data.discountType !== undefined) data.discountType = parsed.data.discountType;
   if (parsed.data.discountValue !== undefined) data.discountValue = parsed.data.discountValue;

@@ -5,6 +5,7 @@ import { requireRole } from "@/server/requireUser";
 
 const createSchema = z.object({
   code: z.string().min(2).max(30).transform((s) => s.toUpperCase().trim()),
+  plan: z.enum(["SOLO_DELIVERY", "MEMBER"]).optional(),
   description: z.string().max(200).optional(),
   discountType: z.enum(["PERCENTAGE", "FIXED"]),
   discountValue: z.number().int().min(1),
@@ -66,6 +67,7 @@ export async function POST(req: Request) {
 
   const data: Record<string, unknown> = {
     code: parsed.data.code,
+    plan: parsed.data.plan ?? "MEMBER",
     description: parsed.data.description,
     discountType: parsed.data.discountType,
     discountValue: parsed.data.discountValue,

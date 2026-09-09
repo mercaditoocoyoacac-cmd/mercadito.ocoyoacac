@@ -59,7 +59,7 @@ export default function VendorRecibosPage() {
           <div className="text-4xl mb-3">🧾</div>
           <h2 className="text-lg font-semibold">Sin recibos</h2>
           <p className="mt-2 text-sm text-[color:var(--muted)]">
-            Aún no tienes pagos registrados. Adquiere la membresía Vende+ para recibir tu primer recibo.
+            Aún no tienes pagos registrados. Adquiere una membresía (Solo Delivery o Vende+).
           </p>
         </div>
       ) : (

@@ -132,7 +132,7 @@ export async function POST(req: Request) {
   const store = items[0]!.product.store;
   if (parsed.data.fulfillmentType === "DELIVERY" && !isStorePremium(store)) {
     return NextResponse.json(
-      { ok: false, error: "Los envíos a domicilio requieren membresía Vende+. Elige recoger en tienda." },
+      { ok: false, error: "Los envíos a domicilio requieren una membresía (Solo Delivery o Vende+). Elige recoger en tienda." },
       { status: 400 },
     );
   }

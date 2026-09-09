@@ -18,7 +18,7 @@ export default async function AdminAprobarVendedoresPage() {
   const pendingStores = await prisma.store.findMany({
     where: {
       isApproved: false,
-      plan: "MEMBER",
+      plan: { in: ["MEMBER", "SOLO_DELIVERY"] },
     },
     include: {
       owner: { select: { id: true, name: true, email: true, phone: true } },

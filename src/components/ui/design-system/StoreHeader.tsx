@@ -110,13 +110,13 @@ export function StoreHeader({
                 <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
                 {isOpen ? "Abierto" : "Cerrado"}
               </span>
-              {store.plan === "MEMBER" && (
+              {(store.plan === "MEMBER" || store.plan === "SOLO_DELIVERY") && (
                 <Badge variant="accent" size="sm" leftIcon={
                   <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                   </svg>
                 }>
-                  Vende+
+                  {store.plan === "SOLO_DELIVERY" ? "Solo Delivery" : "Vende+"}
                 </Badge>
               )}
             </div>
@@ -223,8 +223,8 @@ export function StoreHero({
                 <span className="inline-flex items-center gap-1 rounded-full bg-white/20 px-3 py-1 text-sm font-medium backdrop-blur-sm">
                   {categoryLabels[store.category] || store.category.replace(/_/g, " ")}
                 </span>
-                {store.plan === "MEMBER" && (
-                  <Badge variant="accent" size="sm">Vende+</Badge>
+                {(store.plan === "MEMBER" || store.plan === "SOLO_DELIVERY") && (
+                  <Badge variant="accent" size="sm">{store.plan === "SOLO_DELIVERY" ? "Solo Delivery" : "Vende+"}</Badge>
                 )}
               </div>
               <h1 className="text-3xl sm:text-4xl font-bold truncate">{store.name}</h1>

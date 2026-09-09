@@ -18,7 +18,7 @@ export async function GET(req: Request) {
       where: {
         isActive: true,
         isPublished: true,
-        plan: "MEMBER",
+        plan: { in: ["MEMBER", "SOLO_DELIVERY"] },
         subscription: {
           is: {
             status: { in: ["ACTIVE", "TRIAL"] },

@@ -733,7 +733,7 @@ export default function CarritoPage() {
                       >
                         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2-1m6 0l2 1m-2-1v-4a1 1 0 011-1h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 01.293.707V16l-2 1m-6-3h4m-8 3h8" /></svg>
                         Envío a domicilio
-                        {!isPremium && <Badge variant="warning" size="sm" className="ml-1">Vende+</Badge>}
+                        {!isPremium && <Badge variant="warning" size="sm" className="ml-1">Membresía</Badge>}
                       </Button>
                     </div>
 

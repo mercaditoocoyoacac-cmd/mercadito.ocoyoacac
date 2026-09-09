@@ -28,6 +28,7 @@ type StoreCoupon = {
 type MembershipCoupon = {
   id: string;
   code: string;
+  plan?: string;
   description: string | null;
   discountType: "PERCENTAGE" | "FIXED";
   discountValue: number;
@@ -44,6 +45,7 @@ type MembershipCoupon = {
 };
 
 const MEMBERSHIP_PRICE = 83000;
+const SOLO_DELIVERY_PRICE = 29900;
 
 const emptyStoreForm = {
   storeIds: [] as string[],
@@ -62,6 +64,7 @@ const emptyStoreForm = {
 
 const emptyMemberForm = {
   code: "",
+  plan: "MEMBER" as "SOLO_DELIVERY" | "MEMBER",
   description: "",
   discountType: "PERCENTAGE" as "PERCENTAGE" | "FIXED",
   discountValue: 0,
@@ -218,6 +221,7 @@ export default function AdminCuponesPage() {
     setEditingMemberId(coupon.id);
     setMemberForm({
       code: coupon.code,
+      plan: coupon.plan === "SOLO_DELIVERY" ? "SOLO_DELIVERY" : "MEMBER",
       description: coupon.description || "",
       discountType: coupon.discountType,
       discountValue: coupon.discountValue,
@@ -232,9 +236,10 @@ export default function AdminCuponesPage() {
     setShowMemberForm(true);
   }
 
-  function memberDiscountedPrice(c: MembershipCoupon | { discountType: string; discountValue: number }) {
-    if (c.discountType === "PERCENTAGE") return MEMBERSHIP_PRICE * (1 - c.discountValue / 100);
-    return MEMBERSHIP_PRICE - c.discountValue;
+  function memberDiscountedPrice(c: MembershipCoupon | { plan?: string; discountType: string; discountValue: number }) {
+    const base = c.plan === "SOLO_DELIVERY" ? SOLO_DELIVERY_PRICE : MEMBERSHIP_PRICE;
+    if (c.discountType === "PERCENTAGE") return base * (1 - c.discountValue / 100);
+    return base - c.discountValue;
   }
 
   function toggleMemberUserId(userId: string) {
@@ -259,6 +264,7 @@ export default function AdminCuponesPage() {
 
     const body: Record<string, unknown> = {
       code: memberForm.code,
+      plan: memberForm.plan,
       description: memberForm.description || undefined,
       discountType: memberForm.discountType,
       discountValue: Number(memberForm.discountValue),
@@ -525,7 +531,7 @@ export default function AdminCuponesPage() {
         <>
           <div className="flex items-center justify-between mb-4">
             <p className="text-sm text-[color:var(--muted)]">
-              Cupones que aplican descuento en el pago de la membresía Vende+ ({formatMoney(MEMBERSHIP_PRICE, "MXN")}/mes)
+              Cupones que aplican descuento en el pago de las membresías: Solo Delivery ({formatMoney(SOLO_DELIVERY_PRICE, "MXN")}/mes) y Vende+ ({formatMoney(MEMBERSHIP_PRICE, "MXN")}/mes). Cada cupón es exclusivo de una membresía.
             </p>
             <button
               type="button"
@@ -544,6 +550,13 @@ export default function AdminCuponesPage() {
                   <input name="code" value={memberForm.code} onChange={handleMemberChange} placeholder="MIEMBRESIA20" required className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm uppercase" />
                 </div>
                 <div>
+                  <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Membresía *</label>
+                  <select name="plan" value={memberForm.plan} onChange={handleMemberChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm">
+                    <option value="MEMBER">Vende+ ({formatMoney(MEMBERSHIP_PRICE, "MXN")})</option>
+                    <option value="SOLO_DELIVERY">Solo Delivery ({formatMoney(SOLO_DELIVERY_PRICE, "MXN")})</option>
+                  </select>
+                </div>
+                <div>
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Tipo *</label>
                   <select name="discountType" value={memberForm.discountType} onChange={handleMemberChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm">
                     <option value="PERCENTAGE">% Porcentaje</option>
@@ -560,8 +573,8 @@ export default function AdminCuponesPage() {
                   {memberForm.discountValue > 0 && (
                     <p className="mt-1 text-xs text-[color:var(--muted)]">
                       Precio final: <span className="font-semibold text-amber-600">
-                        {formatMoney(memberDiscountedPrice({ discountType: memberForm.discountType, discountValue: Number(memberForm.discountValue) }), "MXN")}/mes
-                      </span>
+                        {formatMoney(memberDiscountedPrice({ plan: memberForm.plan, discountType: memberForm.discountType, discountValue: Number(memberForm.discountValue) }), "MXN")}/mes
+                      </span> <span className="line-through">{formatMoney(memberForm.plan === "SOLO_DELIVERY" ? SOLO_DELIVERY_PRICE : MEMBERSHIP_PRICE, "MXN")}</span>
                     </p>
                   )}
                 </div>
@@ -637,6 +650,7 @@ export default function AdminCuponesPage() {
               <thead>
                 <tr className="border-b border-[var(--border)] bg-[var(--surface)]">
                   <th className="px-4 py-3 text-left font-medium">Código</th>
+                  <th className="px-4 py-3 text-left font-medium">Membresía</th>
                   <th className="px-4 py-3 text-left font-medium">Descripción</th>
                   <th className="px-4 py-3 text-left font-medium">Descuento</th>
                   <th className="px-4 py-3 text-left font-medium">Precio final</th>
@@ -649,26 +663,34 @@ export default function AdminCuponesPage() {
               </thead>
               <tbody>
                 {memberCoupons.length === 0 && (
-                  <tr><td colSpan={9} className="px-4 py-8 text-center text-[color:var(--muted)]">Sin cupones de membresía aún</td></tr>
+                  <tr><td colSpan={10} className="px-4 py-8 text-center text-[color:var(--muted)]">Sin cupones de membresía aún</td></tr>
                 )}
                 {memberCoupons.map((c, idx) => {
                   const now = new Date();
                   const expired = c.expiresAt && new Date(c.expiresAt) < now;
                   const notStarted = c.startsAt && new Date(c.startsAt) > now;
+                  const couponBase = c.plan === "SOLO_DELIVERY" ? SOLO_DELIVERY_PRICE : MEMBERSHIP_PRICE;
                   const finalPrice = memberDiscountedPrice(c);
                   return (
                     <tr key={c.id} style={{ animationDelay: `${idx * 40}ms` }} className="border-b border-[var(--border)] hover:bg-[var(--surface)] fade-in">
                       <td className="px-4 py-3 font-mono font-bold">{c.code}</td>
+                      <td className="px-4 py-3">
+                        {c.plan === "SOLO_DELIVERY" ? (
+                          <span className="rounded-full bg-sky-100 px-2 py-0.5 text-xs font-medium text-sky-700">Solo Delivery</span>
+                        ) : (
+                          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">Vende+</span>
+                        )}
+                      </td>
                       <td className="px-4 py-3 text-xs text-[color:var(--muted)]">{c.description || "—"}</td>
                       <td className="px-4 py-3 font-semibold">{c.discountType === "PERCENTAGE" ? `${c.discountValue}%` : formatMoney(c.discountValue, "MXN")}</td>
                       <td className="px-4 py-3">
-                        {finalPrice < MEMBERSHIP_PRICE ? (
+                        {finalPrice < couponBase ? (
                           <span>
                             <span className="text-green-600 font-semibold">{formatMoney(finalPrice, "MXN")}</span>
-                            <span className="ml-1 text-xs text-[color:var(--muted)] line-through">{formatMoney(MEMBERSHIP_PRICE, "MXN")}</span>
+                            <span className="ml-1 text-xs text-[color:var(--muted)] line-through">{formatMoney(couponBase, "MXN")}</span>
                           </span>
                         ) : (
-                          <span className="text-[color:var(--muted)]">{formatMoney(MEMBERSHIP_PRICE, "MXN")}</span>
+                          <span className="text-[color:var(--muted)]">{formatMoney(couponBase, "MXN")}</span>
                         )}
                       </td>
                       <td className="px-4 py-3">{c.usedCount}{c.maxUses ? ` / ${c.maxUses}` : ""}</td>

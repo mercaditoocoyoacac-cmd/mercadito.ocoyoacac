@@ -537,15 +537,15 @@ export default function VendorPromocionesPage() {
           <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="text-center">
               <div className="text-3xl mb-3">⭐</div>
-              <h3 className="text-lg font-bold">Promociones son exclusivas de Vende+</h3>
+              <h3 className="text-lg font-bold">Promociones requieren una membresía</h3>
               <p className="mt-2 text-sm text-[color:var(--muted)]">
-                Crea promociones multi-producto, cupones de descuento y notifica a tus clientes por push.
+                Crea promociones multi-producto, cupones de descuento y notifica a tus clientes por push con Solo Delivery o Vende+.
               </p>
               <a
                 href="/vendor/membresia"
                 className="mt-5 inline-block w-full rounded-xl bg-amber-500 px-6 py-3 text-sm font-bold text-white hover:bg-amber-600 transition-colors"
               >
-                Activar Vende+ $830/mes
+                Ver planes
               </a>
               <button
                 onClick={() => setShowUpsell(false)}

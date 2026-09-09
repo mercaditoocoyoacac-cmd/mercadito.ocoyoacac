@@ -8,6 +8,11 @@ import { formatMoney } from "@/lib/format";
 import { generateReceipt } from "@/server/email/receipt";
 import { sendMembershipActivationEmail } from "@/server/email/membership";
 import { sendTextNotification } from "@/server/notifications";
+import {
+  membershipPlanLabel,
+  membershipPlanPriceCents,
+  SOLO_DELIVERY_PRICE_CENTS,
+} from "@/lib/membership";
 
 export const revalidate = 30;
 
@@ -18,6 +23,9 @@ const GRACE_PERIOD_CUTOFF = new Date("2026-08-01");
 async function activateMembershipByTransfer(storeId: string, formData: FormData) {
   "use server";
   const reference = formData.get("reference")?.toString().trim() || "";
+  const plan = formData.get("plan") === "SOLO_DELIVERY" ? "SOLO_DELIVERY" : "MEMBER";
+  const planPriceCents = membershipPlanPriceCents(plan);
+  const planLabel = membershipPlanLabel(plan);
 
   const store = await prisma.store.findUnique({
     where: { id: storeId },
@@ -42,14 +50,14 @@ async function activateMembershipByTransfer(storeId: string, formData: FormData)
       status: "ACTIVE",
       startDate: now,
       endDate,
-      monthlyPriceCents: FULL_PRICE_CENTS,
+      monthlyPriceCents: planPriceCents,
       paymentMethod: "TRANSFERENCIA",
       paymentReference,
     },
     update: {
       status: "ACTIVE",
       endDate,
-      monthlyPriceCents: FULL_PRICE_CENTS,
+      monthlyPriceCents: planPriceCents,
       paymentMethod: "TRANSFERENCIA",
       paymentReference,
     },
@@ -57,14 +65,14 @@ async function activateMembershipByTransfer(storeId: string, formData: FormData)
 
   await prisma.store.update({
     where: { id: storeId },
-    data: { isPublished: true, plan: "MEMBER" },
+    data: { isPublished: true, plan },
   });
 
   const receipt = await generateReceipt({
     storeId,
     subscriptionId: subscription.id,
-    amountCents: FULL_PRICE_CENTS,
-    description: "Membresía Vende+ — 1 mes (transferencia)",
+    amountCents: planPriceCents,
+    description: `Membresía ${planLabel} — 1 mes (transferencia)`,
     periodStart: base,
     periodEnd: endDate,
     paymentMethod: "TRANSFERENCIA",
@@ -76,9 +84,10 @@ async function activateMembershipByTransfer(storeId: string, formData: FormData)
       to: store.owner.email,
       vendorName: store.owner.name || "Vendedor",
       storeName: store.name,
+      planName: planLabel,
       periodStart: base,
       periodEnd: endDate,
-      amountCents: FULL_PRICE_CENTS,
+      amountCents: planPriceCents,
       receiptNumber: receipt.receiptNumber,
     });
   }
@@ -86,7 +95,7 @@ async function activateMembershipByTransfer(storeId: string, formData: FormData)
   if (store.ownerId) {
     await sendTextNotification(store.ownerId, {
       title: "Membresía activada por transferencia",
-      body: `El administrador registró tu pago por transferencia. Vende+ está activa hasta ${endDate.toLocaleDateString("es-MX")}.`,
+      body: `El administrador registró tu pago por transferencia. ${planLabel} está activa hasta ${endDate.toLocaleDateString("es-MX")}.`,
       type: "MEMBERSHIP",
       url: "/vendor/membresia",
     });
@@ -400,6 +409,8 @@ data: { isPublished: true },
                     )}
                     <form action={async () => {
                       "use server";
+                      const renewPlan = store.plan === "SOLO_DELIVERY" ? "SOLO_DELIVERY" : "MEMBER";
+                      const renewPrice = membershipPlanPriceCents(renewPlan);
                       const endDate = new Date();
                       endDate.setMonth(endDate.getMonth() + 1);
                       const now = new Date();
@@ -416,40 +427,50 @@ data: { isPublished: true },
                           storeId: store.id,
                           status: "ACTIVE",
                           endDate,
-                          monthlyPriceCents: FULL_PRICE_CENTS,
+                          monthlyPriceCents: renewPrice,
                           discountEndDate: discountEnd,
                         },
                         update: {
                           status: "ACTIVE",
                           endDate,
                           discountEndDate: discountEnd,
-                          monthlyPriceCents: FULL_PRICE_CENTS,
+                          monthlyPriceCents: renewPrice,
                         },
                       });
                       await prisma.store.update({
                         where: { id: store.id },
-                        data: { isPublished: true, plan: "MEMBER" },
+                        data: { isPublished: true, plan: renewPlan },
                       });
                       revalidatePath("/admin/membresias");
                     }}>
                       <button className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700">
-                        Renovar membresía ({formatMoney(FULL_PRICE_CENTS)})
+                        Renovar {membershipPlanLabel(store.plan === "SOLO_DELIVERY" ? "SOLO_DELIVERY" : "MEMBER")} ({formatMoney(membershipPlanPriceCents(store.plan === "SOLO_DELIVERY" ? "SOLO_DELIVERY" : "MEMBER"))})
                       </button>
                     </form>
                     <form action={activateMembershipByTransfer.bind(null, store.id)}>
-                      <input
-                        type="text"
-                        name="reference"
-                        placeholder="Ref. transferencia (opcional)"
-                        className="w-40 rounded-lg border border-[var(--border)] px-2 py-1.5 text-xs"
-                      />
-                      <button
-                        type="submit"
-                        title="Registra pago por transferencia: activa Vende+, marca pago como transferencia y notifica al vendedor."
-                        className="mt-1 rounded-lg bg-teal-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-teal-700"
-                      >
-                        Activar por transferencia
-                      </button>
+                      <div className="flex flex-wrap gap-2 items-center">
+                        <select
+                          name="plan"
+                          defaultValue={store.plan === "SOLO_DELIVERY" ? "SOLO_DELIVERY" : "MEMBER"}
+                          className="rounded-lg border border-[var(--border)] px-2 py-1.5 text-xs"
+                        >
+                          <option value="MEMBER">Vende+ ({formatMoney(FULL_PRICE_CENTS)})</option>
+                          <option value="SOLO_DELIVERY">Solo Delivery ({formatMoney(SOLO_DELIVERY_PRICE_CENTS)})</option>
+                        </select>
+                        <input
+                          type="text"
+                          name="reference"
+                          placeholder="Ref. transferencia (opcional)"
+                          className="w-40 rounded-lg border border-[var(--border)] px-2 py-1.5 text-xs"
+                        />
+                        <button
+                          type="submit"
+                          title="Registra pago por transferencia: activa la membresía elegida, marca el pago como transferencia y notifica al vendedor."
+                          className="rounded-lg bg-teal-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-teal-700"
+                        >
+                          Activar por transferencia
+                        </button>
+                      </div>
                     </form>
                     {!sub || (sub.status !== "TRIAL" && !isTrial) ? (
                     <form action={async () => {

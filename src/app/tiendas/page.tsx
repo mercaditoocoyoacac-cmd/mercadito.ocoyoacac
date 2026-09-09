@@ -167,6 +167,13 @@ export default async function TiendasPage({
                     </div>
                     <div className="text-sm text-stone-600">Con Vende+</div>
                   </div>
+                  <div className="h-8 w-px bg-amber-200 hidden lg:block"></div>
+                  <div>
+                    <div className="text-2xl lg:text-3xl font-bold text-sky-600">
+                      {storesWithProducts.filter(s => s.plan === "SOLO_DELIVERY").length}
+                    </div>
+                    <div className="text-sm text-stone-600">Con Solo Delivery</div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
