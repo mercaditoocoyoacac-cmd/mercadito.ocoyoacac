@@ -43,12 +43,13 @@ async function addRole(userId: string, role: string) {
   if (user.role === role) return;
 
   const allRoles = [user.role, ...(user.additionalRoles ? user.additionalRoles.split(",") : [])];
-  if (allRoles.includes(role)) return;
+  const others = allRoles.filter((r) => r !== role);
 
   await prisma.user.update({
     where: { id: userId },
     data: {
-      additionalRoles: [...allRoles, role].join(","),
+      role: role as "CUSTOMER" | "VENDOR" | "DELIVERY" | "ADMIN",
+      additionalRoles: others.length > 0 ? others.join(",") : null,
     },
   });
   revalidatePath("/admin/usuarios");

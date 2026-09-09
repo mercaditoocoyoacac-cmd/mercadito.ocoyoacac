@@ -25,7 +25,12 @@ export async function GET() {
     },
   });
 
-  return NextResponse.json({ ok: true, user });
+  const store = await prisma.store.findFirst({
+    where: { ownerId: auth.userId },
+    select: { id: true },
+  });
+
+  return NextResponse.json({ ok: true, user: { ...user, storeId: store?.id ?? null } });
 }
 
 export async function PUT(req: Request) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Suspense, useState } from "react";
 
@@ -124,7 +124,6 @@ function PortalContent() {
 }
 
 function VendorLogin() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -133,20 +132,15 @@ function VendorLogin() {
   async function redirectByRole() {
     const sessionRes = await fetch("/api/auth/session");
     const session = await sessionRes.json();
-    const role = session?.user?.role;
-    const extra = session?.user?.additionalRoles;
-    if (extra) { router.push("/"); return; }
-    if (role === "VENDOR") {
-      const userRes = await fetch("/api/profile");
-      const userData = await userRes.json();
-      if (userData.ok && userData.user.storeId) {
-        router.push("/vendor");
-      } else {
-        router.push("/vendor/onboarding");
-      }
-    } else if (role === "ADMIN") router.push("/admin");
-    else if (role === "DELIVERY") router.push("/delivery");
-    else router.push("/");
+    const roles = [
+      session?.user?.role,
+      ...(session?.user?.additionalRoles ?? "").split(","),
+    ].filter(Boolean);
+    let dest = "/";
+    if (roles.includes("ADMIN")) dest = "/admin";
+    else if (roles.includes("VENDOR")) dest = "/vendor";
+    else if (roles.includes("DELIVERY")) dest = "/delivery";
+    window.location.assign(dest);
   }
 
   return (
@@ -231,7 +225,6 @@ function VendorLogin() {
 }
 
 function VendorRegister() {
-  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -297,7 +290,7 @@ function VendorRegister() {
                 redirect: false,
               });
               login.then((r) => {
-                if (r?.ok) router.push("/vendor/onboarding");
+                if (r?.ok) window.location.assign("/vendor/onboarding");
               });
             }, 2000);
             return;
@@ -309,7 +302,7 @@ function VendorRegister() {
             redirect: false,
           });
           if (login?.ok) {
-            router.push("/vendor/onboarding");
+            window.location.assign("/vendor/onboarding");
           }
         }}
       >

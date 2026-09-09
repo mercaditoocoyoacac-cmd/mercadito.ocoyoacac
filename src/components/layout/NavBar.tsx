@@ -84,10 +84,10 @@ export function NavBar() {
     });
     if (res.ok) {
       await update();
-      if (newRole === "DELIVERY") router.push("/delivery");
-      else if (newRole === "CUSTOMER") router.push("/");
-      else if (newRole === "VENDOR") router.push("/vendor");
-      else if (newRole === "ADMIN") router.push("/admin");
+      if (newRole === "DELIVERY") window.location.assign("/delivery");
+      else if (newRole === "CUSTOMER") window.location.assign("/");
+      else if (newRole === "VENDOR") window.location.assign("/vendor");
+      else if (newRole === "ADMIN") window.location.assign("/admin");
     }
   }
 

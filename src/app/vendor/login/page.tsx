@@ -1,7 +1,6 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
@@ -10,7 +9,6 @@ import { FieldError } from "@/components/ui/FieldError";
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
 
 export default function VendorLoginPage() {
-  const router = useRouter();
   const captchaRef = useRef<ReCAPTCHA>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,13 +19,15 @@ export default function VendorLoginPage() {
   async function redirectByRole() {
     const sessionRes = await fetch("/api/auth/session");
     const session = await sessionRes.json();
-    const role = session?.user?.role;
-    const extra = session?.user?.additionalRoles;
-    if (extra) { router.push("/"); return; }
-    if (role === "VENDOR") router.push("/vendor");
-    else if (role === "DELIVERY") router.push("/delivery");
-    else if (role === "ADMIN") router.push("/admin");
-    else router.push("/");
+    const roles = [
+      session?.user?.role,
+      ...(session?.user?.additionalRoles ?? "").split(","),
+    ].filter(Boolean);
+    let dest = "/";
+    if (roles.includes("ADMIN")) dest = "/admin";
+    else if (roles.includes("VENDOR")) dest = "/vendor";
+    else if (roles.includes("DELIVERY")) dest = "/delivery";
+    window.location.assign(dest);
   }
 
   async function handleSubmit(e: React.FormEvent) {

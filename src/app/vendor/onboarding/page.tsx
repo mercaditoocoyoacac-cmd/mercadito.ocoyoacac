@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 function slugify(input: string) {
@@ -14,7 +13,6 @@ function slugify(input: string) {
 }
 
 export default function VendorOnboardingPage() {
-  const router = useRouter();
   const [name, setName] = useState("");
   const autoSlug = useMemo(() => slugify(name), [name]);
   const [slug, setSlug] = useState("");
@@ -34,6 +32,19 @@ export default function VendorOnboardingPage() {
       .then((r) => r.json())
       .then((data) => { if (data.ok) setCategories(data.categories); })
       .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/vendor/store")
+      .then((r) => r.json())
+      .then((data) => {
+        if (!cancelled && data?.store) window.location.assign("/vendor");
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -102,6 +113,7 @@ export default function VendorOnboardingPage() {
           try { data = JSON.parse(text); } catch {}
           setLoading(false);
           if (!res.ok || !data?.ok) {
+            if (res.status === 409) { window.location.assign("/vendor"); return; }
             const msg =
               data && "error" in data
                 ? data.error
@@ -109,7 +121,7 @@ export default function VendorOnboardingPage() {
             setError(msg ?? "No se pudo crear la tienda.");
             return;
           }
-          router.push("/vendor/completar-registro");
+          window.location.assign("/vendor/completar-registro");
         }}
       >
         <div className="space-y-2">
