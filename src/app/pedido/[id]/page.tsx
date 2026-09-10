@@ -5,6 +5,7 @@ import { getSession } from "@/server/session";
 import OrderConfirmation from "@/components/orders/OrderConfirmation";
 import { OrderAutoRefresh } from "@/components/orders/OrderAutoRefresh";
 import { OrderCancelButton } from "@/components/orders/OrderCancelButton";
+import { OrderModifyButton } from "@/components/orders/OrderModifyButton";
 import { formatMoney } from "@/lib/format";
 import { formatDateTimeInMexico } from "@/lib/dates";
 import { Card, CardContent, CardHeader, CardTitle, Button, Badge, OrderTimeline, OrderStatusBadge } from "@/components/ui/design-system";
@@ -76,6 +77,8 @@ export default async function PedidoPage({
       CANCELLED: (order.statusTimestamps as Record<string, string | undefined>)?.CANCELLED || "",
     },
   };
+
+  const statusTs = (order.statusTimestamps ?? {}) as Record<string, string>;
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6 lg:py-10">
@@ -204,9 +207,10 @@ export default async function PedidoPage({
       </div>
 
       {/* Actions */}
-      {order.status === "PENDING" && (
-        <div className="mt-6">
-          <OrderCancelButton orderId={order.id} createdAt={order.createdAt.toISOString()} />
+      {[ "PENDING", "CONFIRMED", "READY", "OUT_FOR_DELIVERY" ].includes(order.status) && (
+        <div className="mt-6 space-y-4">
+          {order.status === "PENDING" && <OrderModifyButton orderId={order.id} />}
+          <OrderCancelButton orderId={order.id} status={order.status} statusTimestamps={statusTs} />
         </div>
       )}
 

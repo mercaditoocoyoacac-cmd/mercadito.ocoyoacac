@@ -155,6 +155,9 @@ export default function CarritoPage() {
   const [couponError, setCouponError] = useState("");
   const [couponStatus, setCouponStatus] = useState<"" | "active" | "inactive">("");
   const [deliverySettings, setDeliverySettings] = useState<DeliveryFeeConfig | null>(null);
+  const [modifyingOrder, setModifyingOrder] = useState<{ id: string; shortId: string; storeName: string } | null>(null);
+  const [modifyWarning, setModifyWarning] = useState("");
+  const [activeOrder, setActiveOrder] = useState<{ id: string; storeName: string } | null>(null);
 
   const getEffectivePrice = useCallback((item: CartItem): number => {
     const basePrice = item.variant?.priceCents ?? item.product.priceCents;
@@ -224,6 +227,12 @@ export default function CarritoPage() {
         return;
       }
 
+      const activeRes = await fetch("/api/order/active").catch(() => null);
+      if (activeRes?.ok) {
+        const activeData = await activeRes.json().catch(() => null);
+        if (activeData?.ok) setActiveOrder(activeData.activeOrder || null);
+      }
+
       const cartData = await cartRes.json().catch(() => null);
       if (!cartRes.ok || !cartData?.ok) {
         setError("No se pudo cargar tu carrito.");
@@ -281,6 +290,48 @@ export default function CarritoPage() {
 
   useEffect(() => {
     refresh();
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const modifyId = params.get("modify");
+    if (!modifyId) return;
+
+    (async () => {
+      try {
+        const res = await fetch(`/api/order/modify?orderId=${encodeURIComponent(modifyId)}`);
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          setModifyWarning(data.error || "No se pudo cargar el pedido para modificarlo.");
+          setModifyingOrder(null);
+          return;
+        }
+        setModifyingOrder({
+          id: data.orderId,
+          shortId: data.shortId || String(data.orderId).slice(-8).toUpperCase(),
+          storeName: data.storeName,
+        });
+        if (data.unavailable?.length) {
+          setModifyWarning(`No se pudieron incluir: ${data.unavailable.join(", ")}`);
+        } else {
+          setModifyWarning("");
+        }
+        const p = data.prefill;
+        if (p) {
+          if (p.fulfillmentType === "PICKUP" || p.fulfillmentType === "DELIVERY") setFulfillmentType(p.fulfillmentType);
+          if (p.paymentMethod === "CASH" || p.paymentMethod === "ONLINE" || p.paymentMethod === "TRANSFERENCIA") setPaymentMethod(p.paymentMethod);
+          if (p.customerName) setCustomerName(p.customerName);
+          if (p.customerPhone) setCustomerPhone(p.customerPhone);
+          if (p.customerAddress) setCustomerAddress(p.customerAddress);
+          if (p.customerLat) setCustomerLat(p.customerLat);
+          if (p.customerLng) setCustomerLng(p.customerLng);
+          if (p.notes) setNotes(p.notes);
+        }
+        await refresh();
+      } catch {
+        setModifyWarning("Error al cargar el pedido para modificarlo.");
+      }
+    })();
   }, []);
 
   useEffect(() => {
@@ -392,6 +443,7 @@ export default function CarritoPage() {
       notes: notes || undefined,
     };
     if (appliedCoupon) body.couponCode = appliedCoupon.code;
+    if (modifyingOrder) body.modifyOrderId = modifyingOrder.id;
     if (paymentMethod === "TRANSFERENCIA") {
       body.paymentEvidenceUrl = paymentEvidenceUrl || undefined;
       body.paymentReference = paymentReference || undefined;
@@ -478,6 +530,13 @@ export default function CarritoPage() {
     await refresh();
   };
 
+  const cancelModify = () => {
+    setModifyingOrder(null);
+    setModifyWarning("");
+    router.replace("/carrito");
+    refresh();
+  };
+
   if (loading) return <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10"><SkeletonCard showImage={false} showTitle={true} showDescription={true} showFooter={true} /></main>;
 
   const hasUnavailable = (items ?? []).some((i) => i.product.isUnavailable);
@@ -518,7 +577,65 @@ export default function CarritoPage() {
         {error && (
           <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700 flex items-start gap-3">
             <svg className="h-5 w-5 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            <span>{error}</span>
+            <span>{error}
+              {activeOrder && !modifyingOrder && (
+                <a href={`/pedido/${activeOrder.id}`} className="ml-2 font-semibold underline">Ver pedido activo</a>
+              )}
+            </span>
+          </div>
+        )}
+
+        {modifyingOrder && (
+          <div className="mb-6 rounded-xl border border-blue-300 bg-blue-50 px-5 py-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="flex-1">
+                <div className="text-sm font-semibold text-blue-800">
+                  Modificando el pedido #{modifyingOrder.shortId}
+                  {modifyingOrder.storeName ? ` de ${modifyingOrder.storeName}` : ""}
+                </div>
+                <div className="mt-1 text-sm text-blue-700">
+                  Al confirmar, el pedido actualizado reemplazará al anterior.
+                </div>
+                {modifyWarning && (
+                  <div className="mt-1 text-xs text-blue-700">⚠ {modifyWarning}</div>
+                )}
+              </div>
+              <button type="button" onClick={cancelModify} className="shrink-0 rounded-lg border border-blue-300 px-3 py-1.5 text-xs font-medium text-blue-700 bg-white hover:bg-blue-100">
+                Cancelar modificación
+              </button>
+            </div>
+          </div>
+        )}
+
+        {!modifyingOrder && activeOrder && (
+          <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 px-5 py-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="flex-1">
+                <div className="text-sm font-semibold text-amber-800">
+                  Ya tienes un pedido activo en {activeOrder.storeName}
+                </div>
+                <div className="mt-1 text-sm text-amber-700">
+                  Solo puedes tener un pedido a la vez. Modifícalo o cancélalo antes de crear otro.
+                </div>
+              </div>
+              <a href={`/pedido/${activeOrder.id}`} className="shrink-0 rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium text-amber-800 hover:bg-amber-100">
+                Ver pedido
+              </a>
+            </div>
+          </div>
+        )}
+
+        {(items ?? []).length > 0 && (
+          <div className="mb-6 rounded-xl border border-[var(--border)] bg-white px-5 py-4 text-sm text-[color:var(--muted)] flex items-start gap-3">
+            <svg className="h-5 w-5 shrink-0 mt-0.5 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <div>
+              <div className="font-medium text-[var(--foreground)]">Normas de tu pedido</div>
+              <p className="mt-1 text-xs">
+                Podrás <strong>modificar</strong> o <strong>cancelar</strong> tu pedido mientras la tienda no lo haya confirmado, y
+                cancelarlo hasta <strong>5 minutos después</strong> de la confirmación. Pasada esa ventana, tu pedido llegará a su
+                destino y ya no podrá cancelarse.
+              </p>
+            </div>
           </div>
         )}
 

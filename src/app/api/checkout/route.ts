@@ -11,6 +11,7 @@ import { sendPushNotification, sendPushToMultiple, sendPushToAdmins } from "@/se
 import { calcDeliveryFeeCents, haversineDistance, pointInPolygon, RISK_ZONE_EXTRA_CENTS, type DeliveryFeeConfig } from "@/lib/geo";
 import { getRouteDistanceKm } from "@/server/directions";
 import { isStorePremium } from "@/lib/membership";
+import { appendStatusTimestamp } from "@/lib/statusTimestamps";
 
 function generateDeliveryCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -33,6 +34,7 @@ const CheckoutSchema = z.object({
   customerLng: z.number().optional(),
   notes: z.string().max(400).optional(),
   couponCode: z.string().max(40).optional(),
+  modifyOrderId: z.string().optional(),
 });
 
 export async function POST(req: Request) {
@@ -184,6 +186,52 @@ export async function POST(req: Request) {
     );
   }
 
+  const modifyOrder = parsed.data.modifyOrderId
+    ? await prisma.order.findFirst({
+        where: { id: parsed.data.modifyOrderId, userId: auth.userId },
+        select: { id: true, status: true, storeId: true },
+      })
+    : null;
+
+  if (parsed.data.modifyOrderId && !modifyOrder) {
+    return NextResponse.json(
+      { ok: false, error: "El pedido que quieres modificar no existe o no te pertenece." },
+      { status: 400 },
+    );
+  }
+
+  if (modifyOrder && modifyOrder.status !== "PENDING") {
+    return NextResponse.json(
+      { ok: false, error: "El pedido que quieres modificar ya fue confirmado por la tienda y ya no puede cambiarse." },
+      { status: 400 },
+    );
+  }
+  if (modifyOrder && modifyOrder.storeId !== storeId) {
+    return NextResponse.json(
+      { ok: false, error: "El pedido a modificar no pertenece a esta tienda." },
+      { status: 400 },
+    );
+  }
+  if (!modifyOrder) {
+    const activeOrder = await prisma.order.findFirst({
+      where: {
+        userId: auth.userId,
+        status: { in: ["PENDING", "CONFIRMED", "READY", "OUT_FOR_DELIVERY"] },
+      },
+      select: { id: true },
+    });
+    if (activeOrder) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "Ya tienes un pedido activo. Solo puedes tener un pedido a la vez: modifícalo o cancélalo antes de crear otro.",
+          activeOrderId: activeOrder.id,
+        },
+        { status: 400 },
+      );
+    }
+  }
+
   const currency = items[0]!.product.currency;
 
   const activePromotions = await prisma.promotion.findMany({
@@ -328,6 +376,46 @@ export async function POST(req: Request) {
   const deliveryCode = generateDeliveryCode();
   const pickupCode = generateDeliveryCode();
 
+  if (modifyOrder) {
+    const oldItems = await prisma.orderItem.findMany({
+      where: { orderId: modifyOrder.id },
+      select: { id: true, productId: true, quantity: true, weightGrams: true },
+    });
+    const oldOrder = await prisma.order.findUnique({
+      where: { id: modifyOrder.id },
+      select: { statusTimestamps: true },
+    });
+    await prisma.$transaction(async (tx) => {
+      await tx.order.update({
+        where: { id: modifyOrder.id },
+        data: {
+          status: "CANCELLED",
+          cancelReason: "Pedido reemplazado por modificación",
+          statusTimestamps: appendStatusTimestamp(
+            (oldOrder?.statusTimestamps as Record<string, string> | null) ?? null,
+            "CANCELLED",
+          ),
+        },
+      });
+      for (const item of oldItems) {
+        if (!item.productId) continue;
+        const product = await tx.product.findUnique({
+          where: { id: item.productId },
+          select: { stock: true },
+        });
+        if (product && product.stock !== null && product.stock !== -1) {
+          const increment = item.weightGrams
+            ? item.weightGrams * item.quantity
+            : item.quantity;
+          await tx.product.update({
+            where: { id: item.productId },
+            data: { stock: { increment } },
+          });
+        }
+      }
+    });
+  }
+
   const order = await prisma.order.create({
     data: {
       userId: auth.userId,
@@ -383,6 +471,10 @@ export async function POST(req: Request) {
   await prisma.cartItem.deleteMany({ where: { userId: auth.userId } });
 
   revalidatePath("/vendor/pedidos");
+  if (modifyOrder) {
+    revalidatePath(`/pedido/${modifyOrder.id}`);
+    revalidatePath(`/mis-pedidos/${modifyOrder.id}`);
+  }
 
   for (const cartItem of items) {
     if (cartItem.product.stock !== -1 && cartItem.product.stock !== null) {

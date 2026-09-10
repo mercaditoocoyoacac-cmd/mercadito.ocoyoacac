@@ -4,13 +4,31 @@ import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
 import { appendStatusTimestamp } from "@/lib/statusTimestamps";
 
+const CANCEL_WINDOW_MIN = 5;
+
+const CANCELLATION_REASONS = [
+  "Cambié de opinión",
+  "Encontré mejor opción en otro lugar",
+  "El pedido fue un error",
+  "El tiempo de espera es muy largo",
+  "Problema con el pago",
+  "Otro",
+];
+
 export async function POST(req: Request) {
   const auth = await requireUser();
   if (!auth.ok) return auth.res;
 
-  const { orderId } = await req.json().catch(() => ({}));
+  const { orderId, reason } = await req.json().catch(() => ({}));
   if (!orderId || typeof orderId !== "string") {
     return NextResponse.json({ error: "orderId requerido" }, { status: 400 });
+  }
+  const reasonText = typeof reason === "string" ? reason.trim() : "";
+  if (reasonText.length < 3) {
+    return NextResponse.json(
+      { error: "Debes indicar el motivo de cancelación." },
+      { status: 400 },
+    );
   }
 
   const order = await prisma.order.findFirst({
@@ -28,24 +46,38 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 });
   }
 
-  if (order.status !== "PENDING") {
+  if (order.status === "CANCELLED" || order.status === "COMPLETED") {
     return NextResponse.json(
-      { error: "Solo puedes cancelar pedidos pendientes" },
+      { error: "Este pedido ya fue cancelado o completado." },
       { status: 400 },
     );
   }
 
-  const minutesSinceCreation =
-    (Date.now() - new Date(order.createdAt).getTime()) / 60000;
-
-  if (minutesSinceCreation >= 10 && minutesSinceCreation <= 30) {
+  if (order.status === "READY" || order.status === "OUT_FOR_DELIVERY") {
     return NextResponse.json(
       {
         error:
-          "El pedido está en revisión. Podrás cancelarlo si el vendedor no responde en 30 minutos.",
+          "Tu pedido ya está en preparación o en camino y llegará a su destino. Ya no puedes cancelarlo. Si tienes algún problema, contacta directamente a la tienda.",
       },
       { status: 400 },
     );
+  }
+
+  if (order.status === "CONFIRMED") {
+    const timestamps = order.statusTimestamps as Record<string, string> | null;
+    const confirmedAt = timestamps?.CONFIRMED
+      ? new Date(timestamps.CONFIRMED).getTime()
+      : new Date(order.createdAt).getTime();
+    const minutesSinceConfirmed = (Date.now() - confirmedAt) / 60000;
+    if (minutesSinceConfirmed > CANCEL_WINDOW_MIN) {
+      return NextResponse.json(
+        {
+          error:
+            "Solo puedes cancelar hasta 5 minutos después de la confirmación. Tu pedido ya llegará a su destino.",
+        },
+        { status: 400 },
+      );
+    }
   }
 
   const currentTs = order.statusTimestamps as Record<string, string> | null;
@@ -55,6 +87,7 @@ export async function POST(req: Request) {
       where: { id: order.id },
       data: {
         status: "CANCELLED",
+        cancelReason: reasonText,
         statusTimestamps: appendStatusTimestamp(currentTs, "CANCELLED"),
       },
     });
@@ -81,6 +114,8 @@ export async function POST(req: Request) {
 
   revalidatePath("/vendor/pedidos");
   revalidatePath(`/vendor/pedidos/${orderId}`);
+  revalidatePath(`/pedido/${orderId}`);
+  revalidatePath(`/mis-pedidos/${orderId}`);
 
   return NextResponse.json({ ok: true });
 }

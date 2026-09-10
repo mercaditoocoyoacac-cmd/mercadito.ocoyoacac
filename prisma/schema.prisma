@@ -469,6 +469,7 @@ model Order {
   deliveryCode    String?         @unique
   pickupCode      String?         @unique
   statusTimestamps Json?          @default("{}")
+  cancelReason     String?
   arrivedAt              DateTime?
   arrivalConfirmedAt     DateTime?
   readyReminderSent            Boolean     @default(false)

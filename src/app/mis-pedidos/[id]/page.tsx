@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { OrderCancelButton } from "@/components/orders/OrderCancelButton";
+import { OrderModifyButton } from "@/components/orders/OrderModifyButton";
 import { PullToRefreshWrapper } from "@/components/ui/PullToRefreshWrapper";
 import { OrderAutoRefresh } from "@/components/orders/OrderAutoRefresh";
 import OrderRatingForm from "@/components/orders/OrderRatingForm";
@@ -78,6 +79,7 @@ export default async function PedidoDetallePage({
       currency: true,
       createdAt: true,
       updatedAt: true,
+      statusTimestamps: true,
       pickupCode: true,
       deliveryCode: true,
       arrivedAt: true,
@@ -169,8 +171,15 @@ export default async function PedidoDetallePage({
           </div>
         )}
 
-        {order.status === "PENDING" && (
-          <OrderCancelButton orderId={order.id} createdAt={order.createdAt.toISOString()} />
+        {["PENDING", "CONFIRMED", "READY", "OUT_FOR_DELIVERY"].includes(order.status) && (
+          <div className="space-y-4">
+            {order.status === "PENDING" && <OrderModifyButton orderId={order.id} />}
+            <OrderCancelButton
+              orderId={order.id}
+              status={order.status}
+              statusTimestamps={(order.statusTimestamps ?? {}) as Record<string, string>}
+            />
+          </div>
         )}
 
         <div className="rounded-xl border border-[var(--border)] p-6">
