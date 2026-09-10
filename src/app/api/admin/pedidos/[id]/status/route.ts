@@ -63,6 +63,7 @@ export async function POST(
         where: { id },
         data: {
           status: "CANCELLED",
+          cancelReason: "Cancelado por el administrador",
           statusTimestamps: appendStatusTimestamp(currentTs, "CANCELLED"),
         },
       });

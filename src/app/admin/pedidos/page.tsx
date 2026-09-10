@@ -18,6 +18,7 @@ export default async function AdminOrdersPage() {
     select: {
       id: true,
       status: true,
+      cancelReason: true,
       fulfillmentType: true,
       totalCents: true,
       currency: true,

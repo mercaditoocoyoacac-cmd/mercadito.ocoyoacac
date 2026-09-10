@@ -34,6 +34,7 @@ export default async function VendorPedidosPage() {
     select: {
       id: true,
       status: true,
+      cancelReason: true,
       fulfillmentType: true,
       customerName: true,
       customerPhone: true,
@@ -173,6 +174,11 @@ export default async function VendorPedidosPage() {
                         <span className={order.paymentVerified ? "text-green-600 font-medium" : "text-purple-700 font-medium"}>
                           {order.paymentVerified ? "✓ Transferencia verificada" : "⏳ Transferencia sin verificar"}
                         </span>
+                      </div>
+                    )}
+                    {order.status === "CANCELLED" && order.cancelReason && (
+                      <div className="text-xs mt-1 text-red-700 bg-red-50 border border-red-200 rounded-md px-2 py-1">
+                        Motivo de cancelación: {order.cancelReason}
                       </div>
                     )}
                   </div>
@@ -315,7 +321,7 @@ export default async function VendorPedidosPage() {
                           "use server";
                           await prisma.order.update({
                             where: { id: order.id },
-                            data: { status: "CANCELLED" },
+                            data: { status: "CANCELLED", cancelReason: "Cancelado por la tienda" },
                           });
                           revalidatePath("/vendor/pedidos");
                           revalidatePath(`/vendor/pedidos/${order.id}`);

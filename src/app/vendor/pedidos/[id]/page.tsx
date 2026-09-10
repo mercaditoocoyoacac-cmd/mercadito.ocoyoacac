@@ -124,6 +124,20 @@ export default async function VendorPedidoPage({
           </div>
         </div>
 
+        {order.status === "CANCELLED" && order.cancelReason && (
+          <div className="my-4 rounded-xl border border-red-300 bg-red-50 px-5 py-4">
+            <div className="flex items-start gap-3">
+              <svg className="h-5 w-5 shrink-0 mt-0.5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <div>
+                <div className="text-sm font-semibold text-red-800">Pedido cancelado</div>
+                <div className="mt-1 text-sm text-red-700">
+                  Motivo de cancelación: <span className="font-medium">{order.cancelReason}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="px-5 py-4 space-y-4">
           <div>
             <div className="text-sm font-medium mb-2">Cliente</div>
@@ -433,7 +447,7 @@ export default async function VendorPedidoPage({
                 "use server";
                 await prisma.order.update({
                   where: { id: order.id },
-                  data: { status: "CANCELLED" },
+                  data: { status: "CANCELLED", cancelReason: "Cancelado por la tienda" },
                 });
                 revalidatePath("/vendor/pedidos");
                 revalidatePath(`/vendor/pedidos/${order.id}`);

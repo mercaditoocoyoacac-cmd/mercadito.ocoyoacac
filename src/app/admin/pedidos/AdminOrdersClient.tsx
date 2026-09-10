@@ -21,6 +21,7 @@ function getAdvanceLabel(status: string, fulfillmentType: string) {
 interface OrderData {
   id: string;
   status: string;
+  cancelReason: string | null;
   fulfillmentType: string;
   totalCents: number;
   currency: string;
@@ -354,6 +355,11 @@ export function AdminOrdersClient({ orders, deliverySettings: initialSettings }:
                           minute: "2-digit",
                         })}
                       </div>
+                      {order.status === "CANCELLED" && order.cancelReason && (
+                        <div className="mt-1 text-xs text-red-700 bg-red-50 border border-red-200 rounded-md px-2 py-1">
+                          Motivo de cancelación: {order.cancelReason}
+                        </div>
+                      )}
                     </div>
                     <div className="text-right shrink-0">
                       <div className="font-medium">{formatMoney(order.totalCents, order.currency)}</div>
