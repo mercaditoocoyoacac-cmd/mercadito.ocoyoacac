@@ -412,22 +412,27 @@ export default function CarritoPage() {
   }
 
   const handleCheckout = async () => {
-    // Validate step 2 (delivery)
-    if (currentStep >= 2) {
-      if (fulfillmentType === "DELIVERY") {
+    // Advance steps through the wizard; only submit on the last step
+    if (currentStep < 3) {
+      if (currentStep === 2 && fulfillmentType === "DELIVERY") {
         if (!customerAddress.trim()) { setError("Ingresa una dirección de entrega."); return; }
         if (!customerLat || !customerLng) { setError("Selecciona tu ubicación en el mapa."); return; }
       }
-      if (!customerName.trim()) { setError("Ingresa tu nombre."); return; }
-      if (!customerPhone.trim()) { setError("Ingresa tu teléfono."); return; }
+      setError(null);
+      setCurrentStep(currentStep + 1);
+      return;
     }
 
-    // Validate step 3 (payment)
-    if (currentStep >= 3) {
-      if (paymentMethod === "TRANSFERENCIA" && !paymentEvidenceUrl) {
-        setError("Sube la captura de tu transferencia para continuar.");
-        return;
-      }
+    // Submit (step 3)
+    if (fulfillmentType === "DELIVERY") {
+      if (!customerAddress.trim()) { setError("Ingresa una dirección de entrega."); return; }
+      if (!customerLat || !customerLng) { setError("Selecciona tu ubicación en el mapa."); return; }
+    }
+    if (!customerName.trim()) { setError("Ingresa tu nombre."); return; }
+    if (!customerPhone.trim()) { setError("Ingresa tu teléfono."); return; }
+    if (paymentMethod === "TRANSFERENCIA" && !paymentEvidenceUrl) {
+      setError("Sube la captura de tu transferencia para continuar.");
+      return;
     }
 
     setCheckoutLoading(true);
@@ -844,7 +849,14 @@ export default function CarritoPage() {
                       </Button>
                       <Button
                         variant={fulfillmentType === "DELIVERY" ? "primary" : "outline"}
-                        onClick={() => { setFulfillmentType("DELIVERY"); setCurrentStep(3); }}
+                        onClick={() => {
+                          setFulfillmentType("DELIVERY");
+                          if (!customerAddress.trim() || !customerLat || !customerLng) {
+                            setError("Marca tu punto de entrega y llena tu dirección antes de continuar.");
+                            return;
+                          }
+                          setCurrentStep(3);
+                        }}
                         fullWidth
                         disabled={!isPremium}
                       >

@@ -435,7 +435,7 @@ onQuickView={(product) => setQuickViewProduct({ ...product, store } as any)}
         {cartCount > 0 && !quickViewProduct && (
           <Link
             href="/carrito"
-            className="fixed bottom-6 right-6 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--accent)] text-white shadow-xl transition-all hover:bg-[var(--accent-hover)] hover:scale-110 active:scale-95"
+            className="fixed bottom-24 right-6 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--accent)] text-white shadow-xl transition-all hover:bg-[var(--accent-hover)] hover:scale-110 active:scale-95"
             aria-label={`Carrito con ${cartCount} productos`}
           >
             <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
