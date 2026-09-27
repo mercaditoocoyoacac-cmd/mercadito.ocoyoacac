@@ -5,6 +5,7 @@ import { requireUser } from "@/server/requireUser";
 import { sendTextNotification } from "@/server/notifications";
 import { notifyCustomerOrderCompleted } from "@/server/notifications";
 import { notifyCustomerOrderReadyForPickup } from "@/server/notifications";
+import { notifyOrderCancelled, notifyOrderFinished } from "@/server/orderNotifications";
 import { sendPushToMultiple } from "@/server/push";
 import { appendStatusTimestamp } from "@/lib/statusTimestamps";
 
@@ -65,6 +66,11 @@ export async function POST(
 
   if (parsed.data.status === "COMPLETED") {
     await notifyCustomerOrderCompleted(id);
+    await notifyOrderFinished(id, { skipCustomer: true, exceptUserId: auth.userId });
+  }
+
+  if (parsed.data.status === "CANCELLED") {
+    await notifyOrderCancelled(id, { exceptUserId: auth.userId });
   }
 
   if (parsed.data.status === "READY" && order.fulfillmentType === "PICKUP") {
@@ -87,6 +93,7 @@ export async function POST(
         body: `${store.name} — ${order.customerName}${order.customerAddress ? ` | ${order.customerAddress}` : ""}`,
         type: "NEW_ORDER",
         url: "/delivery",
+        orderId: id,
       })
     );
 
@@ -101,6 +108,7 @@ export async function POST(
           body: `${store.name} — ${order.customerName}`,
           type: "NEW_ORDER",
           url: "/delivery",
+          orderId: id,
         }),
       );
     }

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { requireRole } from "@/server/requireUser";
+import { notifyOrderCancelled } from "@/server/orderNotifications";
 import { appendStatusTimestamp } from "@/lib/statusTimestamps";
 
 const CancelSchema = z.object({
@@ -65,6 +66,8 @@ export async function POST(req: Request) {
 
   revalidatePath("/admin/envios");
   revalidatePath("/vendor/pedidos");
+
+  await notifyOrderCancelled(orderId);
 
   return NextResponse.json({ ok: true });
 }

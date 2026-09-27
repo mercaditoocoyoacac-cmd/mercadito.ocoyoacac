@@ -6,6 +6,7 @@ import { requireUser } from "@/server/requireUser";
 import { rateLimit, getClientIP } from "@/server/rateLimit";
 import { isStoreOpen } from "@/lib/schedule";
 import { sendTextNotification } from "@/server/notifications";
+import { notifyOrderCreated } from "@/server/orderNotifications";
 import { notifyVendorNewOrder } from "@/server/whatsapp";
 import { sendPushNotification, sendPushToMultiple, sendPushToAdmins } from "@/server/push";
 import { calcDeliveryFeeCents, haversineDistance, pointInPolygon, RISK_ZONE_EXTRA_CENTS, type DeliveryFeeConfig } from "@/lib/geo";
@@ -506,7 +507,9 @@ export async function POST(req: Request) {
         body: `${parsed.data.customerName} hizo un pedido de $${(totalCents / 100).toFixed(2)} ${currency}`,
         type: "NEW_ORDER",
         url: "/vendor/pedidos",
+        orderId: order.id,
       }),
+      notifyOrderCreated(order.id),
     ];
 
     if (storeForNotification.owner.pushToken) {
@@ -516,6 +519,7 @@ export async function POST(req: Request) {
           body: `${parsed.data.customerName} - $${(totalCents / 100).toFixed(2)} ${currency}`,
           url: "/vendor/pedidos",
           type: "NEW_ORDER",
+          orderId: order.id,
         }),
       );
     }
@@ -562,6 +566,7 @@ export async function POST(req: Request) {
           body: `${storeForNotification?.name || "Tienda"} — ${parsed.data.customerName.trim()}${parsed.data.customerAddress ? ` | ${parsed.data.customerAddress.trim()}` : ""}`,
           type: "NEW_ORDER",
           url: "/delivery",
+          orderId: order.id,
         }),
       );
       const driverTokens = drivers.map((d) => d.pushToken).filter((t): t is string => Boolean(t));
@@ -572,6 +577,7 @@ export async function POST(req: Request) {
             body: `${storeForNotification?.name || "Tienda"} — ${parsed.data.customerName.trim()}`,
             url: "/delivery",
             type: "NEW_ORDER",
+            orderId: order.id,
           }),
         );
       }

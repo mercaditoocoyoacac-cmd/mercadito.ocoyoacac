@@ -9,11 +9,12 @@ interface BubbleItem {
   body: string;
   url?: string;
   type?: string;
+  orderId?: string;
 }
 
 declare global {
   interface WindowEventMap {
-    "push-bubble": CustomEvent<{ title: string; body: string; url?: string; type?: string }>;
+    "push-bubble": CustomEvent<{ title: string; body: string; url?: string; type?: string; orderId?: string }>;
   }
 }
 
@@ -64,11 +65,16 @@ export function NotificationBubble() {
     });
   }, []);
 
-  const addItem = useCallback((detail: { title: string; body: string; url?: string; type?: string }) => {
+  const addItem = useCallback((detail: { title: string; body: string; url?: string; type?: string; orderId?: string }) => {
     const item: BubbleItem = { id: ++idRef.current, ...detail };
+    setCurrent((prev) => {
+      if (prev && detail.orderId && prev.orderId === detail.orderId) return null;
+      return prev;
+    });
     setQueue((prev) => {
-      if (prev.some((p) => p.title === item.title && p.body === item.body)) return prev;
-      const next = [...prev, item];
+      const filtered = detail.orderId ? prev.filter((p) => p.orderId !== detail.orderId) : prev;
+      if (filtered.some((p) => p.title === item.title && p.body === item.body)) return prev;
+      const next = [...filtered, item];
       saveQueue(next);
       return next;
     });
@@ -94,8 +100,10 @@ export function NotificationBubble() {
         const persisted = loadQueue();
         if (persisted.length > 0) {
           setQueue((prev) => {
+            const orderIdsInQueue = new Set(prev.map((p) => p.orderId).filter(Boolean));
             const existingIds = new Set(prev.map((p) => `${p.title}|${p.body}`));
             const newItems = persisted
+              .filter((p) => !(p.orderId && orderIdsInQueue.has(p.orderId)))
               .filter((p) => !existingIds.has(`${p.title}|${p.body}`))
               .map((p) => ({ ...p, id: ++idRef.current }));
             return [...prev, ...newItems];

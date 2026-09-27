@@ -3,6 +3,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { requireRole } from "@/server/requireUser";
+import { notifyOrderHasDriver } from "@/server/orderNotifications";
 
 const ReassignSchema = z.object({
   orderId: z.string().min(1),
@@ -48,6 +49,8 @@ export async function POST(req: Request) {
     where: { id: orderId },
     data: { deliveryUserId: driverId },
   });
+
+  await notifyOrderHasDriver(orderId);
 
   revalidatePath("/admin/envios");
   revalidatePath(`/vendor/pedidos/${orderId}`);

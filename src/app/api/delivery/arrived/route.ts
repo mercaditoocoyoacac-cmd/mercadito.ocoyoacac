@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { requireRole } from "@/server/requireUser";
-import { sendTextNotification } from "@/server/notifications";
+import { notifyDeliveryArrived } from "@/server/orderNotifications";
 import { sendWhatsAppMessage } from "@/server/whatsapp";
 import { sendSMS } from "@/server/sns";
 
@@ -46,12 +46,7 @@ export async function POST(req: Request) {
   revalidatePath("/vendor/pedidos");
   revalidatePath("/delivery");
 
-  await sendTextNotification(order.userId, {
-    title: "Repartidor llegó",
-    body: `¡El repartidor ya está en tu domicilio! Sal a recibir tu pedido de ${order.store.name}.`,
-    type: "DELIVERY_ARRIVED",
-    url: `/mis-pedidos/${orderId}`,
-  });
+  await notifyDeliveryArrived(orderId);
 
   const message = `🛵 ¡El repartidor de ${order.store.name} ya está en tu domicilio! Sal a recibir tu pedido.`;
   await Promise.allSettled([

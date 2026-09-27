@@ -3,6 +3,7 @@ import { prisma } from "@/server/prisma";
 import { requireRole } from "@/server/requireUser";
 import { revalidatePath } from "next/cache";
 import { notifyCustomerOrderCompleted } from "@/server/notifications";
+import { notifyOrderFinished } from "@/server/orderNotifications";
 
 export async function POST(req: Request) {
   const auth = await requireRole("ADMIN");
@@ -44,6 +45,7 @@ export async function POST(req: Request) {
   });
 
   await notifyCustomerOrderCompleted(orderId);
+  await notifyOrderFinished(orderId, { skipCustomer: true });
 
   revalidatePath("/admin/envios");
   revalidatePath(`/admin/pedidos/${orderId}`);

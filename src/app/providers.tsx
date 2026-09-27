@@ -8,7 +8,7 @@ import SplashScreen from "@/components/ui/SplashScreen";
 import { SwipeBack } from "@/components/ui/SwipeBack";
 import { OfflineDetector } from "@/components/ui/OfflineDetector";
 
-function emitBubble(detail: { title: string; body: string; url?: string; type?: string }) {
+function emitBubble(detail: { title: string; body: string; url?: string; type?: string; orderId?: string }) {
   window.dispatchEvent(new CustomEvent("push-bubble", { detail }));
 }
 
@@ -79,7 +79,7 @@ async function initNativePush() {
           const title = n.title || payload?.title || "";
           const body = n.body || payload?.body || "";
           if (title) {
-            emitBubble({ title, body, url: payload?.url, type: payload?.type });
+            emitBubble({ title, body, url: payload?.url, type: payload?.type, orderId: payload?.orderId });
           }
         });
 
@@ -89,7 +89,7 @@ async function initNativePush() {
           const title = notif.title || data?.title || "";
           const body = notif.body || data?.body || "";
           if (title) {
-            emitBubble({ title, body, url: data?.url, type: data?.type });
+            emitBubble({ title, body, url: data?.url, type: data?.type, orderId: data?.orderId });
           }
         });
 
@@ -102,7 +102,7 @@ async function initNativePush() {
               const title = n.title || data?.title || "";
               const body = n.body || data?.body || "";
               if (title) {
-                emitBubble({ title, body, url: data?.url, type: data?.type });
+                emitBubble({ title, body, url: data?.url, type: data?.type, orderId: data?.orderId });
               }
             }
             if (delivered.notifications.length > 0) {
@@ -142,7 +142,7 @@ async function initWebPush() {
       const body = notification.body || data.body || "";
       if (title) {
         window.dispatchEvent(new CustomEvent("push-bubble", {
-          detail: { title, body, url: data.url, type: data.type },
+          detail: { title, body, url: data.url, type: data.type, orderId: data.orderId },
         }));
       }
     });

@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { requireRole, requireUser } from "@/server/requireUser";
 import { notifyCustomerOrderCompleted } from "@/server/notifications";
+import { notifyOrderFinished, notifyOrderOutForDelivery } from "@/server/orderNotifications";
 import { appendStatusTimestamp } from "@/lib/statusTimestamps";
 
 export async function POST(req: Request) {
@@ -75,6 +76,11 @@ export async function POST(req: Request) {
 
   if (newStatus === "COMPLETED") {
     await notifyCustomerOrderCompleted(orderId);
+    await notifyOrderFinished(orderId, { skipCustomer: true });
+  }
+
+  if (newStatus === "OUT_FOR_DELIVERY") {
+    await notifyOrderOutForDelivery(orderId);
   }
 
   return NextResponse.json({

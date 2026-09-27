@@ -3,6 +3,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { requireRole } from "@/server/requireUser";
+import { notifyOrderHasDriver } from "@/server/orderNotifications";
 import { appendStatusTimestamp } from "@/lib/statusTimestamps";
 import { rateLimit } from "@/lib/rate-limit";
 
@@ -83,6 +84,8 @@ export async function POST(req: Request) {
   revalidatePath(`/vendor/pedidos/${parsed.data.orderId}`);
   revalidatePath("/vendor/pedidos");
   revalidatePath("/delivery");
+
+  await notifyOrderHasDriver(parsed.data.orderId);
 
   return NextResponse.json({ ok: true, orderId: parsed.data.orderId });
 }

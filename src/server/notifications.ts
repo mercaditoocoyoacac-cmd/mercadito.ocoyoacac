@@ -8,6 +8,7 @@ interface NotificationData {
   body: string;
   type?: string;
   url?: string;
+  orderId?: string;
 }
 
 export async function sendTextNotification(userId: string, data: NotificationData) {
@@ -26,7 +27,7 @@ export async function sendTextNotification(userId: string, data: NotificationDat
   });
 
   if (user?.pushToken) {
-    await sendPushNotification(user.pushToken, { title: data.title, body: data.body, url: data.url, type: data.type });
+    await sendPushNotification(user.pushToken, { title: data.title, body: data.body, url: data.url, type: data.type, orderId: data.orderId });
   }
 }
 

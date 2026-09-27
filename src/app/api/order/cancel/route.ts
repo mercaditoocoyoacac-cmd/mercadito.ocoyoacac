@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
+import { notifyOrderCancelled } from "@/server/orderNotifications";
 import { appendStatusTimestamp } from "@/lib/statusTimestamps";
 
 const CANCEL_WINDOW_MIN = 5;
@@ -116,6 +117,8 @@ export async function POST(req: Request) {
   revalidatePath(`/vendor/pedidos/${orderId}`);
   revalidatePath(`/pedido/${orderId}`);
   revalidatePath(`/mis-pedidos/${orderId}`);
+
+  await notifyOrderCancelled(order.id, { exceptUserId: auth.userId, reason: reasonText });
 
   return NextResponse.json({ ok: true });
 }
