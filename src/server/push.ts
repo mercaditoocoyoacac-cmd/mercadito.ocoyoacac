@@ -324,6 +324,44 @@ export async function sendDailyCustomerReminder() {
 
   const tokens = users.map((u) => u.pushToken).filter(Boolean) as string[];
 
+  const memberStores = await prisma.store.findMany({
+    where: {
+      isActive: true,
+      isPublished: true,
+      plan: { in: ["MEMBER", "SOLO_DELIVERY"] },
+      subscription: {
+        is: {
+          status: { in: ["ACTIVE", "TRIAL"] },
+          endDate: { gt: new Date() },
+        },
+      },
+    },
+    select: { name: true },
+    orderBy: { name: "asc" },
+  });
+
+  if (memberStores.length > 0) {
+    const names = memberStores.map((s) => s.name);
+    let body: string;
+    if (names.length === 1) {
+      body = `Descubre ${names[0]} por Mercadito Ocoyoacac. ¡Te espera!`;
+    } else if (names.length === 2) {
+      body = `Descubre ${names[0]} y ${names[1]} por Mercadito Ocoyoacac.`;
+    } else if (names.length === 3) {
+      body = `Descubre ${names[0]}, ${names[1]} y ${names[2]} por Mercadito Ocoyoacac.`;
+    } else {
+      body = `Descubre ${names[0]}, ${names[1]} y ${names.length - 2} negocios más por Mercadito Ocoyoacac.`;
+    }
+    await sendPushToMultiple(tokens, {
+      title: "🏪 Conoce los negocios de Mercadito",
+      body,
+      url: "/tiendas",
+      type: "STORE_SPOTLIGHT",
+    });
+    console.log(`[CRON] Daily store spotlight sent to ${tokens.length} devices (${memberStores.length} negocios)`);
+    return;
+  }
+
   const messages = [
     {
       title: "🍽️ ¿Se te antoja algo?",
