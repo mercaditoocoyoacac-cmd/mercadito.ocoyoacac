@@ -1,5 +1,60 @@
 import admin from "firebase-admin";
 import { prisma } from "@/server/prisma";
+import { isStoreOpenToday } from "@/lib/schedule";
+
+const CATEGORY_SPOTLIGHT: Record<string, { emoji: string; phrase: string }> = {
+  CANASTA_BASICA: { emoji: "🛒", phrase: "Tu despensa básica de todos los días" },
+  COMIDA_PREPARADA: { emoji: "🍽️", phrase: "Comida preparada y antojitos" },
+  POSTRES: { emoji: "🍰", phrase: "Postres y antojos dulces" },
+  FRUTAS_VERDURAS: { emoji: "🥬", phrase: "Frutas y verduras frescas" },
+  HERRAMIENTAS: { emoji: "🔧", phrase: "Herramientas y artículos del hogar" },
+  FLORERIAS: { emoji: "💐", phrase: "Flores y regalos" },
+  FARMACIAS: { emoji: "💊", phrase: "Farmacia y cuidado de tu salud" },
+  BELLEZA: { emoji: "💅", phrase: "Salud y belleza" },
+  PAPE: { emoji: "🎁", phrase: "Papelería y regalos" },
+  SERVICIOS: { emoji: "🛠️", phrase: "Servicios de confianza" },
+  OTROS: { emoji: "🏪", phrase: "Un negocio local de confianza" },
+};
+
+function buildStoreSpotlight(store: {
+  name: string;
+  slug: string;
+  category: string;
+  description: string | null;
+}) {
+  const fallback = CATEGORY_SPOTLIGHT[store.category] ?? CATEGORY_SPOTLIGHT.OTROS;
+  const raw = (store.description ?? "").replace(/\s+/g, " ").trim();
+  let snippet: string;
+  if (raw) {
+    const sentenceEnd = raw.search(/[.!?](?=\s|$)/);
+    let truncated = false;
+    if (sentenceEnd > 0) {
+      snippet = raw.slice(0, sentenceEnd + 1).trim().replace(/[.!?…\s]+$/, "");
+    } else {
+      snippet = raw.slice(0, 88);
+      const cut = snippet.lastIndexOf(" ");
+      if (cut > 24) snippet = snippet.slice(0, cut);
+      snippet = snippet.replace(/[.!?…\s]+$/, "");
+      truncated = snippet.length < raw.length;
+    }
+    if (snippet.length > 100) {
+      const cut = snippet.slice(0, 100).lastIndexOf(" ");
+      if (cut > 24) snippet = snippet.slice(0, cut);
+      truncated = true;
+    }
+    snippet = `${fallback.emoji} ${snippet}${truncated ? "…" : ""}`;
+  } else {
+    snippet = `${fallback.emoji} ${fallback.phrase}`;
+  }
+  const body = snippet.endsWith("…")
+    ? `${snippet} ¡Pídelo por Mercadito Ocoyoacac!`
+    : `${snippet}. ¡Pídelo por Mercadito Ocoyoacac!`;
+  return {
+    title: `🏪 Conoce ${store.name}`,
+    body,
+    url: `/tienda/${store.slug}`,
+  };
+}
 
 let initialized = false;
 
@@ -336,29 +391,32 @@ export async function sendDailyCustomerReminder() {
         },
       },
     },
-    select: { name: true },
+    select: {
+      name: true,
+      slug: true,
+      category: true,
+      description: true,
+      openTime: true,
+      closeTime: true,
+      scheduleDays: true,
+      scheduleDetails: true,
+    },
     orderBy: { name: "asc" },
   });
 
-  if (memberStores.length > 0) {
-    const names = memberStores.map((s) => s.name);
-    let body: string;
-    if (names.length === 1) {
-      body = `Descubre ${names[0]} por Mercadito Ocoyoacac. ¡Te espera!`;
-    } else if (names.length === 2) {
-      body = `Descubre ${names[0]} y ${names[1]} por Mercadito Ocoyoacac.`;
-    } else if (names.length === 3) {
-      body = `Descubre ${names[0]}, ${names[1]} y ${names[2]} por Mercadito Ocoyoacac.`;
-    } else {
-      body = `Descubre ${names[0]}, ${names[1]} y ${names.length - 2} negocios más por Mercadito Ocoyoacac.`;
-    }
+  const openStores = memberStores.filter((s) => isStoreOpenToday(s));
+
+  if (openStores.length > 0) {
+    const dayIndex = Math.floor(Date.now() / 86400000);
+    const store = openStores[dayIndex % openStores.length];
+    const spotlight = buildStoreSpotlight(store);
     await sendPushToMultiple(tokens, {
-      title: "🏪 Conoce los negocios de Mercadito",
-      body,
-      url: "/tiendas",
+      title: spotlight.title,
+      body: spotlight.body,
+      url: spotlight.url,
       type: "STORE_SPOTLIGHT",
     });
-    console.log(`[CRON] Daily store spotlight sent to ${tokens.length} devices (${memberStores.length} negocios)`);
+    console.log(`[CRON] Store spotlight (${store.name}) → ${tokens.length} devices (${openStores.length} abiertos hoy)`);
     return;
   }
 
