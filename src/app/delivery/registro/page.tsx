@@ -7,7 +7,7 @@ import { useState } from "react";
 
 export default function DeliveryRegistroPage() {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
   const [nombres, setNombres] = useState("");
   const [apellidos, setApellidos] = useState("");
   const [email, setEmail] = useState("");
@@ -30,9 +30,10 @@ export default function DeliveryRegistroPage() {
       const data = await res.json().catch(() => null);
       setLoading(false);
       if (res.ok && data?.ok) {
+        await update();
         router.push("/delivery");
       } else {
-        setError("No se pudo cambiar al rol de repartidor.");
+        setError(data?.error || "No se pudo cambiar al rol de repartidor.");
       }
       return;
     }
@@ -87,6 +88,11 @@ export default function DeliveryRegistroPage() {
           <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">
             Sesión iniciada como <strong>{session.user.email}</strong> ({session.user.role})
           </div>
+          {error ? (
+            <div className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700">
+              {error}
+            </div>
+          ) : null}
           <button
             onClick={handleRegister}
             disabled={loading}
