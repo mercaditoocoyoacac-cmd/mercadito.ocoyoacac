@@ -3,12 +3,13 @@ import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import OrderConfirmation from "@/components/orders/OrderConfirmation";
+import { CopyCodeButton } from "@/components/orders/CopyCodeButton";
 import { OrderAutoRefresh } from "@/components/orders/OrderAutoRefresh";
 import { OrderCancelButton } from "@/components/orders/OrderCancelButton";
 import { OrderModifyButton } from "@/components/orders/OrderModifyButton";
 import { formatMoney } from "@/lib/format";
 import { formatDateTimeInMexico } from "@/lib/dates";
-import { Card, CardContent, CardHeader, CardTitle, Button, Badge, OrderTimeline, OrderStatusBadge } from "@/components/ui/design-system";
+import { Card, CardContent, CardHeader, CardTitle, OrderTimeline, OrderStatusBadge } from "@/components/ui/design-system";
 import { maybeSendReadyReminder } from "@/server/readyReminder";
 
 export default async function PedidoPage({
@@ -105,7 +106,6 @@ export default async function PedidoPage({
         data={timelineData}
         variant="card"
         showDescriptions={true}
-        onContactStore={() => order.store.phone && window.open(`https://api.whatsapp.com/send?phone=${order.store.phone.replace(/\D/g, "")}`)}
       />
 
       {/* Order Details */}
@@ -136,11 +136,7 @@ export default async function PedidoPage({
                   <div className="text-xs text-[color:var(--muted)]">Código de recogida</div>
                   <div className="mt-1 inline-flex items-center gap-2 rounded-lg bg-[var(--accent-soft)] px-4 py-3">
                     <code className="font-mono text-xl font-bold tracking-widest text-[var(--accent)]">{order.pickupCode}</code>
-                    <Button variant="ghost" size="sm" onClick={() => { navigator.clipboard.writeText(order.pickupCode!); }} leftIcon={
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-12a2 2 0 00-2-2h-2M12 5v12M12 5a2 2 0 014 0v12a2 2 0 01-4 0" /></svg>
-                    }>
-                      Copiar
-                    </Button>
+                    <CopyCodeButton code={order.pickupCode} />
                   </div>
                 </div>
               )}
