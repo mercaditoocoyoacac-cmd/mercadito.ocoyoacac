@@ -188,30 +188,43 @@ export default function RegistroPage() {
               <CardTitle className="text-base">¿Para qué deseas tu cuenta?</CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="grid grid-cols-3 gap-3">
+              <div className="flex flex-col gap-3">
                 {(["CUSTOMER", "VENDOR", "DELIVERY"] as const).map((r) => {
                   const colors = roleColors[r];
                   const isSelected = selectedRole === r;
                   return (
-                    <Button
+                    <button
                       key={r}
                       type="button"
-                      variant={isSelected ? "primary" : "outline"}
-                      className={`h-32 flex flex-col items-center gap-3 ${isSelected ? "shadow-lg" : ""}`}
                       onClick={() => setSelectedRole(r)}
+                      aria-pressed={isSelected}
+                      className={`flex w-full items-center gap-4 rounded-2xl border-2 px-4 py-4 text-left transition-all ${
+                        isSelected
+                          ? "border-[var(--accent)] bg-[var(--accent-soft)] shadow-sm"
+                          : "border-[var(--border)] bg-[var(--surface)] hover:border-[var(--accent)]/40"
+                      }`}
                     >
-                      <span className={isSelected ? "text-white" : "text-[color:var(--muted)]"}>
+                      <span
+                        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${
+                          isSelected ? "bg-[var(--accent)] text-white" : `${colors.bg} text-[color:var(--muted)]`
+                        }`}
+                      >
                         {roleIcons[r]}
                       </span>
-                      <div className="text-center">
-                        <div className={`text-sm font-semibold ${isSelected ? "text-white" : ""}`}>
-                          {roleLabels[r].title}
-                        </div>
-                        <div className={`text-[10px] leading-tight mt-0.5 ${isSelected ? "text-white/80" : "text-[color:var(--muted)]"}`}>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-sm font-semibold">{roleLabels[r].title}</span>
+                        <span className="mt-0.5 block text-xs leading-snug text-[color:var(--muted)]">
                           {roleLabels[r].desc}
-                        </div>
-                      </div>
-                    </Button>
+                        </span>
+                      </span>
+                      <span
+                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
+                          isSelected ? "border-[var(--accent)]" : "border-[var(--border)]"
+                        }`}
+                      >
+                        {isSelected && <span className="h-2.5 w-2.5 rounded-full bg-[var(--accent)]" />}
+                      </span>
+                    </button>
                   );
                 })}
               </div>
