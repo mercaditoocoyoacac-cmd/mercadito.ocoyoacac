@@ -180,7 +180,10 @@ export const StoreCardWithProducts = memo(function StoreCardWithProducts({
               {showArrows && showLeftFade && (
                 <button
                   type="button"
-                  onClick={scrollLeft}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    scrollLeft();
+                  }}
                   className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-white border border-[var(--border)] shadow-lg text-[var(--accent)] hover:bg-[var(--accent-soft)] transition-all duration-200 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
                   aria-label="Productos anteriores"
                 >
@@ -192,7 +195,10 @@ export const StoreCardWithProducts = memo(function StoreCardWithProducts({
               {showArrows && showRightFade && (
                 <button
                   type="button"
-                  onClick={scrollRight}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    scrollRight();
+                  }}
                   className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-white border border-[var(--border)] shadow-lg text-[var(--accent)] hover:bg-[var(--accent-soft)] transition-all duration-200 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
                   aria-label="Más productos"
                 >
@@ -268,16 +274,18 @@ export const StoreCardWithProducts = memo(function StoreCardWithProducts({
                             </span>
                           )}
                         </div>
-                        <AddToCartButton
-                          productId={product.id}
-                          variants={product.variants}
-                          disabled={product.isUnavailable}
-                          disabledLabel="Agotado"
-                          sellByWeight={product.sellByWeight}
-                          minWeightGrams={product.minWeightGrams}
-                          maxWeightGrams={product.maxWeightGrams}
-                          priceCents={product.isPromotion && product.promotionPriceCents != null ? product.promotionPriceCents : product.priceCents}
-                        />
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <AddToCartButton
+                            productId={product.id}
+                            variants={product.variants}
+                            disabled={product.isUnavailable}
+                            disabledLabel="Agotado"
+                            sellByWeight={product.sellByWeight}
+                            minWeightGrams={product.minWeightGrams}
+                            maxWeightGrams={product.maxWeightGrams}
+                            priceCents={product.isPromotion && product.promotionPriceCents != null ? product.promotionPriceCents : product.priceCents}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -292,7 +300,8 @@ export const StoreCardWithProducts = memo(function StoreCardWithProducts({
                   <button
                     key={index}
                     type="button"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       const el = scrollRef.current;
                       if (!el) return;
                       const cardWidth = 180;
