@@ -172,6 +172,14 @@ hr {
 .stagger-9 { animation: staggerIn 0.3s ease-out 0.4s both; }
 .stagger-10 { animation: staggerIn 0.3s ease-out 0.45s both; }
 
+@keyframes pageIn {
+  from { opacity: 0.5; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.page-enter {
+  animation: pageIn 0.28s ease-out;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

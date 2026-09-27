@@ -1,6 +1,5 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 export default function SplashScreen({ children }: { children: React.ReactNode }) {
@@ -13,48 +12,36 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
 
   return (
     <>
-      <AnimatePresence mode="wait">
-        {show && (
-          <motion.div
-            className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-gradient-to-br from-amber-700 via-orange-600 to-rose-700"
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0, transition: { duration: 0.5, ease: "easeInOut" } }}
-          >
-            <motion.img
-              src="/logo.png"
-              alt="Mercadito"
-              className="h-28 w-28 sm:h-36 sm:w-36 drop-shadow-2xl"
-              initial={{ opacity: 0, scale: 0.5, y: 20 }}
-              animate={{
-                opacity: 1,
-                scale: 1,
-                y: 0,
-                transition: { type: "spring", stiffness: 200, damping: 14, mass: 0.6 },
-              }}
-            />
-            <motion.h1
-              className="mt-6 text-3xl font-bold tracking-tight text-white sm:text-4xl"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0, transition: { delay: 0.3, duration: 0.4 } }}
-            >
-              Mercadito
-            </motion.h1>
-            <motion.p
-              className="mt-2 text-base text-amber-100/80"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1, transition: { delay: 0.5, duration: 0.4 } }}
-            >
-              Ocoyoacac
-            </motion.p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: show ? 0 : 1, transition: { duration: 0.3, delay: show ? 0 : 0.2 } }}
+      <div
+        aria-hidden={!show}
+        className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-gradient-to-br from-amber-700 via-orange-600 to-rose-700"
+        style={{
+          opacity: show ? 1 : 0,
+          pointerEvents: show ? "auto" : "none",
+          transition: "opacity 0.5s ease",
+        }}
       >
+        <img
+          src="/logo.png"
+          alt="Mercadito"
+          className="h-28 w-28 animate-scale-in drop-shadow-2xl sm:h-36 sm:w-36"
+        />
+        <h1
+          className="mt-6 animate-fade-in text-3xl font-bold tracking-tight text-white sm:text-4xl"
+          style={{ animationDelay: "0.15s" }}
+        >
+          Mercadito
+        </h1>
+        <p
+          className="mt-2 animate-fade-in text-base text-amber-100/80"
+          style={{ animationDelay: "0.3s" }}
+        >
+          Ocoyoacac
+        </p>
+      </div>
+      <div style={{ opacity: show ? 0 : 1, transition: "opacity 0.3s ease 0.15s" }}>
         {children}
-      </motion.div>
+      </div>
     </>
   );
 }

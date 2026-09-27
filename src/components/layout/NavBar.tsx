@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { DarkModeToggle } from "@/components/ui/DarkModeToggle";
 import { NotificationBell } from "@/components/ui/NotificationBell";
 
@@ -49,6 +49,14 @@ export function NavBar() {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [vendorMenuOpen]);
+
+  const handleMobileNav = (e: ReactMouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const href = e.currentTarget.getAttribute("href");
+    if (!href) return;
+    setMenuOpen(false);
+    setTimeout(() => router.push(href), 0);
+  };
 
   const headerRef = useRef<HTMLDivElement>(null);
 
@@ -621,7 +629,7 @@ export function NavBar() {
             <nav className="flex flex-col gap-1 p-4">
               <Link
                 href="/promociones"
-                onClick={() => setMenuOpen(false)}
+                onClick={handleMobileNav}
                 className={`rounded-lg px-4 py-3 text-sm font-medium ${
                   isActive("/promociones") ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                 }`}
@@ -630,7 +638,7 @@ export function NavBar() {
               </Link>
               <Link
                 href="/tiendas"
-                onClick={() => setMenuOpen(false)}
+                onClick={handleMobileNav}
                 className={`rounded-lg px-4 py-3 text-sm font-medium ${
                   isActive("/tiendas") ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                 }`}
@@ -639,7 +647,7 @@ export function NavBar() {
               </Link>
               <Link
                 href="/carrito"
-                onClick={() => setMenuOpen(false)}
+                onClick={handleMobileNav}
                 className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${
                   isActive("/carrito") ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                 }`}
@@ -651,7 +659,7 @@ export function NavBar() {
                 <>
                   <Link
                     href="/mis-pedidos"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${
                       isActive("/mis-pedidos") ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -660,7 +668,7 @@ export function NavBar() {
                   </Link>
                   <Link
                     href="/perfil"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${
                       isActive("/perfil") ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -669,7 +677,7 @@ export function NavBar() {
                   </Link>
                   <Link
                     href="/perfil/dispositivos"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${
                       isActive("/perfil/dispositivos") ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -685,7 +693,7 @@ export function NavBar() {
                   <div className="px-4 py-2 text-xs font-semibold text-[color:var(--muted)] uppercase tracking-wide">Administración</div>
                   <Link
                     href="/admin"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
                       pathname === "/admin" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -694,7 +702,7 @@ export function NavBar() {
                   </Link>
                   <Link
                     href="/admin/mensajes"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
                       pathname === "/admin/mensajes" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -703,7 +711,7 @@ export function NavBar() {
                   </Link>
                   <Link
                     href="/admin/zonas-envio"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
                       pathname === "/admin/zonas-envio" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -712,7 +720,7 @@ export function NavBar() {
                   </Link>
                   <Link
                     href="/admin/envios"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
                       pathname === "/admin/envios" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -721,7 +729,7 @@ export function NavBar() {
                   </Link>
                   <Link
                     href="/admin/membresias"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
                       pathname === "/admin/membresias" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -730,7 +738,7 @@ export function NavBar() {
                   </Link>
                   <Link
                     href="/admin/usuarios"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
                       pathname === "/admin/usuarios" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -739,7 +747,7 @@ export function NavBar() {
                   </Link>
                   <Link
                     href="/admin/publicidad"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
                       pathname === "/admin/publicidad" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -748,7 +756,7 @@ export function NavBar() {
                   </Link>
                   <Link
                     href="/admin/pedidos"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
                       pathname === "/admin/pedidos" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -757,7 +765,7 @@ export function NavBar() {
                   </Link>
                   <Link
                     href="/admin/tiendas"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
                       pathname === "/admin/tiendas" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -766,7 +774,7 @@ export function NavBar() {
                   </Link>
                   <Link
                     href="/admin/categorias"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
                       pathname === "/admin/categorias" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -775,7 +783,7 @@ export function NavBar() {
                   </Link>
                   <Link
                     href="/admin/productos"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
                       pathname === "/admin/productos" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -784,7 +792,7 @@ export function NavBar() {
                   </Link>
                   <Link
                     href="/admin/mercado-pago"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
                       pathname === "/admin/mercado-pago" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -793,7 +801,7 @@ export function NavBar() {
                   </Link>
                   <Link
                     href="/admin/cupones"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
                       pathname === "/admin/cupones" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -802,7 +810,7 @@ export function NavBar() {
                   </Link>
                   <Link
                     href="/admin/membresia-cupones"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
                       pathname === "/admin/membresia-cupones" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -811,7 +819,7 @@ export function NavBar() {
                   </Link>
                   <Link
                     href="/admin/promociones"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
                       pathname === "/admin/promociones" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -825,7 +833,7 @@ export function NavBar() {
                   <div className="px-4 py-2 text-xs font-semibold text-[color:var(--muted)] uppercase tracking-wide">Mi Tienda</div>
                   <Link
                     href="/vendor"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
                       pathname === "/vendor" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -834,7 +842,7 @@ export function NavBar() {
                   </Link>
                   <Link
                     href="/vendor/mi-tienda"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
                       pathname === "/vendor/mi-tienda" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -843,7 +851,7 @@ export function NavBar() {
                   </Link>
                   <Link
                     href="/vendor/membresia"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
                       pathname === "/vendor/membresia" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -852,7 +860,7 @@ export function NavBar() {
                   </Link>
                   <Link
                     href="/vendor/productos"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
                       pathname.startsWith("/vendor/productos") ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -861,14 +869,14 @@ export function NavBar() {
                   </Link>
                   <Link
                     href="/vendor/productos/nuevo"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className="rounded-lg px-4 py-3 text-sm font-medium text-[var(--accent)]"
                   >
                     + Nuevo Producto
                   </Link>
                   <Link
                     href="/vendor/cupones"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
                       pathname === "/vendor/cupones" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -877,7 +885,7 @@ export function NavBar() {
                   </Link>
                   <Link
                     href="/vendor/recibos"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
                       pathname === "/vendor/recibos" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -886,7 +894,7 @@ export function NavBar() {
                   </Link>
                   <Link
                     href="/vendor/promociones"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
                       pathname === "/vendor/promociones" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -898,7 +906,7 @@ export function NavBar() {
                 <>
                   <Link
                     href="/delivery"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${
                       pathname === "/delivery" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -910,7 +918,7 @@ export function NavBar() {
                   </Link>
                   <Link
                     href="/delivery/escanear"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${
                       pathname === "/delivery/escanear" ? "bg-orange-100 text-orange-600" : "text-orange-600"
                     }`}
@@ -922,7 +930,7 @@ export function NavBar() {
                   </Link>
                   <Link
                     href="/delivery/horarios"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${
                       pathname === "/delivery/horarios" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
                     }`}
@@ -945,7 +953,7 @@ export function NavBar() {
                   {role !== "VENDOR" && role !== "ADMIN" && (
                     <Link
                       href="/vendor/upgrade"
-                      onClick={() => setMenuOpen(false)}
+                      onClick={handleMobileNav}
                       className="rounded-lg px-4 py-3 text-sm font-medium text-[var(--accent)]"
                     >
                       Convertirme en vendedor
@@ -954,7 +962,7 @@ export function NavBar() {
                   {role !== "DELIVERY" && !additionalRoles.includes("DELIVERY") && (
                     <Link
                       href="/delivery/registro"
-                      onClick={() => setMenuOpen(false)}
+                      onClick={handleMobileNav}
                       className="rounded-lg px-4 py-3 text-sm font-medium text-orange-600"
                     >
                       Quiero repartir
@@ -963,7 +971,7 @@ export function NavBar() {
                   {role !== "CUSTOMER" && !additionalRoles.includes("CUSTOMER") && (
                     <Link
                       href="/registro"
-                      onClick={() => setMenuOpen(false)}
+                      onClick={handleMobileNav}
                       className="rounded-lg px-4 py-3 text-sm font-medium text-rose-600"
                     >
                       Quiero comprar
@@ -985,14 +993,14 @@ export function NavBar() {
                   <div className="px-4 py-2 text-xs font-semibold text-[color:var(--muted)] uppercase tracking-wide">Mi cuenta</div>
                   <Link
                     href="/login"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className="rounded-lg px-4 py-3 text-sm font-medium text-[var(--accent)]"
                   >
                     Iniciar sesión
                   </Link>
                   <Link
                     href="/registro"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className="rounded-lg px-4 py-3 text-sm font-medium text-[var(--accent)]"
                   >
                     Registrarse
@@ -1000,14 +1008,14 @@ export function NavBar() {
                   <div className="my-2 border-t border-[var(--border)]"></div>
                   <Link
                     href="/vendor/registro"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className="rounded-lg px-4 py-3 text-sm font-medium text-[color:var(--muted)]"
                   >
                     Soy vendedor
                   </Link>
                   <Link
                     href="/delivery/registro"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleMobileNav}
                     className="rounded-lg px-4 py-3 text-sm font-medium text-[color:var(--muted)]"
                   >
                     Soy repartidor
