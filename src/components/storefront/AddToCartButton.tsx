@@ -37,7 +37,7 @@ export const AddToCartButton = memo(function AddToCartButton({
   const hasVariants = variants && variants.length > 0;
   const canAdd = hasVariants ? selectedVariantId !== null : true;
   const isBlocked = disabled || loading || !canAdd;
-  const label = disabledLabel || (disabled ? "No disponible" : "Agregar");
+  const label = disabled ? disabledLabel || "No disponible" : "Agregar";
 
   const effectivePriceCents = hasVariants && selectedVariantId
     ? variants!.find((v) => v.id === selectedVariantId)?.priceCents ?? priceCents ?? 0
