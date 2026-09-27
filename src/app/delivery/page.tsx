@@ -5,6 +5,7 @@ import { getUserRoles } from "@/server/requireUser";
 import DeliveryTracker from "@/components/orders/DeliveryTracker";
 import DeliveryRating from "@/components/delivery/DeliveryRating";
 import { PullToRefreshWrapper } from "@/components/ui/PullToRefreshWrapper";
+import { RoleModeSwitcher } from "@/components/layout/RoleModeSwitcher";
 
 export const dynamic = "force-dynamic";
 
@@ -94,6 +95,8 @@ export default async function DeliveryDashboard() {
     },
   });
 
+  const sessionRoles = getUserRoles(session);
+
   return (
     <PullToRefreshWrapper>
     <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
@@ -106,7 +109,12 @@ export default async function DeliveryDashboard() {
             Bienvenido, {session.user.email}
           </p>
         </div>
-        <DeliveryRating deliveryUserId={session.user.id} />
+        <div className="flex flex-col items-end gap-3">
+          {sessionRoles.includes("VENDOR") && (
+            <RoleModeSwitcher availableRoles={sessionRoles} />
+          )}
+          <DeliveryRating deliveryUserId={session.user.id} />
+        </div>
       </div>
 
       <DeliveryTracker

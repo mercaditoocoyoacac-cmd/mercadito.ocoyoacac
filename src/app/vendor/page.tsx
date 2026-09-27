@@ -4,11 +4,13 @@ import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
+import { getUserRoles } from "@/server/requireUser";
 import { formatDateInMexico, formatDateTimeInMexico } from "@/lib/dates";
 import { formatMoney } from "@/lib/format";
 import { membershipPlanLabel } from "@/lib/membership";
 import { VendorCoachMarks } from "@/components/ui/VendorCoachMarks";
 import { PullToRefreshWrapper } from "@/components/ui/PullToRefreshWrapper";
+import { RoleModeSwitcher } from "@/components/layout/RoleModeSwitcher";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +23,7 @@ export default async function VendorDashboard() {
     select: { role: true, additionalRoles: true },
   });
   const hasDeliveryAccess = vendorUser?.role === "DELIVERY" || vendorUser?.additionalRoles?.includes("DELIVERY");
+  const sessionRoles = session ? getUserRoles(session) : [];
 
   const store = await prisma.store.findFirst({
     where: { ownerId: userId },
@@ -344,7 +347,10 @@ export default async function VendorDashboard() {
                   : "Tu tienda no es visible para clientes"}
               </p>
             </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
+            <div className="flex flex-col items-stretch gap-3 sm:flex-row">
+              {sessionRoles.includes("DELIVERY") && (
+                <RoleModeSwitcher availableRoles={sessionRoles} />
+              )}
               <Link
                 href={`/tienda/${store.slug}`}
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-emerald-700 shadow-lg hover:bg-yellow-50"
