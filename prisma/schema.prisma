@@ -67,6 +67,12 @@ model User {
   trialUsed      Boolean  @default(false)
   availabilitySchedule Json?          @default("{}")
 
+  vehiclePhotoUrl    String?
+  licensePhotoUrl    String?
+  personPhotoUrl     String?
+  officialIdPhotoUrl String?
+  driverDocsSubmittedAt DateTime?
+
   stores        Store[]
   orders        Order[]       @relation("OrderCustomer")
   deliveries    Order[]       @relation("OrderDelivery")

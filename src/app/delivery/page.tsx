@@ -6,6 +6,8 @@ import DeliveryTracker from "@/components/orders/DeliveryTracker";
 import DeliveryRating from "@/components/delivery/DeliveryRating";
 import { PullToRefreshWrapper } from "@/components/ui/PullToRefreshWrapper";
 import { RoleModeSwitcher } from "@/components/layout/RoleModeSwitcher";
+import { missingDocs } from "@/server/driverDocs";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +17,18 @@ export default async function DeliveryDashboard() {
   if (!session?.user?.id || session.user.isActive === false || !getUserRoles(session).includes("DELIVERY")) {
     redirect("/delivery/login");
   }
+
+  const myUser = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: {
+      vehiclePhotoUrl: true,
+      licensePhotoUrl: true,
+      personPhotoUrl: true,
+      officialIdPhotoUrl: true,
+    },
+  });
+
+  const pendingDocs = myUser ? missingDocs(myUser) : [];
 
   const myDeliveries = await prisma.order.findMany({
     where: { deliveryUserId: session.user.id, status: { not: "CANCELLED" } },
@@ -100,6 +114,27 @@ export default async function DeliveryDashboard() {
   return (
     <PullToRefreshWrapper>
     <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
+      {pendingDocs.length > 0 && (
+        <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="text-sm font-semibold text-amber-900">
+                Te faltan documentos para repartir: {pendingDocs.join(", ")}
+              </div>
+              <p className="mt-1 text-xs text-amber-800/80">
+                Sube tus 4 documentos antes del <strong>15 de octubre de 2026</strong> o se retirará el
+                status de repartidor a tu cuenta.
+              </p>
+            </div>
+            <Link
+              href="/delivery/documentos"
+              className="shrink-0 rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600"
+            >
+              Subir documentos
+            </Link>
+          </div>
+        </div>
+      )}
       <div className="mb-8 flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">

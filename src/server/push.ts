@@ -1,6 +1,8 @@
 import admin from "firebase-admin";
 import { prisma } from "@/server/prisma";
 import { isStoreOpenToday } from "@/lib/schedule";
+import { hasCompleteDocs, missingDocs, stripDeliveryRole } from "@/server/driverDocs";
+import type { Role } from "@prisma/client";
 
 const CATEGORY_SPOTLIGHT: Record<string, { emoji: string; phrase: string }> = {
   CANASTA_BASICA: { emoji: "🛒", phrase: "Tu despensa básica de todos los días" },
@@ -300,6 +302,89 @@ export async function sendEmptyStoreSuspensionWarning() {
   console.log(
     `[CRON] Suspension warning sent to ${tokens.length} store owners (${storesWithoutProducts.length} stores without products)`
   );
+}
+
+export async function sendDriverDocsReminder() {
+  const drivers = await prisma.user.findMany({
+    where: {
+      pushToken: { not: null },
+      OR: [
+        { role: "DELIVERY" },
+        { additionalRoles: { contains: "DELIVERY" } },
+      ],
+    },
+    select: {
+      pushToken: true,
+      vehiclePhotoUrl: true,
+      licensePhotoUrl: true,
+      personPhotoUrl: true,
+      officialIdPhotoUrl: true,
+    },
+  });
+
+  const pending = drivers.filter((d) => !hasCompleteDocs(d));
+  if (pending.length === 0) {
+    console.log("[CRON] No hay repartidores con documentos pendientes");
+    return 0;
+  }
+
+  const tokens = pending.map((d) => d.pushToken).filter(Boolean) as string[];
+  const sample = pending[0];
+  const faltan = missingDocs(sample);
+
+  await sendPushToMultiple(tokens, {
+    title: "📄 Completa tus documentos de repartidor",
+    body: `Te faltan: ${faltan.join(", ")}. Sube tus 4 documentos antes del 15 de octubre para seguir repartiendo.`,
+    url: "/delivery/documentos",
+    type: "DRIVER_DOCS",
+  });
+  console.log(`[CRON] Driver docs reminder sent to ${tokens.length} devices (${pending.length} repartidores)`);
+  return pending.length;
+}
+
+export async function stripDriversWithoutDocs() {
+  const drivers = await prisma.user.findMany({
+    where: {
+      OR: [
+        { role: "DELIVERY" },
+        { additionalRoles: { contains: "DELIVERY" } },
+      ],
+    },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      additionalRoles: true,
+      vehiclePhotoUrl: true,
+      licensePhotoUrl: true,
+      personPhotoUrl: true,
+      officialIdPhotoUrl: true,
+    },
+  });
+
+  const toStrip = drivers.filter((d) => !hasCompleteDocs(d));
+  let stripped = 0;
+
+  for (const user of toStrip) {
+    const next = stripDeliveryRole(user);
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { role: next.role as Role, additionalRoles: next.additionalRoles },
+    });
+    stripped++;
+  }
+
+  if (stripped > 0) {
+    await sendPushToAdmins({
+      title: "⚠️ Repartidores sin documentos",
+      body: `Se retiró el status de repartidor a ${stripped} cuenta(s) por no registrar sus documentos a tiempo.`,
+      url: "/admin/repartidores",
+      type: "DRIVER_DOCS",
+    });
+  }
+
+  console.log(`[CRON] Driver docs strip: ${stripped}/${toStrip.length} repartidores sin documentos`);
+  return stripped;
 }
 
 export async function sendPromotionsToStoreCustomers(storeId: string, storeName: string) {

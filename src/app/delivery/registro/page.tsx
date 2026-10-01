@@ -83,6 +83,23 @@ export default function DeliveryRegistroPage() {
         </p>
       </div>
 
+      <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+        <div className="font-semibold">Para ser repartidor debes registrar:</div>
+        <ul className="mt-1 list-inside list-disc text-xs text-amber-800/90">
+          <li>Foto de tu vehículo</li>
+          <li>Licencia de conducir</li>
+          <li>Foto tuya</li>
+          <li>Identificación oficial</li>
+        </ul>
+        <p className="mt-1 text-xs text-amber-800/80">
+          Puedes subirlas en{" "}
+          <Link className="underline" href="/delivery/documentos">
+            Documentos
+          </Link>{" "}
+          después del registro.
+        </p>
+      </div>
+
       {session?.user ? (
         <div className="space-y-4">
           <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">

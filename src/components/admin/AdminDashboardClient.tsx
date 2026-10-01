@@ -75,6 +75,7 @@ export default function AdminDashboardClient({ data }: { data: StatsData }) {
     { href: "/admin/mensajes", label: "Mensajes", icon: "💬", desc: "Soporte y reportes" },
     { href: "/admin/pedidos", label: "Pedidos", icon: "📋", desc: "Todos los pedidos" },
     { href: "/admin/envios", label: "Envíos", icon: "🛵", desc: "Supervisión de entregas" },
+    { href: "/admin/repartidores", label: "Repartidores", icon: "📄", desc: "Documentos de repartidores" },
     { href: "/admin/membresias", label: "Membresías", icon: "🛡️", desc: "Gestionar suscripciones" },
     { href: "/admin/tiendas", label: "Tiendas", icon: "🏪", desc: "Editar datos de tiendas" },
     { href: "/admin/usuarios", label: "Usuarios", icon: "👥", desc: "Clientes y vendedores" },
