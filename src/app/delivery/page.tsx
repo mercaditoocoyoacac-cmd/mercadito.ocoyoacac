@@ -25,6 +25,7 @@ export default async function DeliveryDashboard() {
       licensePhotoUrl: true,
       personPhotoUrl: true,
       officialIdPhotoUrl: true,
+      driverDocsApproved: true,
     },
   });
 

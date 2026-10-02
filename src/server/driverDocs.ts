@@ -4,7 +4,11 @@ export const DRIVER_DOCS_DEADLINE = new Date("2026-10-15T06:00:00.000Z");
 
 export type DriverDocsUser = Pick<
   User,
-  "vehiclePhotoUrl" | "licensePhotoUrl" | "personPhotoUrl" | "officialIdPhotoUrl"
+  | "vehiclePhotoUrl"
+  | "licensePhotoUrl"
+  | "personPhotoUrl"
+  | "officialIdPhotoUrl"
+  | "driverDocsApproved"
 >;
 
 const DOC_FIELDS: { key: keyof DriverDocsUser; label: string }[] = [
@@ -15,7 +19,9 @@ const DOC_FIELDS: { key: keyof DriverDocsUser; label: string }[] = [
 ];
 
 export function hasCompleteDocs(user: DriverDocsUser): boolean {
-  return DOC_FIELDS.every((f) => Boolean(user[f.key]));
+  return (
+    DOC_FIELDS.every((f) => Boolean(user[f.key])) && Boolean(user.driverDocsApproved)
+  );
 }
 
 export function missingDocs(user: DriverDocsUser): string[] {

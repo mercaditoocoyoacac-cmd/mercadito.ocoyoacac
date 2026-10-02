@@ -72,6 +72,9 @@ model User {
   personPhotoUrl     String?
   officialIdPhotoUrl String?
   driverDocsSubmittedAt DateTime?
+  driverDocsApproved   Boolean  @default(false)
+  driverDocsApprovedAt DateTime?
+  driverDocsApprovedBy String?
 
   stores        Store[]
   orders        Order[]       @relation("OrderCustomer")

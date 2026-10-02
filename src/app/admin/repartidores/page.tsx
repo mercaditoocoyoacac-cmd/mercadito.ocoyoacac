@@ -4,6 +4,7 @@ import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { getUserRoles } from "@/server/requireUser";
 import { hasCompleteDocs, missingDocs, DRIVER_DOCS_DEADLINE } from "@/server/driverDocs";
+import AdminRepartidoresClient from "@/components/admin/AdminRepartidoresClient";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +42,9 @@ export default async function AdminRepartidoresPage() {
       personPhotoUrl: true,
       officialIdPhotoUrl: true,
       driverDocsSubmittedAt: true,
+      driverDocsApproved: true,
+      driverDocsApprovedAt: true,
+      driverDocsApprovedBy: true,
     },
     orderBy: { createdAt: "desc" },
   });
@@ -64,6 +68,9 @@ export default async function AdminRepartidoresPage() {
         {drivers.map((d) => {
           const isComplete = hasCompleteDocs(d);
           const missing = missingDocs(d);
+          const hasAnyDoc = Boolean(
+            d.vehiclePhotoUrl || d.licensePhotoUrl || d.personPhotoUrl || d.officialIdPhotoUrl,
+          );
           return (
             <div key={d.id} className="rounded-xl border border-[var(--border)] p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -74,13 +81,20 @@ export default async function AdminRepartidoresPage() {
                   </div>
                   <div className="mt-0.5 text-xs text-[color:var(--muted)]">
                     {isComplete
-                      ? `Completo el ${d.driverDocsSubmittedAt?.toLocaleDateString("es-MX", { timeZone: "America/Mexico_City" }) ?? "—"}`
-                      : `Faltan: ${missing.join(", ")}`}
+                      ? `Completo (aprobado${d.driverDocsApprovedAt ? ` el ${d.driverDocsApprovedAt.toLocaleDateString("es-MX", { timeZone: "America/Mexico_City" })}` : ""}${d.driverDocsApprovedBy ? ` por ${d.driverDocsApprovedBy}` : ""})`
+                      : d.driverDocsApproved && hasAnyDoc
+                      ? `Fotos cargadas, falta alguna? (${missing.join(", ") || "revisar"})`
+                      : `Faltan: ${missing.join(", ") || "sin documentos"}`}
                   </div>
                 </div>
-                <span className={`rounded-full px-3 py-1 text-xs font-semibold ${isComplete ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
-                  {isComplete ? "Completo" : "Incompleto"}
-                </span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${isComplete ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                    {isComplete ? "Completo" : "Incompleto"}
+                  </span>
+                  {hasAnyDoc && !d.driverDocsApproved && (
+                    <AdminRepartidoresClient userId={d.id} />
+                  )}
+                </div>
               </div>
               <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {DOCS_LABELS.map((doc) => {
@@ -90,7 +104,6 @@ export default async function AdminRepartidoresPage() {
                       <div className="text-xs font-medium text-[color:var(--muted)]">{doc.label}</div>
                       {url ? (
                         <a href={url} target="_blank" rel="noopener noreferrer" className="mt-1 block">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={url} alt={doc.label} className="h-20 w-full rounded-md border border-[var(--border)] object-cover" loading="lazy" />
                         </a>
                       ) : (

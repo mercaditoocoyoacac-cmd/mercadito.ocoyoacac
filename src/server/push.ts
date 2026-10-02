@@ -319,6 +319,7 @@ export async function sendDriverDocsReminder() {
       licensePhotoUrl: true,
       personPhotoUrl: true,
       officialIdPhotoUrl: true,
+      driverDocsApproved: true,
     },
   });
 
@@ -359,6 +360,7 @@ export async function stripDriversWithoutDocs() {
       licensePhotoUrl: true,
       personPhotoUrl: true,
       officialIdPhotoUrl: true,
+      driverDocsApproved: true,
     },
   });
 

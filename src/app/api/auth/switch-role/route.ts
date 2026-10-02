@@ -25,6 +25,7 @@ export async function POST(req: Request) {
       licensePhotoUrl: true,
       personPhotoUrl: true,
       officialIdPhotoUrl: true,
+      driverDocsApproved: true,
     },
   });
 

@@ -38,6 +38,7 @@ export async function POST(req: Request) {
       personPhotoUrl: true,
       officialIdPhotoUrl: true,
       driverDocsSubmittedAt: true,
+      driverDocsApproved: true,
     },
   });
 
@@ -50,6 +51,7 @@ export async function POST(req: Request) {
     licensePhotoUrl: data.licensePhotoUrl ?? user.licensePhotoUrl,
     personPhotoUrl: data.personPhotoUrl ?? user.personPhotoUrl,
     officialIdPhotoUrl: data.officialIdPhotoUrl ?? user.officialIdPhotoUrl,
+    driverDocsApproved: user.driverDocsApproved,
   };
 
   const update: Record<string, unknown> = { ...data };
