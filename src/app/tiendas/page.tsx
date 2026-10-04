@@ -106,7 +106,7 @@ export default async function TiendasPage({
           <div>
             <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Tiendas en Ocoyoacac</h1>
             <p className="mt-2 text-[color:var(--muted)] max-w-lg">
-              Descubre los mejores negocios locales y sus productos frescos.
+              {qTrim ? `Resultados para "${qTrim}"` : "Descubre los mejores negocios locales y sus productos frescos."}
             </p>
           </div>
           <Link
@@ -119,6 +119,24 @@ export default async function TiendasPage({
             Registrar mi negocio
           </Link>
         </div>
+
+        <form action="/tiendas" method="get" className="mb-6 flex items-center gap-2 rounded-2xl border border-[var(--border)] bg-background/80 px-2 py-1.5 shadow-sm backdrop-blur-sm">
+          <input type="hidden" name="category" value={validCategory} />
+          <input
+            name="q"
+            defaultValue={q}
+            type="search"
+            placeholder="Busca productos, tiendas o antojitos..."
+            autoComplete="off"
+            className="w-full bg-transparent px-3 py-2 text-sm sm:text-base text-[color:var(--foreground)] placeholder-[color:var(--muted)] outline-none"
+          />
+          <button type="submit" className="btn-primary px-4 py-2">
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <span className="hidden sm:inline">Buscar</span>
+          </button>
+        </form>
 
         {/* Category Filter */}
         <div className="mb-6">
