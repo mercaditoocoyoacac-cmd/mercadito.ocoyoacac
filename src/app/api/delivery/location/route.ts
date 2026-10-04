@@ -6,7 +6,10 @@ import { requireRole } from "@/server/requireUser";
 const LocationSchema = z.object({
   latitude: z.number().min(-90).max(90),
   longitude: z.number().min(-180).max(180),
+  orderId: z.string().optional(),
 });
+
+const ACTIVE_DELIVERY_STATUSES = ["CONFIRMED", "READY", "OUT_FOR_DELIVERY"] as const;
 
 export async function POST(req: Request) {
   const auth = await requireRole("DELIVERY");
@@ -21,13 +24,46 @@ export async function POST(req: Request) {
     );
   }
 
+  const { latitude, longitude, orderId } = parsed.data;
+  const now = new Date();
+
   await prisma.user.update({
     where: { id: auth.userId },
     data: {
-      latitude: parsed.data.latitude,
-      longitude: parsed.data.longitude,
+      latitude,
+      longitude,
     },
   });
 
-  return NextResponse.json({ ok: true });
+  const snapshot = { driverLat: latitude, driverLng: longitude, driverLocationAt: now };
+
+  if (orderId) {
+    const updated = await prisma.order.updateMany({
+      where: {
+        id: orderId,
+        deliveryUserId: auth.userId,
+        status: { in: [...ACTIVE_DELIVERY_STATUSES] },
+      },
+      data: snapshot,
+    });
+    if (updated.count === 0) {
+      await prisma.order.updateMany({
+        where: {
+          deliveryUserId: auth.userId,
+          status: { in: [...ACTIVE_DELIVERY_STATUSES] },
+        },
+        data: snapshot,
+      });
+    }
+  } else {
+    await prisma.order.updateMany({
+      where: {
+        deliveryUserId: auth.userId,
+        status: { in: [...ACTIVE_DELIVERY_STATUSES] },
+      },
+      data: snapshot,
+    });
+  }
+
+  return NextResponse.json({ ok: true, at: now.toISOString() });
 }

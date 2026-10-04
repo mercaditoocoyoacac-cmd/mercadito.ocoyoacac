@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { formatMoney } from "@/lib/format";
 import { getStatusLabel } from "@/lib/labels";
 import { openMapsUrl, getMapsUrl } from "@/lib/geo";
+import AdminDriverMap, { type MapPoint } from "@/components/admin/AdminDriverMap";
 
 interface OrderItem {
   id: string;
@@ -43,6 +44,9 @@ interface OrderData {
   pickupCode: string | null;
   arrivedAt: string | null;
   arrivalConfirmedAt: string | null;
+  driverLat: number | null;
+  driverLng: number | null;
+  driverLocationAt: string | null;
   createdAt: string;
   updatedAt: string;
   statusTimestamps: Record<string, string> | null;
@@ -81,8 +85,52 @@ function getTimeAgo(iso: string): string {
   return `hace ${days}d`;
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const colors: Record<string, string> = {
+const ACTIVE_STATUSES = ["CONFIRMED", "READY", "OUT_FOR_DELIVERY"];
+
+function buildOrderPoints(order: OrderData, driver?: Driver): MapPoint[] {
+  const points: MapPoint[] = [];
+
+  if (order.store.latitude != null && order.store.longitude != null) {
+    points.push({
+      id: `store:${order.store.id}`,
+      label: `Tienda · ${order.store.name}`,
+      lat: order.store.latitude,
+      lng: order.store.longitude,
+      kind: "store",
+    });
+  }
+
+  if (order.deliveryUser) {
+    const lat = order.driverLat ?? driver?.latitude ?? null;
+    const lng = order.driverLng ?? driver?.longitude ?? null;
+    const at = order.driverLat != null ? order.driverLocationAt : (driver?.updatedAt ?? null);
+    if (lat != null && lng != null) {
+      points.push({
+        id: `driver:${order.deliveryUser.id}`,
+        label: `Repartidor · ${order.deliveryUser.name || order.deliveryUser.email}`,
+        lat,
+        lng,
+        kind: "driver",
+        updatedAt: at,
+      });
+    }
+  }
+
+  if (order.customerLat != null && order.customerLng != null) {
+    points.push({
+      id: `customer:${order.id}`,
+      label: `Cliente · ${order.customerName}`,
+      lat: order.customerLat,
+      lng: order.customerLng,
+      kind: "customer",
+      driverId: order.deliveryUser?.id,
+    });
+  }
+
+  return points;
+}
+
+function StatusBadge({ status }: { status: string }) {  const colors: Record<string, string> = {
     PENDING: "bg-yellow-100 text-yellow-800 border-yellow-200",
     CONFIRMED: "bg-purple-100 text-purple-800 border-purple-200",
     READY: "bg-blue-100 text-blue-800 border-blue-200",
@@ -156,9 +204,38 @@ function OrderCard({ order, drivers, onRefresh }: { order: OrderData; drivers: D
   const [cancelling, setCancelling] = useState(false);
   const [actionMsg, setActionMsg] = useState<string | null>(null);
   const [notifying, setNotifying] = useState(false);
+  const [pinging, setPinging] = useState(false);
 
   const isActive = !["COMPLETED", "CANCELLED"].includes(order.status);
   const cancelled = order.status === "CANCELLED";
+  const assignedDriver = drivers.find((d) => d.id === order.deliveryUser?.id);
+  const mapPoints = buildOrderPoints(order, assignedDriver);
+
+  async function handlePingLocation() {
+    setPinging(true);
+    setActionMsg(null);
+    try {
+      const res = await fetch("/api/admin/envios/ping-location", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: order.id }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setActionMsg(
+          data.pinged > 0
+            ? "Ubicación solicitada al repartidor"
+            : "El repartidor ya fue consultado hace poco, espera unos segundos",
+        );
+        setTimeout(onRefresh, 6000);
+      } else {
+        setActionMsg(data.error || "No se pudo solicitar la ubicación");
+      }
+    } catch {
+      setActionMsg("Error de red");
+    }
+    setPinging(false);
+  }
 
   async function handleReassign() {
     if (!selectedDriver) return;
@@ -281,6 +358,37 @@ function OrderCard({ order, drivers, onRefresh }: { order: OrderData; drivers: D
             </div>
           </div>
 
+          {mapPoints.length > 0 && (
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="text-xs font-semibold text-[color:var(--muted)] uppercase tracking-wider">
+                  Mapa del envío
+                </h4>
+                {order.deliveryUser && isActive && (
+                  <button
+                    onClick={handlePingLocation}
+                    disabled={pinging}
+                    className="text-[11px] px-2.5 py-1 rounded-lg border border-blue-200 text-blue-700 hover:bg-blue-50 transition-colors disabled:opacity-50"
+                  >
+                    {pinging ? "..." : "📡 Actualizar ubicación"}
+                  </button>
+                )}
+              </div>
+              <AdminDriverMap points={mapPoints} height="260px" />
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-[11px] text-[color:var(--muted)]">
+                <span>🟠 Tienda</span>
+                <span>🔵 Repartidor</span>
+                <span>🔴 Cliente</span>
+                {order.deliveryUser && order.driverLocationAt && (
+                  <span className="ml-auto">Actualizado {getTimeAgo(order.driverLocationAt)}</span>
+                )}
+                {order.deliveryUser && !order.driverLocationAt && (
+                  <span className="ml-auto text-amber-600">Sin ubicación reportada</span>
+                )}
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
             <div className="rounded-lg bg-gray-50 p-2">
               <div className="text-[10px] text-[color:var(--muted)]">Subtotal</div>
@@ -394,6 +502,35 @@ export default function DeliverySupervisionClient() {
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [search, setSearch] = useState("");
   const [storeFilter, setStoreFilter] = useState<string>("ALL");
+  const [pinging, setPinging] = useState(false);
+  const [pingMsg, setPingMsg] = useState<string | null>(null);
+  const [showMap, setShowMap] = useState(true);
+
+  async function handlePingAll() {
+    setPinging(true);
+    setPingMsg(null);
+    try {
+      const res = await fetch("/api/admin/envios/ping-location", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setPingMsg(
+          `Ubicación solicitada a ${data.pinged} repartidor(es)` +
+            (data.skipped ? ` · ${data.skipped} ya consultados` : "") +
+            (data.noToken ? ` · ${data.noToken} sin token push` : ""),
+        );
+        setTimeout(fetchData, 6000);
+      } else {
+        setPingMsg(data.error || "No se pudo solicitar");
+      }
+    } catch {
+      setPingMsg("Error de red");
+    }
+    setPinging(false);
+  }
 
   async function fetchData() {
     setLoading(true);
@@ -438,6 +575,17 @@ export default function DeliverySupervisionClient() {
     COMPLETED: data.orders.filter((o) => o.status === "COMPLETED").length,
     CANCELLED: data.orders.filter((o) => o.status === "CANCELLED").length,
   } : {} as Record<string, number>;
+
+  const activeMapPoints = data
+    ? Array.from(
+        new Map(
+          data.orders
+            .filter((o) => ACTIVE_STATUSES.includes(o.status))
+            .flatMap((o) => buildOrderPoints(o, data.drivers.find((d) => d.id === o.deliveryUser?.id)))
+            .map((p) => [p.id, p]),
+        ).values(),
+      )
+    : [];
 
   if (loading && !data) {
     return (
@@ -527,6 +675,48 @@ export default function DeliverySupervisionClient() {
           ↻ Actualizar
         </button>
       </div>
+
+      {/* Mapa de envíos en curso */}
+      {data && showMap && activeMapPoints.length > 0 && (
+        <div className="rounded-xl border border-blue-200 bg-blue-50/40 p-4 space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="text-sm font-bold text-blue-900">🗺️ Envíos en curso</h3>
+            <span className="text-xs text-blue-700">
+              {data.orders.filter((o) => ACTIVE_STATUSES.includes(o.status)).length} en curso
+            </span>
+            <button
+              onClick={handlePingAll}
+              disabled={pinging}
+              className="ml-auto text-xs px-3 py-1.5 rounded-lg border border-blue-200 bg-white text-blue-700 hover:bg-blue-50 transition-colors disabled:opacity-50"
+            >
+              {pinging ? "..." : "📡 Actualizar ubicaciones"}
+            </button>
+            <button
+              onClick={() => setShowMap(false)}
+              className="text-xs px-2 py-1.5 rounded-lg border border-blue-200 bg-white text-blue-700 hover:bg-blue-50 transition-colors"
+            >
+              Ocultar
+            </button>
+          </div>
+          <AdminDriverMap points={activeMapPoints} height="360px" />
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-blue-800">
+            <span>🟠 Tienda</span>
+            <span>🔵 Repartidor</span>
+            <span>🔴 Cliente</span>
+            <span className="text-blue-600">El color del repartidor indica qué tan reciente es su ubicación</span>
+          </div>
+          {pingMsg && <div className="text-xs rounded-lg bg-white/70 px-3 py-2 text-blue-800">{pingMsg}</div>}
+        </div>
+      )}
+
+      {data && !showMap && (
+        <button
+          onClick={() => setShowMap(true)}
+          className="w-full rounded-xl border border-blue-200 bg-blue-50/40 px-4 py-2.5 text-xs font-medium text-blue-800 hover:bg-blue-50 transition-colors"
+        >
+          🗺️ Mostrar mapa de envíos
+        </button>
+      )}
 
       {/* Orders list */}
       <div className="space-y-3">

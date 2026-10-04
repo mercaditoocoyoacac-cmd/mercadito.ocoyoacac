@@ -133,6 +133,40 @@ export async function sendPushNotification(token: string, data: PushData) {
   }
 }
 
+export async function sendLocationPing(token: string, orderId: string) {
+  ensureInitialized();
+
+  if (!initialized) return false;
+
+  try {
+    await admin.messaging().send({
+      token,
+      data: {
+        type: "LOCATION_PING",
+        orderId,
+      },
+      android: {
+        priority: "high",
+        ttl: 20_000,
+      },
+      apns: {
+        headers: {
+          "apns-priority": "10",
+        },
+        payload: {
+          aps: {
+            "content-available": 1,
+          },
+        },
+      },
+    });
+    return true;
+  } catch (error) {
+    console.error("Error sending location ping:", error);
+    return false;
+  }
+}
+
 export async function sendPushToMultiple(tokens: string[], data: PushData) {
   ensureInitialized();
   

@@ -33,6 +33,9 @@ export async function GET() {
       pickupCode: true,
       arrivedAt: true,
       arrivalConfirmedAt: true,
+      driverLat: true,
+      driverLng: true,
+      driverLocationAt: true,
       createdAt: true,
       updatedAt: true,
       statusTimestamps: true,
@@ -52,7 +55,13 @@ export async function GET() {
   });
 
   const drivers = await prisma.user.findMany({
-    where: { role: "DELIVERY", isActive: true },
+    where: {
+      isActive: true,
+      OR: [
+        { role: "DELIVERY" },
+        { additionalRoles: { contains: "DELIVERY" } },
+      ],
+    },
     select: { id: true, name: true, email: true, phone: true, latitude: true, longitude: true, updatedAt: true },
     orderBy: { name: "asc" },
   });
@@ -65,6 +74,7 @@ export async function GET() {
       updatedAt: o.updatedAt.toISOString(),
       arrivedAt: o.arrivedAt?.toISOString() ?? null,
       arrivalConfirmedAt: o.arrivalConfirmedAt?.toISOString() ?? null,
+      driverLocationAt: o.driverLocationAt?.toISOString() ?? null,
     })),
     drivers: drivers.map((d) => ({
       ...d,

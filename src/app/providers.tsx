@@ -39,6 +39,42 @@ export function Providers({ children }: { children: React.ReactNode }) {
   );
 }
 
+async function reportLocation(orderId?: string) {
+  try {
+    let lat: number | null = null;
+    let lng: number | null = null;
+
+    if (Capacitor.isNativePlatform()) {
+      const { Geolocation } = await import("@capacitor/geolocation");
+      const pos = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 10000,
+      });
+      lat = pos.coords.latitude;
+      lng = pos.coords.longitude;
+    } else if ("geolocation" in navigator) {
+      const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+        }),
+      );
+      lat = pos.coords.latitude;
+      lng = pos.coords.longitude;
+    }
+
+    if (lat === null || lng === null) return;
+
+    await fetch("/api/delivery/location", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ latitude: lat, longitude: lng, orderId }),
+    });
+  } catch (err) {
+    console.error("Error reportando ubicación:", err);
+  }
+}
+
 async function initNativePush() {
   const { App } = await import("@capacitor/app");
   const { PushNotifications } = await import("@capacitor/push-notifications");
@@ -76,6 +112,12 @@ async function initNativePush() {
 
         PushNotifications.addListener("pushNotificationReceived", (n) => {
           const payload = n.data as Record<string, string> | undefined;
+
+          if (payload?.type === "LOCATION_PING") {
+            void reportLocation(payload.orderId || undefined);
+            return;
+          }
+
           const title = n.title || payload?.title || "";
           const body = n.body || payload?.body || "";
           if (title) {
@@ -138,6 +180,12 @@ async function initWebPush() {
     onForegroundMessage((payload) => {
       const notification = payload.notification || {};
       const data = payload.data || {};
+
+      if (data.type === "LOCATION_PING") {
+        void reportLocation(data.orderId || undefined);
+        return;
+      }
+
       const title = notification.title || data.title || "";
       const body = notification.body || data.body || "";
       if (title) {
