@@ -11,10 +11,11 @@ export const dynamic = "force-dynamic";
 export default async function TiendasPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; q?: string }>;
 }) {
   const params = await searchParams;
   const category = params?.category || "";
+  const q = params?.q || "";
 
   const allCategories = await prisma.category.findMany({
     where: { isActive: true },
@@ -24,11 +25,22 @@ export default async function TiendasPage({
 
   const validCategory = category && allCategories.some(c => c.key === category) ? category : "";
 
+  const qTrim = q.trim().toLowerCase();
+
   const stores = await prisma.store.findMany({
     where: {
       isActive: true,
       isPublished: true,
       ...(validCategory ? { category: validCategory } : {}),
+      ...(qTrim
+        ? {
+            OR: [
+              { name: { contains: qTrim, mode: "insensitive" } },
+              { description: { contains: qTrim, mode: "insensitive" } },
+              { products: { some: { name: { contains: qTrim, mode: "insensitive" } } } },
+            ],
+          }
+        : {}),
     },
     select: { 
       id: true, 
