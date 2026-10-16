@@ -57,4 +57,6 @@ export async function requireRole(...roles: string[]) {
 
   return { ok: true as const, userId, session };
 }
-
+export function requireAdmin() {
+  return requireRole('ADMIN');
+}

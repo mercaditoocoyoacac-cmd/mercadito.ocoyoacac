@@ -80,6 +80,7 @@ export default function AdminDashboardClient({ data }: { data: StatsData }) {
     { href: "/admin/tiendas", label: "Tiendas", icon: "🏪", desc: "Editar datos de tiendas" },
     { href: "/admin/usuarios", label: "Usuarios", icon: "👥", desc: "Clientes y vendedores" },
     { href: "/admin/publicidad", label: "Publicidad", icon: "📣", desc: "Notificaciones a clientes" },
+    { href: "/admin/informes", label: "Informes", icon: "📊", desc: "Ventas, pedidos y costos" },
     { href: "/admin/productos", label: "Productos", icon: "📦", desc: "Administrar productos" },
     { href: "/admin/zonas-envio", label: "Zonas Envío", icon: "🗺️", desc: "Costos por zona geográfica" },
     { href: "/admin/membresia-cupones", label: "Cupones Membresía", icon: "🎟️", desc: "Descuentos en membresía" },
