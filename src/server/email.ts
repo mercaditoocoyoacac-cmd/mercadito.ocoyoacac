@@ -50,6 +50,6 @@ export async function sendEmail(opts: { to: string; subject: string; html: strin
     console.log(`[EMAIL] No transport configured (Resend/SMTP). Would send to ${opts.to}: ${opts.subject}`);
     return;
   }
-  const from = `"Mercadito Ocoyoacac" <${process.env.EMAIL_FROM || process.env.SMTP_USER || "noreply@mercadito.app"}>`;
+  const from = `"Mercadito Ocoyoacac" <${process.env.SMTP_USER || process.env.EMAIL_FROM || "noreply@mercadito.app"}>`;
   await smtpTransport.sendMail({ from, to: opts.to, subject: opts.subject, html: opts.html });
 }

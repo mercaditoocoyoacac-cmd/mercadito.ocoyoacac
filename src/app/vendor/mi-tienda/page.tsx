@@ -91,7 +91,7 @@ export default function EditarTiendaPage() {
   async function fetchStore() {
     const [storeRes, catsRes] = await Promise.all([
       fetch("/api/vendor/store"),
-      fetch("/api/admin/categories"),
+      fetch("/api/categories"),
     ]);
     const catsData = await catsRes.json();
     if (catsData.ok) setCategories(catsData.categories);

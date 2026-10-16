@@ -47,7 +47,7 @@ export default function VendorRegistroPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch("/api/admin/categories")
+    fetch("/api/categories")
       .then((r) => r.json())
       .then((data) => { if (data.ok) setCategories(data.categories); })
       .catch(() => {});

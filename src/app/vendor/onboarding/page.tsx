@@ -28,7 +28,7 @@ export default function VendorOnboardingPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    fetch("/api/admin/categories")
+    fetch("/api/categories")
       .then((r) => r.json())
       .then((data) => { if (data.ok) setCategories(data.categories); })
       .catch(() => {});

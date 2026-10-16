@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
 let resendClient: Resend | null = null;
 
@@ -7,6 +8,22 @@ function getResend() {
     resendClient = new Resend(process.env.RESEND_API_KEY);
   }
   return resendClient;
+}
+
+function getSmtpTransport() {
+  const host = process.env.SMTP_HOST;
+  const port = process.env.SMTP_PORT;
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+
+  if (!host || !port || !user || !pass) return null;
+
+  return nodemailer.createTransport({
+    host,
+    port: Number(port),
+    secure: Number(port) === 465,
+    auth: { user, pass },
+  });
 }
 
 const FROM_EMAIL = process.env.EMAIL_FROM || "Mercadito Ocoyoacac <noreply@mercaditoocoyoacac.com>";
@@ -120,13 +137,27 @@ export async function sendMembershipActivationEmail(params: SendMembershipEmailP
 </html>`;
 
   try {
-    const result = await getResend().emails.send({
-      from: FROM_EMAIL,
-      to: [to],
-      subject: `¡Membresía ${planName} activada! — Recibo ${receiptNumber}`,
-      html,
-    });
-    return { ok: true, id: result.data?.id };
+    const subject = `¡Membresía ${planName} activada! — Recibo ${receiptNumber}`;
+
+    if (process.env.RESEND_API_KEY) {
+      const result = await getResend().emails.send({
+        from: FROM_EMAIL,
+        to: [to],
+        subject,
+        html,
+      });
+      return { ok: true, id: result.data?.id };
+    }
+
+    const smtpTransport = getSmtpTransport();
+    if (!smtpTransport) {
+      console.log(`[EMAIL] No transport configured (Resend/SMTP). Would send membership receipt to ${to}`);
+      return { ok: false, error: "No email transport configured" };
+    }
+
+    const from = `"Mercadito Ocoyoacac" <${process.env.SMTP_USER || process.env.EMAIL_FROM || "noreply@mercadito.app"}>`;
+    await smtpTransport.sendMail({ from, to, subject, html });
+    return { ok: true };
   } catch (error) {
     console.error("Failed to send membership email:", error);
     return { ok: false, error: String(error) };
