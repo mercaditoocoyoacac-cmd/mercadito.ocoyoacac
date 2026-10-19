@@ -12,8 +12,8 @@ export interface CardProps extends Omit<HTMLMotionProps<"div">, "children"> {
 }
 
 const variantClasses = {
-  default: "bg-white border border-[var(--border)] shadow-sm",
-  elevated: "bg-white border border-[var(--border)] shadow-lg",
+  default: "bg-[var(--card-bg)] border border-[var(--border)] shadow-sm",
+  elevated: "bg-[var(--card-bg)] border border-[var(--border)] shadow-lg",
   outlined: "bg-transparent border-2 border-[var(--border)]",
   ghost: "bg-transparent border-none shadow-none",
 };

@@ -21,12 +21,12 @@ export interface BadgeProps {
 
 const variantClasses: Record<BadgeVariant, string> = {
   default: "bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--accent)]/20",
-  success: "bg-green-50 text-green-700 border border-green-200",
-  warning: "bg-amber-50 text-amber-700 border border-amber-200",
-  danger: "bg-red-50 text-red-700 border border-red-200",
-  info: "bg-blue-50 text-blue-700 border border-blue-200",
-  neutral: "bg-gray-100 text-gray-700 border border-gray-200",
-  accent: "bg-[var(--accent)] text-white border-none",
+  success: "bg-[var(--success-soft)] text-[var(--success)] border border-[var(--success)]/20",
+  warning: "bg-[var(--warning-soft)] text-[var(--warning)] border border-[var(--warning)]/20",
+  danger: "bg-[var(--danger-soft)] text-[var(--danger)] border border-[var(--danger)]/20",
+  info: "bg-[var(--info-soft)] text-[var(--info)] border border-[var(--info)]/20",
+  neutral: "bg-[var(--surface-2)] text-[var(--muted)] border border-[var(--border)]",
+  accent: "bg-[var(--accent)] text-[var(--on-accent)] border-none",
 };
 
 const sizeClasses: Record<BadgeSize, string> = {

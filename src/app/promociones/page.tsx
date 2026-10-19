@@ -118,7 +118,7 @@ export default function PromocionesPage() {
                   <CardContent className="p-0">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
                       {/* Promo Header */}
-                      <div className="md:col-span-3 p-5 bg-gradient-to-r from-[var(--accent-soft)] to-[var(--accent)] relative overflow-hidden">
+                      <div className="relative overflow-hidden bg-gradient-to-r from-[#15803D] to-[#14532D] p-5 md:col-span-3">
                         <div className="absolute inset-0 opacity-10">
                           <svg className="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                             <defs>

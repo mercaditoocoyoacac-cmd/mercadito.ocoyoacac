@@ -19,12 +19,12 @@ export interface ButtonProps extends Omit<HTMLMotionProps<"button">, "children">
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: "bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] active:bg-[var(--accent)]/90 shadow-sm shadow-[var(--accent)]/20",
+  primary: "bg-[var(--accent)] text-[var(--on-accent)] hover:bg-[var(--accent-hover)] active:bg-[var(--accent)]/90 shadow-sm shadow-[var(--accent)]/25",
   secondary: "bg-[var(--surface)] text-[var(--foreground)] border border-[var(--border)] hover:bg-[var(--accent-soft)] hover:border-[var(--accent)]",
   outline: "bg-transparent text-[var(--accent)] border-2 border-[var(--accent)] hover:bg-[var(--accent-soft)]",
-  ghost: "bg-transparent text-[var(--foreground)] hover:bg-[var(--accent-soft)] text-[var(--accent)]",
-  danger: "bg-red-600 text-white hover:bg-red-700 active:bg-red-800 shadow-sm shadow-red-500/20",
-  success: "bg-emerald-600 text-white hover:bg-emerald-700 active:bg-emerald-800 shadow-sm shadow-emerald-500/20",
+  ghost: "bg-transparent text-[var(--accent)] hover:bg-[var(--accent-soft)]",
+  danger: "bg-[#B91C1C] text-white hover:bg-[#991B1B] active:bg-[#7F1D1D] shadow-sm shadow-red-500/20",
+  success: "bg-[#15803D] text-white hover:bg-[#166534] active:bg-[#14532D] shadow-sm shadow-emerald-500/20",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -75,7 +75,7 @@ function getBaseClasses(
   return [
     "inline-flex items-center justify-center font-semibold rounded-xl",
     "transition-all duration-200 ease-out",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]",
     "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none",
     variantClasses[variant],
     sizeClasses[size],

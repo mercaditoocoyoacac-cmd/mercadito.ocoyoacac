@@ -14,7 +14,7 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
     <>
       <div
         aria-hidden={!show}
-        className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-gradient-to-br from-amber-700 via-orange-600 to-rose-700"
+        className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-gradient-to-br from-[#14532D] via-[#15803D] to-[#14532D]"
         style={{
           opacity: show ? 1 : 0,
           pointerEvents: show ? "auto" : "none",

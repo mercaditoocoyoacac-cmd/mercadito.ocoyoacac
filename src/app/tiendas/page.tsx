@@ -111,27 +111,31 @@ export default async function TiendasPage({
           </div>
           <Link
             href="/vendor/registro"
-            className="inline-flex items-center gap-2 rounded-xl bg-[var(--accent)] px-6 py-3 font-semibold text-white shadow-lg transition-all hover:scale-105 hover:bg-[var(--accent-hover)] shrink-0"
+            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[var(--accent)] px-6 py-3 font-semibold text-[var(--on-accent)] shadow-lg transition-all hover:scale-105 hover:bg-[var(--accent-hover)]"
           >
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
             Registrar mi negocio
           </Link>
         </div>
 
-        <form action="/tiendas" method="get" className="mb-6 flex items-center gap-2 rounded-2xl border border-[var(--border)] bg-background/80 px-2 py-1.5 shadow-sm backdrop-blur-sm">
+        <form action="/tiendas" method="get" role="search" className="mb-6 flex items-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--card-bg)] px-2 py-1.5 shadow-sm">
           <input type="hidden" name="category" value={validCategory} />
+          <label htmlFor="tiendas-search" className="sr-only">
+            Busca productos, tiendas o antojitos
+          </label>
           <input
+            id="tiendas-search"
             name="q"
             defaultValue={q}
             type="search"
             placeholder="Busca productos, tiendas o antojitos..."
             autoComplete="off"
-            className="w-full bg-transparent px-3 py-2 text-sm sm:text-base text-[color:var(--foreground)] placeholder-[color:var(--muted)] outline-none"
+            className="w-full bg-transparent px-3 py-2 text-sm text-[color:var(--foreground)] placeholder-[color:var(--muted)] outline-none focus-visible:outline-none sm:text-base"
           />
           <button type="submit" className="btn-primary px-4 py-2">
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <span className="hidden sm:inline">Buscar</span>
@@ -176,33 +180,33 @@ export default async function TiendasPage({
 
           {/* Stats Bar */}
           <div className="mt-12">
-            <Card variant="outlined" className="bg-gradient-to-r from-amber-50 to-orange-50">
+            <Card variant="outlined" className="bg-[var(--surface)]">
               <CardContent className="px-6 py-4">
                 <div className="flex flex-wrap items-center justify-center gap-8 text-center">
                   <div>
-                    <div className="text-2xl lg:text-3xl font-bold text-amber-600">{storesWithProducts.length}</div>
-                    <div className="text-sm text-stone-600">Tiendas activas</div>
+                    <div className="text-2xl font-bold text-[var(--accent)] lg:text-3xl">{storesWithProducts.length}</div>
+                    <div className="text-sm text-[color:var(--muted)]">Tiendas activas</div>
                   </div>
-                  <div className="h-8 w-px bg-amber-200 hidden lg:block"></div>
+                  <div className="hidden h-8 w-px bg-[var(--border)] lg:block"></div>
                   <div>
-                    <div className="text-2xl lg:text-3xl font-bold text-amber-600">
+                    <div className="text-2xl font-bold text-[var(--accent)] lg:text-3xl">
                       {storesWithProducts.reduce((sum, s) => sum + s._count.products, 0).toLocaleString()}
                     </div>
-                    <div className="text-sm text-stone-600">Productos totales</div>
+                    <div className="text-sm text-[color:var(--muted)]">Productos totales</div>
                   </div>
-                  <div className="h-8 w-px bg-amber-200 hidden lg:block"></div>
+                  <div className="hidden h-8 w-px bg-[var(--border)] lg:block"></div>
                   <div>
-                    <div className="text-2xl lg:text-3xl font-bold text-amber-600">
+                    <div className="text-2xl font-bold text-[var(--accent)] lg:text-3xl">
                       {storesWithProducts.filter(s => s.plan === "MEMBER").length}
                     </div>
-                    <div className="text-sm text-stone-600">Con Vende+</div>
+                    <div className="text-sm text-[color:var(--muted)]">Con Vende+</div>
                   </div>
-                  <div className="h-8 w-px bg-amber-200 hidden lg:block"></div>
+                  <div className="hidden h-8 w-px bg-[var(--border)] lg:block"></div>
                   <div>
-                    <div className="text-2xl lg:text-3xl font-bold text-sky-600">
+                    <div className="text-2xl font-bold text-[#0F766E] lg:text-3xl">
                       {storesWithProducts.filter(s => s.plan === "SOLO_DELIVERY").length}
                     </div>
-                    <div className="text-sm text-stone-600">Con Solo Delivery</div>
+                    <div className="text-sm text-[color:var(--muted)]">Con Solo Delivery</div>
                   </div>
                 </div>
               </CardContent>
@@ -212,14 +216,14 @@ export default async function TiendasPage({
       )}
 
       {/* CTA Section */}
-      <div className="mt-12 lg:mt-16 rounded-2xl bg-gradient-to-r from-amber-700 via-orange-600 to-rose-700 p-8 lg:p-12 text-center text-white">
-        <h3 className="text-lg lg:text-xl font-semibold">¿Tienes un negocio?</h3>
-        <p className="mt-2 text-sm lg:text-base text-amber-100 max-w-2xl mx-auto">
+      <div className="mt-12 rounded-2xl bg-gradient-to-br from-[#14532D] via-[#15803D] to-[#14532D] p-8 text-center text-white lg:mt-16 lg:p-12">
+        <h3 className="text-lg font-semibold lg:text-xl">¿Tienes un negocio?</h3>
+        <p className="mx-auto mt-2 max-w-2xl text-sm text-[#BBF7D0] lg:text-base">
           Llega a más clientes creando tu tienda en Mercadito. Pregunta por nuestras promociones de registro.
         </p>
         <Link
           href="/vendor/upgrade"
-          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-amber-700 shadow-lg transition-all hover:scale-105 hover:bg-amber-50"
+          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-[#15803D] shadow-lg transition-all hover:scale-105 hover:bg-[#F0FDF4]"
         >
           Crear tienda
         </Link>

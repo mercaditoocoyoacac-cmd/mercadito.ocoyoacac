@@ -200,7 +200,7 @@ export function NavBar() {
                 </Link>
                 <Link
                   href="/registro"
-                  className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)]"
+                  className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--on-accent)] hover:bg-[var(--accent-hover)]"
                 >
                   Registrarse
                 </Link>
@@ -214,7 +214,7 @@ export function NavBar() {
                   onClick={() => setVendorMenuOpen(!vendorMenuOpen)}
                   className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
                     pathname.startsWith("/admin")
-                      ? "bg-[var(--accent)] text-white"
+                      ? "bg-[var(--accent)] text-[var(--on-accent)]"
                       : "bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-white"
                   }`}
                 >
@@ -375,7 +375,7 @@ export function NavBar() {
                   onClick={() => setVendorMenuOpen(!vendorMenuOpen)}
                   className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
                     pathname.startsWith("/vendor")
-                      ? "bg-[var(--accent)] text-white"
+                      ? "bg-[var(--accent)] text-[var(--on-accent)]"
                       : "bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-white"
                   }`}
                 >
@@ -498,7 +498,7 @@ export function NavBar() {
                 href="/delivery"
                 className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
                   pathname.startsWith("/delivery")
-                    ? "bg-[var(--accent)] text-white"
+                    ? "bg-[var(--accent)] text-[var(--on-accent)]"
                     : "bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-white"
                 }`}
               >
@@ -522,7 +522,7 @@ export function NavBar() {
             {role && role !== "DELIVERY" && !additionalRoles.includes("DELIVERY") && (
               <Link
                 href="/delivery/registro"
-                className="rounded-lg border border-orange-500 px-4 py-2 text-sm font-medium text-orange-600 transition-colors hover:bg-orange-50"
+                className="rounded-lg border border-[#C2410C] px-4 py-2 text-sm font-medium text-[#C2410C] transition-colors hover:bg-orange-50"
               >
                 Repartir
               </Link>
@@ -530,7 +530,7 @@ export function NavBar() {
             {role && role !== "CUSTOMER" && !additionalRoles.includes("CUSTOMER") && (
               <Link
                 href="/registro"
-                className="rounded-lg border border-rose-500 px-4 py-2 text-sm font-medium text-rose-600 transition-colors hover:bg-rose-50"
+                className="rounded-lg border border-[#BE123C] px-4 py-2 text-sm font-medium text-[#BE123C] transition-colors hover:bg-rose-50"
               >
                 Comprar
               </Link>
@@ -547,7 +547,7 @@ export function NavBar() {
                       <button
                         type="button"
                         onClick={() => switchRole("DELIVERY")}
-                        className="rounded-lg bg-orange-500 px-2 py-1 text-xs font-medium text-white hover:bg-orange-600"
+                        className="rounded-lg bg-[#C2410C] px-2 py-1 text-xs font-medium text-white hover:bg-[#9A3412]"
                       >
                         Repartidor
                       </button>
@@ -556,7 +556,7 @@ export function NavBar() {
                       <button
                         type="button"
                         onClick={() => switchRole("CUSTOMER")}
-                        className="rounded-lg bg-rose-500 px-2 py-1 text-xs font-medium text-white hover:bg-rose-600"
+                        className="rounded-lg bg-[#BE123C] px-2 py-1 text-xs font-medium text-white hover:bg-[#9F1239]"
                       >
                         Cliente
                       </button>
@@ -565,7 +565,7 @@ export function NavBar() {
                       <button
                         type="button"
                         onClick={() => switchRole("VENDOR")}
-                        className="rounded-lg bg-emerald-500 px-2 py-1 text-xs font-medium text-white hover:bg-emerald-600"
+                        className="rounded-lg bg-[#15803D] px-2 py-1 text-xs font-medium text-white hover:bg-[#166534]"
                       >
                         Vendedor
                       </button>
@@ -590,7 +590,7 @@ export function NavBar() {
                 </Link>
                 <Link
                   href="/registro"
-                  className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--accent-hover)]"
+                  className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--on-accent)] transition-colors hover:bg-[var(--accent-hover)]"
                 >
                   Registrarse
                 </Link>

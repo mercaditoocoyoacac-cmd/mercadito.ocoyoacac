@@ -100,15 +100,15 @@ export const StoreCardWithProducts = memo(function StoreCardWithProducts({
     <Link
       style={{ animationDelay: `${animationDelay}ms` }}
       href={`/tienda/${store.slug}`}
-      className="group rounded-2xl border border-[var(--border)] bg-white overflow-hidden shadow-sm transition-all hover:shadow-lg hover:-translate-y-1 fade-in"
+      className="group overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card-bg)] shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg fade-in"
     >
-      <div className="relative aspect-video bg-gradient-to-br from-[var(--accent-soft)] to-[var(--accent)] flex items-center justify-center">
+      <div className="relative flex aspect-video items-center justify-center bg-gradient-to-br from-[var(--accent-soft)] to-[var(--accent)]">
         {store.imageUrl ? (
           <Image
             src={store.imageUrl}
             alt={store.name}
             fill
-            className="object-cover p-4 rounded-xl"
+            className="rounded-xl object-cover p-4"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             placeholder="blur"
             blurDataURL={shimmerBlur}
