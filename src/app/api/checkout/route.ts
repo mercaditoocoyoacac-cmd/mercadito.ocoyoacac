@@ -434,6 +434,8 @@ export async function POST(req: Request) {
       subtotalCents,
       deliveryCents,
       totalCents,
+      commissionCents: 0,
+      vendorPayoutCents: subtotalCents,
       currency,
       couponDiscountCents: couponDiscountCents > 0 ? couponDiscountCents : null,
       couponId: couponId || null,

@@ -474,6 +474,8 @@ model Order {
   subtotalCents   Int
   deliveryCents   Int             @default(0)
   totalCents      Int
+  commissionCents   Int           @default(0)
+  vendorPayoutCents Int           @default(0)
   currency        String          @default("MXN")
   deliveryCode    String?         @unique
   pickupCode      String?         @unique
