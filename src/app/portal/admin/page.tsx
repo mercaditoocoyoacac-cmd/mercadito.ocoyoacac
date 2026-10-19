@@ -13,8 +13,8 @@ export default async function AdminPortalPage() {
     <main className="flex-1">
       <section className="relative overflow-hidden bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800 px-4 py-20 text-white">
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-white blur-3xl"></div>
-          <div className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-white blur-3xl"></div>
+          <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-[var(--card-bg)] blur-3xl"></div>
+          <div className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-[var(--card-bg)] blur-3xl"></div>
         </div>
         
         <div className="relative mx-auto max-w-4xl text-center">
@@ -33,9 +33,9 @@ export default async function AdminPortalPage() {
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               href="/admin/login"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-base font-semibold text-purple-700 shadow-lg transition-transform hover:scale-105"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--card-bg)] px-8 py-4 text-base font-semibold text-purple-700 shadow-lg transition-transform hover:scale-105"
             >
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m0 0h8m0 0l-4 4m4 4v8m-8-4h8" />
               </svg>
               Entrar como Admin
@@ -52,21 +52,21 @@ export default async function AdminPortalPage() {
 
       <section className="mx-auto max-w-4xl px-4 py-16">
         <div className="grid gap-8 sm:grid-cols-3">
-          <div className="rounded-xl border border-[var(--border)] bg-white p-6 text-center shadow-sm">
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-6 text-center shadow-sm">
             <div className="text-4xl mb-3">👥</div>
             <h3 className="text-lg font-semibold">Gestión de usuarios</h3>
             <p className="mt-2 text-sm text-[color:var(--muted)]">
               Administra clientes, vendedores y repartidores
             </p>
           </div>
-          <div className="rounded-xl border border-[var(--border)] bg-white p-6 text-center shadow-sm">
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-6 text-center shadow-sm">
             <div className="text-4xl mb-3">📊</div>
             <h3 className="text-lg font-semibold">Estadísticas</h3>
             <p className="mt-2 text-sm text-[color:var(--muted)]">
               Monitorea ventas, pedidos e ingresos
             </p>
           </div>
-          <div className="rounded-xl border border-[var(--border)] bg-white p-6 text-center shadow-sm">
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-6 text-center shadow-sm">
             <div className="text-4xl mb-3">🔒</div>
             <h3 className="text-lg font-semibold">Control total</h3>
             <p className="mt-2 text-sm text-[color:var(--muted)]">

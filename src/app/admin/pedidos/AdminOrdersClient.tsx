@@ -178,7 +178,7 @@ export function AdminOrdersClient({ orders, deliverySettings: initialSettings }:
                 type="button"
                 onClick={() => setEditingFee(false)}
                 disabled={savingFee}
-                className="rounded-lg border border-[var(--border)] px-4 py-2 text-xs font-medium hover:bg-gray-50 disabled:opacity-60"
+                className="rounded-lg border border-[var(--border)] px-4 py-2 text-xs font-medium hover:bg-[var(--surface)] disabled:opacity-60"
               >
                 Cancelar
               </button>
@@ -199,56 +199,56 @@ export function AdminOrdersClient({ orders, deliverySettings: initialSettings }:
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <div>
                 <label className="text-xs text-[color:var(--muted)]">Tarifa base</label>
-                <input
+                <input aria-label="Tarifa base"
                   type="number"
                   min={0}
                   value={feeSettings.baseFeeCents}
                   onChange={(e) => setFeeSettings({ ...feeSettings, baseFeeCents: parseInt(e.target.value || "0", 10) })}
-                  className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                  className="mt-1 w-full rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
                 />
                 <div className="text-[10px] text-[color:var(--muted)] mt-1">Precio en centavos</div>
               </div>
               <div>
                 <label className="text-xs text-[color:var(--muted)]">Costo por segmento extra</label>
-                <input
+                <input aria-label="Costo por segmento extra"
                   type="number"
                   min={0}
                   value={feeSettings.extraFeePerSegmentCents}
                   onChange={(e) => setFeeSettings({ ...feeSettings, extraFeePerSegmentCents: parseInt(e.target.value || "0", 10) })}
-                  className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                  className="mt-1 w-full rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
                 />
                 <div className="text-[10px] text-[color:var(--muted)] mt-1">Precio en centavos</div>
               </div>
               <div>
                 <label className="text-xs text-[color:var(--muted)]">Km gratis con tarifa base</label>
-                <input
+                <input aria-label="Km gratis con tarifa base"
                   type="number"
                   min={0}
                   step={0.1}
                   value={feeSettings.baseDistanceKm}
                   onChange={(e) => setFeeSettings({ ...feeSettings, baseDistanceKm: parseFloat(e.target.value || "0") })}
-                  className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                  className="mt-1 w-full rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
                 />
               </div>
               <div>
                 <label className="text-xs text-[color:var(--muted)]">Km por segmento</label>
-                <input
+                <input aria-label="Km por segmento"
                   type="number"
                   min={0.1}
                   step={0.1}
                   value={feeSettings.segmentKm}
                   onChange={(e) => setFeeSettings({ ...feeSettings, segmentKm: parseFloat(e.target.value || "0") })}
-                  className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                  className="mt-1 w-full rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
                 />
               </div>
               <div>
                 <label className="text-xs text-[color:var(--muted)]">Tarifa sin coordenadas (fallback)</label>
-                <input
+                <input aria-label="Precio en centavos"
                   type="number"
                   min={0}
                   value={feeSettings.fallbackFeeCents}
                   onChange={(e) => setFeeSettings({ ...feeSettings, fallbackFeeCents: parseInt(e.target.value || "0", 10) })}
-                  className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                  className="mt-1 w-full rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
                 />
                 <div className="text-[10px] text-[color:var(--muted)] mt-1">Precio en centavos</div>
               </div>
@@ -261,27 +261,27 @@ export function AdminOrdersClient({ orders, deliverySettings: initialSettings }:
           </div>
         ) : (
           <div className="px-5 py-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="rounded-lg bg-gray-50 px-4 py-3">
+            <div className="rounded-lg bg-[var(--surface)] px-4 py-3">
               <div className="text-xs text-[color:var(--muted)]">Tarifa base</div>
               <div className="mt-0.5 text-lg font-semibold">{formatMoney(initialSettings.baseFeeCents, "MXN")}</div>
             </div>
-            <div className="rounded-lg bg-gray-50 px-4 py-3">
+            <div className="rounded-lg bg-[var(--surface)] px-4 py-3">
               <div className="text-xs text-[color:var(--muted)]">Por segmento extra</div>
               <div className="mt-0.5 text-lg font-semibold">{formatMoney(initialSettings.extraFeePerSegmentCents, "MXN")}</div>
             </div>
-            <div className="rounded-lg bg-gray-50 px-4 py-3">
+            <div className="rounded-lg bg-[var(--surface)] px-4 py-3">
               <div className="text-xs text-[color:var(--muted)]">Km gratis</div>
               <div className="mt-0.5 text-lg font-semibold">{initialSettings.baseDistanceKm} km</div>
             </div>
-            <div className="rounded-lg bg-gray-50 px-4 py-3">
+            <div className="rounded-lg bg-[var(--surface)] px-4 py-3">
               <div className="text-xs text-[color:var(--muted)]">Km por segmento</div>
               <div className="mt-0.5 text-lg font-semibold">{initialSettings.segmentKm} km</div>
             </div>
-            <div className="rounded-lg bg-gray-50 px-4 py-3">
+            <div className="rounded-lg bg-[var(--surface)] px-4 py-3">
               <div className="text-xs text-[color:var(--muted)]">Tarifa fallback</div>
               <div className="mt-0.5 text-lg font-semibold">{formatMoney(initialSettings.fallbackFeeCents, "MXN")}</div>
             </div>
-            <div className="rounded-lg bg-gray-50 px-4 py-3 flex items-center">
+            <div className="rounded-lg bg-[var(--surface)] px-4 py-3 flex items-center">
               <span className="text-xs text-[color:var(--muted)]">
                 Las zonas configuradas en "Zonas Envío" tienen prioridad sobre esta tarifa.
               </span>
@@ -366,7 +366,7 @@ export function AdminOrdersClient({ orders, deliverySettings: initialSettings }:
                       <div className={`text-xs px-2 py-1 rounded-full mt-1 inline-block ${getStatusBadgeClass(order.status)}`}>
                         {getStatusLabel(order.status)}
                       </div>
-                      <div className={`text-xs mt-1 ${order.fulfillmentType === "DELIVERY" ? "text-purple-600" : "text-gray-600"}`}>
+                      <div className={`text-xs mt-1 ${order.fulfillmentType === "DELIVERY" ? "text-purple-600" : "text-[color:var(--muted)]"}`}>
                         {order.fulfillmentType === "DELIVERY" ? "Entrega" : "Recoger"}
                       </div>
                     </div>
@@ -385,11 +385,11 @@ export function AdminOrdersClient({ orders, deliverySettings: initialSettings }:
                                 ? "bg-[var(--accent)]"
                                 : isActive
                                   ? "bg-[var(--accent-soft)]"
-                                  : "bg-gray-200"
+                                  : "bg-[var(--surface-2)]"
                             }`}
                           />
                           {i < flow.length - 1 && (
-                            <div className={`h-0.5 flex-1 ${isActive && i < flow.length - 1 ? "bg-[var(--accent-soft)]" : "bg-gray-200"}`} />
+                            <div className={`h-0.5 flex-1 ${isActive && i < flow.length - 1 ? "bg-[var(--accent-soft)]" : "bg-[var(--surface-2)]"}`} />
                           )}
                         </div>
                       );

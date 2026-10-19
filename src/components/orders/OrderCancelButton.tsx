@@ -112,7 +112,7 @@ export function OrderCancelButton({ orderId, status, statusTimestamps }: Props) 
               <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">
                 ¿Cuál es el motivo de tu cancelación? *
               </label>
-              <select
+              <select aria-label="Selecciona una opción"
                 value={reason}
                 onChange={(e) => { setReason(e.target.value); setError(""); }}
                 className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm"
@@ -127,7 +127,7 @@ export function OrderCancelButton({ orderId, status, statusTimestamps }: Props) 
               <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">
                 Detalle (opcional)
               </label>
-              <textarea
+              <textarea aria-label="Cuéntanos un poco más"
                 value={detail}
                 onChange={(e) => setDetail(e.target.value)}
                 rows={2}

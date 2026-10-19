@@ -93,7 +93,7 @@ export function PaymentMethodCard({
         relative rounded-xl border-2 p-4 transition-all duration-200
         ${isSelected 
           ? "border-[var(--accent)] bg-[var(--accent-soft)] shadow-lg shadow-[var(--accent)]/10" 
-          : `${colors.border} bg-white hover:border-[var(--accent)]/50 hover:shadow-md`
+          : `${colors.border} bg-[var(--card-bg)] hover:border-[var(--accent)]/50 hover:shadow-md`
         }
         ${onSelect && !disabled ? "cursor-pointer" : "cursor-default"}
         ${compact ? "p-3" : ""}
@@ -142,7 +142,7 @@ export function PaymentMethodCard({
           {method.details && (
             <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-[color:var(--muted)]">
               {method.details.last4 && (
-                <span className="font-mono px-2 py-0.5 rounded bg-gray-100">•••• {method.details.last4}</span>
+                <span className="font-mono px-2 py-0.5 rounded bg-[var(--surface)]">•••• {method.details.last4}</span>
               )}
               {method.details.brand && (
                 <span className="capitalize">{method.details.brand}</span>
@@ -176,7 +176,7 @@ export function PaymentMethodCard({
               <Button 
                 variant="ghost" 
                 size="sm" 
-                leftIcon={<svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>}
+                leftIcon={<svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>}
                 onClick={(e) => { e.stopPropagation(); onEdit(); }}
               >
                 Editar
@@ -186,7 +186,7 @@ export function PaymentMethodCard({
               <Button 
                 variant="ghost" 
                 size="sm" 
-                leftIcon={<svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>}
+                leftIcon={<svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>}
                 onClick={(e) => { e.stopPropagation(); onDelete(); }}
                 className="text-red-600 hover:text-red-700"
               >
@@ -197,7 +197,7 @@ export function PaymentMethodCard({
               <Button 
                 variant="ghost" 
                 size="sm" 
-                leftIcon={<svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
+                leftIcon={<svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
                 onClick={(e) => { e.stopPropagation(); onSetDefault(); }}
                 className="text-amber-600 hover:text-amber-700"
               >
@@ -286,7 +286,7 @@ export function PaymentMethodList({
       {methods.length === 0 && onAdd && (
         <div className="rounded-xl border-2 border-dashed border-[var(--border)] p-8 text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--accent-soft)]">
-            <svg className="h-8 w-8 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className="h-8 w-8 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
             </svg>
           </div>

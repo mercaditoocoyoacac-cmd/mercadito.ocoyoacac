@@ -76,10 +76,10 @@ export default function DeliveryChat({ orderId, currentUserId, currentUserRole }
     <div className="mt-4 rounded-xl border border-[var(--border)] overflow-hidden">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="flex w-full items-center justify-between bg-gray-50 px-4 py-3 text-sm font-medium hover:bg-gray-100"
+        className="flex w-full items-center justify-between bg-[var(--surface)] px-4 py-3 text-sm font-medium hover:bg-[var(--surface)]"
       >
         <span className="flex items-center gap-2">
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
           </svg>
           Chat con {currentUserRole === "DELIVERY" ? "el cliente" : "el repartidor"}
@@ -87,7 +87,7 @@ export default function DeliveryChat({ orderId, currentUserId, currentUserRole }
             <span className="rounded-full bg-[var(--accent)] px-1.5 py-0.5 text-xs text-white">{messages.length}</span>
           )}
         </span>
-        <svg
+        <svg aria-hidden="true"
           className={`h-4 w-4 transition-transform ${expanded ? "rotate-180" : ""}`}
           fill="none"
           stroke="currentColor"
@@ -113,7 +113,7 @@ export default function DeliveryChat({ orderId, currentUserId, currentUserRole }
                       className={`max-w-[80%] rounded-xl px-3 py-2 text-sm ${
                         isMine
                           ? "bg-[var(--accent)] text-white rounded-br-sm"
-                          : "bg-gray-100 text-gray-900 rounded-bl-sm"
+                          : "bg-[var(--surface)] text-[color:var(--text)] rounded-bl-sm"
                       }`}
                     >
                       <p>{msg.message}</p>
@@ -133,7 +133,7 @@ export default function DeliveryChat({ orderId, currentUserId, currentUserRole }
           </div>
 
           <div className="flex items-center gap-2 border-t border-[var(--border)] px-4 py-3">
-            <input
+            <input aria-label="Escribe un mensaje..."
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}

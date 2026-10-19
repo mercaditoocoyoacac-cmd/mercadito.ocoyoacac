@@ -567,13 +567,13 @@ export default function CarritoPage() {
           <div className="flex items-center gap-2">
             {(items ?? []).length > 0 && (
               <Button variant="outline" size="sm" onClick={handleClearCart} leftIcon={
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
               }>
                 Vaciar
               </Button>
             )}
             <Link href="/tiendas" className="hidden sm:flex items-center gap-1.5 text-sm text-[var(--accent)] hover:underline">
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+              <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
               Seguir comprando
             </Link>
           </div>
@@ -581,7 +581,7 @@ export default function CarritoPage() {
 
         {error && (
           <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700 flex items-start gap-3">
-            <svg className="h-5 w-5 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <svg aria-hidden="true" className="h-5 w-5 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             <span>{error}
               {activeOrder && !modifyingOrder && (
                 <a href={`/pedido/${activeOrder.id}`} className="ml-2 font-semibold underline">Ver pedido activo</a>
@@ -605,7 +605,7 @@ export default function CarritoPage() {
                   <div className="mt-1 text-xs text-blue-700">⚠ {modifyWarning}</div>
                 )}
               </div>
-              <button type="button" onClick={cancelModify} className="shrink-0 rounded-lg border border-blue-300 px-3 py-1.5 text-xs font-medium text-blue-700 bg-white hover:bg-blue-100">
+              <button type="button" onClick={cancelModify} className="shrink-0 rounded-lg border border-blue-300 px-3 py-1.5 text-xs font-medium text-blue-700 bg-[var(--card-bg)] hover:bg-blue-100">
                 Cancelar modificación
               </button>
             </div>
@@ -623,7 +623,7 @@ export default function CarritoPage() {
                   Solo puedes tener un pedido a la vez. Modifícalo o cancélalo antes de crear otro.
                 </div>
               </div>
-              <a href={`/pedido/${activeOrder.id}`} className="shrink-0 rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium text-amber-800 hover:bg-amber-100">
+              <a href={`/pedido/${activeOrder.id}`} className="shrink-0 rounded-lg border border-amber-300 bg-[var(--card-bg)] px-3 py-1.5 text-xs font-medium text-amber-800 hover:bg-amber-100">
                 Ver pedido
               </a>
             </div>
@@ -631,8 +631,8 @@ export default function CarritoPage() {
         )}
 
         {(items ?? []).length > 0 && (
-          <div className="mb-6 rounded-xl border border-[var(--border)] bg-white px-5 py-4 text-sm text-[color:var(--muted)] flex items-start gap-3">
-            <svg className="h-5 w-5 shrink-0 mt-0.5 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <div className="mb-6 rounded-xl border border-[var(--border)] bg-[var(--card-bg)] px-5 py-4 text-sm text-[color:var(--muted)] flex items-start gap-3">
+            <svg aria-hidden="true" className="h-5 w-5 shrink-0 mt-0.5 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             <div>
               <div className="font-medium text-[var(--foreground)]">Normas de tu pedido</div>
               <p className="mt-1 text-xs">
@@ -655,7 +655,7 @@ export default function CarritoPage() {
           <Card variant="outlined" className="mb-6 border-red-200 bg-red-50">
             <CardContent className="p-4">
               <div className="flex items-start gap-3">
-                <svg className="h-6 w-6 shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+                <svg aria-hidden="true" className="h-6 w-6 shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
                 <div>
                   <h3 className="font-semibold text-red-800">Productos agotados</h3>
                   <p className="mt-1 text-sm text-red-600">Algunos productos ya no están disponibles. Retíralos para continuar.</p>
@@ -685,7 +685,7 @@ export default function CarritoPage() {
                           {item.product.imageUrl ? (
                             <img src={item.product.imageUrl} alt={item.product.name} className="w-full h-full object-cover" />
                           ) : (
-                            <svg className="h-7 w-7 text-[var(--accent)]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                            <svg aria-hidden="true" className="h-7 w-7 text-[var(--accent)]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
                           )}
                           {item.product.isUnavailable && (
                             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
@@ -719,15 +719,15 @@ export default function CarritoPage() {
                           <div className="mt-3 flex items-center justify-between">
                             <div className="inline-flex items-center rounded-lg border border-[var(--border)] overflow-hidden">
                               <Button variant="ghost" size="sm" onClick={() => updateQuantity(item, -1)} disabled={isUpdating || item.quantity <= 1 || item.product.isUnavailable} aria-label="Disminuir">
-                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 12H4" /></svg>
+                                <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 12H4" /></svg>
                               </Button>
-                              <span className="flex h-9 min-w-[2.5rem] items-center justify-center border-x border-[var(--border)] text-sm font-medium bg-white">{item.quantity}</span>
+                              <span className="flex h-9 min-w-[2.5rem] items-center justify-center border-x border-[var(--border)] text-sm font-medium bg-[var(--card-bg)]">{item.quantity}</span>
                               <Button variant="ghost" size="sm" onClick={() => updateQuantity(item, 1)} disabled={isUpdating || item.quantity >= 99 || item.product.isUnavailable} aria-label="Aumentar">
                                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
                               </Button>
                             </div>
                             <Button variant="ghost" size="sm" onClick={() => removeItem(item)} className="text-red-500 hover:text-red-700" aria-label="Eliminar">
-                              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                              <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                             </Button>
                           </div>
                         </div>
@@ -767,7 +767,7 @@ export default function CarritoPage() {
                               <span className="text-green-700 font-medium">Activo</span>
                               <span className="text-green-600 font-mono">({appliedCoupon.code})</span>
                             </div>
-                            <Button variant="ghost" size="sm" onClick={removeCoupon} leftIcon={<svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>} />
+                            <Button variant="ghost" size="sm" onClick={removeCoupon} leftIcon={<svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>} />
                           </div>
                           <div className="text-green-700 font-semibold">-{formatMoney(couponDiscount, currency)}</div>
                         </div>
@@ -844,7 +844,7 @@ export default function CarritoPage() {
                         onClick={() => { setFulfillmentType("PICKUP"); setCurrentStep(3); }}
                         fullWidth
                       >
-                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                         Recoger en tienda
                       </Button>
                       <Button
@@ -860,7 +860,7 @@ export default function CarritoPage() {
                         fullWidth
                         disabled={!isPremium}
                       >
-                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2-1m6 0l2 1m-2-1v-4a1 1 0 011-1h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 01.293.707V16l-2 1m-6-3h4m-8 3h8" /></svg>
+                        <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2-1m6 0l2 1m-2-1v-4a1 1 0 011-1h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 01.293.707V16l-2 1m-6-3h4m-8 3h8" /></svg>
                         Envío a domicilio
                         {!isPremium && <Badge variant="warning" size="sm" className="ml-1">Membresía</Badge>}
                       </Button>
@@ -900,7 +900,7 @@ export default function CarritoPage() {
                           />
                           {customerLat && customerLng && (
                             <p className="mt-1.5 flex items-center gap-1 text-xs text-green-600 font-medium">
-                              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+                              <svg aria-hidden="true" className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
                               Punto de entrega marcado
                             </p>
                           )}
@@ -983,7 +983,7 @@ export default function CarritoPage() {
 
                           <div>
                             <label className="text-xs font-medium text-[color:var(--muted)]">Captura del comprobante</label>
-                            <input
+                            <input aria-label="Captura del comprobante"
                               type="file"
                               accept="image/jpeg,image/png,image/webp,image/gif"
                               onChange={async (e) => {
@@ -1052,7 +1052,7 @@ export default function CarritoPage() {
 
                       <div>
                         <label className="block text-xs font-medium text-[color:var(--muted)]">Notas (opcional)</label>
-                        <textarea
+                        <textarea aria-label="Instrucciones de entrega, código de acceso, etc."
                           value={notes}
                           onChange={(e) => setNotes(e.target.value)}
                           rows={2}
@@ -1069,7 +1069,7 @@ export default function CarritoPage() {
         )}
 
         {/* Mobile Sticky Footer */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[var(--border)] p-4 shadow-xl z-50 safe-area-bottom">
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[var(--card-bg)] border-t border-[var(--border)] p-4 shadow-xl z-50 safe-area-bottom">
           <div className="mx-auto max-w-6xl flex items-center justify-between gap-3">
             <div className="flex-1">
               <p className="text-xs text-[color:var(--muted)]">Total</p>

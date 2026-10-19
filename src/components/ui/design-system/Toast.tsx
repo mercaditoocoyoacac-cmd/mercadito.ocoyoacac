@@ -12,7 +12,7 @@ export function Toaster() {
       className="toaster-group"
       toastOptions={{
         classNames: {
-          toast: "rounded-xl border border-[var(--border)] bg-white shadow-lg",
+          toast: "rounded-xl border border-[var(--border)] bg-[var(--card-bg)] shadow-lg",
           description: "text-[color:var(--muted)]",
           actionButton: "rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]",
           cancelButton: "rounded-lg border border-[var(--border)] hover:bg-[var(--accent-soft)]",

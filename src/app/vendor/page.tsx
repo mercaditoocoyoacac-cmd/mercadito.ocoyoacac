@@ -42,8 +42,8 @@ export default async function VendorDashboard() {
       <main className="flex-1">
         <section className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-700 px-4 py-20 text-white">
           <div className="absolute inset-0 opacity-10">
-            <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-white blur-3xl"></div>
-            <div className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-white blur-3xl"></div>
+            <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-[var(--card-bg)] blur-3xl"></div>
+            <div className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-[var(--card-bg)] blur-3xl"></div>
           </div>
           
           <div className="relative mx-auto max-w-4xl text-center">
@@ -63,9 +63,9 @@ export default async function VendorDashboard() {
             <div className="mt-8">
               <Link
                 href="/vendor/onboarding"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-base font-semibold text-emerald-700 shadow-lg transition-transform hover:scale-105 hover:bg-yellow-50"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--card-bg)] px-8 py-4 text-base font-semibold text-emerald-700 shadow-lg transition-transform hover:scale-105 hover:bg-yellow-50"
               >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
                 Crear mi tienda
@@ -76,21 +76,21 @@ export default async function VendorDashboard() {
 
         <section className="mx-auto max-w-4xl px-4 py-16">
           <div className="grid gap-6 sm:grid-cols-3">
-            <div className="rounded-xl border border-[var(--border)] bg-white p-6 text-center shadow-sm">
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-6 text-center shadow-sm">
               <div className="text-3xl mb-2">📦</div>
               <h3 className="font-semibold">Productos</h3>
               <p className="mt-1 text-sm text-[color:var(--muted)]">
                 Sube fotos y descripciones de tus productos
               </p>
             </div>
-            <div className="rounded-xl border border-[var(--border)] bg-white p-6 text-center shadow-sm">
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-6 text-center shadow-sm">
               <div className="text-3xl mb-2">📱</div>
               <h3 className="font-semibold">Gestión fácil</h3>
               <p className="mt-1 text-sm text-[color:var(--muted)]">
                 Adminstra pedidos desde tu celular
               </p>
             </div>
-            <div className="rounded-xl border border-[var(--border)] bg-white p-6 text-center shadow-sm">
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-6 text-center shadow-sm">
               <div className="text-3xl mb-2">💳</div>
               <h3 className="font-semibold">Pagos</h3>
               <p className="mt-1 text-sm text-[color:var(--muted)]">
@@ -128,7 +128,7 @@ export default async function VendorDashboard() {
             <div className="mt-8 flex justify-center gap-4">
               <Link
                 href="/vendor/membresia"
-                className="inline-block rounded-lg bg-white px-6 py-3 text-lg font-semibold text-red-700 hover:bg-gray-100"
+                className="inline-block rounded-lg bg-[var(--card-bg)] px-6 py-3 text-lg font-semibold text-red-700 hover:bg-[var(--surface)]"
               >
                 Ver membresía
               </Link>
@@ -250,7 +250,7 @@ export default async function VendorDashboard() {
       {(!subscriptionActive || isTrial) && (
         <div className={`mx-4 mt-4 rounded-lg border px-4 py-3 ${isTrial ? "border-emerald-500/30 bg-emerald-500/10" : "border-yellow-500/30 bg-yellow-500/10"}`}>
           <div className="flex items-center gap-3">
-            <svg className={`h-5 w-5 ${isTrial ? "text-emerald-600" : "text-yellow-600"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className={`h-5 w-5 ${isTrial ? "text-emerald-600" : "text-yellow-600"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isTrial ? "M13 10V3L4 14h7v7l9-11h-7z" : "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"} />
             </svg>
             <div>
@@ -325,8 +325,8 @@ export default async function VendorDashboard() {
 
       <section className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-700 px-4 py-12 text-white">
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-white blur-3xl"></div>
-          <div className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-white blur-3xl"></div>
+          <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-[var(--card-bg)] blur-3xl"></div>
+          <div className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-[var(--card-bg)] blur-3xl"></div>
         </div>
         
         <div className="relative mx-auto max-w-6xl">
@@ -353,9 +353,9 @@ export default async function VendorDashboard() {
               )}
               <Link
                 href={`/tienda/${store.slug}`}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-emerald-700 shadow-lg hover:bg-yellow-50"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--card-bg)] px-6 py-3 font-semibold text-emerald-700 shadow-lg hover:bg-yellow-50"
               >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
@@ -365,7 +365,7 @@ export default async function VendorDashboard() {
                 href="/vendor/productos/importar"
                 className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-white/30 bg-white/10 px-6 py-3 font-semibold backdrop-blur-sm hover:bg-white/20"
               >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m0 0l4 4" />
                 </svg>
                 Importar CSV
@@ -374,7 +374,7 @@ export default async function VendorDashboard() {
                 href="/vendor/productos/nuevo"
                 className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-white/30 bg-white/10 px-6 py-3 font-semibold backdrop-blur-sm hover:bg-white/20"
               >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
                 Agregar producto
@@ -386,21 +386,21 @@ export default async function VendorDashboard() {
 
       <section className="mx-auto max-w-6xl px-4 py-8">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="rounded-xl border border-[var(--border)] bg-white p-6 shadow-sm">
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-6 shadow-sm">
             <div className="text-sm text-[color:var(--muted)]"> Productos</div>
             <div className="mt-1 text-3xl font-bold">{totalProducts}</div>
             <div className="mt-1 text-xs text-green-600">
               {activeProducts} activos
             </div>
           </div>
-          <div className="rounded-xl border border-[var(--border)] bg-white p-6 shadow-sm">
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-6 shadow-sm">
             <div className="text-sm text-[color:var(--muted)]">Pedidos</div>
             <div className="mt-1 text-3xl font-bold">{totalOrders}</div>
             <div className="mt-1 text-xs text-yellow-600">
               {pendingOrders} pendientes
             </div>
           </div>
-          <div className="rounded-xl border border-[var(--border)] bg-white p-6 shadow-sm">
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-6 shadow-sm">
             <div className="text-sm text-[color:var(--muted)]">Ingresos</div>
             <div className="mt-1 text-3xl font-bold">
               {formatMoney(totalRevenue._sum.subtotalCents || 0, "MXN")}
@@ -423,7 +423,7 @@ export default async function VendorDashboard() {
                 : "Configure en ajustes"}
             </div>
           </Link>
-          <div className="rounded-xl border border-[var(--border)] bg-white p-6 shadow-sm">
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-6 shadow-sm">
             <div className="text-sm text-[color:var(--muted)]">Calificación</div>
             <div className="mt-1 text-3xl font-bold">
               {avgStoreRating ? (
@@ -438,7 +438,7 @@ export default async function VendorDashboard() {
           </div>
           <Link
             href="/delivery/registro"
-            className={`block rounded-xl border p-6 shadow-sm transition hover:shadow-md ${hasDeliveryAccess ? "border-orange-300 bg-orange-50" : "border-[var(--border)] bg-white"}`}
+            className={`block rounded-xl border p-6 shadow-sm transition hover:shadow-md ${hasDeliveryAccess ? "border-orange-300 bg-orange-50" : "border-[var(--border)] bg-[var(--card-bg)]"}`}
           >
             <div className="text-sm text-[color:var(--muted)]">Repartidor</div>
             <div className="mt-1 text-2xl font-bold">
@@ -453,7 +453,7 @@ export default async function VendorDashboard() {
 
       <section className="mx-auto max-w-6xl px-4 pb-16">
         <div className="grid gap-6 lg:grid-cols-2">
-          <div className="rounded-xl border border-[var(--border)] bg-white">
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)]">
             <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
               <h2 className="font-semibold">Productos recientes</h2>
               <Link href="/vendor/productos" className="text-sm text-emerald-600 hover:underline">
@@ -477,7 +477,7 @@ export default async function VendorDashboard() {
                         <Image src={product.imageUrl} alt={product.name} fill className="object-cover" sizes="48px" />
                       </div>
                     ) : (
-                      <div className="h-12 w-12 shrink-0 rounded-lg border border-[var(--border)] bg-gray-100 flex items-center justify-center text-2xl">
+                      <div className="h-12 w-12 shrink-0 rounded-lg border border-[var(--border)] bg-[var(--surface)] flex items-center justify-center text-2xl">
                         📷
                       </div>
                     )}
@@ -487,7 +487,7 @@ export default async function VendorDashboard() {
                         {formatMoney(product.priceCents, product.currency)}
                       </div>
                     </div>
-                    <div className={`text-xs px-2 py-1 rounded-full ${product.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>
+                    <div className={`text-xs px-2 py-1 rounded-full ${product.isActive ? "bg-green-100 text-green-700" : "bg-[var(--surface)] text-[color:var(--muted)]"}`}>
                       {product.isActive ? "Activo" : "Inactivo"}
                     </div>
                   </div>
@@ -496,7 +496,7 @@ export default async function VendorDashboard() {
             )}
           </div>
 
-          <div className="rounded-xl border border-[var(--border)] bg-white">
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)]">
             <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
               <h2 className="font-semibold">Pedidos recientes</h2>
               <Link href="/vendor/pedidos" className="text-sm text-emerald-600 hover:underline">

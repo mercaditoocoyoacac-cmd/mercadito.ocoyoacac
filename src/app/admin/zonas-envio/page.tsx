@@ -186,8 +186,8 @@ export default function ZonasEnvioPage() {
     return (
       <div className="space-y-6">
         <h1 className="text-2xl font-semibold tracking-tight">Zonas de riesgo</h1>
-        <div className="h-[600px] rounded-xl bg-gray-100 animate-pulse flex items-center justify-center">
-          <span className="text-sm text-gray-400">Cargando mapa...</span>
+        <div className="h-[600px] rounded-xl bg-[var(--surface)] animate-pulse flex items-center justify-center">
+          <span className="text-sm text-[color:var(--muted)]">Cargando mapa...</span>
         </div>
       </div>
     );
@@ -260,11 +260,12 @@ export default function ZonasEnvioPage() {
                     <span className="text-sm font-semibold text-[var(--accent)]">+{formatMoney(RISK_ZONE_EXTRA_CENTS, "MXN")}</span>
                     <button
                       type="button"
+                      aria-label={`Editar polígono de ${zone.name}`}
                       onClick={(e) => {
                         e.stopPropagation();
                         startPolygonEditing(zone);
                       }}
-                      className="rounded p-1 text-[color:var(--muted)] hover:bg-gray-100"
+                      className="rounded p-1 text-[color:var(--muted)] hover:bg-[var(--surface)]"
                       title="Editar polígono de la zona"
                     >
                       <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -273,13 +274,14 @@ export default function ZonasEnvioPage() {
                     </button>
                     <button
                       type="button"
+                      aria-label={`Eliminar zona ${zone.name}`}
                       onClick={(e) => {
                         e.stopPropagation();
                         deleteZone(zone.id);
                       }}
                       className="rounded p-1 text-red-400 hover:bg-red-50"
                     >
-                      <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg aria-hidden="true" className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
                     </button>
@@ -297,12 +299,12 @@ export default function ZonasEnvioPage() {
           {editingZone && (
             <div className="rounded-xl border border-[var(--accent)] bg-blue-50/50 p-4 space-y-3">
               <div className="text-sm font-medium">{editingZone.id ? "Editar zona de riesgo" : "Nueva zona de riesgo"}</div>
-              <input
+              <input aria-label="Nombre de la zona"
                 type="text"
                 placeholder="Nombre de la zona"
                 value={editingZone.name}
                 onChange={(e) => setEditingZone({ ...editingZone, name: e.target.value })}
-                className="w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                className="w-full rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
               />
               <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2 flex items-center gap-2 text-sm">
                 <div className="h-3 w-3 rounded-full" style={{ backgroundColor: RISK_COLOR }} />
@@ -315,7 +317,7 @@ export default function ZonasEnvioPage() {
               )}
 
               {editingZone.id && (
-                <div className="rounded-lg border border-[var(--border)] bg-white p-3 space-y-2">
+                <div className="rounded-lg border border-[var(--border)] bg-[var(--card-bg)] p-3 space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="text-xs font-medium">
                       Polígono · {editingZone.polygon?.length ?? 0} puntos
@@ -324,7 +326,7 @@ export default function ZonasEnvioPage() {
                       <button
                         type="button"
                         onClick={() => setEditingPolygon(false)}
-                        className="rounded-md bg-gray-200 px-2 py-1 text-xs font-medium hover:bg-gray-300 transition-colors"
+                        className="rounded-md bg-[var(--surface-2)] px-2 py-1 text-xs font-medium hover:bg-gray-300 transition-colors"
                       >
                         Terminar edición
                       </button>
@@ -355,7 +357,7 @@ export default function ZonasEnvioPage() {
                           type="button"
                           onClick={() => setEditingZone({ ...editingZone, polygon: editingZone.polygon?.slice(0, -1) ?? [] })}
                           disabled={!editingZone.polygon?.length}
-                          className="rounded-md border border-[var(--border)] px-2 py-1 text-xs hover:bg-gray-50 disabled:opacity-40"
+                          className="rounded-md border border-[var(--border)] px-2 py-1 text-xs hover:bg-[var(--surface)] disabled:opacity-40"
                         >
                           Deshacer último punto
                         </button>
@@ -369,7 +371,7 @@ export default function ZonasEnvioPage() {
                 <button
                   type="button"
                   onClick={() => { setEditingZone(null); setEditingPolygon(false); }}
-                  className="flex-1 rounded-md border border-[var(--border)] px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
+                  className="flex-1 rounded-md border border-[var(--border)] px-3 py-1.5 text-sm font-medium hover:bg-[var(--surface)]"
                 >
                   Cancelar
                 </button>

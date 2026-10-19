@@ -21,7 +21,7 @@ function HelpTip({ text }: { text: string }) {
         ?
       </button>
       {show && (
-        <div className="absolute bottom-full left-1/2 mb-2 w-64 -translate-x-1/2 rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-xs text-[color:var(--muted)] shadow-lg z-10">
+        <div className="absolute bottom-full left-1/2 mb-2 w-64 -translate-x-1/2 rounded-lg border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 text-xs text-[color:var(--muted)] shadow-lg z-10">
           {text}
         </div>
       )}
@@ -204,7 +204,7 @@ export default function VendorImportPage() {
                 i < stepIndex ? "bg-green-500 text-white" : i === stepIndex ? "bg-[var(--accent)] text-white" : "border border-[var(--border)] text-[color:var(--muted)]"
               }`}>
                 {i < stepIndex ? (
-                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg aria-hidden="true" className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                   </svg>
                 ) : i + 1}
@@ -222,7 +222,7 @@ export default function VendorImportPage() {
 
       {step === "upload" && (
         <>
-          <div className="rounded-xl border border-[var(--border)] bg-white p-6">
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-6">
             <h2 className="font-semibold">¿Cómo funciona?</h2>
             <div className="mt-4 space-y-3 text-sm">
               <div className="flex gap-3">
@@ -253,19 +253,20 @@ export default function VendorImportPage() {
                 <HelpTip text="No importa el orden ni el nombre exacto. Buscamos palabras clave en los encabezados de tu archivo." />
               </h3>
               <div className="mt-2 grid gap-2 sm:grid-cols-2 text-xs text-[color:var(--muted)]">
-                <div><span className="font-medium text-gray-700">Producto:</span> nombre, descripción, artículo</div>
-                <div><span className="font-medium text-gray-700">Precio:</span> precio, precioVta, PVP</div>
-                <div><span className="font-medium text-gray-700">Código:</span> SKU, código, clave, códigoBarras</div>
-                <div><span className="font-medium text-gray-700">Inventario:</span> existencia, stock, cantidad</div>
+                <div><span className="font-medium text-[color:var(--text)]">Producto:</span> nombre, descripción, artículo</div>
+                <div><span className="font-medium text-[color:var(--text)]">Precio:</span> precio, precioVta, PVP</div>
+                <div><span className="font-medium text-[color:var(--text)]">Código:</span> SKU, código, clave, códigoBarras</div>
+                <div><span className="font-medium text-[color:var(--text)]">Inventario:</span> existencia, stock, cantidad</div>
               </div>
             </div>
           </div>
 
           <div
-            className="rounded-xl border-2 border-dashed border-[var(--border)] bg-white p-12 text-center cursor-pointer hover:border-[var(--accent)] transition-colors"
+            className="rounded-xl border-2 border-dashed border-[var(--border)] bg-[var(--card-bg)] p-12 text-center cursor-pointer hover:border-[var(--accent)] transition-colors"
             onClick={() => fileInputRef.current?.click()}
           >
             <input
+              aria-label="Archivo CSV o Excel"
               ref={fileInputRef}
               type="file"
               accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -273,7 +274,7 @@ export default function VendorImportPage() {
               className="hidden"
             />
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--accent-soft)]">
-              <svg className="h-8 w-8 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg aria-hidden="true" className="h-8 w-8 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3" />
               </svg>
             </div>
@@ -285,7 +286,7 @@ export default function VendorImportPage() {
 
       {step === "preview" && (
         <>
-          <div className="rounded-xl border border-[var(--border)] bg-white p-6">
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-6">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="font-semibold">Vista previa: {fileName}</h2>
@@ -300,7 +301,7 @@ export default function VendorImportPage() {
 
             <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {previewRows.map((row, i) => (
-                <div key={i} className="rounded-lg border border-[var(--border)] bg-gray-50 p-3">
+                <div key={i} className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
                   <div className="font-medium text-sm truncate">{row.name}</div>
                   <div className="mt-1 text-lg font-semibold text-[var(--accent)]">{row.price}</div>
                   <div className="mt-1 flex gap-2 text-xs text-[color:var(--muted)]">
@@ -327,10 +328,10 @@ export default function VendorImportPage() {
 
       {step === "done" && summary && (
         <>
-          <div className="rounded-xl border border-[var(--border)] bg-white p-6">
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-                <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg aria-hidden="true" className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
@@ -357,7 +358,7 @@ export default function VendorImportPage() {
           </div>
 
           {importErrors.length > 0 && (
-            <div className="rounded-xl border border-red-200 bg-white p-6">
+            <div className="rounded-xl border border-red-200 bg-[var(--card-bg)] p-6">
               <h3 className="font-semibold text-red-700">Errores</h3>
               <div className="mt-3 space-y-1 text-sm">
                 {importErrors.map((err, i) => (
@@ -368,7 +369,7 @@ export default function VendorImportPage() {
           )}
 
           {results.length > 0 && (
-            <div className="rounded-xl border border-[var(--border)] bg-white p-6">
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-6">
               <h3 className="font-semibold">Productos procesados ({results.length})</h3>
               <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {results.slice(0, 30).map((r, i) => (

@@ -223,7 +223,7 @@ export default async function TiendasPage({
         </p>
         <Link
           href="/vendor/upgrade"
-          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-[#15803D] shadow-lg transition-all hover:scale-105 hover:bg-[#F0FDF4]"
+          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[var(--card-bg)] px-6 py-3 text-sm font-semibold text-[#15803D] shadow-lg transition-all hover:scale-105 hover:bg-[#F0FDF4]"
         >
           Crear tienda
         </Link>

@@ -89,7 +89,7 @@ export default async function VendorProductosPage({
             href="/vendor/productos/importar"
             className="inline-flex items-center gap-1.5 rounded-md border border-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent)] hover:bg-[var(--accent-soft)]"
           >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
             </svg>
             Importar
@@ -99,7 +99,7 @@ export default async function VendorProductosPage({
             data-coach="new-product"
             className="inline-flex items-center gap-1.5 rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)]"
           >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
             Nuevo
@@ -114,7 +114,7 @@ export default async function VendorProductosPage({
       ) : products.length === 0 ? (
         <div className="rounded-xl border border-[var(--border)] p-8 text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--accent-soft)]">
-            <svg className="h-8 w-8 text-[var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className="h-8 w-8 text-[var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
           </div>
@@ -127,7 +127,7 @@ export default async function VendorProductosPage({
               href="/vendor/productos/nuevo"
               className="inline-flex items-center gap-1.5 rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)]"
             >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
               Crear primer producto
@@ -141,11 +141,11 @@ export default async function VendorProductosPage({
               <div
                 key={product.id}
                 style={{ animationDelay: `${i * 60}ms` }}
-                className="group rounded-xl border border-[var(--border)] bg-white p-4 card-hover fade-in"
+                className="group rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-4 card-hover fade-in"
               >
                 <Link href={`/vendor/productos/${product.id}`} className="block">
                   <div className="flex items-start gap-4">
-                    <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[var(--border)] bg-gray-50">
+                    <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--surface)]">
                       {product.imageUrl ? (
                         <Image
                           src={product.imageUrl}
@@ -155,7 +155,7 @@ export default async function VendorProductosPage({
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <svg className="h-8 w-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg aria-hidden="true" className="h-8 w-8 text-[color:var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                         </svg>
                       )}

@@ -128,7 +128,7 @@ export function EmptyStateCard({
   ...props 
 }: EmptyStateProps & { className?: string }) {
   return (
-    <div className={`rounded-2xl border border-[var(--border)] bg-white p-8 ${props.className}`}>
+    <div className={`rounded-2xl border border-[var(--border)] bg-[var(--card-bg)] p-8 ${props.className}`}>
       <EmptyState {...props} />
     </div>
   );

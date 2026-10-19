@@ -10,7 +10,7 @@ export default function DeliveryError({
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 p-8">
       <h2 className="text-xl font-semibold">Error del repartidor</h2>
-      <p className="text-gray-500 text-sm text-center max-w-md">
+      <p className="text-[color:var(--muted)] text-sm text-center max-w-md">
         Ocurri&oacute; un error en tu panel de repartidor. Intenta de nuevo.
       </p>
       <button

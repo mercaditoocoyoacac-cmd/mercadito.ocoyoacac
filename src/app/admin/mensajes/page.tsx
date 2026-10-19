@@ -79,7 +79,7 @@ export default function AdminMensajesPage() {
               key={msg.id}
               onClick={() => { setSelected(msg); if (!msg.read) markRead(msg.id); }}
               className={`rounded-xl border cursor-pointer transition-colors ${
-                msg.read ? "border-[var(--border)] hover:border-gray-300" : "border-blue-300 bg-blue-50/50 dark:bg-blue-950/20 hover:border-blue-400"
+                msg.read ? "border-[var(--border)] hover:border-[var(--border)]" : "border-blue-300 bg-blue-50/50 dark:bg-blue-950/20 hover:border-blue-400"
               } p-4`}
             >
               <div className="flex items-start justify-between gap-4">
@@ -105,7 +105,7 @@ export default function AdminMensajesPage() {
                   <p className="text-sm whitespace-pre-wrap break-words line-clamp-2">{msg.message}</p>
                   {msg.imageUrl && (
                     <span className="mt-1 inline-flex items-center gap-1 text-xs text-blue-600">
-                      <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg aria-hidden="true" className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                       Ver imagen
@@ -142,7 +142,7 @@ export default function AdminMensajesPage() {
           onClick={() => setSelected(null)}
         >
           <div
-            className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-xl"
+            className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-[var(--card-bg)] p-6 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
@@ -164,10 +164,11 @@ export default function AdminMensajesPage() {
               </div>
               <button
                 type="button"
+                aria-label="Cerrar mensaje"
                 onClick={() => setSelected(null)}
-                className="rounded-lg p-1.5 hover:bg-gray-100 transition-colors border-none bg-transparent cursor-pointer"
+                className="rounded-lg p-1.5 hover:bg-[var(--surface)] transition-colors border-none bg-transparent cursor-pointer"
               >
-                <svg className="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg aria-hidden="true" className="h-5 w-5 text-[color:var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>

@@ -32,7 +32,7 @@ export default function OrderConfirmation({ order }: Props) {
     return (
       <div className="mt-6 rounded-xl border-2 border-green-500 bg-green-50 p-6 text-center">
         <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-          <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg aria-hidden="true" className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
@@ -84,7 +84,7 @@ export default function OrderConfirmation({ order }: Props) {
 
       {order.pickupCode && (
         <div className="mt-4 text-center">
-          <div className="rounded-xl border-4 border-orange-200 bg-white p-6 shadow-lg inline-block">
+          <div className="rounded-xl border-4 border-orange-200 bg-[var(--card-bg)] p-6 shadow-lg inline-block">
             <div className="font-mono text-4xl font-bold tracking-widest text-orange-700">
               {order.pickupCode}
             </div>

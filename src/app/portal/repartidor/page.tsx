@@ -13,8 +13,8 @@ export default async function DeliveryPortalPage() {
     <main className="flex-1">
       <section className="relative overflow-hidden bg-gradient-to-br from-[#C2410C] via-[#9A3412] to-[#7C2D12] px-4 py-20 text-white">
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-white blur-3xl"></div>
-          <div className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-white blur-3xl"></div>
+          <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-[var(--card-bg)] blur-3xl"></div>
+          <div className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-[var(--card-bg)] blur-3xl"></div>
         </div>
         
         <div className="relative mx-auto max-w-4xl text-center">
@@ -33,9 +33,9 @@ export default async function DeliveryPortalPage() {
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               href="/delivery/registro"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-base font-semibold text-[#C2410C] shadow-lg transition-transform hover:scale-105"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--card-bg)] px-8 py-4 text-base font-semibold text-[#C2410C] shadow-lg transition-transform hover:scale-105"
             >
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
               Registrarme como repartidor
@@ -52,21 +52,21 @@ export default async function DeliveryPortalPage() {
 
       <section className="mx-auto max-w-4xl px-4 py-16">
         <div className="grid gap-8 sm:grid-cols-3">
-          <div className="rounded-xl border border-[var(--border)] bg-white p-6 text-center shadow-sm">
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-6 text-center shadow-sm">
             <div className="text-4xl mb-3">⏰</div>
             <h3 className="text-lg font-semibold">Tu tiempo, tus reglas</h3>
             <p className="mt-2 text-sm text-[color:var(--muted)]">
               Trabaja cuando quieras, sin horarios fijos
             </p>
           </div>
-          <div className="rounded-xl border border-[var(--border)] bg-white p-6 text-center shadow-sm">
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-6 text-center shadow-sm">
             <div className="text-4xl mb-3">📍</div>
             <h3 className="text-lg font-semibold">Entregas locales</h3>
             <p className="mt-2 text-sm text-[color:var(--muted)]">
               Solo entregas en Ocoyoacac, cerca de ti
             </p>
           </div>
-          <div className="rounded-xl border border-[var(--border)] bg-white p-6 text-center shadow-sm">
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-6 text-center shadow-sm">
             <div className="text-4xl mb-3">💰</div>
             <h3 className="text-lg font-semibold">Pagos rápidos</h3>
             <p className="mt-2 text-sm text-[color:var(--muted)]">
@@ -85,7 +85,7 @@ export default async function DeliveryPortalPage() {
           <div className="mt-8">
             <Link
               href="/delivery/registro"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-base font-semibold text-[#C2410C] shadow-lg transition-transform hover:scale-105"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--card-bg)] px-8 py-4 text-base font-semibold text-[#C2410C] shadow-lg transition-transform hover:scale-105"
             >
               Registrarme ahora
             </Link>

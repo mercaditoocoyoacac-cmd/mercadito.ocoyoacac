@@ -29,7 +29,7 @@ export function OfflineDetector() {
   if (!offline) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white px-6">
+    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[var(--card-bg)] px-6">
       <div className="flex flex-col items-center gap-6 max-w-sm text-center">
         <Image
           src="/logo.png"
@@ -40,15 +40,15 @@ export function OfflineDetector() {
           priority
         />
 
-        <h1 className="text-2xl font-bold text-gray-800">
+        <h1 className="text-2xl font-bold text-[color:var(--text)]">
           Sin conexión a internet
         </h1>
 
-        <p className="text-gray-500 leading-relaxed">
+        <p className="text-[color:var(--muted)] leading-relaxed">
           Verifica tu conexión e intenta de nuevo.
         </p>
 
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-[color:var(--muted)]">
           Disculpe los inconvenientes.
         </p>
 

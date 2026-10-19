@@ -127,7 +127,7 @@ export default async function VendorPedidoPage({
         {order.status === "CANCELLED" && order.cancelReason && (
           <div className="my-4 rounded-xl border border-red-300 bg-red-50 px-5 py-4">
             <div className="flex items-start gap-3">
-              <svg className="h-5 w-5 shrink-0 mt-0.5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <svg aria-hidden="true" className="h-5 w-5 shrink-0 mt-0.5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               <div>
                 <div className="text-sm font-semibold text-red-800">Pedido cancelado</div>
                 <div className="mt-1 text-sm text-red-700">
@@ -277,7 +277,7 @@ export default async function VendorPedidoPage({
                 return (
                   <span key={step.status} className="flex flex-wrap items-center gap-1">
                     {i > 0 && <span className="text-[color:var(--muted)]">→</span>}
-                    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded ${reached ? step.active : "bg-gray-100 text-gray-400"}`}>
+                    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded ${reached ? step.active : "bg-[var(--surface)] text-[color:var(--muted)]"}`}>
                       {step.icon} {step.label}
                     </span>
                   </span>
@@ -328,7 +328,7 @@ export default async function VendorPedidoPage({
               <button
                 disabled
                 title="Verifica el pago por transferencia antes de confirmar"
-                className="rounded-lg bg-gray-300 px-4 py-2 text-sm font-medium text-gray-500 cursor-not-allowed"
+                className="rounded-lg bg-gray-300 px-4 py-2 text-sm font-medium text-[color:var(--muted)] cursor-not-allowed"
               >
                 Verifica el pago para confirmar
               </button>

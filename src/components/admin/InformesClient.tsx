@@ -276,14 +276,14 @@ export default function InformesClient({ stores }: { stores: { id: string; name:
           </div>
           <div className="space-y-2">
             <div className="text-sm">Tienda</div>
-            <select className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm" value={storeId} onChange={e => setStoreId(e.target.value)}>
+            <select aria-label="Tienda" className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm" value={storeId} onChange={e => setStoreId(e.target.value)}>
               <option value="all">Todas las tiendas</option>
               {stores.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
           </div>
           <div className="space-y-2">
             <div className="text-sm">Estado</div>
-            <select className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm" value={status} onChange={e => setStatus(e.target.value)}>
+            <select aria-label="Estado" className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm" value={status} onChange={e => setStatus(e.target.value)}>
               <option value="all">Todos</option>
               {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
             </select>

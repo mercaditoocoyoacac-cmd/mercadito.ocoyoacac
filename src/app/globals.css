@@ -615,7 +615,8 @@ textarea {
 }
 
 /* ==========================================================================
-   Capa de compatibilidad — modo oscuro (se irá reduciendo al migrar páginas)
+   Capa de compatibilidad — modo oscuro (solo clases semánticas restantes;
+   superficies y texto ya migrados a tokens: --card-bg, --surface, --muted, --text)
    ========================================================================== */
 
 .dark .text-red-700, .dark .text-red-600, .dark .text-red-500 { color: #FCA5A5; }
@@ -634,18 +635,10 @@ textarea {
 .dark .bg-amber-50, .dark .bg-amber-100 { background: #2D1F00; }
 .dark .bg-emerald-50, .dark .bg-emerald-100 { background: #052E14; }
 .dark .bg-purple-50, .dark .bg-purple-100 { background: #1A0533; }
-.dark .bg-stone-50, .dark .bg-stone-100 { background: #1E293B; }
 .dark .bg-teal-50, .dark .bg-teal-100 { background: #003333; }
 
-.dark .bg-white, .dark .bg-white\/95 { background: var(--background); }
-.dark .bg-gray-50, .dark .bg-gray-100 { background: var(--surface); }
-.dark .bg-gray-200, .dark .bg-gray-300 { background: var(--surface-2); }
-
-.dark .text-gray-900, .dark .text-gray-800, .dark .text-gray-700 { color: var(--foreground); }
-.dark .text-gray-600, .dark .text-gray-500, .dark .text-gray-400 { color: var(--muted); }
-
-.dark .text-stone-800, .dark .text-stone-700 { color: var(--foreground); }
-.dark .text-stone-500 { color: var(--muted); }
+.dark .bg-white\/95, .dark .bg-white\/90, .dark .bg-white\/80, .dark .bg-white\/70 { background: var(--background); }
+.dark .bg-gray-300, .dark .bg-gray-400, .dark .bg-gray-500, .dark .bg-gray-600 { background: var(--surface-2); }
 
 .dark .text-amber-800, .dark .text-amber-700, .dark .text-amber-600 { color: #FCD34D; }
 .dark .text-amber-500 { color: #FBBF24; }
@@ -673,8 +666,8 @@ textarea {
 .dark .text-blue-900 { color: #93C5FD; }
 .dark .text-blue-500, .dark .text-blue-400 { color: #60A5FA; }
 
-.dark .hover\:bg-gray-50:hover, .dark .hover\:bg-gray-100:hover { background: var(--surface); }
-.dark .border-gray-100, .dark .border-gray-200, .dark .border-gray-300, .dark .border-gray-500 { border-color: var(--border); }
+.dark .hover\:bg-gray-300:hover, .dark .hover\:bg-gray-500:hover { background: var(--surface-2); }
+.dark .border-gray-500 { border-color: var(--border); }
 
 .dark select, .dark select option {
   background-color: var(--surface);

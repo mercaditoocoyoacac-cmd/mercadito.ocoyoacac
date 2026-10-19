@@ -33,7 +33,7 @@ export function SkeletonBlock({ className = "" }: { className?: string }) {
 
 export function SkeletonCard({ lines = 2 }: { lines?: number }) {
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-white p-5 space-y-3">
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-5 space-y-3">
       <div className="flex items-center gap-3">
         <ShimmerBlock className="h-12 w-12 shrink-0 rounded-xl" />
         <div className="flex-1 space-y-2">
@@ -63,7 +63,7 @@ export function SkeletonList({ count = 3 }: { count?: number }) {
 
 export function SkeletonProductCard() {
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-white overflow-hidden">
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] overflow-hidden">
       <ShimmerBlock className="h-40 w-full" />
       <div className="p-4 space-y-2">
         <ShimmerBlock className="h-4 w-4/5 rounded" />

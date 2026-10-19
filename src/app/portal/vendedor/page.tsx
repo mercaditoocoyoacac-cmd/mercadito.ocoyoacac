@@ -37,8 +37,8 @@ function PortalContent() {
     <main className="flex-1">
       <section className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-700 px-4 py-20 text-white">
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-white blur-3xl"></div>
-          <div className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-white blur-3xl"></div>
+          <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-[var(--card-bg)] blur-3xl"></div>
+          <div className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-[var(--card-bg)] blur-3xl"></div>
         </div>
         
         <div className="relative mx-auto max-w-4xl text-center">
@@ -57,7 +57,7 @@ function PortalContent() {
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               href="/portal/vendedor?mode=login"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-base font-semibold text-emerald-700 shadow-lg transition-transform hover:scale-105"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--card-bg)] px-8 py-4 text-base font-semibold text-emerald-700 shadow-lg transition-transform hover:scale-105"
             >
               Ya tengo tienda - Entrar
             </Link>
@@ -73,21 +73,21 @@ function PortalContent() {
 
       <section className="mx-auto max-w-4xl px-4 py-16">
         <div className="grid gap-8 sm:grid-cols-3">
-          <div className="rounded-xl border border-[var(--border)] bg-white p-6 text-center shadow-sm">
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-6 text-center shadow-sm">
             <div className="text-4xl mb-3">📦</div>
             <h3 className="text-lg font-semibold">Sube productos</h3>
             <p className="mt-2 text-sm text-[color:var(--muted)]">
               Agrega fotos, precios y descripciones de tus productos
             </p>
           </div>
-          <div className="rounded-xl border border-[var(--border)] bg-white p-6 text-center shadow-sm">
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-6 text-center shadow-sm">
             <div className="text-4xl mb-3">📱</div>
             <h3 className="text-lg font-semibold">Gestion facil</h3>
             <p className="mt-2 text-sm text-[color:var(--muted)]">
               Administra pedidos desde tu celular
             </p>
           </div>
-          <div className="rounded-xl border border-[var(--border)] bg-white p-6 text-center shadow-sm">
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-6 text-center shadow-sm">
             <div className="text-4xl mb-3">💳</div>
             <h3 className="text-lg font-semibold">Acepta pagos</h3>
             <p className="mt-2 text-sm text-[color:var(--muted)]">
@@ -106,7 +106,7 @@ function PortalContent() {
           <div className="mt-8">
             <Link
               href="/portal/vendedor?mode=register"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-base font-semibold text-emerald-700 shadow-lg transition-transform hover:scale-105"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--card-bg)] px-8 py-4 text-base font-semibold text-emerald-700 shadow-lg transition-transform hover:scale-105"
             >
               Crear mi tienda
             </Link>

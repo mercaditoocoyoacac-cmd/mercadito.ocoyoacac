@@ -141,7 +141,7 @@ export const StoreCardWithProducts = memo(function StoreCardWithProducts({
           <div className="mt-4 relative">
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-sm font-semibold flex items-center gap-1.5">
-                <svg className="h-4 w-4 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg aria-hidden="true" className="h-4 w-4 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                 </svg>
                 Más vendidos
@@ -184,10 +184,10 @@ export const StoreCardWithProducts = memo(function StoreCardWithProducts({
                     e.stopPropagation();
                     scrollLeft();
                   }}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-white border border-[var(--border)] shadow-lg text-[var(--accent)] hover:bg-[var(--accent-soft)] transition-all duration-200 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-[var(--card-bg)] border border-[var(--border)] shadow-lg text-[var(--accent)] hover:bg-[var(--accent-soft)] transition-all duration-200 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
                   aria-label="Productos anteriores"
                 >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
@@ -199,10 +199,10 @@ export const StoreCardWithProducts = memo(function StoreCardWithProducts({
                     e.stopPropagation();
                     scrollRight();
                   }}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-white border border-[var(--border)] shadow-lg text-[var(--accent)] hover:bg-[var(--accent-soft)] transition-all duration-200 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-[var(--card-bg)] border border-[var(--border)] shadow-lg text-[var(--accent)] hover:bg-[var(--accent-soft)] transition-all duration-200 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
                   aria-label="Más productos"
                 >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
@@ -224,7 +224,7 @@ export const StoreCardWithProducts = memo(function StoreCardWithProducts({
                     className="flex-shrink-0 w-40 sm:w-44 snap-center"
                     style={{ scrollSnapAlign: "center" }}
                   >
-                    <div className="group relative rounded-xl border border-[var(--border)] bg-white overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                    <div className="group relative rounded-xl border border-[var(--border)] bg-[var(--card-bg)] overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
                       <div className="relative aspect-square bg-[var(--accent-soft)] flex items-center justify-center overflow-hidden">
                         {product.imageUrl ? (
                           <Image
@@ -251,7 +251,7 @@ export const StoreCardWithProducts = memo(function StoreCardWithProducts({
                         {product.isPromotion && product.promotionPriceCents != null && (
                           <div className="absolute top-2 left-2 z-10">
                             <span className="inline-flex items-center gap-1 rounded-full bg-[var(--accent)] px-2 py-0.5 text-[10px] font-bold text-white">
-                              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg aria-hidden="true" className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                               </svg>
                               Promo
@@ -322,14 +322,14 @@ export const StoreCardWithProducts = memo(function StoreCardWithProducts({
 
         <div className="mt-4 flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs text-[color:var(--muted)]">
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
             {totalProducts} producto{totalProducts !== 1 ? "s" : ""}
           </div>
           {store.address ? (
             <div className="flex items-center gap-1 text-xs text-[color:var(--muted)]">
-              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg aria-hidden="true" className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>

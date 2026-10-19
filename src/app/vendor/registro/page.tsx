@@ -130,7 +130,7 @@ export default function VendorRegistroPage() {
                   i < step ? "bg-green-500 text-white" : i === step ? "bg-[var(--accent)] text-white" : "border border-[var(--border)] text-[color:var(--muted)]"
                 }`}>
                   {i < step ? (
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                     </svg>
                   ) : i + 1}
@@ -198,7 +198,7 @@ export default function VendorRegistroPage() {
             <div className="space-y-2">
               <div className="text-sm font-medium">Logo de la tienda</div>
               <div className="flex items-center gap-4">
-                <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={handleFileChange} className="hidden" />
+                <input aria-label="Logo de la tienda" ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={handleFileChange} className="hidden" />
                 <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading} className="rounded-md border border-[var(--border)] px-4 py-2 text-sm font-medium hover:bg-[var(--accent-soft)] disabled:opacity-60">
                   {uploading ? "Subiendo..." : "Elegir imagen"}
                 </button>

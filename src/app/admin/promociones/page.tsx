@@ -236,7 +236,7 @@ export default function AdminPromocionesPage() {
         <h1 className="text-2xl font-semibold">Promociones</h1>
         <div className="mt-6 space-y-4">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-24 rounded-xl bg-gray-100 animate-pulse" />
+            <div key={i} className="h-24 rounded-xl bg-[var(--surface)] animate-pulse" />
           ))}
         </div>
       </div>
@@ -380,7 +380,7 @@ export default function AdminPromocionesPage() {
             </label>
           ) : null}
 
-          <label className="flex items-center gap-3 cursor-pointer rounded-lg border border-[var(--border)] p-3 hover:bg-gray-50 transition-colors">
+          <label className="flex items-center gap-3 cursor-pointer rounded-lg border border-[var(--border)] p-3 hover:bg-[var(--surface)] transition-colors">
             <input
               type="checkbox"
               checked={requiresCoupon}
@@ -416,11 +416,12 @@ export default function AdminPromocionesPage() {
                   <div
                     key={product.id}
                     className={`flex items-center gap-3 px-3 py-2 cursor-pointer transition-colors ${
-                      selectedProducts.has(product.id) ? "bg-[var(--accent-soft)]" : "hover:bg-gray-50"
+                      selectedProducts.has(product.id) ? "bg-[var(--accent-soft)]" : "hover:bg-[var(--surface)]"
                     }`}
                     onClick={() => toggleProduct(product.id)}
                   >
                     <input
+                      aria-label={product.name}
                       type="checkbox"
                       checked={selectedProducts.has(product.id)}
                       onChange={() => toggleProduct(product.id)}
@@ -437,7 +438,7 @@ export default function AdminPromocionesPage() {
                         blurDataURL={shimmerBlur}
                       />
                     ) : (
-                      <div className="h-8 w-8 rounded-md bg-gray-100 flex items-center justify-center text-xs text-gray-400 shrink-0">
+                      <div className="h-8 w-8 rounded-md bg-[var(--surface)] flex items-center justify-center text-xs text-[color:var(--muted)] shrink-0">
                         📦
                       </div>
                     )}
@@ -449,20 +450,20 @@ export default function AdminPromocionesPage() {
                     </div>
                     {selectedProducts.has(product.id) && (
                       <div className="shrink-0 flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                        <input
+                        <input aria-label="Cant"
                           value={quantities[product.id] || "1"}
                           onChange={(e) => setQuantities((prev) => ({ ...prev, [product.id]: e.target.value }))}
                           inputMode="numeric"
-                          className="w-12 rounded-md border border-[var(--border)] bg-white px-2 py-1 text-xs text-center outline-none focus:border-[var(--accent)]"
+                          className="w-12 rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-2 py-1 text-xs text-center outline-none focus:border-[var(--accent)]"
                           placeholder="Cant"
                           min="1"
                         />
                         {!isPercentage && (
-                          <input
+                          <input aria-label="P. promo"
                             value={promoPrices[product.id] || ""}
                             onChange={(e) => setPromoPrices((prev) => ({ ...prev, [product.id]: e.target.value }))}
                             inputMode="decimal"
-                            className="w-20 rounded-md border border-[var(--border)] bg-white px-2 py-1 text-xs outline-none focus:border-[var(--accent)]"
+                            className="w-20 rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-2 py-1 text-xs outline-none focus:border-[var(--accent)]"
                             placeholder="P. promo"
                           />
                         )}
@@ -506,7 +507,7 @@ export default function AdminPromocionesPage() {
                       {promo.store.name}
                     </span>
                     {!promo.isActive && (
-                      <span className="rounded-full bg-gray-200 px-2 py-0.5 text-[10px] font-medium text-gray-600">Inactiva</span>
+                      <span className="rounded-full bg-[var(--surface-2)] px-2 py-0.5 text-[10px] font-medium text-[color:var(--muted)]">Inactiva</span>
                     )}
                     {promo.requiresCoupon && (
                       <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700">Requiere cupón</span>
@@ -522,7 +523,7 @@ export default function AdminPromocionesPage() {
                   )}
                   <div className="mt-2 flex flex-wrap gap-2">
                     {promo.products.map((pp) => (
-                      <div key={pp.id} className="flex items-center gap-2 rounded-lg border border-[var(--border)] bg-gray-50 px-2 py-1">
+                      <div key={pp.id} className="flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-2 py-1">
                         {pp.product.imageUrl && (
                           <Image
                             src={pp.product.imageUrl}
@@ -561,7 +562,7 @@ export default function AdminPromocionesPage() {
                     className={`rounded-lg px-3 py-1.5 text-xs font-medium border ${
                       promo.isActive
                         ? "border-green-300 text-green-600 hover:bg-green-50"
-                        : "border-gray-300 text-gray-600 hover:bg-gray-50"
+                        : "border-[var(--border)] text-[color:var(--muted)] hover:bg-[var(--surface)]"
                     }`}
                   >
                     {promo.isActive ? "Activa" : "Inactiva"}
@@ -569,7 +570,7 @@ export default function AdminPromocionesPage() {
                   <button
                     type="button"
                     onClick={() => openEdit(promo)}
-                    className="rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs font-medium hover:bg-gray-50"
+                    className="rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs font-medium hover:bg-[var(--surface)]"
                   >
                     Editar
                   </button>

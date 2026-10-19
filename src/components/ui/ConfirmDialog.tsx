@@ -86,7 +86,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
         >
           <div
             ref={dialogRef}
-            className="w-full max-w-sm rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-800"
+            className="w-full max-w-sm rounded-xl bg-[var(--card-bg)] p-6 shadow-2xl dark:bg-gray-800"
             onClick={(e) => e.stopPropagation()}
           >
             {state.title && (
@@ -99,7 +99,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
               <button
                 type="button"
                 onClick={handleCancel}
-                className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-50 dark:hover:bg-gray-700"
+                className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium transition-colors hover:bg-[var(--surface)] dark:hover:bg-gray-700"
               >
                 {state.cancelText || "Cancelar"}
               </button>

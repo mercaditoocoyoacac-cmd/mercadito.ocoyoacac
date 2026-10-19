@@ -120,7 +120,7 @@ export default function PromocionesPage() {
                       {/* Promo Header */}
                       <div className="relative overflow-hidden bg-gradient-to-r from-[#15803D] to-[#14532D] p-5 md:col-span-3">
                         <div className="absolute inset-0 opacity-10">
-                          <svg className="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                          <svg aria-hidden="true" className="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                             <defs>
                               <pattern id="promo-pattern" width="20" height="20" patternUnits="userSpaceOnUse">
                                 <circle cx="10" cy="10" r="1.5" fill="currentColor" />
@@ -145,12 +145,12 @@ export default function PromocionesPage() {
                             )}
                             <div className="flex flex-wrap items-center gap-3 text-sm text-white/80">
                               <span className="flex items-center gap-1">
-                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                                <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
                                 {promo.store.name}
                               </span>
                               {promo.endDate && (
                                 <span className="flex items-center gap-1 bg-white/20 px-2 py-1 rounded-full">
-                                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                  <svg aria-hidden="true" className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                                   Vence: {new Date(promo.endDate).toLocaleDateString("es-MX", { day: "numeric", month: "long" })}
                                 </span>
                               )}
@@ -158,7 +158,7 @@ export default function PromocionesPage() {
                           </div>
                           <Link
                             href={`/tienda/${promo.store.slug}`}
-                            className="shrink-0 self-center mx-auto md:mx-0 rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-[var(--accent)] shadow-lg transition-all hover:bg-[var(--accent-soft)] hover:shadow-xl"
+                            className="shrink-0 self-center mx-auto md:mx-0 rounded-xl bg-[var(--card-bg)] px-5 py-2.5 text-sm font-bold text-[var(--accent)] shadow-lg transition-all hover:bg-[var(--accent-soft)] hover:shadow-xl"
                           >
                             Ver tienda
                           </Link>
@@ -166,7 +166,7 @@ export default function PromocionesPage() {
                       </div>
 
                       {/* Products Grid */}
-                      <div className="md:col-span-3 p-4 bg-gray-50">
+                      <div className="md:col-span-3 p-4 bg-[var(--surface)]">
                         <h4 className="text-xs font-semibold text-[color:var(--muted)] uppercase tracking-wide mb-3">Productos incluidos</h4>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                           {promo.products.map((pp) => {
@@ -177,9 +177,9 @@ export default function PromocionesPage() {
                               <Link
                                 key={pp.id}
                                 href={`/tienda/${promo.store.slug}`}
-                                className="group flex flex-col rounded-xl border border-[var(--border)] bg-white p-3 hover:shadow-lg hover:border-[var(--accent)] transition-all"
+                                className="group flex flex-col rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-3 hover:shadow-lg hover:border-[var(--accent)] transition-all"
                               >
-                                <div className="relative aspect-square bg-gray-100 mb-3 overflow-hidden rounded-lg">
+                                <div className="relative aspect-square bg-[var(--surface)] mb-3 overflow-hidden rounded-lg">
                                   {pp.product.imageUrl ? (
                                     <Image
                                       src={pp.product.imageUrl}
@@ -256,7 +256,7 @@ export default function PromocionesPage() {
                 >
                   <Card variant="default" hover={true} className="overflow-hidden">
                     <CardContent className="p-0">
-                      <div className="relative aspect-square bg-gray-100 overflow-hidden">
+                      <div className="relative aspect-square bg-[var(--surface)] overflow-hidden">
                         {p.imageUrl ? (
                           <Image
                             src={p.imageUrl}
@@ -268,7 +268,7 @@ export default function PromocionesPage() {
                             blurDataURL={shimmerBlur}
                           />
                         ) : (
-                          <div className="flex h-full items-center justify-center text-3xl text-gray-300">🏪</div>
+                          <div className="flex h-full items-center justify-center text-3xl text-[color:var(--muted)]">🏪</div>
                         )}
                         {p.discountPercentage != null && (
                           <div className="absolute top-2 left-2">
@@ -289,7 +289,7 @@ export default function PromocionesPage() {
                         </div>
                         {p.promotionEndDate && (
                           <div className="text-[10px] text-amber-600 flex items-center gap-1">
-                            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            <svg aria-hidden="true" className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                             Vence: {new Date(p.promotionEndDate).toLocaleDateString("es-MX")}
                           </div>
                         )}

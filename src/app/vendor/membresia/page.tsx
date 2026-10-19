@@ -257,7 +257,7 @@ export default function VendorMembresiaPage() {
                   <ul className="space-y-3 text-sm flex-1">
                     {plan.features.map((feature) => (
                       <li key={feature} className="flex items-start gap-2">
-                        <svg className={`h-4 w-4 mt-0.5 shrink-0 ${
+                        <svg aria-hidden="true" className={`h-4 w-4 mt-0.5 shrink-0 ${
                           plan.key === SOLO_DELIVERY_KEY ? "text-sky-500" : plan.key === MEMBER_KEY ? "text-amber-500" : "text-green-500"
                         }`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                         <span>{feature}</span>
@@ -276,7 +276,7 @@ export default function VendorMembresiaPage() {
                     ) : (
                       <button
                         onClick={() => selectPlan(selectedPlan === plan.key ? null : plan.key)}
-                        className="w-full rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium hover:bg-gray-50"
+                        className="w-full rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium hover:bg-[var(--surface)]"
                       >
                         {selectedPlan === plan.key ? "Cancelar" : "Elegir este plan"}
                       </button>
@@ -306,7 +306,7 @@ export default function VendorMembresiaPage() {
                 <div className="rounded-lg border border-[var(--border)] p-3">
                   <label className="text-xs font-medium text-[color:var(--muted)]">¿Tienes un cupón de descuento para {selectedLabel}?</label>
                   <div className="mt-1.5 flex gap-2">
-                    <input
+                    <input aria-label="CÓDIGO"
                       value={couponCode}
                       onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponData(null); setCouponError(""); }}
                       placeholder="CÓDIGO"
@@ -325,7 +325,7 @@ export default function VendorMembresiaPage() {
                   {couponData && (
                     <div className="mt-2 rounded-lg bg-green-50 border border-green-200 px-3 py-2 text-sm">
                       <div className="flex items-center gap-2 text-green-700 font-medium">
-                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                        <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                         Cupón "{couponData.code}" aplicado
                       </div>
                       <div className="mt-1 text-green-600">

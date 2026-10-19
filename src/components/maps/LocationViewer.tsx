@@ -19,20 +19,20 @@ export default function LocationViewer({ latitude, longitude, height = "h-48", l
 
   if (!isLoaded) {
     return (
-      <div className={`${height} w-full rounded-xl bg-gray-100 animate-pulse flex items-center justify-center`}>
-        <span className="text-sm text-gray-400">Cargando mapa...</span>
+      <div className={`${height} w-full rounded-xl bg-[var(--surface)] animate-pulse flex items-center justify-center`}>
+        <span className="text-sm text-[color:var(--muted)]">Cargando mapa...</span>
       </div>
     );
   }
 
   if (!latitude || !longitude) {
     return (
-      <div className={`${height} w-full rounded-xl bg-gray-50 border border-dashed border-gray-300 flex flex-col items-center justify-center gap-2`}>
-        <svg className="h-8 w-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className={`${height} w-full rounded-xl bg-[var(--surface)] border border-dashed border-[var(--border)] flex flex-col items-center justify-center gap-2`}>
+        <svg aria-hidden="true" className="h-8 w-8 text-[color:var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
-        <span className="text-sm text-gray-400">Sin ubicación registrada</span>
+        <span className="text-sm text-[color:var(--muted)]">Sin ubicación registrada</span>
       </div>
     );
   }
@@ -58,7 +58,7 @@ export default function LocationViewer({ latitude, longitude, height = "h-48", l
       </GoogleMap>
       {label && (
         <div className="absolute bottom-2 left-2 right-2 z-10">
-          <div className="mx-auto w-fit rounded-full bg-white/80 backdrop-blur-sm px-3 py-1 text-[10px] text-gray-500 shadow-sm border border-gray-200/50">
+          <div className="mx-auto w-fit rounded-full bg-white/80 backdrop-blur-sm px-3 py-1 text-[10px] text-[color:var(--muted)] shadow-sm border border-gray-200/50">
             {label}
           </div>
         </div>

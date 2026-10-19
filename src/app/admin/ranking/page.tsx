@@ -81,7 +81,7 @@ export default async function AdminRankingPage() {
               {storeRanking.map((s, i) => (
                 <div key={s.id} className="flex items-center justify-between px-5 py-3">
                   <div className="flex items-center gap-3">
-                    <span className={`w-6 text-center text-sm font-bold ${i === 0 ? "text-yellow-500" : i === 1 ? "text-gray-400" : i === 2 ? "text-amber-600" : "text-[color:var(--muted)]"}`}>
+                    <span className={`w-6 text-center text-sm font-bold ${i === 0 ? "text-yellow-500" : i === 1 ? "text-[color:var(--muted)]" : i === 2 ? "text-amber-600" : "text-[color:var(--muted)]"}`}>
                       #{i + 1}
                     </span>
                     <div>
@@ -111,7 +111,7 @@ export default async function AdminRankingPage() {
               {deliveryRanking.map((d, i) => (
                 <div key={d.id} className="flex items-center justify-between px-5 py-3">
                   <div className="flex items-center gap-3">
-                    <span className={`w-6 text-center text-sm font-bold ${i === 0 ? "text-yellow-500" : i === 1 ? "text-gray-400" : i === 2 ? "text-amber-600" : "text-[color:var(--muted)]"}`}>
+                    <span className={`w-6 text-center text-sm font-bold ${i === 0 ? "text-yellow-500" : i === 1 ? "text-[color:var(--muted)]" : i === 2 ? "text-amber-600" : "text-[color:var(--muted)]"}`}>
                       #{i + 1}
                     </span>
                     <div>

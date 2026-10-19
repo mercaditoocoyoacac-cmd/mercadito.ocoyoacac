@@ -27,7 +27,7 @@ export function Skeleton({ className = "", animation = "wave", rounded = "md" }:
   return (
     <div 
       className={`
-        bg-gray-200 dark:bg-gray-700
+        bg-[var(--surface-2)] dark:bg-gray-700
         ${roundedClasses[rounded]}
         ${animationClasses[animation]}
         ${className}
@@ -81,7 +81,7 @@ export function SkeletonCard({
 
 export function SkeletonProductCard({ className = "", ...props }: { className?: string } & Omit<SkeletonProps, "rounded">) {
   return (
-    <div className={`group rounded-xl border border-[var(--border)] bg-white overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 ${className}`} {...props}>
+    <div className={`group rounded-xl border border-[var(--border)] bg-[var(--card-bg)] overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 ${className}`} {...props}>
       <div className="relative aspect-square bg-[var(--accent-soft)] flex items-center justify-center overflow-hidden">
         <Skeleton className="w-full h-full" />
       </div>
@@ -95,7 +95,7 @@ export function SkeletonProductCard({ className = "", ...props }: { className?: 
 
 export function SkeletonStoreCard({ className = "", ...props }: { className?: string } & Omit<SkeletonProps, "rounded">) {
   return (
-    <div className={`group rounded-xl border border-[var(--border)] bg-white overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 ${className}`} {...props}>
+    <div className={`group rounded-xl border border-[var(--border)] bg-[var(--card-bg)] overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 ${className}`} {...props}>
       <div className="relative aspect-square bg-[var(--accent-soft)] flex items-center justify-center overflow-hidden">
         <Skeleton className="w-full h-full" />
       </div>

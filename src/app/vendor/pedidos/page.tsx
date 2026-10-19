@@ -215,7 +215,7 @@ export default async function VendorPedidosPage() {
                       <button
                         disabled
                         title="Verifica el pago por transferencia antes de confirmar"
-                        className="rounded-lg bg-gray-300 px-3 py-1.5 text-xs font-medium text-gray-500 cursor-not-allowed"
+                        className="rounded-lg bg-gray-300 px-3 py-1.5 text-xs font-medium text-[color:var(--muted)] cursor-not-allowed"
                       >
                         Verifica pago
                       </button>
@@ -280,7 +280,7 @@ export default async function VendorPedidosPage() {
                   {order.status === "READY" &&
                     order.fulfillmentType === "DELIVERY" &&
                     !order.deliveryUserId && (
-                      <div className="rounded-lg bg-gray-100 px-3 py-1.5 text-xs text-gray-500">
+                      <div className="rounded-lg bg-[var(--surface)] px-3 py-1.5 text-xs text-[color:var(--muted)]">
                         Esperando repartidor
                       </div>
                     )}

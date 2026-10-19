@@ -66,8 +66,8 @@ export default function LocationPicker({ latitude, longitude, onLocationChange, 
 
   if (!isLoaded) {
     return (
-      <div className="h-64 w-full rounded-xl bg-gray-100 animate-pulse flex items-center justify-center">
-        <span className="text-sm text-gray-400">Cargando mapa...</span>
+      <div className="h-64 w-full rounded-xl bg-[var(--surface)] animate-pulse flex items-center justify-center">
+        <span className="text-sm text-[color:var(--muted)]">Cargando mapa...</span>
       </div>
     );
   }
@@ -127,16 +127,16 @@ export default function LocationPicker({ latitude, longitude, onLocationChange, 
           onPlaceChanged={onPlaceChanged}
           options={{ componentRestrictions: { country: "mx" }, fields: ["geometry", "name", "formatted_address"] }}
         >
-          <div className="flex-1 flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 shadow-md border border-gray-200">
-            <svg className="h-3.5 w-3.5 shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="flex-1 flex items-center gap-2 rounded-lg bg-[var(--card-bg)] px-3 py-1.5 shadow-md border border-[var(--border)]">
+            <svg className="h-3.5 w-3.5 shrink-0 text-[color:var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <input
+            <input aria-label="Buscar dirección..."
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Buscar dirección..."
-              className="w-full bg-transparent text-xs outline-none placeholder:text-gray-400"
+              className="w-full bg-transparent text-xs outline-none placeholder:text-[color:var(--muted)]"
             />
           </div>
         </Autocomplete>
@@ -144,9 +144,9 @@ export default function LocationPicker({ latitude, longitude, onLocationChange, 
           type="button"
           onClick={locateMe}
           disabled={locating}
-          className="flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-md border border-gray-200 hover:bg-gray-50 disabled:opacity-50 transition-all shrink-0"
+          className="flex items-center gap-1.5 rounded-lg bg-[var(--card-bg)] px-3 py-1.5 text-xs font-medium text-[color:var(--text)] shadow-md border border-[var(--border)] hover:bg-[var(--surface)] disabled:opacity-50 transition-all shrink-0"
         >
-          <svg className={`h-3.5 w-3.5 ${locating ? "animate-spin" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg aria-hidden="true" className={`h-3.5 w-3.5 ${locating ? "animate-spin" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             {locating ? (
               <>
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -163,7 +163,7 @@ export default function LocationPicker({ latitude, longitude, onLocationChange, 
 
       {/* Bottom hint */}
       <div className="absolute bottom-2 left-2 right-2 z-10">
-        <div className="mx-auto w-fit rounded-full bg-white/80 backdrop-blur-sm px-3 py-1 text-[10px] text-gray-500 shadow-sm border border-gray-200/50">
+        <div className="mx-auto w-fit rounded-full bg-white/80 backdrop-blur-sm px-3 py-1 text-[10px] text-[color:var(--muted)] shadow-sm border border-gray-200/50">
           Haz clic en el mapa para colocar el marcador
         </div>
       </div>

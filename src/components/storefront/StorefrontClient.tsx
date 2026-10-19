@@ -253,7 +253,7 @@ export function StorefrontClient({
         {/* No-delivery notice for free membership stores */}
         {!isPremium && (
           <div className="mb-6 flex items-start gap-3 rounded-xl border border-[var(--warning)]/30 bg-[var(--warning-soft)] px-4 py-3">
-            <svg className="h-5 w-5 shrink-0 text-[var(--warning)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className="h-5 w-5 shrink-0 text-[var(--warning)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2-1m6 0l2 1m-2-1v-4a1 1 0 011-1h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 01.293.707V16l-2 1m-6-3h4m-8 3h8" />
             </svg>
             <div>
@@ -276,12 +276,13 @@ export function StorefrontClient({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
+            aria-label={isServicios ? "Buscar servicios" : "Buscar productos"}
             ref={searchRef}
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={isServicios ? "Buscar servicios..." : "Buscar productos..."}
-            className="w-full rounded-xl border border-[var(--border)] bg-white py-3 pl-10 pr-10 text-sm outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20 transition-all [font-size:16px]"
+            className="w-full rounded-xl border border-[var(--border)] bg-[var(--card-bg)] py-3 pl-10 pr-10 text-sm outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20 transition-all [font-size:16px]"
           />
           {searchQuery && (
             <button
@@ -290,7 +291,7 @@ export function StorefrontClient({
               className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1.5 hover:bg-[var(--accent-soft)] transition-colors"
               aria-label="Limpiar búsqueda"
             >
-              <svg className="h-5 w-5 text-[color:var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg aria-hidden="true" className="h-5 w-5 text-[color:var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -438,7 +439,7 @@ onQuickView={(product) => setQuickViewProduct({ ...product, store } as any)}
             className="fixed bottom-24 right-6 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--accent)] text-white shadow-xl transition-all hover:bg-[var(--accent-hover)] hover:scale-110 active:scale-95"
             aria-label={`Carrito con ${cartCount} productos`}
           >
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
             </svg>
             <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[11px] font-bold text-white leading-none border-2 border-white">

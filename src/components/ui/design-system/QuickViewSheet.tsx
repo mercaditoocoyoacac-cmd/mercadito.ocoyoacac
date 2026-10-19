@@ -103,7 +103,7 @@ export function QuickViewSheet({
           exit={{ opacity: 0, y: "100%" }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
           onClick={(e) => e.stopPropagation()}
-          className="w-full max-w-md rounded-t-2xl bg-white shadow-2xl overflow-hidden"
+          className="w-full max-w-md rounded-t-2xl bg-[var(--card-bg)] shadow-2xl overflow-hidden"
           role="dialog"
           aria-modal="true"
           aria-labelledby="quickview-title"
@@ -117,7 +117,7 @@ export function QuickViewSheet({
               className="shrink-0 rounded-lg p-2 text-[color:var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--accent-soft)] transition-colors"
               aria-label="Cerrar"
             >
-              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg aria-hidden="true" className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -222,14 +222,14 @@ export function QuickViewSheet({
               <div className="space-y-3">
                 <label className="block text-sm font-medium text-[color:var(--muted)]">Peso (gramos)</label>
                 <div className="flex items-center gap-3">
-                  <input
+                  <input aria-label="Peso (gramos)"
                     type="number"
                     min={product.minWeightGrams || 100}
                     max={product.maxWeightGrams || 5000}
                     step={50}
                     value={weight}
                     onChange={(e) => setWeight(Math.max(product.minWeightGrams || 100, Math.min(product.maxWeightGrams || 5000, Number(e.target.value) || (product.minWeightGrams || 100))))}
-                    className="w-24 rounded-lg border border-[var(--border)] bg-white px-3 py-2.5 text-center text-sm outline-none focus:border-[var(--accent)]"
+                    className="w-24 rounded-lg border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2.5 text-center text-sm outline-none focus:border-[var(--accent)]"
                     disabled={loading || product.isUnavailable}
                   />
                   <span className="text-sm text-[color:var(--muted)]">gramos</span>

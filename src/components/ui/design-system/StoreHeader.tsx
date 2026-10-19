@@ -75,17 +75,17 @@ export function StoreHeader({
         <button
           type="button"
           onClick={onBack}
-          className="shrink-0 rounded-lg p-2 hover:bg-gray-100 transition-colors border-none bg-transparent cursor-pointer"
+          className="shrink-0 rounded-lg p-2 hover:bg-[var(--surface)] transition-colors border-none bg-transparent cursor-pointer"
           aria-label="Volver"
         >
-          <svg className="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="h-5 w-5 text-[color:var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
         
         {store.imageUrl && (
           <Link href={`/tienda/${store.slug}`} className="shrink-0" aria-label={store.name}>
-            <div className="relative h-10 w-10 overflow-hidden rounded-lg border border-gray-200">
+            <div className="relative h-10 w-10 overflow-hidden rounded-lg border border-[var(--border)]">
               <Image
                 src={store.imageUrl}
                 alt={store.name}
@@ -236,13 +236,13 @@ export function StoreHero({
               <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium ${
                 isOpen ? "bg-green-500" : "bg-red-500"
               }`}>
-                <span className="h-2 w-2 rounded-full bg-white animate-pulse" aria-hidden="true" />
+                <span className="h-2 w-2 rounded-full bg-[var(--card-bg)] animate-pulse" aria-hidden="true" />
                 {isOpen ? "Abierto ahora" : "Cerrado"}
               </div>
               {store.deliveryFee !== undefined && (
                 <Link
                   href={`/tienda/${store.slug}`}
-                  className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-base font-bold text-[var(--accent)] shadow-lg transition-all hover:scale-105 hover:shadow-xl active:scale-[0.98]"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[var(--card-bg)] px-6 py-3 text-base font-bold text-[var(--accent)] shadow-lg transition-all hover:scale-105 hover:shadow-xl active:scale-[0.98]"
                 >
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />

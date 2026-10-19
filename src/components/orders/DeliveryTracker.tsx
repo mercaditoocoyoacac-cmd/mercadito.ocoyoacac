@@ -56,7 +56,7 @@ function StatusBadge({ status }: { status: string }) {
     CANCELLED: "bg-red-100 text-red-800",
   };
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-semibold ${colors[status] || "bg-gray-100 text-gray-800"}`}>
+    <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-semibold ${colors[status] || "bg-[var(--surface)] text-[color:var(--text)]"}`}>
       {status === "COMPLETED" && "✅"}
       {status === "OUT_FOR_DELIVERY" && "🚚"}
       {status === "READY" && "📦"}
@@ -75,7 +75,7 @@ function MapsButton({ url, label }: { url: string | null; label: string }) {
       onClick={(e) => { e.preventDefault(); openMapsUrl(url!); }}
       className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 text-base font-semibold text-white shadow-md active:scale-95 transition-transform hover:bg-blue-700 border-none cursor-pointer w-full"
     >
-      <svg className="h-5 w-5 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+      <svg aria-hidden="true" className="h-5 w-5 shrink-0" fill="currentColor" viewBox="0 0 24 24">
         <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
       </svg>
       {label}
@@ -279,7 +279,7 @@ export default function DeliveryTracker({
       {earnings && earnings.completedCount > 0 && (
         <div className="mb-6 rounded-xl border border-[var(--border)] p-5">
           <h2 className="text-base font-bold mb-3 flex items-center gap-2">
-            <svg className="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             Mis ingresos
@@ -304,7 +304,7 @@ export default function DeliveryTracker({
 
       {/* Mis entregas - collapsible */}
       {(activeDeliveries.length > 0 || nonCompletedMyDeliveries.length > 0) && (
-        <div className="mb-6 rounded-xl border-2 border-orange-200 bg-white shadow-md overflow-hidden">
+        <div className="mb-6 rounded-xl border-2 border-orange-200 bg-[var(--card-bg)] shadow-md overflow-hidden">
           <button
             type="button"
             onClick={() => setShowMyDeliveries(!showMyDeliveries)}
@@ -317,7 +317,7 @@ export default function DeliveryTracker({
               </span>
             </h2>
             <div className="flex items-center gap-3">
-              <svg className={`h-6 w-6 text-orange-600 transition-transform ${showMyDeliveries ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg aria-hidden="true" className={`h-6 w-6 text-orange-600 transition-transform ${showMyDeliveries ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </div>
@@ -352,7 +352,7 @@ export default function DeliveryTracker({
                           hidden: { opacity: 0, y: 16, scale: 0.97 },
                           visible: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 200, damping: 25, mass: 0.5 } },
                         } as const}
-                        className="rounded-xl border-2 border-orange-200 bg-white p-5 shadow-md"
+                        className="rounded-xl border-2 border-orange-200 bg-[var(--card-bg)] p-5 shadow-md"
                     >
                         {/* Order header */}
                         <div className="flex items-center justify-between mb-3">
@@ -396,7 +396,7 @@ export default function DeliveryTracker({
 
                         {/* Items */}
                         {order.items.length > 0 && (
-                          <div className="border-t border-gray-200 pt-3 mb-3">
+                          <div className="border-t border-[var(--border)] pt-3 mb-3">
                             <div className="text-xs font-bold uppercase tracking-wide text-[var(--muted)] mb-2">Productos</div>
                             <div className="space-y-1.5">
                               {order.items.map((item, i) => (
@@ -436,10 +436,10 @@ export default function DeliveryTracker({
                         </div>
 
                         {/* Actions */}
-                        <div className="flex flex-col gap-3 border-t border-gray-200 pt-3">
+                        <div className="flex flex-col gap-3 border-t border-[var(--border)] pt-3">
                           {order.arrivedAt ? (
                             <div className="flex items-center gap-2 rounded-xl bg-green-100 px-4 py-3 text-base font-bold text-green-800 border-2 border-green-300">
-                              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                               </svg>
                               Llegada notificada — espera al cliente
@@ -450,7 +450,7 @@ export default function DeliveryTracker({
                               disabled={arriving[order.id]}
                               className="inline-flex items-center justify-center gap-2 rounded-xl bg-orange-500 px-5 py-4 text-lg font-bold text-white shadow-md active:scale-95 transition-transform hover:bg-orange-600 disabled:opacity-50 border-none cursor-pointer"
                             >
-                              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg aria-hidden="true" className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                               </svg>
@@ -459,12 +459,12 @@ export default function DeliveryTracker({
                           )}
 
                           <div className="flex items-center gap-2">
-                            <input
+                            <input aria-label="Código del cliente"
                               type="text"
                               placeholder="Código del cliente"
                               value={completeCode[order.id] || ""}
                               onChange={(e) => setCompleteCode((prev) => ({ ...prev, [order.id]: e.target.value }))}
-                              className="flex-1 rounded-xl border-2 border-gray-300 px-4 py-3 text-lg font-bold text-center outline-none focus:border-[var(--accent)] uppercase tracking-widest [font-size:16px] sm:[font-size:1.125rem]"
+                              className="flex-1 rounded-xl border-2 border-[var(--border)] px-4 py-3 text-lg font-bold text-center outline-none focus:border-[var(--accent)] uppercase tracking-widest [font-size:16px] sm:[font-size:1.125rem]"
                               maxLength={6}
                             />
                             <button
@@ -508,7 +508,7 @@ export default function DeliveryTracker({
                           hidden: { opacity: 0, x: -10 },
                           visible: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 200, damping: 25 } },
                         } as const}
-                        className="rounded-xl border-2 border-purple-200 bg-white p-4 shadow-sm"
+                        className="rounded-xl border-2 border-purple-200 bg-[var(--card-bg)] p-4 shadow-sm"
                         >
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2 flex-wrap">
@@ -539,7 +539,7 @@ export default function DeliveryTracker({
                             <div className="rounded-xl border-2 border-green-200 bg-green-50 p-4">
                               <div className="flex items-center justify-between mb-3">
                                 <span className="text-sm font-bold text-green-800 flex items-center gap-1">
-                                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
                                   </svg>
                                   Ingresa el código de recogida
@@ -547,19 +547,19 @@ export default function DeliveryTracker({
                                 <button
                                   type="button"
                                   onClick={() => { setPickupOrderId(null); setPickupCode(""); setPickupError(null); }}
-                                  className="text-xs font-medium text-gray-500 hover:text-gray-700 bg-transparent border-none p-0 cursor-pointer"
+                                  className="text-xs font-medium text-[color:var(--muted)] hover:text-[color:var(--text)] bg-transparent border-none p-0 cursor-pointer"
                                 >
                                   Cancelar
                                 </button>
                               </div>
 
                               <div className="flex items-center gap-2">
-                                <input
+                                <input aria-label="Código de recogida"
                                   type="text"
                                   value={pickupCode}
                                   onChange={(e) => setPickupCode(e.target.value.toUpperCase())}
                                   placeholder="Código de recogida"
-                                  className="flex-1 rounded-lg border-2 border-gray-300 px-3 py-2 text-base font-bold text-center outline-none focus:border-green-500 uppercase tracking-widest [font-size:16px]"
+                                  className="flex-1 rounded-lg border-2 border-[var(--border)] px-3 py-2 text-base font-bold text-center outline-none focus:border-green-500 uppercase tracking-widest [font-size:16px]"
                                   maxLength={10}
                                 />
                                 <button
@@ -589,7 +589,7 @@ export default function DeliveryTracker({
                               }}
                               className="w-full rounded-xl bg-green-600 py-3 text-base font-bold text-white hover:bg-green-700 shadow-sm active:scale-95 transition-transform border-none cursor-pointer flex items-center justify-center gap-2"
                             >
-                              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                               </svg>
@@ -610,8 +610,8 @@ export default function DeliveryTracker({
       )}
 
       {/* Available deliveries */}
-      <div className="mb-6 rounded-xl border-2 border-blue-200 bg-white shadow-md">
-        <div className="border-b border-gray-200 bg-blue-50 px-5 py-4">
+      <div className="mb-6 rounded-xl border-2 border-blue-200 bg-[var(--card-bg)] shadow-md">
+        <div className="border-b border-[var(--border)] bg-blue-50 px-5 py-4">
           <h2 className="flex items-center gap-2 text-lg font-bold">
             <span className="relative flex h-3 w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
@@ -629,7 +629,7 @@ export default function DeliveryTracker({
           </div>
         ) : (
           <motion.div
-            className="divide-y divide-gray-200"
+            className="divide-y divide-[var(--border)]"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
@@ -722,23 +722,23 @@ export default function DeliveryTracker({
 
       {/* Completed deliveries - collapsible */}
       {completedDeliveries.length > 0 && (
-        <div className="rounded-xl border-2 border-gray-200 bg-white shadow-sm">
+        <div className="rounded-xl border-2 border-[var(--border)] bg-[var(--card-bg)] shadow-sm">
           <button
             type="button"
             onClick={() => setShowDelivered(!showDelivered)}
-            className="w-full flex items-center justify-between px-5 py-4 bg-gray-50 hover:bg-gray-100 border-none cursor-pointer rounded-t-xl"
+            className="w-full flex items-center justify-between px-5 py-4 bg-[var(--surface)] hover:bg-[var(--surface)] border-none cursor-pointer rounded-t-xl"
           >
             <h2 className="text-lg font-bold flex items-center gap-2">
               ✅ Entregados
-              <span className="rounded-full bg-gray-200 text-gray-700 text-sm px-3 py-0.5 font-bold">{completedDeliveries.length}</span>
+              <span className="rounded-full bg-[var(--surface-2)] text-[color:var(--text)] text-sm px-3 py-0.5 font-bold">{completedDeliveries.length}</span>
             </h2>
-            <svg className={`h-6 w-6 text-gray-500 transition-transform ${showDelivered ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className={`h-6 w-6 text-[color:var(--muted)] transition-transform ${showDelivered ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </button>
           {showDelivered && (
             <motion.div
-              className="divide-y divide-gray-200"
+              className="divide-y divide-[var(--border)]"
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
@@ -760,7 +760,7 @@ export default function DeliveryTracker({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="font-mono text-sm font-bold">#{order.id.slice(-8).toUpperCase()}</span>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-[color:var(--muted)]">
                           {new Date(order.createdAt).toLocaleDateString("es-MX", { day: "numeric", month: "short" })}
                         </span>
                       </div>

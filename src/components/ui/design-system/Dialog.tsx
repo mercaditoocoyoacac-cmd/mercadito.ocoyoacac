@@ -95,7 +95,7 @@ export function Dialog({
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
           className={`
-            w-full ${sizeClasses[size]} rounded-2xl bg-white shadow-2xl overflow-hidden
+            w-full ${sizeClasses[size]} rounded-2xl bg-[var(--card-bg)] shadow-2xl overflow-hidden
             ${className}
           `}
           role="dialog"

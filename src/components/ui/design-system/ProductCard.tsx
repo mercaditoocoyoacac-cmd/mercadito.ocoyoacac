@@ -84,7 +84,7 @@ export function ProductCard({
   const canAdd = hasVariants ? selectedVariant !== null : true;
   const isBlocked = product.isUnavailable || loading || !canAdd;
 
-  const baseClasses = "rounded-xl border border-[var(--border)] bg-white overflow-hidden shadow-sm transition-all duration-300";
+  const baseClasses = "rounded-xl border border-[var(--border)] bg-[var(--card-bg)] overflow-hidden shadow-sm transition-all duration-300";
   const variantClasses = {
     default: "flex flex-col hover:shadow-lg hover:-translate-y-0.5",
     compact: "flex flex-col",
@@ -162,10 +162,10 @@ export function ProductCard({
             ) : (
             <>
             {hasVariants && (
-              <select
+              <select aria-label="Seleccionar"
                 value={selectedVariant || ""}
                 onChange={(e) => setSelectedVariant(e.target.value || null)}
-                className="flex-1 rounded-md border border-[var(--border)] bg-white px-2 py-1.5 text-xs outline-none focus:border-[var(--accent)]"
+                className="flex-1 rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-2 py-1.5 text-xs outline-none focus:border-[var(--accent)]"
                 disabled={loading || product.isUnavailable}
               >
                 <option value="">Seleccionar</option>
@@ -176,13 +176,14 @@ export function ProductCard({
             )}
             {product.sellByWeight && (
               <input
+                aria-label="Peso en gramos"
                 type="number"
                 min={product.minWeightGrams || 100}
                 max={product.maxWeightGrams || 5000}
                 step={50}
                 value={weight}
                 onChange={(e) => setWeight(Number(e.target.value) || (product.minWeightGrams || 100))}
-                className="w-20 rounded-md border border-[var(--border)] bg-white px-2 py-1.5 text-xs text-center outline-none focus:border-[var(--accent)]"
+                className="w-20 rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-2 py-1.5 text-xs text-center outline-none focus:border-[var(--accent)]"
                 disabled={loading || product.isUnavailable}
               />
             )}
@@ -236,10 +237,10 @@ export function ProductCard({
           <button
             type="button"
             onClick={onQuickView}
-            className="absolute top-2 right-2 z-10 rounded-full bg-white/90 p-1.5 shadow-md hover:bg-white transition-colors"
+            className="absolute top-2 right-2 z-10 rounded-full bg-white/90 p-1.5 shadow-md hover:bg-[var(--card-bg)] transition-colors"
             aria-label="Vista rápida"
           >
-            <svg className="h-5 w-5 text-[color:var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className="h-5 w-5 text-[color:var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
             </svg>
@@ -292,10 +293,10 @@ export function ProductCard({
           ) : (
             <>
           {hasVariants && (
-            <select
+            <select aria-label="Seleccionar opción"
               value={selectedVariant || ""}
               onChange={(e) => setSelectedVariant(e.target.value || null)}
-              className="flex-1 rounded-md border border-[var(--border)] bg-white px-2 py-1.5 text-xs outline-none focus:border-[var(--accent)]"
+              className="flex-1 rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-2 py-1.5 text-xs outline-none focus:border-[var(--accent)]"
               disabled={loading || product.isUnavailable}
             >
               <option value="">Seleccionar opción</option>
@@ -307,13 +308,14 @@ export function ProductCard({
           {product.sellByWeight && (
             <div className="flex items-center gap-1 flex-1">
               <input
+                aria-label="Peso en gramos"
                 type="number"
                 min={product.minWeightGrams || 100}
                 max={product.maxWeightGrams || 5000}
                 step={50}
                 value={weight}
                 onChange={(e) => setWeight(Number(e.target.value) || (product.minWeightGrams || 100))}
-                className="w-20 rounded-md border border-[var(--border)] bg-white px-2 py-1.5 text-xs text-center outline-none focus:border-[var(--accent)]"
+                className="w-20 rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-2 py-1.5 text-xs text-center outline-none focus:border-[var(--accent)]"
                 disabled={loading || product.isUnavailable}
               />
               <span className="text-xs text-[color:var(--muted)]">g</span>
@@ -351,7 +353,7 @@ export function ProductGrid({
     return emptyState ? (
       <div className="rounded-xl border-2 border-dashed border-[var(--border)] p-8 text-center">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--accent-soft)]">
-          <svg className="h-8 w-8 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg aria-hidden="true" className="h-8 w-8 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
           </svg>
         </div>

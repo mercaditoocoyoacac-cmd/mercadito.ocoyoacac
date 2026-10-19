@@ -98,6 +98,7 @@ export function CompleteStoreSetup() {
           <div className="text-sm font-medium">Foto del producto (opcional)</div>
           <div className="flex items-center gap-4">
             <input
+              aria-label="Foto del producto"
               ref={fileInputRef}
               type="file"
               accept="image/jpeg,image/png,image/webp,image/gif"
@@ -180,7 +181,7 @@ export function WelcomeVendePlus() {
           Ya estás en la membresía <strong>Vende (gratuita)</strong>. Puedes vender con recolección en tienda.
         </p>
 
-        <div className="mt-6 rounded-xl border border-[var(--border)] bg-white p-4 text-left">
+        <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-4 text-left">
           <div className="flex items-center justify-between">
             <div>
               <div className="font-semibold">✅ Vende — Gratis</div>

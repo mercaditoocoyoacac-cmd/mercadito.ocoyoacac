@@ -197,7 +197,7 @@ export default function HorariosPage() {
                 className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
                   schedule.days[day].active
                     ? "bg-[var(--accent)] text-white"
-                    : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"
+                    : "bg-[var(--surface)] text-[color:var(--muted)] dark:bg-gray-800 dark:text-[color:var(--muted)]"
                 }`}
               >
                 {DAY_LABELS[day]}
@@ -221,16 +221,18 @@ export default function HorariosPage() {
               <div className="flex items-center gap-3">
                 {schedule.mode === "daily" && (
                   <input
+                    aria-label={`Activar ${DAY_LABELS[day]}`}
                     type="checkbox"
                     checked={schedule.days[day].active}
                     onChange={() => toggleActive(day)}
-                    className="h-4 w-4 rounded border-gray-300 text-[var(--accent)]"
+                    className="h-4 w-4 rounded border-[var(--border)] text-[var(--accent)]"
                   />
                 )}
                 <span className="text-sm font-medium">{DAY_LABELS[day]}</span>
               </div>
               <div className="flex items-center gap-2">
                 <input
+                  aria-label={`Hora de inicio de ${DAY_LABELS[day]}`}
                   type="time"
                   value={schedule.days[day].start}
                   onChange={e => updateDay(day, { start: e.target.value })}
@@ -239,6 +241,7 @@ export default function HorariosPage() {
                 />
                 <span className="text-sm text-[color:var(--muted)]">a</span>
                 <input
+                  aria-label={`Hora de fin de ${DAY_LABELS[day]}`}
                   type="time"
                   value={schedule.days[day].end}
                   onChange={e => updateDay(day, { end: e.target.value })}

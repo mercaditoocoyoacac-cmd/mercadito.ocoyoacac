@@ -77,7 +77,7 @@ export function RegistroTutorial({ formStep }: { formStep: number }) {
         ))}
       </div>
 
-      <div className="rounded-lg border border-blue-100 bg-white p-3">
+      <div className="rounded-lg border border-blue-100 bg-[var(--card-bg)] p-3">
         <div className="flex items-start gap-2">
           <span className="mt-0.5 text-lg">{["✏️", "📸", "📦", "📝", "📍", "🛍️", "💰"][guideIdx] ?? "📌"}</span>
           <div className="min-w-0">

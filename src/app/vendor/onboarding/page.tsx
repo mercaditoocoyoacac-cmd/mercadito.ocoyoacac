@@ -128,6 +128,7 @@ export default function VendorOnboardingPage() {
           <div className="text-sm font-medium">Logo o imagen de la tienda</div>
           <div className="flex items-center gap-4">
             <input
+              aria-label="Logo o imagen de la tienda"
               ref={fileInputRef}
               type="file"
               accept="image/jpeg,image/png,image/webp,image/gif"

@@ -321,7 +321,7 @@ export default async function AdminSubscriptionsPage() {
                       <div className={`text-xs px-2 py-1 rounded-full ${
                         store.isPublished
                           ? "bg-green-100 text-green-800"
-                          : "bg-gray-100 text-gray-800"
+                          : "bg-[var(--surface)] text-[color:var(--text)]"
                       }`}>
                         {store.isPublished ? "Activa" : "Inactiva"}
                       </div>
@@ -336,7 +336,7 @@ export default async function AdminSubscriptionsPage() {
                             ? "bg-blue-100 text-blue-800"
                             : sub.status === "EXPIRED" || sub.status === "CANCELLED"
                             ? "bg-red-100 text-red-800"
-                            : "bg-gray-100 text-gray-800"
+                            : "bg-[var(--surface)] text-[color:var(--text)]"
                         }`}>
                           {isActive ? "Activa" : sub.status === "TRIAL" ? "Prueba" : sub.status === "EXPIRED" ? "Expirada" : sub.status === "CANCELLED" ? "Cancelada" : "Sin membresía"}
                         </div>
@@ -449,7 +449,7 @@ data: { isPublished: true },
                     </form>
                     <form action={activateMembershipByTransfer.bind(null, store.id)}>
                       <div className="flex flex-wrap gap-2 items-center">
-                        <select
+                        <select aria-label="Plan de membresía"
                           name="plan"
                           defaultValue={store.plan === "SOLO_DELIVERY" ? "SOLO_DELIVERY" : "MEMBER"}
                           className="rounded-lg border border-[var(--border)] px-2 py-1.5 text-xs"
@@ -457,7 +457,7 @@ data: { isPublished: true },
                           <option value="MEMBER">Vende+ ({formatMoney(FULL_PRICE_CENTS)})</option>
                           <option value="SOLO_DELIVERY">Solo Delivery ({formatMoney(SOLO_DELIVERY_PRICE_CENTS)})</option>
                         </select>
-                        <input
+                        <input aria-label="Ref. transferencia (opcional)"
                           type="text"
                           name="reference"
                           placeholder="Ref. transferencia (opcional)"
@@ -580,7 +580,7 @@ data: { isPublished: true },
                       <button className={`rounded-lg px-3 py-1.5 text-xs font-medium ${
                         store.acceptsMercadoPago
                           ? "bg-yellow-500 text-white hover:bg-yellow-600"
-                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                          : "bg-[var(--surface-2)] text-[color:var(--text)] hover:bg-gray-300"
                       }`}>
                         {store.acceptsMercadoPago ? "MercadoPago ✓" : "MercadoPago ✗"}
                       </button>

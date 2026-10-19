@@ -95,6 +95,7 @@ export default function DeliveryDocumentosPage() {
                 </div>
               )}
               <input
+                aria-label={field.label}
                 ref={(el) => { inputRefs.current[field.key] = el; }}
                 type="file"
                 accept="image/*"

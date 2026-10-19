@@ -35,7 +35,7 @@ export function SortControls({
   );
 
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-xl border border-[var(--border)] bg-white px-4 py-3">
+    <div className="flex flex-wrap items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--card-bg)] px-4 py-3">
       <span className="text-sm font-medium text-[color:var(--muted)]">Ordenar por:</span>
 
       <div className="flex flex-wrap gap-1.5">
@@ -44,12 +44,12 @@ export function SortControls({
           className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
             mode === "date"
               ? "bg-[var(--accent)] text-white"
-              : "bg-gray-100 text-[color:var(--muted)] hover:bg-gray-200"
+              : "bg-[var(--surface)] text-[color:var(--muted)] hover:bg-[var(--surface-2)]"
           }`}
         >
           Fecha
           {mode === "date" && (
-            <svg className={`h-3.5 w-3.5 transition-transform ${dir === "asc" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className={`h-3.5 w-3.5 transition-transform ${dir === "asc" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           )}
@@ -60,12 +60,12 @@ export function SortControls({
           className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
             mode === "name"
               ? "bg-[var(--accent)] text-white"
-              : "bg-gray-100 text-[color:var(--muted)] hover:bg-gray-200"
+              : "bg-[var(--surface)] text-[color:var(--muted)] hover:bg-[var(--surface-2)]"
           }`}
         >
           Nombre
           {mode === "name" && (
-            <svg className={`h-3.5 w-3.5 transition-transform ${dir === "desc" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className={`h-3.5 w-3.5 transition-transform ${dir === "desc" ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           )}
@@ -76,7 +76,7 @@ export function SortControls({
           className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
             mode === "manual"
               ? "bg-[var(--accent)] text-white"
-              : "bg-gray-100 text-[color:var(--muted)] hover:bg-gray-200"
+              : "bg-[var(--surface)] text-[color:var(--muted)] hover:bg-[var(--surface-2)]"
           }`}
         >
           Orden libre

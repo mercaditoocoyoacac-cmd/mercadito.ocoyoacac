@@ -70,7 +70,7 @@ export default async function Home() {
               <label htmlFor="home-search" className="sr-only">
                 Buscar productos o tiendas
               </label>
-              <div className="flex overflow-hidden rounded-2xl border border-white/20 bg-white p-1 shadow-2xl">
+              <div className="flex overflow-hidden rounded-2xl border border-white/20 bg-[var(--card-bg)] p-1 shadow-2xl">
                 <input
                   id="home-search"
                   name="q"
@@ -93,7 +93,7 @@ export default async function Home() {
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/tiendas"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-7 py-3.5 text-base font-bold text-[#15803D] shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl active:scale-[0.98]"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--card-bg)] px-7 py-3.5 text-base font-bold text-[#15803D] shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl active:scale-[0.98]"
               >
                 Explorar tiendas
               </Link>
@@ -266,7 +266,7 @@ export default async function Home() {
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               href="/tiendas"
-              className="rounded-xl bg-white px-8 py-4 text-lg font-bold text-[#15803D] shadow-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-2xl active:scale-[0.98]"
+              className="rounded-xl bg-[var(--card-bg)] px-8 py-4 text-lg font-bold text-[#15803D] shadow-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-2xl active:scale-[0.98]"
             >
               Ver tiendas
             </Link>

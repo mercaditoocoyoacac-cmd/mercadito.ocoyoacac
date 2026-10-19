@@ -50,10 +50,10 @@ export const AddToCartButton = memo(function AddToCartButton({
   return (
     <div className="flex flex-col gap-2">
       {hasVariants && (
-        <select
+        <select aria-label="Selecciona una opción"
           value={selectedVariantId || ""}
           onChange={(e) => setSelectedVariantId(e.target.value || null)}
-          className="w-full rounded-md border border-[var(--border)] bg-white px-2 py-1.5 text-xs outline-none focus:border-[var(--accent)]"
+          className="w-full rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-2 py-1.5 text-xs outline-none focus:border-[var(--accent)]"
         >
           <option value="">Selecciona una opción</option>
           {variants.map((v) => (
@@ -66,14 +66,14 @@ export const AddToCartButton = memo(function AddToCartButton({
       <div className="flex items-center gap-2 flex-wrap">
         {sellByWeight && (
           <div className="flex items-center gap-1">
-            <input
+            <input aria-label="Peso en gramos"
               type="number"
               min={minWeightGrams || 100}
               max={maxWeightGrams || 5000}
               step={50}
               value={weightGrams}
               onChange={(e) => setWeightGrams(Number(e.target.value) || (minWeightGrams || 100))}
-              className="w-20 rounded-md border border-[var(--border)] bg-white px-2 py-1.5 text-xs text-center outline-none focus:border-[var(--accent)]"
+              className="w-20 rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-2 py-1.5 text-xs text-center outline-none focus:border-[var(--accent)]"
             />
             <span className="text-xs text-[color:var(--muted)]">gramos</span>
           </div>
@@ -111,7 +111,7 @@ export const AddToCartButton = memo(function AddToCartButton({
           }}
           className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
             disabled
-              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              ? "bg-gray-300 text-[color:var(--muted)] cursor-not-allowed"
               : "bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]"
           } disabled:opacity-60`}
         >

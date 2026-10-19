@@ -38,7 +38,7 @@ function getStatusColor(status: string) {
     COMPLETED: "border-green-500 bg-green-50",
     CANCELLED: "border-red-500 bg-red-50",
   };
-  return colors[status] || "border-gray-500 bg-gray-50";
+  return colors[status] || "border-gray-500 bg-[var(--surface)]";
 }
 
 function getOrderStatusLabel(status: string, fulfillmentType: string) {
@@ -145,7 +145,7 @@ export default async function PedidoDetallePage({
                       className={`flex h-10 w-10 items-center justify-center rounded-full text-lg ${
                         isCompleted
                           ? "bg-[var(--accent)] text-white"
-                          : "bg-gray-200 text-gray-400"
+                          : "bg-[var(--surface-2)] text-[color:var(--muted)]"
                       }`}
                     >
                       {step.icon}
@@ -162,7 +162,7 @@ export default async function PedidoDetallePage({
               })}
             </div>
             <div className="mt-4 relative">
-              <div className="absolute top-0 left-5 right-5 h-0.5 bg-gray-200"></div>
+              <div className="absolute top-0 left-5 right-5 h-0.5 bg-[var(--surface-2)]"></div>
               <div
                 className="absolute top-0 left-5 h-0.5 bg-[var(--accent)] transition-all"
                 style={{ width: `${(currentStepIndex / (statusSteps.length - 1)) * 90}%` }}
@@ -226,17 +226,17 @@ export default async function PedidoDetallePage({
             <div className="text-4xl mb-3">🛵</div>
             <div className="text-xl font-bold text-green-900">¡El repartidor ya está aquí!</div>
             <div className="mt-4">
-              <div className="text-sm font-medium text-gray-600 mb-2">
+              <div className="text-sm font-medium text-[color:var(--muted)] mb-2">
                 {order.arrivalConfirmedAt
                   ? "Sal a recibir tu pedido"
                   : "Proporciona este código al repartidor"}
               </div>
-              <div className="inline-block rounded-xl bg-white px-8 py-4 shadow-inner">
-                <div className="font-mono text-5xl font-bold tracking-[0.3em] text-gray-900">
+              <div className="inline-block rounded-xl bg-[var(--card-bg)] px-8 py-4 shadow-inner">
+                <div className="font-mono text-5xl font-bold tracking-[0.3em] text-[color:var(--text)]">
                   {order.pickupCode}
                 </div>
               </div>
-              <div className="mt-3 text-xs text-gray-500">
+              <div className="mt-3 text-xs text-[color:var(--muted)]">
                 El repartidor te solicitará este código para confirmar la entrega
               </div>
             </div>
@@ -305,7 +305,7 @@ export default async function PedidoDetallePage({
               </div>
             )})}
           </div>
-          <div className="space-y-1 px-6 py-3 bg-gray-50 text-sm">
+          <div className="space-y-1 px-6 py-3 bg-[var(--surface)] text-sm">
             <div className="flex justify-between">
               <span className="text-[color:var(--muted)]">Subtotal</span>
               <span>{formatMoney(order.subtotalCents, order.currency)}</span>

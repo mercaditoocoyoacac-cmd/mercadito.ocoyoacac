@@ -52,7 +52,7 @@ export default function AdminDriverMap({ points, height = "320px" }: AdminDriver
   if (!apiKey) {
     return (
       <div
-        className="flex items-center justify-center rounded-xl border border-[var(--border)] bg-gray-50 px-4 text-center text-xs text-[color:var(--muted)]"
+        className="flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 text-center text-xs text-[color:var(--muted)]"
         style={{ height }}
       >
         Configura NEXT_PUBLIC_GOOGLE_MAPS_KEY para ver el mapa
@@ -63,10 +63,10 @@ export default function AdminDriverMap({ points, height = "320px" }: AdminDriver
   if (!isLoaded) {
     return (
       <div
-        className="rounded-xl bg-gray-100 animate-pulse flex items-center justify-center"
+        className="rounded-xl bg-[var(--surface)] animate-pulse flex items-center justify-center"
         style={{ height }}
       >
-        <span className="text-sm text-gray-400">Cargando mapa...</span>
+        <span className="text-sm text-[color:var(--muted)]">Cargando mapa...</span>
       </div>
     );
   }

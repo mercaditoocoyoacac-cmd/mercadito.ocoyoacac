@@ -32,11 +32,11 @@ export function OfflineDetector() {
     <div
       role="alert"
       aria-live="assertive"
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-white dark:bg-neutral-900 p-6"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-[var(--card-bg)] dark:bg-neutral-900 p-6"
     >
       <div className="flex flex-col items-center text-center max-w-sm">
         <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-500/10">
-          <svg
+          <svg aria-hidden="true"
             className="h-10 w-10 text-orange-600 dark:text-orange-400"
             fill="none"
             stroke="currentColor"

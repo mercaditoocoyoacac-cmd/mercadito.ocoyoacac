@@ -23,7 +23,7 @@ export function EmptyState({ icon, title, description, action }: Props) {
         </div>
       ) : (
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--accent-soft)]">
-          <svg
+          <svg aria-hidden="true"
             className="h-8 w-8 text-[var(--accent)]"
             fill="none"
             stroke="currentColor"

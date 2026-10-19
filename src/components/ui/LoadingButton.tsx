@@ -23,7 +23,7 @@ export function LoadingButton({
       className={`inline-flex items-center justify-center gap-2 transition-colors ${className}`}
     >
       {loading && (
-        <svg
+        <svg aria-hidden="true"
           className="animate-spin"
           width={spinnerSize}
           height={spinnerSize}

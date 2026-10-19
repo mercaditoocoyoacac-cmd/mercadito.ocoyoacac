@@ -20,7 +20,7 @@ function HelpTip({ text }: { text: string }) {
         ?
       </button>
       {show && (
-        <div className="absolute bottom-full left-1/2 mb-2 w-56 -translate-x-1/2 rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-xs text-[color:var(--muted)] shadow-lg z-10">
+        <div className="absolute bottom-full left-1/2 mb-2 w-56 -translate-x-1/2 rounded-lg border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 text-xs text-[color:var(--muted)] shadow-lg z-10">
           {text}
         </div>
       )}
@@ -460,7 +460,7 @@ export default function EditarProductoPage() {
           onClick={() => setShowAdvanced(!showAdvanced)}
           className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-[var(--border)] px-4 py-2 text-sm text-[color:var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
         >
-          <svg
+          <svg aria-hidden="true"
             className={`h-4 w-4 transition-transform ${showAdvanced ? "rotate-90" : ""}`}
             fill="none"
             stroke="currentColor"
@@ -480,6 +480,7 @@ export default function EditarProductoPage() {
               </div>
               <div className="flex items-center gap-4">
                 <input
+                  aria-label="Imagen del producto"
                   ref={fileInputRef}
                   type="file"
                   accept="image/jpeg,image/png,image/webp,image/gif"
@@ -490,7 +491,7 @@ export default function EditarProductoPage() {
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploading}
-                  className="rounded-md border border-[var(--border)] bg-white px-4 py-2 text-sm font-medium hover:bg-[var(--accent-soft)] disabled:opacity-60"
+                  className="rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-4 py-2 text-sm font-medium hover:bg-[var(--accent-soft)] disabled:opacity-60"
                 >
                   {uploading ? "Subiendo..." : "Cambiar imagen"}
                 </button>
@@ -525,7 +526,7 @@ export default function EditarProductoPage() {
                 <input
                   value={sku}
                   onChange={(e) => setSku(e.target.value)}
-                  className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm font-mono outline-none focus:border-[var(--accent)]"
+                  className="mt-1 w-full rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 text-sm font-mono outline-none focus:border-[var(--accent)]"
                   placeholder="Ej: CON-001"
                 />
               </label>
@@ -538,7 +539,7 @@ export default function EditarProductoPage() {
                   value={stock}
                   onChange={(e) => setStock(e.target.value)}
                   inputMode="numeric"
-                  className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                  className="mt-1 w-full rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
                   placeholder="Vacío = sin control"
                 />
                 <p className="mt-1 text-xs text-[color:var(--muted)]">
@@ -570,7 +571,7 @@ export default function EditarProductoPage() {
                         value={promotionPrice}
                         onChange={(e) => setPromotionPrice(e.target.value)}
                         inputMode="decimal"
-                        className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                        className="mt-1 w-full rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
                         placeholder="Ej: 20.00"
                       />
                     </label>
@@ -580,7 +581,7 @@ export default function EditarProductoPage() {
                         value={discountPercentage}
                         onChange={(e) => setDiscountPercentage(e.target.value)}
                         inputMode="numeric"
-                        className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                        className="mt-1 w-full rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
                         placeholder="Ej: 20"
                       />
                     </label>
@@ -592,7 +593,7 @@ export default function EditarProductoPage() {
                         type="date"
                         value={promotionStartDate}
                         onChange={(e) => setPromotionStartDate(e.target.value)}
-                        className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                        className="mt-1 w-full rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
                       />
                     </label>
                     <label className="block">
@@ -601,7 +602,7 @@ export default function EditarProductoPage() {
                         type="date"
                         value={promotionEndDate}
                         onChange={(e) => setPromotionEndDate(e.target.value)}
-                        className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                        className="mt-1 w-full rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
                       />
                     </label>
                   </div>
@@ -618,7 +619,7 @@ export default function EditarProductoPage() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={4}
-                className="mt-1 w-full resize-none rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                className="mt-1 w-full resize-none rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
                 placeholder="Ej: Concha de vainilla espolvoreada con azúcar, 80g"
               />
             </label>
@@ -644,9 +645,9 @@ export default function EditarProductoPage() {
               )}
               <div className="mt-2 space-y-2">
                 {variants.map((v) => (
-                  <div key={v.key} className="flex items-start gap-2 rounded-md border border-[var(--border)] bg-white p-2">
+                  <div key={v.key} className="flex items-start gap-2 rounded-md border border-[var(--border)] bg-[var(--card-bg)] p-2">
                     <div className="flex-1">
-                      <input
+                      <input aria-label="Ej: Clásica"
                         value={v.name}
                         onChange={(e) => updateVariant(v.key, "name", e.target.value)}
                         placeholder="Ej: Clásica"
@@ -654,7 +655,7 @@ export default function EditarProductoPage() {
                       />
                     </div>
                     <div className="w-24">
-                      <input
+                      <input aria-label="Precio"
                         value={v.price}
                         onChange={(e) => updateVariant(v.key, "price", e.target.value)}
                         inputMode="decimal"

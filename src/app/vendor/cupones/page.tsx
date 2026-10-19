@@ -66,7 +66,7 @@ export default function VendorCuponesPage() {
             const discountLabel = coupon.discountType === "PERCENTAGE" ? `${coupon.discountValue}% OFF` : `$${(coupon.discountValue / 100).toFixed(2)} OFF`;
 
             return (
-              <div key={coupon.id} className="rounded-xl border border-[var(--border)] bg-white p-5 flex items-center justify-between gap-4">
+              <div key={coupon.id} className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-5 flex items-center justify-between gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3">
                     <span className="text-2xl">🏷️</span>
@@ -86,14 +86,14 @@ export default function VendorCuponesPage() {
                     {expired ? <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-700">Expirado</span> :
                      notStarted ? <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-700">Próximo</span> :
                      coupon.isActive ? <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">Activo</span> :
-                     <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">Inactivo</span>}
+                     <span className="rounded-full bg-[var(--surface)] px-3 py-1 text-xs font-medium text-[color:var(--muted)]">Inactivo</span>}
                   </div>
                   <button
                     type="button"
                     onClick={() => copyCode(coupon.code)}
                     className="inline-flex items-center gap-1 rounded-lg bg-[var(--accent)] px-3 py-1.5 text-xs font-medium text-white hover:bg-[var(--accent-hover)]"
                   >
-                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg aria-hidden="true" className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                     </svg>
                     Copiar código

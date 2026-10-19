@@ -38,7 +38,7 @@ const SEGMENT_LABELS: Record<string, string> = {
 };
 
 const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
-  DRAFT: { label: "Borrador", cls: "bg-gray-100 text-gray-700" },
+  DRAFT: { label: "Borrador", cls: "bg-[var(--surface)] text-[color:var(--text)]" },
   SCHEDULED: { label: "Programada", cls: "bg-blue-100 text-blue-700" },
   SENT: { label: "Enviada", cls: "bg-emerald-100 text-emerald-700" },
   CANCELLED: { label: "Cancelada", cls: "bg-red-100 text-red-600" },
@@ -176,22 +176,22 @@ export function PublicidadClient({
         <div className="mt-4 space-y-4">
           <div>
             <label className={label}>Título</label>
-            <input className={input} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="🔥 ¡Nuevo en Ocoyoacac!" maxLength={120} />
+            <input aria-label="Título" className={input} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="🔥 ¡Nuevo en Ocoyoacac!" maxLength={120} />
           </div>
 
           <div>
             <label className={label}>Mensaje</label>
-            <textarea className={input} rows={3} value={body} onChange={(e) => setBody(e.target.value)} placeholder="Descubre las tiendas y productos de tu comunidad." maxLength={500} />
+            <textarea aria-label="Mensaje" className={input} rows={3} value={body} onChange={(e) => setBody(e.target.value)} placeholder="Descubre las tiendas y productos de tu comunidad." maxLength={500} />
           </div>
 
           <div>
             <label className={label}>Ir a (ruta de la app)</label>
-            <input className={input} value={url} onChange={(e) => setUrl(e.target.value)} placeholder="/tiendas" />
+            <input aria-label="Ir a (ruta de la app)" className={input} value={url} onChange={(e) => setUrl(e.target.value)} placeholder="/tiendas" />
           </div>
 
           <div>
             <label className={label}>Audiencia</label>
-            <select className={input} value={segment} onChange={(e) => setSegment(e.target.value)}>
+            <select aria-label="Audiencia" className={input} value={segment} onChange={(e) => setSegment(e.target.value)}>
               <option value="ALL_USERS">Todos los usuarios</option>
               <option value="CUSTOMERS">Solo clientes</option>
               <option value="STORE_CUSTOMERS">Clientes de una tienda</option>
@@ -202,7 +202,7 @@ export function PublicidadClient({
           {segment === "STORE_CUSTOMERS" && (
             <div>
               <label className={label}>Tienda</label>
-              <select className={input} value={storeId} onChange={(e) => setStoreId(e.target.value)}>
+              <select aria-label="Tienda" className={input} value={storeId} onChange={(e) => setStoreId(e.target.value)}>
                 <option value="">Selecciona una tienda</option>
                 {stores.map((s) => (
                   <option key={s.id} value={s.id}>{s.name}</option>
@@ -214,7 +214,7 @@ export function PublicidadClient({
           {segment === "BY_CATEGORY" && (
             <div>
               <label className={label}>Categoría</label>
-              <select className={input} value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
+              <select aria-label="Categoría" className={input} value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
                 <option value="">Selecciona una categoría</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>{c.label}</option>
@@ -224,8 +224,8 @@ export function PublicidadClient({
           )}
 
           <div>
-            <label className={label}>Programar (opcional). Si se deja vacío, queda como borrador para enviar manualmente.</label>
-            <input type="datetime-local" className={input} value={scheduledAt} onChange={(e) => setScheduledAt(e.target.value)} />
+            <label htmlFor="al227" className={label}>Programar (opcional). Si se deja vacío, queda como borrador para enviar manualmente.</label>
+            <input id="al227" type="datetime-local" className={input} value={scheduledAt} onChange={(e) => setScheduledAt(e.target.value)} />
           </div>
 
           <div className="flex flex-wrap gap-3 pt-2">
@@ -264,7 +264,7 @@ export function PublicidadClient({
                       <div className="flex flex-wrap items-center gap-2">
                         <h3 className="font-semibold">{c.title}</h3>
                         <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${st.cls}`}>{st.label}</span>
-                        <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
+                        <span className="rounded-full bg-[var(--surface)] px-2 py-0.5 text-xs text-[color:var(--muted)]">
                           {SEGMENT_LABELS[c.segment] || c.segment}
                         </span>
                       </div>

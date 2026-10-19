@@ -98,7 +98,7 @@ export default function RootLayout({
         <Providers>
           <ConfirmProvider>
             <NavBar />
-            <div id="main-content" className="flex flex-1 flex-col" style={{ paddingTop: "calc(4rem + env(safe-area-inset-top, 0px))" }}><AnimatedPageWrapper>{children}</AnimatedPageWrapper></div>
+            <div id="main-content" tabIndex={-1} className="flex flex-1 flex-col" style={{ paddingTop: "calc(4rem + env(safe-area-inset-top, 0px))" }}><AnimatedPageWrapper>{children}</AnimatedPageWrapper></div>
             <FooterWithPrivacy />
             <Toaster />
             <PWA />

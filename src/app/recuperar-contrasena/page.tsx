@@ -35,7 +35,7 @@ export default function ForgotPasswordPage() {
   if (sent) {
     return (
       <main className="mx-auto flex min-h-screen w-full max-w-md flex-col items-center justify-center px-4">
-        <div className="w-full rounded-xl border border-[var(--border)] bg-white p-8 text-center">
+        <div className="w-full rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-8 text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-600 text-2xl">✓</div>
           <h1 className="text-xl font-semibold">Revisa tu correo</h1>
           <p className="mt-2 text-sm text-[color:var(--muted)]">
@@ -51,7 +51,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-md flex-col items-center justify-center px-4">
-      <div className="w-full rounded-xl border border-[var(--border)] bg-white p-8">
+      <div className="w-full rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-8">
         <h1 className="text-xl font-semibold">Recuperar contraseña</h1>
         <p className="mt-1 text-sm text-[color:var(--muted)]">
           Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.

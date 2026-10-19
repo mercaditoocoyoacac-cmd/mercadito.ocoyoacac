@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 
 const LocationPicker = dynamic(
   () => import("@/components/maps/LocationPicker"),
-  { ssr: false, loading: () => <div className="h-64 w-full bg-gray-100 animate-pulse rounded-xl" /> }
+  { ssr: false, loading: () => <div className="h-64 w-full bg-[var(--surface)] animate-pulse rounded-xl" /> }
 );
 
 type DaySchedule = { active: boolean; start: string; end: string };
@@ -201,7 +201,7 @@ function StoreForm({
         <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${store.isActive ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
           {store.isActive ? "Activa" : "Inactiva"}
         </span>
-        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${store.isPublished ? "bg-blue-50 text-blue-700" : "bg-gray-50 text-gray-500"}`}>
+        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${store.isPublished ? "bg-blue-50 text-blue-700" : "bg-[var(--surface)] text-[color:var(--muted)]"}`}>
           {store.isPublished ? "Publicada" : "No publicada"}
         </span>
       </div>
@@ -209,7 +209,7 @@ function StoreForm({
       <div className="space-y-2">
         <div className="text-sm font-medium">Logo o imagen de la tienda</div>
         <div className="flex items-center gap-4">
-          <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={handleFileChange} className="hidden" />
+          <input aria-label="Logo o imagen de la tienda" ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={handleFileChange} className="hidden" />
           <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading}
             className="rounded-md border border-[var(--border)] px-4 py-2 text-sm font-medium hover:bg-[var(--accent-soft)] disabled:opacity-60">
             {uploading ? "Subiendo..." : "Cambiar imagen"}
@@ -259,9 +259,9 @@ function StoreForm({
         </label>
       </div>
 
-      <div className="rounded-xl border border-[var(--border)] bg-white p-5">
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-5">
         <div className="flex items-center gap-2 mb-4">
-          <svg className="h-5 w-5 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg aria-hidden="true" className="h-5 w-5 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
@@ -277,7 +277,7 @@ function StoreForm({
         />
         {latitude && longitude && (
           <p className="mt-1.5 flex items-center gap-1 text-xs text-green-600 font-medium">
-            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
             </svg>
             Ubicación guardada
@@ -285,9 +285,9 @@ function StoreForm({
         )}
       </div>
 
-      <div className="rounded-xl border border-[var(--border)] bg-white p-5">
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-5">
         <div className="flex items-center gap-2 mb-4">
-          <svg className="h-5 w-5 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg aria-hidden="true" className="h-5 w-5 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div className="text-sm font-semibold">Horario de atención</div>
@@ -325,7 +325,7 @@ function StoreForm({
                 return (
                   <button key={day.key} type="button" onClick={() => toggleDay(day.key)}
                     className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                      isActive ? "bg-[var(--accent)] text-white" : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                      isActive ? "bg-[var(--accent)] text-white" : "bg-[var(--surface)] text-[color:var(--muted)] hover:bg-[var(--surface-2)]"
                     }`}>
                     {day.label.slice(0, 3)}
                   </button>
@@ -340,24 +340,24 @@ function StoreForm({
             <div key={day.key}
               className={`flex items-center justify-between rounded-lg border p-3 ${
                 scheduleMode === "daily" && !scheduleDetails.days[day.key]?.active
-                  ? "border-dashed border-gray-300 opacity-60"
-                  : "border-gray-200"
+                  ? "border-dashed border-[var(--border)] opacity-60"
+                  : "border-[var(--border)]"
               }`}>
               <div className="flex items-center gap-2">
                 {scheduleMode === "daily" && (
-                  <input type="checkbox" checked={scheduleDetails.days[day.key]?.active ?? false}
+                  <input aria-label={`Activar ${day.label}`} type="checkbox" checked={scheduleDetails.days[day.key]?.active ?? false}
                     onChange={() => toggleDay(day.key)}
-                    className="h-4 w-4 rounded border-gray-300 text-[var(--accent)]" />
+                    className="h-4 w-4 rounded border-[var(--border)] text-[var(--accent)]" />
                 )}
                 <span className="text-sm font-medium">{day.label}</span>
               </div>
               <div className="flex items-center gap-2">
-                <input type="time" value={scheduleDetails.days[day.key]?.start ?? "09:00"}
+                <input aria-label={`Hora de inicio de ${day.label}`} type="time" value={scheduleDetails.days[day.key]?.start ?? "09:00"}
                   onChange={e => updateDaySchedule(day.key, { start: e.target.value })}
                   disabled={!scheduleDetails.days[day.key]?.active}
                   className="w-28 rounded-md border border-[var(--border)] bg-transparent px-2 py-1.5 text-sm [font-size:16px] disabled:opacity-40" />
                 <span className="text-xs text-[color:var(--muted)]">a</span>
-                <input type="time" value={scheduleDetails.days[day.key]?.end ?? "18:00"}
+                <input aria-label={`Hora de fin de ${day.label}`} type="time" value={scheduleDetails.days[day.key]?.end ?? "18:00"}
                   onChange={e => updateDaySchedule(day.key, { end: e.target.value })}
                   disabled={!scheduleDetails.days[day.key]?.active}
                   className="w-28 rounded-md border border-[var(--border)] bg-transparent px-2 py-1.5 text-sm [font-size:16px] disabled:opacity-40" />
@@ -426,7 +426,7 @@ export default function AdminTiendasPage() {
           <select
             value={selectedStoreId}
             onChange={(e) => setSelectedStoreId(e.target.value)}
-            className="w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+            className="w-full rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
           >
             <option value="">Seleccionar tienda...</option>
             {stores.map((store) => (
@@ -445,7 +445,7 @@ export default function AdminTiendasPage() {
       {!loading && !selectedStoreId && (
         <div className="rounded-xl border border-[var(--border)] p-8 text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--accent-soft)]">
-            <svg className="h-8 w-8 text-[var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className="h-8 w-8 text-[var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
           </div>

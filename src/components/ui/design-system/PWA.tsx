@@ -78,7 +78,7 @@ export function PWA() {
         </style>
         <div style="display: flex; align-items: center; gap: 12px;">
           <div style="width: 48px; height: 48px; border-radius: 12px; background: var(--accent); display: flex; align-items: center; justify-content: center; color: white;">
-            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+            <svg aria-hidden="true" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
           </div>
           <div style="flex: 1;">
             <div style="font-weight: 600; font-size: 14px;">Instalar Mercadito</div>

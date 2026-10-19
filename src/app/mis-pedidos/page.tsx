@@ -17,7 +17,7 @@ function getStatusColor(status: string) {
     COMPLETED: "bg-green-100 text-green-800",
     CANCELLED: "bg-red-100 text-red-800",
   };
-  return colors[status] || "bg-gray-100 text-gray-800";
+  return colors[status] || "bg-[var(--surface)] text-[color:var(--text)]";
 }
 
 export const dynamic = "force-dynamic";
@@ -59,7 +59,7 @@ export default async function MisPedidosPage() {
           </div>
           <Link href="/tiendas" className="shrink-0">
             <Button variant="outline" leftIcon={
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+              <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
             }>
               Seguir comprando
             </Button>
@@ -69,16 +69,16 @@ export default async function MisPedidosPage() {
         {/* Stats Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
           <StatCard label="Total" value={stats.total} icon={
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+            <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
           } />
           <StatCard label="Activos" value={stats.pending} variant="warning" icon={
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
           } />
           <StatCard label="Entregados" value={stats.completed} variant="success" icon={
-            <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg>
+            <svg aria-hidden="true" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg>
           } />
           <StatCard label="Cancelados" value={stats.cancelled} variant="danger" icon={
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" /></svg>
+            <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" /></svg>
           } />
         </div>
       </div>
@@ -147,7 +147,7 @@ export default async function MisPedidosPage() {
 
 function StatCard({ label, value, variant = "default", icon }: { label: string; value: number; variant?: "default" | "success" | "warning" | "danger"; icon: React.ReactNode }) {
   const variantColors = {
-    default: "bg-white border-[var(--border)]",
+    default: "bg-[var(--card-bg)] border-[var(--border)]",
     success: "bg-green-50 border-green-200",
     warning: "bg-amber-50 border-amber-200",
     danger: "bg-red-50 border-red-200",

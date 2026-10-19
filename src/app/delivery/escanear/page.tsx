@@ -113,27 +113,27 @@ export default function DeliveryScanPage() {
       <div className="mx-auto max-w-lg px-4 py-8">
         <div className="mb-6 text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-500">
-            <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
           </div>
           <h1 className="text-2xl font-bold">Código de entrega</h1>
-          <p className="mt-1 text-sm text-gray-500">Ingresa el código alfanumérico para confirmar recogida o entrega</p>
+          <p className="mt-1 text-sm text-[color:var(--muted)]">Ingresa el código alfanumérico para confirmar recogida o entrega</p>
         </div>
 
         {!orderInfo ? (
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--card-bg)] p-6 shadow-sm">
             <form onSubmit={handleManualSubmit} className="space-y-4">
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
+                <label className="mb-2 block text-sm font-medium text-[color:var(--text)]">
                   Código alfanumérico
                 </label>
-                <input
+                <input aria-label="Ej: ABC123"
                   type="text"
                   value={manualCode}
                   onChange={(e) => setManualCode(e.target.value.toUpperCase())}
                   placeholder="Ej: ABC123"
-                  className="w-full rounded-xl border-2 border-gray-200 px-4 py-4 text-center text-2xl tracking-widest uppercase focus:border-orange-500 focus:outline-none"
+                  className="w-full rounded-xl border-2 border-[var(--border)] px-4 py-4 text-center text-2xl tracking-widest uppercase focus:border-orange-500 focus:outline-none"
                   maxLength={10}
                   autoFocus
                 />
@@ -154,7 +154,7 @@ export default function DeliveryScanPage() {
             )}
           </div>
         ) : (
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--card-bg)] p-6 shadow-sm">
             <div className="mb-4 rounded-xl bg-green-500 p-4 text-center text-white">
               <div className="mb-1 text-3xl">✓</div>
               <div className="font-bold">Pedido encontrado</div>
@@ -162,22 +162,22 @@ export default function DeliveryScanPage() {
             </div>
 
             <div className="mb-4 space-y-3">
-              <div className="flex justify-between rounded-lg bg-gray-50 p-3">
-                <span className="text-gray-500">Cliente</span>
+              <div className="flex justify-between rounded-lg bg-[var(--surface)] p-3">
+                <span className="text-[color:var(--muted)]">Cliente</span>
                 <span className="font-semibold">{orderInfo.customerName}</span>
               </div>
-              <div className="flex justify-between rounded-lg bg-gray-50 p-3">
-                <span className="text-gray-500">Teléfono</span>
+              <div className="flex justify-between rounded-lg bg-[var(--surface)] p-3">
+                <span className="text-[color:var(--muted)]">Teléfono</span>
                 <span className="font-semibold">{orderInfo.customerPhone}</span>
               </div>
               {orderInfo.customerAddress && (
-                <div className="flex justify-between rounded-lg bg-gray-50 p-3">
-                  <span className="text-gray-500">Dirección</span>
+                <div className="flex justify-between rounded-lg bg-[var(--surface)] p-3">
+                  <span className="text-[color:var(--muted)]">Dirección</span>
                   <span className="text-right text-sm">{orderInfo.customerAddress}</span>
                 </div>
               )}
               <div className="flex justify-between rounded-lg bg-orange-50 p-3">
-                <span className="font-medium text-gray-700">Total</span>
+                <span className="font-medium text-[color:var(--text)]">Total</span>
                 <span className="text-xl font-bold text-orange-600">{formatMoney(orderInfo.totalCents)}</span>
               </div>
             </div>
@@ -207,7 +207,7 @@ export default function DeliveryScanPage() {
                   setManualCode("");
                   setError(null);
                 }}
-                className="w-full rounded-xl border-2 border-gray-200 py-3 font-medium text-gray-600 transition-colors hover:bg-gray-50"
+                className="w-full rounded-xl border-2 border-[var(--border)] py-3 font-medium text-[color:var(--muted)] transition-colors hover:bg-[var(--surface)]"
               >
                 Cancelar
               </button>
@@ -216,7 +216,7 @@ export default function DeliveryScanPage() {
         )}
 
         <div className="mt-6 text-center">
-          <Link href="/delivery" className="text-sm text-gray-500 hover:text-orange-600 hover:underline">
+          <Link href="/delivery" className="text-sm text-[color:var(--muted)] hover:text-orange-600 hover:underline">
             ← Volver al panel
           </Link>
         </div>

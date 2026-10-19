@@ -11,7 +11,7 @@ export default async function DeliveryRating({ deliveryUserId }: { deliveryUserI
     : null;
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-right shadow-sm">
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] px-4 py-3 text-right shadow-sm">
       <div className="text-xs text-[color:var(--muted)]">Calificación</div>
       <div className="text-xl font-bold">
         {avg ? <span className="text-yellow-500">{avg} ★</span> : "—"}

@@ -164,13 +164,13 @@ function ProductForm({
           <label className="block">
             <div className="text-sm font-medium">Peso mínimo (gramos)</div>
             <input value={minWeightGrams} onChange={(e) => setMinWeightGrams(e.target.value)} inputMode="numeric"
-              className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+              className="mt-1 w-full rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
               placeholder="Ej: 100" />
           </label>
           <label className="block">
             <div className="text-sm font-medium">Peso máximo (gramos)</div>
             <input value={maxWeightGrams} onChange={(e) => setMaxWeightGrams(e.target.value)} inputMode="numeric"
-              className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+              className="mt-1 w-full rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
               placeholder="Ej: 5000" />
           </label>
         </div>
@@ -178,7 +178,7 @@ function ProductForm({
 
       <button type="button" onClick={() => setShowAdvanced(!showAdvanced)}
         className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-[var(--border)] px-4 py-2 text-sm text-[color:var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]">
-        <svg className={`h-4 w-4 transition-transform ${showAdvanced ? "rotate-90" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg aria-hidden="true" className={`h-4 w-4 transition-transform ${showAdvanced ? "rotate-90" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
         {showAdvanced ? "Ocultar opciones avanzadas" : "Mostrar más opciones (imagen, código, inventario, variantes)"}
@@ -189,11 +189,11 @@ function ProductForm({
           <div className="space-y-2">
             <div className="text-sm font-medium">Imagen del producto</div>
             <div className="flex items-center gap-4">
-              <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif"
+              <input aria-label="Imagen del producto" ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif"
                 onChange={handleFileChange} className="hidden" />
               <button type="button" onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
-                className="rounded-md border border-[var(--border)] bg-white px-4 py-2 text-sm font-medium hover:bg-[var(--accent-soft)] disabled:opacity-60">
+                className="rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-4 py-2 text-sm font-medium hover:bg-[var(--accent-soft)] disabled:opacity-60">
                 {uploading ? "Subiendo..." : "Elegir imagen"}
               </button>
               {imageUrl && (
@@ -210,13 +210,13 @@ function ProductForm({
             <label className="block">
               <div className="text-sm font-medium">SKU / Código (opcional)</div>
               <input value={sku} onChange={(e) => setSku(e.target.value)}
-                className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm font-mono outline-none focus:border-[var(--accent)]"
+                className="mt-1 w-full rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 text-sm font-mono outline-none focus:border-[var(--accent)]"
                 placeholder="Ej: CON-001" />
             </label>
             <label className="block">
               <div className="text-sm font-medium">Existencias</div>
               <input value={stock} onChange={(e) => setStock(e.target.value)} inputMode="numeric"
-                className="mt-1 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                className="mt-1 w-full rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
                 placeholder="Vacío = sin control" />
             </label>
           </div>
@@ -224,7 +224,7 @@ function ProductForm({
           <label className="block">
             <div className="text-sm font-medium">Descripción (opcional)</div>
             <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3}
-              className="mt-1 w-full resize-none rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+              className="mt-1 w-full resize-none rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
               placeholder="Ej: Concha de vainilla espolvoreada con azúcar, 80g" />
           </label>
 
@@ -239,14 +239,14 @@ function ProductForm({
             )}
             <div className="mt-2 space-y-2">
               {variants.map((v) => (
-                <div key={v.key} className="flex items-start gap-2 rounded-md border border-[var(--border)] bg-white p-2">
+                <div key={v.key} className="flex items-start gap-2 rounded-md border border-[var(--border)] bg-[var(--card-bg)] p-2">
                   <div className="flex-1">
-                    <input value={v.name} onChange={(e) => updateVariant(v.key, "name", e.target.value)}
+                    <input aria-label="Ej: Clásica" value={v.name} onChange={(e) => updateVariant(v.key, "name", e.target.value)}
                       placeholder="Ej: Clásica"
                       className="w-full border-b border-transparent bg-transparent px-1 py-1 text-sm outline-none focus:border-[var(--accent)]" />
                   </div>
                   <div className="w-24">
-                    <input value={v.price} onChange={(e) => updateVariant(v.key, "price", e.target.value)} inputMode="decimal"
+                    <input aria-label="Precio" value={v.price} onChange={(e) => updateVariant(v.key, "price", e.target.value)} inputMode="decimal"
                       placeholder="Precio"
                       className="w-full border-b border-transparent bg-transparent px-1 py-1 text-sm outline-none focus:border-[var(--accent)]" />
                   </div>
@@ -474,7 +474,7 @@ function AdminProductosPage() {
             <select
               value={selectedStoreId}
               onChange={(e) => setSelectedStoreId(e.target.value)}
-              className="w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+              className="w-full rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
             >
               <option value="">Seleccionar tienda...</option>
               {stores.map((store) => (
@@ -488,7 +488,7 @@ function AdminProductosPage() {
             onClick={() => setShowForm(true)}
             className="inline-flex items-center gap-1.5 rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)]"
           >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
             Nuevo producto
@@ -522,7 +522,7 @@ function AdminProductosPage() {
       {!selectedStoreId ? (
         <div className="rounded-xl border border-[var(--border)] p-8 text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--accent-soft)]">
-            <svg className="h-8 w-8 text-[var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className="h-8 w-8 text-[var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
           </div>
@@ -538,7 +538,7 @@ function AdminProductosPage() {
       ) : products.length === 0 ? (
         <div className="rounded-xl border border-[var(--border)] p-8 text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--accent-soft)]">
-            <svg className="h-8 w-8 text-[var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className="h-8 w-8 text-[var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
           </div>
@@ -549,7 +549,7 @@ function AdminProductosPage() {
           <div className="mt-6">
             <button onClick={() => setShowForm(true)}
               className="inline-flex items-center gap-1.5 rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)]">
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
               Crear primer producto
@@ -559,13 +559,13 @@ function AdminProductosPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {products.map((product, i: number) => (
-            <div key={product.id} style={{ animationDelay: `${i * 60}ms` }} className="group rounded-xl border border-[var(--border)] bg-white p-4 card-hover fade-in">
+            <div key={product.id} style={{ animationDelay: `${i * 60}ms` }} className="group rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-4 card-hover fade-in">
               <div className="flex items-start gap-4">
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[var(--border)] bg-gray-50">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--surface)]">
                   {product.imageUrl ? (
                     <Image src={product.imageUrl} alt={product.name} width={64} height={64} className="h-full w-full object-cover" />
                   ) : (
-                    <svg className="h-8 w-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg aria-hidden="true" className="h-8 w-8 text-[color:var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                     </svg>
                   )}
@@ -676,7 +676,7 @@ function AdminReorderForm({ products, storeId, onEdit, onDelete }: { products: P
   return (
     <div className="space-y-3">
       {sorted.map(product => (
-        <div key={product.id} className="group flex items-center gap-3 rounded-xl border border-[var(--border)] bg-white px-3 py-2 card-hover">
+        <div key={product.id} className="group flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 card-hover">
           <div className="flex w-10 shrink-0 items-center justify-center">
             <input
               aria-label={`Orden de ${product.name}`}
@@ -693,11 +693,11 @@ function AdminReorderForm({ products, storeId, onEdit, onDelete }: { products: P
             />
           </div>
           <div className="flex min-w-0 flex-1 items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[var(--border)] bg-gray-50">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--surface)]">
               {product.imageUrl ? (
                 <Image src={product.imageUrl} alt={product.name} width={40} height={40} className="h-full w-full object-cover" />
               ) : (
-                <svg className="h-5 w-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg aria-hidden="true" className="h-5 w-5 text-[color:var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
               )}

@@ -109,13 +109,13 @@ export default function AdminCategoriasPage() {
       <form onSubmit={handleCreate} className="rounded-xl border border-[var(--border)] p-4 space-y-3">
         <h2 className="text-sm font-semibold">Nueva categoría</h2>
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-          <input value={newKey} onChange={(e) => setNewKey(e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g, ""))} placeholder="Clave (ej. ROPA)" required
+          <input aria-label="Clave (ej. ROPA)" value={newKey} onChange={(e) => setNewKey(e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g, ""))} placeholder="Clave (ej. ROPA)" required
             className="rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]" />
-          <input value={newLabel} onChange={(e) => setNewLabel(e.target.value)} placeholder="Nombre (ej. Ropa y accesorios)" required
+          <input aria-label="Nombre (ej. Ropa y accesorios)" value={newLabel} onChange={(e) => setNewLabel(e.target.value)} placeholder="Nombre (ej. Ropa y accesorios)" required
             className="rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]" />
-          <input value={newIcon} onChange={(e) => setNewIcon(e.target.value)} placeholder="Icono (ej. 👕)"
+          <input aria-label="Icono (ej. 👕)" value={newIcon} onChange={(e) => setNewIcon(e.target.value)} placeholder="Icono (ej. 👕)"
             className="rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]" />
-          <input type="number" value={newSortOrder} onChange={(e) => setNewSortOrder(parseInt(e.target.value) || 0)} placeholder="Orden"
+          <input aria-label="Orden" type="number" value={newSortOrder} onChange={(e) => setNewSortOrder(parseInt(e.target.value) || 0)} placeholder="Orden"
             className="rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]" />
         </div>
         <button type="submit" className="rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)]">
@@ -137,11 +137,11 @@ export default function AdminCategoriasPage() {
               {editingId === cat.id ? (
                 <div className="space-y-3">
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <input value={editLabel} onChange={(e) => setEditLabel(e.target.value)}
+                    <input aria-label="Nombre" value={editLabel} onChange={(e) => setEditLabel(e.target.value)}
                       className="rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]" />
-                    <input value={editIcon} onChange={(e) => setEditIcon(e.target.value)}
+                    <input aria-label="Icono" value={editIcon} onChange={(e) => setEditIcon(e.target.value)}
                       className="rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]" />
-                    <input type="number" value={editSortOrder} onChange={(e) => setEditSortOrder(parseInt(e.target.value) || 0)}
+                    <input aria-label="Orden" type="number" value={editSortOrder} onChange={(e) => setEditSortOrder(parseInt(e.target.value) || 0)}
                       className="rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]" />
                   </div>
                   <div className="flex gap-2">

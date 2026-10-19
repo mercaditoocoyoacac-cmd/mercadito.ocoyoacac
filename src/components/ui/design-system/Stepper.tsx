@@ -71,7 +71,7 @@ export function Stepper({
                     ? "bg-[var(--accent)] text-white" 
                     : isActive 
                       ? "bg-[var(--accent)] text-white ring-4 ring-[var(--accent)]/20" 
-                      : "bg-gray-100 text-gray-400"
+                      : "bg-[var(--surface)] text-[color:var(--muted)]"
                   }
                   ${isDisabled ? "opacity-50 cursor-not-allowed" : "hover:scale-110 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"}
                 `}

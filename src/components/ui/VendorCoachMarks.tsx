@@ -39,7 +39,7 @@ export function VendorCoachMarks() {
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/30 p-4">
-      <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-2xl">
+      <div className="w-full max-w-sm rounded-xl bg-[var(--card-bg)] p-6 shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <span className="text-xs text-[color:var(--muted)]">Paso {step + 1} de {STEPS.length}</span>
           <button type="button" onClick={handleDismiss} className="text-xs text-[color:var(--muted)] hover:text-[var(--foreground)]">
@@ -53,7 +53,7 @@ export function VendorCoachMarks() {
             <button
               type="button"
               onClick={() => setStep(step - 1)}
-              className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium hover:bg-gray-50"
+              className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium hover:bg-[var(--surface)]"
             >
               Atrás
             </button>

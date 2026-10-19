@@ -182,11 +182,11 @@ export default function AdminMembresiaCuponesPage() {
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="mb-8 rounded-xl border border-[var(--border)] bg-white p-5 space-y-4">
+        <form onSubmit={handleSubmit} className="mb-8 rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-5 space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Código *</label>
-              <input
+              <input aria-label="Código *"
                 name="code"
                 value={form.code}
                 onChange={handleChange}
@@ -197,23 +197,23 @@ export default function AdminMembresiaCuponesPage() {
             </div>
             <div>
               <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Membresía *</label>
-              <select name="plan" value={form.plan} onChange={handleChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm">
+              <select aria-label="Membresía *" name="plan" value={form.plan} onChange={handleChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm">
                 <option value="MEMBER">Vende+ ({formatMoney(MEMBERSHIP_PRICE, "MXN")})</option>
                 <option value="SOLO_DELIVERY">Solo Delivery ({formatMoney(SOLO_DELIVERY_PRICE, "MXN")})</option>
               </select>
             </div>
             <div>
               <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Tipo *</label>
-              <select name="discountType" value={form.discountType} onChange={handleChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm">
+              <select aria-label="Tipo *" name="discountType" value={form.discountType} onChange={handleChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm">
                 <option value="PERCENTAGE">% Porcentaje</option>
                 <option value="FIXED">$ Monto fijo</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">
+              <label htmlFor="al213" className="block text-xs font-medium text-[color:var(--muted)] mb-1">
                 {form.discountType === "PERCENTAGE" ? "Porcentaje (1-100) *" : "Monto a descontar ($) *"}
               </label>
-              <input
+              <input id="al213"
                 name="discountValue"
                 type="number"
                 min="1"
@@ -244,7 +244,7 @@ export default function AdminMembresiaCuponesPage() {
             </div>
             <div>
               <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Usos máximos</label>
-              <input
+              <input aria-label="Usos máximos"
                 name="maxUses"
                 type="number"
                 min="1"
@@ -256,7 +256,7 @@ export default function AdminMembresiaCuponesPage() {
             </div>
             <div className="sm:col-span-2">
               <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Descripción (interna)</label>
-              <input
+              <input aria-label="Ej: Descuento para nuevos vendors"
                 name="description"
                 value={form.description}
                 onChange={handleChange}
@@ -267,11 +267,11 @@ export default function AdminMembresiaCuponesPage() {
             </div>
             <div>
               <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Válido desde</label>
-              <input name="startsAt" type="datetime-local" value={form.startsAt} onChange={handleChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+              <input aria-label="Válido desde" name="startsAt" type="datetime-local" value={form.startsAt} onChange={handleChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
             </div>
             <div>
               <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Válido hasta</label>
-              <input name="expiresAt" type="datetime-local" value={form.expiresAt} onChange={handleChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+              <input aria-label="Válido hasta" name="expiresAt" type="datetime-local" value={form.expiresAt} onChange={handleChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -294,7 +294,7 @@ export default function AdminMembresiaCuponesPage() {
       <div className="overflow-x-auto rounded-xl border border-[var(--border)]">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-[var(--border)] bg-gray-50">
+            <tr className="border-b border-[var(--border)] bg-[var(--surface)]">
               <th className="px-4 py-3 text-left font-medium">Código</th>
               <th className="px-4 py-3 text-left font-medium">Membresía</th>
               <th className="px-4 py-3 text-left font-medium">Descripción</th>
@@ -321,7 +321,7 @@ export default function AdminMembresiaCuponesPage() {
               const couponBase = coupon.plan === "SOLO_DELIVERY" ? SOLO_DELIVERY_PRICE : MEMBERSHIP_PRICE;
               const finalPrice = discountedPrice(coupon);
               return (
-                <tr key={coupon.id} style={{ animationDelay: `${idx * 40}ms` }} className="border-b border-[var(--border)] hover:bg-gray-50 fade-in">
+                <tr key={coupon.id} style={{ animationDelay: `${idx * 40}ms` }} className="border-b border-[var(--border)] hover:bg-[var(--surface)] fade-in">
                   <td className="px-4 py-3 font-mono font-bold">{coupon.code}</td>
                   <td className="px-4 py-3">
                     {coupon.plan === "SOLO_DELIVERY" ? (
@@ -352,7 +352,7 @@ export default function AdminMembresiaCuponesPage() {
                     {expired ? <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-700">Expirado</span> :
                      notStarted ? <span className="rounded-full bg-yellow-100 px-2 py-0.5 text-xs text-yellow-700">Próximo</span> :
                      coupon.isActive ? <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">Activo</span> :
-                     <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">Inactivo</span>}
+                     <span className="rounded-full bg-[var(--surface)] px-2 py-0.5 text-xs text-[color:var(--muted)]">Inactivo</span>}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">

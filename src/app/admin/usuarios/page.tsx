@@ -185,7 +185,7 @@ export default async function AdminUsersPage({
         })}
         <div className="ml-auto">
           <form>
-            <input
+            <input aria-label="Buscar por nombre o email…"
               type="search"
               name="q"
               defaultValue={q}
@@ -227,7 +227,7 @@ export default async function AdminUsersPage({
                       )}
                       <div className="mt-1 flex flex-wrap gap-1">
                         {allRoles.map((r) => (
-                          <span key={r} className={`text-xs px-2 py-0.5 rounded-full ${roleColors[r] || "bg-gray-100 text-gray-800"}`}>
+                          <span key={r} className={`text-xs px-2 py-0.5 rounded-full ${roleColors[r] || "bg-[var(--surface)] text-[color:var(--text)]"}`}>
                             {roleLabels[r] || r}
                           </span>
                         ))}

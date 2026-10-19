@@ -139,7 +139,7 @@ function StatusBadge({ status }: { status: string }) {  const colors: Record<str
     CANCELLED: "bg-red-100 text-red-800 border-red-200",
   };
   return (
-    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${colors[status] || "bg-gray-100 text-gray-800"}`}>
+    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${colors[status] || "bg-[var(--surface)] text-[color:var(--text)]"}`}>
       {getStatusLabel(status)}
     </span>
   );
@@ -182,13 +182,13 @@ function OrderTimeline({ timestamps }: { timestamps: Record<string, string> | nu
     <div className="space-y-1">
       {stages.map((s, i) => (
         <div key={s.status} className="flex items-center gap-3">
-          <div className={`w-3 h-3 rounded-full shrink-0 ${s.done ? "bg-green-500" : "bg-gray-200"}`} />
+          <div className={`w-3 h-3 rounded-full shrink-0 ${s.done ? "bg-green-500" : "bg-[var(--surface-2)]"}`} />
           <div className="flex-1 min-w-0">
-            <div className={`text-xs font-medium ${s.done ? "text-green-700" : "text-gray-400"}`}>
+            <div className={`text-xs font-medium ${s.done ? "text-green-700" : "text-[color:var(--muted)]"}`}>
               {s.label}
             </div>
             {s.time && (
-              <div className="text-[10px] text-gray-500">{s.time}</div>
+              <div className="text-[10px] text-[color:var(--muted)]">{s.time}</div>
             )}
           </div>
         </div>
@@ -302,7 +302,7 @@ function OrderCard({ order, drivers, onRefresh }: { order: OrderData; drivers: D
   const customerCoords = order.customerLat && order.customerLng;
 
   return (
-    <div className={`rounded-xl border ${isActive ? "border-[var(--border)]" : cancelled ? "border-red-200 bg-red-50/30" : "border-gray-200 bg-gray-50/30"}`}>
+    <div className={`rounded-xl border ${isActive ? "border-[var(--border)]" : cancelled ? "border-red-200 bg-red-50/30" : "border-[var(--border)] bg-gray-50/30"}`}>
       <button onClick={() => setExpanded(!expanded)} className="w-full text-left p-4">
         <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
@@ -321,7 +321,7 @@ function OrderCard({ order, drivers, onRefresh }: { order: OrderData; drivers: D
               {order.notes && <span className="text-yellow-700">📝 Ref: {order.notes}</span>}
             </div>
           </div>
-          <svg className={`w-5 h-5 shrink-0 text-[color:var(--muted)] transition-transform ${expanded ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg aria-hidden="true" className={`w-5 h-5 shrink-0 text-[color:var(--muted)] transition-transform ${expanded ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         </div>
@@ -390,19 +390,19 @@ function OrderCard({ order, drivers, onRefresh }: { order: OrderData; drivers: D
           )}
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
-            <div className="rounded-lg bg-gray-50 p-2">
+            <div className="rounded-lg bg-[var(--surface)] p-2">
               <div className="text-[10px] text-[color:var(--muted)]">Subtotal</div>
               <div className="text-sm font-semibold">{formatMoney(order.subtotalCents, order.currency)}</div>
             </div>
-            <div className="rounded-lg bg-gray-50 p-2">
+            <div className="rounded-lg bg-[var(--surface)] p-2">
               <div className="text-[10px] text-[color:var(--muted)]">Envío</div>
               <div className="text-sm font-semibold">{formatMoney(order.deliveryCents, order.currency)}</div>
             </div>
-            <div className="rounded-lg bg-gray-50 p-2">
+            <div className="rounded-lg bg-[var(--surface)] p-2">
               <div className="text-[10px] text-[color:var(--muted)]">Total</div>
               <div className="text-sm font-semibold">{formatMoney(order.totalCents, order.currency)}</div>
             </div>
-            <div className="rounded-lg bg-gray-50 p-2">
+            <div className="rounded-lg bg-[var(--surface)] p-2">
               <div className="text-[10px] text-[color:var(--muted)]">Pago</div>
               <div className="text-sm font-semibold">
                 {order.paymentMethod === "CASH"
@@ -464,7 +464,7 @@ function OrderCard({ order, drivers, onRefresh }: { order: OrderData; drivers: D
           {reassigning && (
             <div className="rounded-lg border border-[var(--border)] p-3 space-y-2">
               <div className="text-xs font-medium">Seleccionar repartidor</div>
-              <select
+              <select aria-label="Seleccionar repartidor"
                 value={selectedDriver}
                 onChange={(e) => setSelectedDriver(e.target.value)}
                 className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm"
@@ -627,7 +627,7 @@ export default function DeliverySupervisionClient() {
             {data.drivers
               .filter((d) => Date.now() - new Date(d.updatedAt).getTime() < 120000)
               .map((d) => (
-                <div key={d.id} className="flex items-center gap-3 rounded-lg bg-white border border-green-200 px-3 py-2">
+                <div key={d.id} className="flex items-center gap-3 rounded-lg bg-[var(--card-bg)] border border-green-200 px-3 py-2">
                   <span className="relative flex h-2 w-2 shrink-0">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
@@ -654,14 +654,14 @@ export default function DeliverySupervisionClient() {
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3">
-        <input
+        <input aria-label="Buscar cliente, tienda o ID..."
           type="text"
           placeholder="Buscar cliente, tienda o ID..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="min-w-[200px] flex-1 rounded-xl border border-[var(--border)] px-4 py-2.5 text-sm"
         />
-        <select
+        <select aria-label="Todas las tiendas"
           value={storeFilter}
           onChange={(e) => setStoreFilter(e.target.value)}
           className="rounded-xl border border-[var(--border)] px-4 py-2.5 text-sm"
@@ -687,13 +687,13 @@ export default function DeliverySupervisionClient() {
             <button
               onClick={handlePingAll}
               disabled={pinging}
-              className="ml-auto text-xs px-3 py-1.5 rounded-lg border border-blue-200 bg-white text-blue-700 hover:bg-blue-50 transition-colors disabled:opacity-50"
+              className="ml-auto text-xs px-3 py-1.5 rounded-lg border border-blue-200 bg-[var(--card-bg)] text-blue-700 hover:bg-blue-50 transition-colors disabled:opacity-50"
             >
               {pinging ? "..." : "📡 Actualizar ubicaciones"}
             </button>
             <button
               onClick={() => setShowMap(false)}
-              className="text-xs px-2 py-1.5 rounded-lg border border-blue-200 bg-white text-blue-700 hover:bg-blue-50 transition-colors"
+              className="text-xs px-2 py-1.5 rounded-lg border border-blue-200 bg-[var(--card-bg)] text-blue-700 hover:bg-blue-50 transition-colors"
             >
               Ocultar
             </button>

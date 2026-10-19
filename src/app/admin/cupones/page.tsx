@@ -367,11 +367,11 @@ export default function AdminCuponesPage() {
                 <label className="block text-xs font-medium text-[color:var(--muted)] mb-2">Tiendas *</label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {stores.map((s) => (
-                    <label key={s.id} className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer transition-all ${storeForm.storeIds.includes(s.id) ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]" : "border-[var(--border)] hover:border-gray-300"}`}>
+                    <label key={s.id} className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer transition-all ${storeForm.storeIds.includes(s.id) ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]" : "border-[var(--border)] hover:border-[var(--border)]"}`}>
                       <input type="checkbox" checked={storeForm.storeIds.includes(s.id)} onChange={() => toggleStoreId(s.id)} className="sr-only" />
-                      <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${storeForm.storeIds.includes(s.id) ? "border-[var(--accent)] bg-[var(--accent)]" : "border-gray-300"}`}>
+                      <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${storeForm.storeIds.includes(s.id) ? "border-[var(--accent)] bg-[var(--accent)]" : "border-[var(--border)]"}`}>
                         {storeForm.storeIds.includes(s.id) && (
-                          <svg className="h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                          <svg aria-hidden="true" className="h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                         )}
                       </span>
                       {s.name}
@@ -387,11 +387,11 @@ export default function AdminCuponesPage() {
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto rounded-lg border border-[var(--border)] p-2">
                   {users.length === 0 && <p className="text-xs text-[color:var(--muted)] col-span-3">Cargando usuarios...</p>}
                   {users.map((u) => (
-                    <label key={u.id} className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer transition-all ${storeForm.userIds.includes(u.id) ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300" : "border-[var(--border)] hover:border-gray-300"}`}>
+                    <label key={u.id} className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer transition-all ${storeForm.userIds.includes(u.id) ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300" : "border-[var(--border)] hover:border-[var(--border)]"}`}>
                       <input type="checkbox" checked={storeForm.userIds.includes(u.id)} onChange={() => toggleUserId(u.id)} className="sr-only" />
-                      <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${storeForm.userIds.includes(u.id) ? "border-emerald-500 bg-emerald-500" : "border-gray-300"}`}>
+                      <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${storeForm.userIds.includes(u.id) ? "border-emerald-500 bg-emerald-500" : "border-[var(--border)]"}`}>
                         {storeForm.userIds.includes(u.id) && (
-                          <svg className="h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                          <svg aria-hidden="true" className="h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                         )}
                       </span>
                       <span className="truncate">{u.name || u.email}</span>
@@ -408,50 +408,50 @@ export default function AdminCuponesPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Código *</label>
-                  <input name="code" value={storeForm.code} onChange={handleStoreChange} placeholder="BIENVENIDO10" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm uppercase" />
+                  <input aria-label="Código *" name="code" value={storeForm.code} onChange={handleStoreChange} placeholder="BIENVENIDO10" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm uppercase" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Tipo *</label>
-                  <select name="discountType" value={storeForm.discountType} onChange={handleStoreChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm">
+                  <select aria-label="Tipo *" name="discountType" value={storeForm.discountType} onChange={handleStoreChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm">
                     <option value="PERCENTAGE">% Porcentaje</option>
                     <option value="FIXED">$ Monto fijo</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">
+                  <label htmlFor="al421" className="block text-xs font-medium text-[color:var(--muted)] mb-1">
                     {storeForm.discountType === "PERCENTAGE" ? "Porcentaje *" : "Monto ($) *"}
                   </label>
-                  <input name="discountValue" type="number" min="1" value={storeForm.discountValue} onChange={handleStoreChange} className={`w-full rounded-lg border px-3 py-2 text-sm ${storeForm.discountType === "PERCENTAGE" ? "border-[var(--accent)] bg-[var(--accent-soft)]" : "border-[var(--border)] bg-[var(--background)]"}`} />
+                  <input id="al421" name="discountValue" type="number" min="1" value={storeForm.discountValue} onChange={handleStoreChange} className={`w-full rounded-lg border px-3 py-2 text-sm ${storeForm.discountType === "PERCENTAGE" ? "border-[var(--accent)] bg-[var(--accent-soft)]" : "border-[var(--border)] bg-[var(--background)]"}`} />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Compra mínima ($)</label>
-                  <input name="minPurchaseCents" type="number" min="0" value={storeForm.minPurchaseCents} onChange={handleStoreChange} placeholder="0 = sin mínimo" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                  <input aria-label="Compra mínima ($)" name="minPurchaseCents" type="number" min="0" value={storeForm.minPurchaseCents} onChange={handleStoreChange} placeholder="0 = sin mínimo" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Usos máximos</label>
-                  <input name="maxUses" type="number" min="1" value={storeForm.maxUses} onChange={handleStoreChange} placeholder="Sin límite" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                  <input aria-label="Usos máximos" name="maxUses" type="number" min="1" value={storeForm.maxUses} onChange={handleStoreChange} placeholder="Sin límite" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Usos por usuario</label>
-                  <input name="maxUsesPerUser" type="number" min="1" value={storeForm.maxUsesPerUser} onChange={handleStoreChange} placeholder="Sin límite" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                  <input aria-label="Usos por usuario" name="maxUsesPerUser" type="number" min="1" value={storeForm.maxUsesPerUser} onChange={handleStoreChange} placeholder="Sin límite" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Usuarios registrados antes de</label>
-                  <input name="userRegisteredBefore" type="date" value={storeForm.userRegisteredBefore} onChange={handleStoreChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                  <input aria-label="Usuarios registrados antes de" name="userRegisteredBefore" type="date" value={storeForm.userRegisteredBefore} onChange={handleStoreChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
                   <p className="mt-0.5 text-xs text-[color:var(--muted)]">Solo usuarios con cuenta antes de esta fecha</p>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Tiendas creadas antes de</label>
-                  <input name="storeCreatedBefore" type="date" value={storeForm.storeCreatedBefore} onChange={handleStoreChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                  <input aria-label="Tiendas creadas antes de" name="storeCreatedBefore" type="date" value={storeForm.storeCreatedBefore} onChange={handleStoreChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
                   <p className="mt-0.5 text-xs text-[color:var(--muted)]">Solo tiendas registradas antes de esta fecha</p>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Válido desde</label>
-                  <input name="startsAt" type="datetime-local" value={storeForm.startsAt} onChange={handleStoreChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                  <input aria-label="Válido desde" name="startsAt" type="datetime-local" value={storeForm.startsAt} onChange={handleStoreChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Válido hasta</label>
-                  <input name="expiresAt" type="datetime-local" value={storeForm.expiresAt} onChange={handleStoreChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                  <input aria-label="Válido hasta" name="expiresAt" type="datetime-local" value={storeForm.expiresAt} onChange={handleStoreChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
                 </div>
               </div>
               <button type="submit" className="rounded-lg bg-[var(--accent)] px-6 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)]">
@@ -503,7 +503,7 @@ export default function AdminCuponesPage() {
                         {expired ? <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-700">Expirado</span> :
                          notStarted ? <span className="rounded-full bg-yellow-100 px-2 py-0.5 text-xs text-yellow-700">Próximo</span> :
                          c.isActive ? <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">Activo</span> :
-                         <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">Inactivo</span>}
+                         <span className="rounded-full bg-[var(--surface)] px-2 py-0.5 text-xs text-[color:var(--muted)]">Inactivo</span>}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
@@ -547,27 +547,27 @@ export default function AdminCuponesPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Código *</label>
-                  <input name="code" value={memberForm.code} onChange={handleMemberChange} placeholder="MIEMBRESIA20" required className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm uppercase" />
+                  <input aria-label="Código *" name="code" value={memberForm.code} onChange={handleMemberChange} placeholder="MIEMBRESIA20" required className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm uppercase" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Membresía *</label>
-                  <select name="plan" value={memberForm.plan} onChange={handleMemberChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm">
+                  <select aria-label="Membresía *" name="plan" value={memberForm.plan} onChange={handleMemberChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm">
                     <option value="MEMBER">Vende+ ({formatMoney(MEMBERSHIP_PRICE, "MXN")})</option>
                     <option value="SOLO_DELIVERY">Solo Delivery ({formatMoney(SOLO_DELIVERY_PRICE, "MXN")})</option>
                   </select>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Tipo *</label>
-                  <select name="discountType" value={memberForm.discountType} onChange={handleMemberChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm">
+                  <select aria-label="Tipo *" name="discountType" value={memberForm.discountType} onChange={handleMemberChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm">
                     <option value="PERCENTAGE">% Porcentaje</option>
                     <option value="FIXED">$ Monto fijo</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">
+                  <label htmlFor="al567" className="block text-xs font-medium text-[color:var(--muted)] mb-1">
                     {memberForm.discountType === "PERCENTAGE" ? "Porcentaje (1-100) *" : "Monto a descontar ($) *"}
                   </label>
-                  <input name="discountValue" type="number" min="1" max={memberForm.discountType === "PERCENTAGE" ? 100 : undefined}
+                  <input id="al567" name="discountValue" type="number" min="1" max={memberForm.discountType === "PERCENTAGE" ? 100 : undefined}
                     value={memberForm.discountValue || ""} onChange={handleMemberChange} required
                     className={`w-full rounded-lg border px-3 py-2 text-sm ${memberForm.discountType === "PERCENTAGE" ? "border-amber-400 bg-amber-50 dark:bg-amber-900/20" : "border-[var(--border)] bg-[var(--background)]"}`} />
                   {memberForm.discountValue > 0 && (
@@ -580,22 +580,22 @@ export default function AdminCuponesPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Usos máximos</label>
-                  <input name="maxUses" type="number" min="1" value={memberForm.maxUses} onChange={handleMemberChange} placeholder="Sin límite" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                  <input aria-label="Usos máximos" name="maxUses" type="number" min="1" value={memberForm.maxUses} onChange={handleMemberChange} placeholder="Sin límite" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Usos máximos por tienda</label>
-                  <input name="maxUsesPerStore" type="number" min="1" value={memberForm.maxUsesPerStore || ""} onChange={handleMemberChange} placeholder="Sin límite" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                  <input aria-label="Usos máximos por tienda" name="maxUsesPerStore" type="number" min="1" value={memberForm.maxUsesPerStore || ""} onChange={handleMemberChange} placeholder="Sin límite" className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
                 </div>
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-2">Usuarios específicos <span className="text-[color:var(--muted)]">(opcional — vacío = todos los usuarios)</span></label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto rounded-lg border border-[var(--border)] p-2">
                     {users.length === 0 && <p className="text-xs text-[color:var(--muted)] col-span-3">Cargando usuarios...</p>}
                     {users.map((u) => (
-                      <label key={u.id} className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer transition-all ${memberForm.userIds.includes(u.id) ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300" : "border-[var(--border)] hover:border-gray-300"}`}>
+                      <label key={u.id} className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer transition-all ${memberForm.userIds.includes(u.id) ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300" : "border-[var(--border)] hover:border-[var(--border)]"}`}>
                         <input type="checkbox" checked={memberForm.userIds.includes(u.id)} onChange={() => toggleMemberUserId(u.id)} className="sr-only" />
-                        <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${memberForm.userIds.includes(u.id) ? "border-emerald-500 bg-emerald-500" : "border-gray-300"}`}>
+                        <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${memberForm.userIds.includes(u.id) ? "border-emerald-500 bg-emerald-500" : "border-[var(--border)]"}`}>
                           {memberForm.userIds.includes(u.id) && (
-                            <svg className="h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                            <svg aria-hidden="true" className="h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                           )}
                         </span>
                         <span className="truncate">{u.name || u.email}</span>
@@ -611,25 +611,25 @@ export default function AdminCuponesPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Usuarios registrados antes de</label>
-                  <input name="userRegisteredBefore" type="date" value={memberForm.userRegisteredBefore} onChange={handleMemberChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                  <input aria-label="Usuarios registrados antes de" name="userRegisteredBefore" type="date" value={memberForm.userRegisteredBefore} onChange={handleMemberChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
                   <p className="mt-0.5 text-xs text-[color:var(--muted)]">Solo usuarios con cuenta antes de esta fecha</p>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Tiendas creadas antes de</label>
-                  <input name="storeCreatedBefore" type="date" value={memberForm.storeCreatedBefore} onChange={handleMemberChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                  <input aria-label="Tiendas creadas antes de" name="storeCreatedBefore" type="date" value={memberForm.storeCreatedBefore} onChange={handleMemberChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
                   <p className="mt-0.5 text-xs text-[color:var(--muted)]">Solo tiendas registradas antes de esta fecha</p>
                 </div>
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Descripción (interna)</label>
-                  <input name="description" value={memberForm.description} onChange={handleMemberChange} placeholder="Ej: Descuento para nuevos vendors" maxLength={200} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                  <input aria-label="Ej: Descuento para nuevos vendors" name="description" value={memberForm.description} onChange={handleMemberChange} placeholder="Ej: Descuento para nuevos vendors" maxLength={200} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Válido desde</label>
-                  <input name="startsAt" type="datetime-local" value={memberForm.startsAt} onChange={handleMemberChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                  <input aria-label="Válido desde" name="startsAt" type="datetime-local" value={memberForm.startsAt} onChange={handleMemberChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-[color:var(--muted)] mb-1">Válido hasta</label>
-                  <input name="expiresAt" type="datetime-local" value={memberForm.expiresAt} onChange={handleMemberChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
+                  <input aria-label="Válido hasta" name="expiresAt" type="datetime-local" value={memberForm.expiresAt} onChange={handleMemberChange} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm" />
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -704,7 +704,7 @@ export default function AdminCuponesPage() {
                         {expired ? <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-700">Expirado</span> :
                          notStarted ? <span className="rounded-full bg-yellow-100 px-2 py-0.5 text-xs text-yellow-700">Próximo</span> :
                          c.isActive ? <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">Activo</span> :
-                         <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">Inactivo</span>}
+                         <span className="rounded-full bg-[var(--surface)] px-2 py-0.5 text-xs text-[color:var(--muted)]">Inactivo</span>}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">

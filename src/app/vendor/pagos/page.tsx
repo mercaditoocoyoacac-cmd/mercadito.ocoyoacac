@@ -261,7 +261,7 @@ export default function PaymentMethodsPage() {
                   </div>
                 </div>
               </div>
-              <svg
+              <svg aria-hidden="true"
                 className={`h-5 w-5 text-[color:var(--muted)] transition-transform ${
                   expanded === m.id ? "rotate-180" : ""
                 }`}

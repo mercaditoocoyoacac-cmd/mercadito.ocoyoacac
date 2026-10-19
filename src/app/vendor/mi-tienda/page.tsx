@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 
 const LocationPicker = dynamic(
   () => import("@/components/maps/LocationPicker"),
-  { ssr: false, loading: () => <div className="h-64 w-full bg-gray-100 animate-pulse rounded-xl" /> }
+  { ssr: false, loading: () => <div className="h-64 w-full bg-[var(--surface)] animate-pulse rounded-xl" /> }
 );
 
 interface Store {
@@ -245,6 +245,7 @@ export default function EditarTiendaPage() {
           <div className="text-sm font-medium">Logo o imagen de la tienda</div>
           <div className="flex items-center gap-4">
             <input
+              aria-label="Logo o imagen de la tienda"
               ref={fileInputRef}
               type="file"
               accept="image/jpeg,image/png,image/webp,image/gif"
@@ -339,9 +340,9 @@ export default function EditarTiendaPage() {
           </label>
         </div>
 
-        <div className="rounded-xl border border-[var(--border)] bg-white p-5 shadow-sm">
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-5 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
-            <svg className="h-5 w-5 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className="h-5 w-5 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
@@ -357,7 +358,7 @@ export default function EditarTiendaPage() {
           />
           {latitude && longitude && (
             <p className="mt-1.5 flex items-center gap-1 text-xs text-green-600 font-medium">
-              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg aria-hidden="true" className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
               </svg>
               Ubicación guardada
@@ -365,9 +366,9 @@ export default function EditarTiendaPage() {
           )}
         </div>
 
-        <div className="rounded-xl border border-[var(--border)] bg-white p-5 shadow-sm">
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-5 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
-            <svg className="h-5 w-5 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className="h-5 w-5 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div className="text-sm font-semibold">Horario de atención</div>
@@ -416,7 +417,7 @@ export default function EditarTiendaPage() {
                       className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                         isActive
                           ? "bg-[var(--accent)] text-white"
-                          : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                          : "bg-[var(--surface)] text-[color:var(--muted)] hover:bg-[var(--surface-2)]"
                       }`}
                     >
                       {day.label.slice(0, 3)}
@@ -433,23 +434,25 @@ export default function EditarTiendaPage() {
                 key={day.key}
                 className={`flex items-center justify-between rounded-lg border p-3 ${
                   scheduleMode === "daily" && !scheduleDetails.days[day.key]?.active
-                    ? "border-dashed border-gray-300 opacity-60"
-                    : "border-gray-200"
+                    ? "border-dashed border-[var(--border)] opacity-60"
+                    : "border-[var(--border)]"
                 }`}
               >
                 <div className="flex items-center gap-2">
                   {scheduleMode === "daily" && (
                     <input
+                      aria-label={`Activar ${day.label}`}
                       type="checkbox"
                       checked={scheduleDetails.days[day.key]?.active ?? false}
                       onChange={() => toggleDay(day.key)}
-                      className="h-4 w-4 rounded border-gray-300 text-[var(--accent)]"
+                      className="h-4 w-4 rounded border-[var(--border)] text-[var(--accent)]"
                     />
                   )}
                   <span className="text-sm font-medium">{day.label}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <input
+                    aria-label={`Hora de inicio de ${day.label}`}
                     type="time"
                     value={scheduleDetails.days[day.key]?.start ?? "09:00"}
                     onChange={e => updateDaySchedule(day.key, { start: e.target.value })}
@@ -458,6 +461,7 @@ export default function EditarTiendaPage() {
                   />
                   <span className="text-xs text-[color:var(--muted)]">a</span>
                   <input
+                    aria-label={`Hora de fin de ${day.label}`}
                     type="time"
                     value={scheduleDetails.days[day.key]?.end ?? "18:00"}
                     onChange={e => updateDaySchedule(day.key, { end: e.target.value })}

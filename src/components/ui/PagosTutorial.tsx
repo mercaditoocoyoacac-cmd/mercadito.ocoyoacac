@@ -98,7 +98,7 @@ export function PagosTutorial({ show }: { show: boolean }) {
         ))}
       </div>
 
-      <div className="rounded-lg border border-purple-100 bg-white p-3">
+      <div className="rounded-lg border border-purple-100 bg-[var(--card-bg)] p-3">
         <div className="flex items-start gap-2">
           <span className="mt-0.5 text-lg">{current.icon}</span>
           <div className="min-w-0">

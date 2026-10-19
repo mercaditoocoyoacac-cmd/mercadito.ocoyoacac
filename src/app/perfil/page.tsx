@@ -306,13 +306,13 @@ export default function ProfilePage() {
             <Card key={o.id} variant={o.arrivedAt && o.status === "OUT_FOR_DELIVERY" ? "elevated" : "outlined"} className={o.arrivedAt && o.status === "OUT_FOR_DELIVERY" ? "border-orange-300 bg-orange-50 shadow-lg" : "border-orange-200 bg-orange-50"}>
               <CardContent className="p-6 text-center">
                 <div className="text-3xl mb-2">{o.arrivedAt ? "🛵" : "📦"}</div>
-                <div className="text-base font-bold text-gray-900">
+                <div className="text-base font-bold text-[color:var(--text)]">
                   {o.arrivedAt ? "¡El repartidor está en camino a entregarte!" : "Pedido listo en " + o.store.name}
                 </div>
-                <div className="mt-3 inline-block rounded-xl bg-white px-6 py-3 shadow-inner">
-                  <div className="font-mono text-4xl font-bold tracking-[0.25em] text-gray-900">{o.pickupCode}</div>
+                <div className="mt-3 inline-block rounded-xl bg-[var(--card-bg)] px-6 py-3 shadow-inner">
+                  <div className="font-mono text-4xl font-bold tracking-[0.25em] text-[color:var(--text)]">{o.pickupCode}</div>
                 </div>
-                <div className="mt-2 text-xs text-gray-500">
+                <div className="mt-2 text-xs text-[color:var(--muted)]">
                   {o.arrivedAt ? "Proporciona este código al repartidor" : "Proporciona este código al recoger en tienda"}
                 </div>
                 <Link href={`/mis-pedidos/${o.id}`} className="mt-3 inline-block text-xs text-[var(--accent)] hover:underline">
@@ -381,7 +381,7 @@ export default function ProfilePage() {
                   type="email"
                   value={profile.email}
                   disabled
-                  className="flex-1 bg-gray-50 text-gray-500"
+                  className="flex-1 bg-[var(--surface)] text-[color:var(--muted)]"
                 />
                 {!profile.emailVerified && (
                   <Button 
@@ -468,7 +468,7 @@ export default function ProfilePage() {
               </div>
               {location && (
                 <p className="mt-2 text-xs text-green-600 flex items-center gap-1">
-                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+                  <svg aria-hidden="true" className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
                   Ubicación seleccionada
                 </p>
               )}
@@ -480,7 +480,7 @@ export default function ProfilePage() {
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="font-medium">Direcciones guardadas</h4>
                   <Button variant="ghost" size="sm" onClick={handleAddAddress} leftIcon={
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                    <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
                   }>
                     Agregar actual
                   </Button>
