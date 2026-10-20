@@ -613,17 +613,17 @@ export default function CarritoPage() {
         )}
 
         {!modifyingOrder && activeOrder && (
-          <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 px-5 py-4">
+          <div className="mb-6 rounded-xl border border-[var(--warning)]/40 bg-[var(--warning-soft)] px-5 py-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-3">
               <div className="flex-1">
-                <div className="text-sm font-semibold text-amber-800">
+                <div className="text-sm font-semibold text-[color:var(--warning)]">
                   Ya tienes un pedido activo en {activeOrder.storeName}
                 </div>
-                <div className="mt-1 text-sm text-amber-700">
+                <div className="mt-1 text-sm text-[color:var(--warning)]">
                   Solo puedes tener un pedido a la vez. Modifícalo o cancélalo antes de crear otro.
                 </div>
               </div>
-              <a href={`/pedido/${activeOrder.id}`} className="shrink-0 rounded-lg border border-amber-300 bg-[var(--card-bg)] px-3 py-1.5 text-xs font-medium text-amber-800 hover:bg-amber-100">
+              <a href={`/pedido/${activeOrder.id}`} className="shrink-0 rounded-lg border border-[var(--warning)]/40 bg-[var(--card-bg)] px-3 py-1.5 text-xs font-medium text-[color:var(--warning)] hover:bg-[var(--warning-soft)]">
                 Ver pedido
               </a>
             </div>
@@ -788,7 +788,7 @@ export default function CarritoPage() {
                       {couponError && (
                         <div className="mt-1.5 rounded-lg bg-red-50 border border-red-200 px-3 py-2">
                           <div className="flex items-center gap-1.5 text-xs text-red-700">
-                            <span className={`inline-flex h-2 w-2 rounded-full ${couponStatus === "inactive" ? "bg-red-500" : "bg-gray-400"}`} />
+                            <span className={`inline-flex h-2 w-2 rounded-full ${couponStatus === "inactive" ? "bg-[var(--danger)]" : "bg-[var(--muted)]"}`} />
                             <span className="font-medium">{couponStatus === "inactive" ? "Inactivo" : "Error"}</span>
                             <span>— {couponError}</span>
                           </div>

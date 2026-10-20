@@ -33,9 +33,9 @@ const roleLabels: Record<RoleOption, { title: string; desc: string }> = {
 };
 
 const roleColors: Record<RoleOption, { border: string; bg: string }> = {
-  CUSTOMER: { border: "border-rose-500", bg: "bg-rose-50" },
-  VENDOR: { border: "border-emerald-500", bg: "bg-emerald-50" },
-  DELIVERY: { border: "border-orange-500", bg: "bg-orange-50" },
+  CUSTOMER: { border: "border-rose-500", bg: "bg-[var(--danger-soft)]" },
+  VENDOR: { border: "border-emerald-500", bg: "bg-[var(--success-soft)]" },
+  DELIVERY: { border: "border-orange-500", bg: "bg-[var(--info-soft)]" },
 };
 
 const roleRedirects: Record<RoleOption, string> = {
@@ -229,7 +229,7 @@ export default function RegistroPage() {
                 })}
               </div>
               {error && step === 0 && (
-                <div className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-700" role="alert">
+                <div className="mt-4 rounded-lg border border-[var(--danger)]/30 bg-[var(--danger-soft)] px-4 py-3 text-sm text-[color:var(--danger)]" role="alert">
                   {error}
                 </div>
               )}

@@ -40,10 +40,11 @@ export default async function VendorDashboard() {
   if (!store) {
     return (
       <main className="flex-1">
-        <section className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-700 px-4 py-20 text-white">
+        <section className="relative overflow-hidden bg-[var(--navy)] px-4 py-20 text-white">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,var(--accent),transparent_65%)] opacity-40" />
           <div className="absolute inset-0 opacity-10">
-            <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-[var(--card-bg)] blur-3xl"></div>
-            <div className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-[var(--card-bg)] blur-3xl"></div>
+            <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-white blur-3xl"></div>
+            <div className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-white blur-3xl"></div>
           </div>
           
           <div className="relative mx-auto max-w-4xl text-center">
@@ -63,7 +64,7 @@ export default async function VendorDashboard() {
             <div className="mt-8">
               <Link
                 href="/vendor/onboarding"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--card-bg)] px-8 py-4 text-base font-semibold text-emerald-700 shadow-lg transition-transform hover:scale-105 hover:bg-yellow-50"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--card-bg)] px-8 py-4 text-base font-semibold text-[var(--brand)] shadow-lg transition-transform hover:scale-105 hover:bg-[var(--surface)]"
               >
                 <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -116,8 +117,9 @@ export default async function VendorDashboard() {
   if (trialUsed && trialExpired && !subscriptionActive) {
     return (
       <main className="flex-1">
-        <section className="bg-gradient-to-br from-red-600 via-red-700 to-rose-700 px-4 py-20 text-white">
-          <div className="mx-auto max-w-2xl text-center">
+        <section className="relative overflow-hidden bg-[var(--navy)] px-4 py-20 text-white">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--danger),transparent_65%)] opacity-30" />
+          <div className="relative mx-auto max-w-2xl text-center">
             <h1 className="text-3xl font-bold">Período de prueba finalizado</h1>
             <p className="mt-4 text-lg text-white/90">
               Ya utilizaste tu prueba gratuita de 30 días.
@@ -128,7 +130,7 @@ export default async function VendorDashboard() {
             <div className="mt-8 flex justify-center gap-4">
               <Link
                 href="/vendor/membresia"
-                className="inline-block rounded-lg bg-[var(--card-bg)] px-6 py-3 text-lg font-semibold text-red-700 hover:bg-[var(--surface)]"
+                className="inline-block rounded-lg bg-[var(--card-bg)] px-6 py-3 text-lg font-semibold text-[color:var(--danger)] hover:bg-[var(--surface)]"
               >
                 Ver membresía
               </Link>
@@ -202,12 +204,12 @@ export default async function VendorDashboard() {
       <PullToRefreshWrapper>
       <main className="flex-1 fade-in">
       {totalProducts === 0 ? (
-        <div className="mx-4 mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-4">
+        <div className="mx-4 mt-4 rounded-lg border border-[var(--warning)]/30 bg-[var(--warning-soft)] px-4 py-4">
           <div className="flex items-start gap-3">
             <span className="mt-0.5 text-xl">📢</span>
             <div className="flex-1">
-              <div className="font-medium text-amber-800">No tienes productos aún</div>
-              <div className="mt-1 text-sm text-amber-700">
+              <div className="font-medium text-[color:var(--warning)]">No tienes productos aún</div>
+              <div className="mt-1 text-sm text-[color:var(--warning)]">
                 Los clientes no pueden comprarte si no ven productos.{ " " }
                 <Link href="/vendor/productos/nuevo" className="font-semibold underline hover:no-underline">
                   Agrega tu primer producto ahora
@@ -217,19 +219,19 @@ export default async function VendorDashboard() {
             </div>
             <Link
               href="/vendor/productos/nuevo"
-              className="shrink-0 rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700"
+              className="shrink-0 rounded-lg border border-[var(--warning)] px-4 py-2 text-sm font-medium text-[color:var(--warning)] hover:bg-[var(--warning-soft)]"
             >
               Agregar
             </Link>
           </div>
         </div>
       ) : totalProducts < 5 ? (
-        <div className="mx-4 mt-4 rounded-lg border border-blue-500/30 bg-blue-500/10 px-4 py-4">
+        <div className="mx-4 mt-4 rounded-lg border border-[var(--info)]/30 bg-[var(--info-soft)] px-4 py-4">
           <div className="flex items-start gap-3">
             <span className="mt-0.5 text-xl">💡</span>
             <div className="flex-1">
-              <div className="font-medium text-blue-800">Tienes solo {totalProducts} producto{totalProducts === 1 ? "" : "s"}</div>
-              <div className="mt-1 text-sm text-blue-700">
+              <div className="font-medium text-[color:var(--info)]">Tienes solo {totalProducts} producto{totalProducts === 1 ? "" : "s"}</div>
+              <div className="mt-1 text-sm text-[color:var(--info)]">
                 Las tiendas con más productos generan hasta 3x más ventas.{" "}
                 <Link href="/vendor/productos/nuevo" className="font-semibold underline hover:no-underline">
                   Agrega más productos
@@ -239,7 +241,7 @@ export default async function VendorDashboard() {
             </div>
             <Link
               href="/vendor/productos/nuevo"
-              className="shrink-0 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              className="shrink-0 rounded-lg border border-[var(--info)] px-4 py-2 text-sm font-medium text-[color:var(--info)] hover:bg-[var(--info-soft)]"
             >
               Agregar
             </Link>
@@ -248,16 +250,16 @@ export default async function VendorDashboard() {
       ) : null}
 
       {(!subscriptionActive || isTrial) && (
-        <div className={`mx-4 mt-4 rounded-lg border px-4 py-3 ${isTrial ? "border-emerald-500/30 bg-emerald-500/10" : "border-yellow-500/30 bg-yellow-500/10"}`}>
+        <div className={`mx-4 mt-4 rounded-lg border px-4 py-3 ${isTrial ? "border-[var(--success)]/30 bg-[var(--success-soft)]" : "border-[var(--warning)]/30 bg-[var(--warning-soft)]"}`}>
           <div className="flex items-center gap-3">
-            <svg aria-hidden="true" className={`h-5 w-5 ${isTrial ? "text-emerald-600" : "text-yellow-600"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className={`h-5 w-5 ${isTrial ? "text-[var(--success)]" : "text-[var(--warning)]"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isTrial ? "M13 10V3L4 14h7v7l9-11h-7z" : "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"} />
             </svg>
             <div>
-              <div className={`font-medium ${isTrial ? "text-emerald-800" : "text-yellow-800"}`}>
+              <div className={`font-medium ${isTrial ? "text-[color:var(--success)]" : "text-[color:var(--warning)]"}`}>
                 {isTrial ? "Prueba gratuita activa" : "Membresía inactiva"}
               </div>
-              <div className={`text-sm ${isTrial ? "text-emerald-700" : "text-yellow-700"}`}>
+              <div className={`text-sm ${isTrial ? "text-[color:var(--success)]" : "text-[color:var(--warning)]"}`}>
                 {isTrial
                   ? `Tu prueba termina el ${formatDateInMexico(store.subscription!.endDate, { day: "numeric", month: "long" })}. Adquiere una membresía (Solo Delivery o Vende+) para continuar.`
                   : "Tu tienda no está visible. Contacta al admin para activar."}
@@ -268,27 +270,27 @@ export default async function VendorDashboard() {
       )}
 
       {!subscriptionActive && (
-        <div className="mx-4 mt-4 overflow-hidden rounded-2xl border border-amber-300/50 bg-gradient-to-r from-amber-50 via-yellow-50 to-orange-50 shadow-sm">
+        <div className="mx-4 mt-4 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">
           <div className="flex flex-col sm:flex-row items-center gap-4 p-5">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-amber-400/30">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[var(--gold)]">
               <span className="text-2xl">⭐</span>
             </div>
             <div className="flex-1 text-center sm:text-left">
               <div className="flex items-center justify-center sm:justify-start gap-2">
-                <h3 className="text-base font-bold text-amber-900">Desbloquea una membresía</h3>
-                <span className="inline-flex items-center rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-700">Premium</span>
+                <h3 className="text-base font-bold">Desbloquea una membresía</h3>
+                <span className="inline-flex items-center rounded-full bg-[var(--gold)]/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[color:var(--gold)]">Premium</span>
               </div>
-              <p className="mt-1 text-sm text-amber-800/80">
+              <p className="mt-1 text-sm text-[color:var(--muted)]">
                 Envíos a domicilio, promociones, pagos en línea y más. Desde $299/mes con Solo Delivery.
               </p>
-              <div className="mt-2 flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1 text-xs text-amber-700/70">
-                <span className="flex items-center gap-1"><span className="text-amber-500">✓</span> Envío a domicilio</span>
-                <span className="flex items-center gap-1"><span className="text-amber-500">✓</span> Promociones</span>
-                <span className="flex items-center gap-1"><span className="text-amber-500">✓</span> Pagos en línea</span>
-                <span className="flex items-center gap-1"><span className="text-amber-500">✓</span> Push</span>
+              <div className="mt-2 flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1 text-xs text-[color:var(--muted)]">
+                <span className="flex items-center gap-1"><span className="text-[var(--gold)]">✓</span> Envío a domicilio</span>
+                <span className="flex items-center gap-1"><span className="text-[var(--gold)]">✓</span> Promociones</span>
+                <span className="flex items-center gap-1"><span className="text-[var(--gold)]">✓</span> Pagos en línea</span>
+                <span className="flex items-center gap-1"><span className="text-[var(--gold)]">✓</span> Push</span>
               </div>
             </div>
-            <a href="/vendor/membresia" className="shrink-0 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-amber-500/25 transition-all hover:shadow-xl hover:shadow-amber-500/30 hover:scale-[1.02] active:scale-[0.98]">
+            <a href="/vendor/membresia" className="shrink-0 rounded-xl bg-[var(--accent)] px-6 py-3 text-sm font-bold text-[var(--on-accent)] shadow-sm transition-colors hover:bg-[var(--accent-hover)]">
               Ver planes →
             </a>
           </div>
@@ -296,37 +298,38 @@ export default async function VendorDashboard() {
       )}
 
       {(store.plan === "MEMBER" || store.plan === "SOLO_DELIVERY") && subscriptionActive && (
-        <div className="mx-4 mt-4 overflow-hidden rounded-2xl border border-amber-300/40 bg-gradient-to-r from-amber-50/80 via-yellow-50/60 to-orange-50/80 shadow-sm">
+        <div className="mx-4 mt-4 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">
           <div className="flex flex-col sm:flex-row items-center gap-4 p-5">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-500 shadow-lg shadow-amber-400/30">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[var(--gold)]">
               <span className="text-2xl">👑</span>
             </div>
             <div className="flex-1 text-center sm:text-left">
               <div className="flex items-center justify-center sm:justify-start gap-2">
-                <h3 className="text-base font-bold text-amber-900">{membershipPlanLabel(store.plan)} Activa</h3>
-                <span className="inline-flex items-center rounded-full bg-green-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-green-700">Activa</span>
+                <h3 className="text-base font-bold">{membershipPlanLabel(store.plan)} Activa</h3>
+                <span className="inline-flex items-center rounded-full bg-[var(--success-soft)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[color:var(--success)]">Activa</span>
               </div>
-              <p className="mt-1 text-sm text-amber-800/80">
+              <p className="mt-1 text-sm text-[color:var(--muted)]">
                 Tu membresía está activa. Disfruta de todos los beneficios.
               </p>
-              <div className="mt-2 flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1 text-xs text-amber-700/70">
-                <span className="flex items-center gap-1"><span className="text-green-500">✓</span> Envío a domicilio</span>
-                <span className="flex items-center gap-1"><span className="text-green-500">✓</span> Promociones</span>
-                <span className="flex items-center gap-1"><span className="text-green-500">✓</span> Pagos en línea</span>
-                <span className="flex items-center gap-1"><span className="text-green-500">✓</span> Push</span>
+              <div className="mt-2 flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1 text-xs text-[color:var(--muted)]">
+                <span className="flex items-center gap-1"><span className="text-[var(--success)]">✓</span> Envío a domicilio</span>
+                <span className="flex items-center gap-1"><span className="text-[var(--success)]">✓</span> Promociones</span>
+                <span className="flex items-center gap-1"><span className="text-[var(--success)]">✓</span> Pagos en línea</span>
+                <span className="flex items-center gap-1"><span className="text-[var(--success)]">✓</span> Push</span>
               </div>
             </div>
-            <a href="/vendor/membresia" className="shrink-0 rounded-xl border-2 border-amber-400/50 bg-white/80 px-5 py-2.5 text-sm font-semibold text-amber-700 transition-all hover:bg-amber-50 hover:border-amber-400 active:scale-[0.98]">
+            <a href="/vendor/membresia" className="shrink-0 rounded-xl border-2 border-[var(--border)] bg-[var(--card-bg)] px-5 py-2.5 text-sm font-semibold transition-colors hover:border-[var(--accent)]/40 hover:bg-[var(--surface)]">
               Gestionar
             </a>
           </div>
         </div>
       )}
 
-      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-700 px-4 py-12 text-white">
+      <section className="relative overflow-hidden bg-[var(--navy)] px-4 py-12 text-white">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,var(--accent),transparent_65%)] opacity-40" />
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-[var(--card-bg)] blur-3xl"></div>
-          <div className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-[var(--card-bg)] blur-3xl"></div>
+          <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-white blur-3xl"></div>
+          <div className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-white blur-3xl"></div>
         </div>
         
         <div className="relative mx-auto max-w-6xl">
@@ -335,7 +338,7 @@ export default async function VendorDashboard() {
               <div className="inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-1.5 text-sm font-medium backdrop-blur-sm">
                 🏪 {store.name}
                 {subscriptionActive && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-400/30 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
                     👑 {membershipPlanLabel(store.plan)}
                   </span>
                 )}
@@ -353,7 +356,7 @@ export default async function VendorDashboard() {
               )}
               <Link
                 href={`/tienda/${store.slug}`}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--card-bg)] px-6 py-3 font-semibold text-emerald-700 shadow-lg hover:bg-yellow-50"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--card-bg)] px-6 py-3 font-semibold text-[var(--brand)] shadow-lg hover:bg-[var(--surface)]"
               >
                 <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -389,14 +392,14 @@ export default async function VendorDashboard() {
           <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-6 shadow-sm">
             <div className="text-sm text-[color:var(--muted)]"> Productos</div>
             <div className="mt-1 text-3xl font-bold">{totalProducts}</div>
-            <div className="mt-1 text-xs text-green-600">
+            <div className="mt-1 text-xs text-[var(--success)]">
               {activeProducts} activos
             </div>
           </div>
           <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-6 shadow-sm">
             <div className="text-sm text-[color:var(--muted)]">Pedidos</div>
             <div className="mt-1 text-3xl font-bold">{totalOrders}</div>
-            <div className="mt-1 text-xs text-yellow-600">
+            <div className="mt-1 text-xs text-[var(--warning)]">
               {pendingOrders} pendientes
             </div>
           </div>
@@ -411,7 +414,7 @@ export default async function VendorDashboard() {
           </div>
           <Link
             href="/vendor/pagos"
-            className={`block rounded-xl border p-6 shadow-sm transition hover:shadow-md ${store.paymentMethods.length > 0 ? "border-green-500 bg-green-50" : "border-yellow-500/50 bg-yellow-50"}`}
+            className={`block rounded-xl border p-6 shadow-sm transition hover:shadow-md ${store.paymentMethods.length > 0 ? "border-[var(--success)]/50 bg-[var(--success-soft)]" : "border-[var(--warning)]/50 bg-[var(--warning-soft)]"}`}
           >
             <div className="text-sm text-[color:var(--muted)]">Pago con tarjeta</div>
             <div className="mt-1 text-2xl font-bold">
@@ -427,7 +430,7 @@ export default async function VendorDashboard() {
             <div className="text-sm text-[color:var(--muted)]">Calificación</div>
             <div className="mt-1 text-3xl font-bold">
               {avgStoreRating ? (
-                <span className="text-yellow-500">{avgStoreRating} ★</span>
+                <span className="text-[var(--gold)]">{avgStoreRating} ★</span>
               ) : (
                 "—"
               )}
@@ -438,7 +441,7 @@ export default async function VendorDashboard() {
           </div>
           <Link
             href="/delivery/registro"
-            className={`block rounded-xl border p-6 shadow-sm transition hover:shadow-md ${hasDeliveryAccess ? "border-orange-300 bg-orange-50" : "border-[var(--border)] bg-[var(--card-bg)]"}`}
+            className={`block rounded-xl border p-6 shadow-sm transition hover:shadow-md ${hasDeliveryAccess ? "border-[var(--info)]/40 bg-[var(--info-soft)]" : "border-[var(--border)] bg-[var(--card-bg)]"}`}
           >
             <div className="text-sm text-[color:var(--muted)]">Repartidor</div>
             <div className="mt-1 text-2xl font-bold">
@@ -456,7 +459,7 @@ export default async function VendorDashboard() {
           <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)]">
             <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
               <h2 className="font-semibold">Productos recientes</h2>
-              <Link href="/vendor/productos" className="text-sm text-emerald-600 hover:underline">
+              <Link href="/vendor/productos" className="text-sm text-[color:var(--accent)] hover:underline">
                 Ver todos →
               </Link>
             </div>
@@ -464,7 +467,7 @@ export default async function VendorDashboard() {
               <div className="p-8 text-center">
                 <div className="text-4xl mb-2">📦</div>
                 <p className="text-[color:var(--muted)]">No tienes productos aún.</p>
-                <Link href="/vendor/productos/nuevo" className="mt-4 inline-block text-sm text-emerald-600 hover:underline">
+                <Link href="/vendor/productos/nuevo" className="mt-4 inline-block text-sm text-[color:var(--accent)] hover:underline">
                   Agregar primer producto →
                 </Link>
               </div>
@@ -487,7 +490,7 @@ export default async function VendorDashboard() {
                         {formatMoney(product.priceCents, product.currency)}
                       </div>
                     </div>
-                    <div className={`text-xs px-2 py-1 rounded-full ${product.isActive ? "bg-green-100 text-green-700" : "bg-[var(--surface)] text-[color:var(--muted)]"}`}>
+                      <div className={`text-xs px-2 py-1 rounded-full ${product.isActive ? "bg-[var(--success-soft)] text-[color:var(--success)]" : "bg-[var(--surface)] text-[color:var(--muted)]"}`}>
                       {product.isActive ? "Activo" : "Inactivo"}
                     </div>
                   </div>
@@ -499,7 +502,7 @@ export default async function VendorDashboard() {
           <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)]">
             <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
               <h2 className="font-semibold">Pedidos recientes</h2>
-              <Link href="/vendor/pedidos" className="text-sm text-emerald-600 hover:underline">
+              <Link href="/vendor/pedidos" className="text-sm text-[color:var(--accent)] hover:underline">
                 Ver todos →
               </Link>
             </div>
@@ -521,9 +524,9 @@ export default async function VendorDashboard() {
                     <div className="text-right">
                       <div className="font-medium">{formatMoney(order.subtotalCents, order.currency || "MXN")}</div>
                       <div className={`text-xs ${
-                        order.status === "PENDING" ? "text-yellow-600" :
-                        order.status === "COMPLETED" ? "text-green-600" :
-                        "text-blue-600"
+                        order.status === "PENDING" ? "text-[var(--warning)]" :
+                        order.status === "COMPLETED" ? "text-[var(--success)]" :
+                        "text-[var(--info)]"
                       }`}>
                         {order.status === "PENDING" ? "⏳ Pendiente" :
                          order.status === "CONFIRMED" ? "✓ Confirmado" :
@@ -546,7 +549,7 @@ export default async function VendorDashboard() {
                             revalidatePath(`/vendor/pedidos/${order.id}`);
                           }}
                         >
-                          <button className="mt-1 rounded-lg bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700">
+                          <button className="mt-1 rounded-lg bg-[var(--accent)] px-3 py-1 text-xs font-medium text-[var(--on-accent)] hover:bg-[var(--accent-hover)]">
                             Confirmar
                           </button>
                         </form>
@@ -565,7 +568,7 @@ export default async function VendorDashboard() {
                             revalidatePath(`/vendor/pedidos/${order.id}`);
                           }}
                         >
-                          <button className="mt-1 rounded-lg bg-yellow-600 px-3 py-1 text-xs font-medium text-white hover:bg-yellow-700">
+                          <button className="mt-1 rounded-lg bg-[var(--accent)] px-3 py-1 text-xs font-medium text-[var(--on-accent)] hover:bg-[var(--accent-hover)]">
                             Marcar listo
                           </button>
                         </form>

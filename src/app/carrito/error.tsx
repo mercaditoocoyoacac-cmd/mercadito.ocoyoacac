@@ -15,7 +15,7 @@ export default function CarritoError({
       </p>
       <button
         onClick={() => reset()}
-        className="px-6 py-2 bg-black text-white rounded-lg hover:opacity-80 transition-opacity"
+        className="px-6 py-2 bg-[var(--accent)] text-[var(--on-accent)] rounded-lg hover:bg-[var(--accent-hover)] transition-colors"
       >
         Reintentar
       </button>
