@@ -19,12 +19,11 @@ export default async function AdminDashboard() {
   }
 
   const [
-    totalUsers, customerCount, vendorCount, deliveryCount,
+    customerCount, vendorCount, deliveryCount,
     totalStores, activeStores, totalProducts, totalOrders,
     pendingOrders, totalRevenue, activeSubscriptions,
     recentOrders,
   ] = await Promise.all([
-    prisma.user.count(),
     prisma.user.count({ where: { role: "CUSTOMER" } }),
     prisma.user.count({ where: { role: "VENDOR" } }),
     prisma.user.count({ where: { role: "DELIVERY" } }),
@@ -57,7 +56,7 @@ export default async function AdminDashboard() {
 
   const stats = {
     totals: {
-      totalUsers, customerCount, vendorCount, deliveryCount,
+      customerCount, vendorCount, deliveryCount,
       totalStores, activeStores, totalProducts, totalOrders, pendingOrders,
     },
     revenue: { totalCents: totalRevenue._sum.totalCents || 0 },
