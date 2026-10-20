@@ -27,7 +27,7 @@ const DeliveryOrderCard = memo(function DeliveryOrderCard({
   onComplete: (id: string) => void;
 }) {
   return (
-    <div className="rounded-xl border-2 border-orange-500 bg-orange-50 p-5 card-hover">
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-5 card-hover">
       <div className="flex items-start justify-between">
         <div>
           <div className="font-mono font-semibold">
@@ -44,7 +44,7 @@ const DeliveryOrderCard = memo(function DeliveryOrderCard({
       </div>
       {order.customerAddress && (
         <div className="mt-3 text-sm">
-          📍 {order.customerAddress}
+          {order.customerAddress}
         </div>
       )}
       {showMap && order.customerLat && order.customerLng && (
@@ -57,15 +57,15 @@ const DeliveryOrderCard = memo(function DeliveryOrderCard({
         </div>
       )}
       <div className="mt-4 space-y-2">
-        <div className="text-xs text-orange-600 font-medium">
+        <div className="text-xs text-[color:var(--muted)]">
           {order.status === "OUT_FOR_DELIVERY"
-            ? "Escanea el codigo QR para entregar"
+            ? "Escanea el código QR para entregar"
             : "Pedido listo para entregar"}
         </div>
         {order.status === "OUT_FOR_DELIVERY" && (
           <button
             onClick={() => onComplete(order.id)}
-            className="w-full rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
+            className="w-full rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--on-accent)] transition-colors hover:bg-[var(--accent-hover)]"
           >
             Confirmar entrega final
           </button>

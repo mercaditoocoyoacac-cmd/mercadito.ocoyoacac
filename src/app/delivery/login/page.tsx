@@ -132,7 +132,7 @@ export default function DeliveryLoginPage() {
         ) : null}
 
         {error ? (
-          <div className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700">
+          <div className="rounded-md border border-[var(--danger)] px-3 py-2 text-sm text-[var(--danger)]">
             {error}
           </div>
         ) : null}
@@ -140,7 +140,7 @@ export default function DeliveryLoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
+          className="w-full rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--on-accent)] hover:bg-[var(--accent-hover)] disabled:opacity-60"
         >
           {loading ? "Entrando..." : "Entrar"}
         </button>

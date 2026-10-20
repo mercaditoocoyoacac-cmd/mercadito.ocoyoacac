@@ -15,7 +15,7 @@ export default function DeliveryError({
       </p>
       <button
         onClick={() => reset()}
-        className="px-6 py-2 bg-black text-white rounded-lg hover:opacity-80 transition-opacity"
+        className="rounded-lg bg-[var(--accent)] px-6 py-2 text-[var(--on-accent)] transition-colors hover:bg-[var(--accent-hover)]"
       >
         Reintentar
       </button>

@@ -116,30 +116,30 @@ export default async function DeliveryDashboard() {
     <PullToRefreshWrapper>
     <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
       {pendingDocs.length > 0 && (
-        <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4">
+        <div className="mb-6 rounded-xl border border-[var(--warning)] p-4">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <div className="text-sm font-semibold text-amber-900">
+              <div className="text-sm font-semibold text-[var(--warning)]">
                 Te faltan documentos para repartir: {pendingDocs.join(", ")}
               </div>
-              <p className="mt-1 text-xs text-amber-800/80">
+              <p className="mt-1 text-xs text-[color:var(--muted)]">
                 Sube tus 4 documentos antes del <strong>15 de octubre de 2026</strong> o se retirará el
                 status de repartidor a tu cuenta.
               </p>
             </div>
             <Link
               href="/delivery/documentos"
-              className="shrink-0 rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600"
+              className="shrink-0 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--on-accent)] transition-colors hover:bg-[var(--accent-hover)]"
             >
               Subir documentos
             </Link>
           </div>
         </div>
       )}
-      <div className="mb-8 flex items-start justify-between">
+      <div className="mb-8 flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">
-            Panel de Repartidor
+            Panel de repartidor
           </h1>
           <p className="mt-1 text-sm text-[color:var(--muted)]">
             Bienvenido, {session.user.email}

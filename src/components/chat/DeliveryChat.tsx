@@ -84,7 +84,7 @@ export default function DeliveryChat({ orderId, currentUserId, currentUserRole }
           </svg>
           Chat con {currentUserRole === "DELIVERY" ? "el cliente" : "el repartidor"}
           {messages.length > 0 && (
-            <span className="rounded-full bg-[var(--accent)] px-1.5 py-0.5 text-xs text-white">{messages.length}</span>
+            <span className="rounded-full bg-[var(--accent)] px-1.5 py-0.5 text-xs text-[var(--on-accent)]">{messages.length}</span>
           )}
         </span>
         <svg aria-hidden="true"
@@ -112,12 +112,12 @@ export default function DeliveryChat({ orderId, currentUserId, currentUserRole }
                     <div
                       className={`max-w-[80%] rounded-xl px-3 py-2 text-sm ${
                         isMine
-                          ? "bg-[var(--accent)] text-white rounded-br-sm"
+                          ? "bg-[var(--accent)] text-[var(--on-accent)] rounded-br-sm"
                           : "bg-[var(--surface)] text-[color:var(--text)] rounded-bl-sm"
                       }`}
                     >
                       <p>{msg.message}</p>
-                      <p className={`mt-0.5 text-[10px] ${isMine ? "text-white/70" : "text-[color:var(--muted)]"}`}>
+                      <p className={`mt-0.5 text-[10px] ${isMine ? "text-[var(--on-accent)]/70" : "text-[color:var(--muted)]"}`}>
                         {new Date(msg.createdAt).toLocaleTimeString("es-MX", {
                           hour: "2-digit",
                           minute: "2-digit",
@@ -145,7 +145,7 @@ export default function DeliveryChat({ orderId, currentUserId, currentUserRole }
             <button
               onClick={sendMessage}
               disabled={!input.trim() || sending}
-              className="rounded-lg bg-[var(--accent)] px-3 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-50"
+              className="rounded-lg bg-[var(--accent)] px-3 py-2 text-sm font-medium text-[var(--on-accent)] hover:bg-[var(--accent-hover)] disabled:opacity-50"
             >
               {sending ? "..." : "Enviar"}
             </button>

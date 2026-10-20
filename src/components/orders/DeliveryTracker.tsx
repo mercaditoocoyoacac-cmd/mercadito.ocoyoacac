@@ -1,13 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { haversineDistance, formatDistance, getMapsUrl, openMapsUrl } from "@/lib/geo";
 import DeliveryChat from "@/components/chat/DeliveryChat";
 import { getStatusLabel } from "@/lib/labels";
+import { formatMoney } from "@/lib/format";
 
 interface OrderItem {
   name: string;
@@ -46,23 +47,19 @@ interface Order {
   store: { name: string; phone: string | null; address: string | null };
 }
 
+const statusTone: Record<string, string> = {
+  COMPLETED: "text-[var(--success)]",
+  OUT_FOR_DELIVERY: "text-[var(--warning)]",
+  READY: "text-[var(--info)]",
+  CONFIRMED: "text-[var(--info)]",
+  PENDING: "text-[var(--warning)]",
+  CANCELLED: "text-[var(--danger)]",
+};
+
 function StatusBadge({ status }: { status: string }) {
-  const colors: Record<string, string> = {
-    COMPLETED: "bg-green-100 text-green-800",
-    OUT_FOR_DELIVERY: "bg-orange-100 text-orange-800",
-    READY: "bg-blue-100 text-blue-800",
-    CONFIRMED: "bg-purple-100 text-purple-800",
-    PENDING: "bg-yellow-100 text-yellow-800",
-    CANCELLED: "bg-red-100 text-red-800",
-  };
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-semibold ${colors[status] || "bg-[var(--surface)] text-[color:var(--text)]"}`}>
-      {status === "COMPLETED" && "✅"}
-      {status === "OUT_FOR_DELIVERY" && "🚚"}
-      {status === "READY" && "📦"}
-      {status === "CONFIRMED" && "✓"}
-      {status === "PENDING" && "⏳"}
-      <span>{getStatusLabel(status)}</span>
+    <span className="inline-flex items-center rounded-full border border-[var(--border)] px-3 py-1 text-xs font-medium text-[color:var(--muted)]">
+      <span className={statusTone[status] ?? "text-[color:var(--text)]"}>{getStatusLabel(status)}</span>
     </span>
   );
 }
@@ -73,20 +70,30 @@ function MapsButton({ url, label }: { url: string | null; label: string }) {
     <button
       type="button"
       onClick={(e) => { e.preventDefault(); openMapsUrl(url!); }}
-      className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 text-base font-semibold text-white shadow-md active:scale-95 transition-transform hover:bg-blue-700 border-none cursor-pointer w-full"
+      className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[var(--border)] px-4 py-3 text-sm font-medium text-[color:var(--text)] transition-colors hover:bg-[var(--surface)]"
     >
-      <svg aria-hidden="true" className="h-5 w-5 shrink-0" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+      <svg aria-hidden="true" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
       </svg>
       {label}
     </button>
   );
 }
 
-function CashBadge({ totalCents }: { totalCents: number }) {
+function CashBadge({ totalCents, currency }: { totalCents: number; currency: string }) {
   return (
-    <div className="inline-flex items-center gap-2 rounded-lg bg-green-100 px-4 py-2 text-base font-bold text-green-800 border-2 border-green-300">
-      💵 Cobrar ${(totalCents / 100).toFixed(2)}
+    <div className="inline-flex items-center gap-2 rounded-lg border border-[var(--warning)] px-4 py-2 text-sm font-semibold text-[var(--warning)]">
+      Cobrar {formatMoney(totalCents, currency)}
+    </div>
+  );
+}
+
+function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex items-start justify-between gap-4 py-2">
+      <span className="text-sm text-[color:var(--muted)]">{label}</span>
+      <span className="text-right text-sm font-medium">{value}</span>
     </div>
   );
 }
@@ -109,14 +116,13 @@ export default function DeliveryTracker({
   const [completeCode, setCompleteCode] = useState<Record<string, string>>({});
   const [arriving, setArriving] = useState<Record<string, boolean>>({});
   const [claimingOrder, setClaimingOrder] = useState<string | null>(null);
-  const [showMyDeliveries, setShowMyDeliveries] = useState(true);
   const [showDelivered, setShowDelivered] = useState(false);
   const [pickupOrderId, setPickupOrderId] = useState<string | null>(null);
   const [pickupCode, setPickupCode] = useState("");
   const [pickupLoading, setPickupLoading] = useState(false);
   const [pickupError, setPickupError] = useState<string | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const hasGeo = useSyncExternalStore(() => () => {}, () => 'geolocation' in navigator, () => false);
+  const hasGeo = useSyncExternalStore(() => () => {}, () => "geolocation" in navigator, () => false);
 
   function sendLocation(lat: number, lng: number) {
     setDriverLat(lat);
@@ -137,7 +143,7 @@ export default function DeliveryTracker({
         setLocationError(null);
       },
       () => {
-        setLocationError("Activa la ubicacion para recibir pedidos cercanos.");
+        setLocationError("Activa la ubicación para recibir pedidos cercanos.");
       },
       { enableHighAccuracy: true, timeout: 10000 },
     );
@@ -170,7 +176,6 @@ export default function DeliveryTracker({
       setPickupOrderId(orderId);
       setPickupCode("");
       setPickupError(null);
-      setShowMyDeliveries(true);
       setClaimingOrder(null);
       router.refresh();
     } else {
@@ -231,7 +236,7 @@ export default function DeliveryTracker({
     const data = (await res.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
     setPickupLoading(false);
     if (res.ok && data?.ok) {
-      toast.success("✓ Producto recogido — ¡En camino!");
+      toast.success("Producto recogido — en camino");
       setPickupOrderId(null);
       setPickupCode("");
       setPickupError(null);
@@ -254,528 +259,371 @@ export default function DeliveryTracker({
 
   return (
     <>
-      {/* Location status bar */}
-      {!hasGeo && (
-        <div className="mb-4 rounded-xl bg-yellow-50 border-2 border-yellow-300 px-5 py-4 text-base font-medium text-yellow-800">
-          📡 Geolocalización no disponible en este navegador.
-        </div>
-      )}
-      {hasGeo && locationError && (
-        <div className="mb-4 rounded-xl bg-yellow-50 border-2 border-yellow-300 px-5 py-4 text-base font-medium text-yellow-800">
-          {locationError}
+      {(!hasGeo || locationError) && (
+        <div className="mb-6 rounded-xl border border-[var(--warning)] px-5 py-4 text-sm text-[var(--warning)]">
+          {locationError ?? "La geolocalización no está disponible en este navegador."}
         </div>
       )}
       {driverLat && (
-        <div className="mb-4 rounded-xl bg-green-50 border-2 border-green-300 px-5 py-4 text-base font-medium text-green-800 flex items-center gap-3">
-          <span className="relative flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+        <div className="mb-6 flex items-center gap-3 rounded-xl border border-[var(--border)] px-5 py-4 text-sm text-[color:var(--muted)]">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--success)] opacity-60" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[var(--success)]" />
           </span>
           Ubicación activa — recibiendo pedidos cercanos
         </div>
       )}
 
-      {/* Earnings analysis */}
       {earnings && earnings.completedCount > 0 && (
-        <div className="mb-6 rounded-xl border border-[var(--border)] p-5">
-          <h2 className="text-base font-bold mb-3 flex items-center gap-2">
-            <svg aria-hidden="true" className="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Mis ingresos
-            <span className="text-xs font-normal text-[color:var(--muted)] ml-auto">{earnings.completedCount} entregas completadas</span>
-          </h2>
-          <div className="grid grid-cols-3 gap-3">
-            <div className="rounded-xl bg-green-50 border border-green-200 p-4 text-center">
-              <div className="text-xs font-semibold uppercase tracking-wide text-green-600 mb-1">Hoy</div>
-              <div className="text-xl font-bold text-green-800">${(earnings.day / 100).toFixed(2)}</div>
-            </div>
-            <div className="rounded-xl bg-blue-50 border border-blue-200 p-4 text-center">
-              <div className="text-xs font-semibold uppercase tracking-wide text-blue-600 mb-1">Semana</div>
-              <div className="text-xl font-bold text-blue-800">${(earnings.week / 100).toFixed(2)}</div>
-            </div>
-            <div className="rounded-xl bg-purple-50 border border-purple-200 p-4 text-center">
-              <div className="text-xs font-semibold uppercase tracking-wide text-purple-600 mb-1">Mes</div>
-              <div className="text-xl font-bold text-purple-800">${(earnings.month / 100).toFixed(2)}</div>
-            </div>
+        <section className="mb-6 rounded-xl border border-[var(--border)] bg-[var(--card-bg)]">
+          <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
+            <h2 className="font-semibold">Ingresos</h2>
+            <span className="text-xs text-[color:var(--muted)]">{earnings.completedCount} entregas completadas</span>
           </div>
-        </div>
+          <div className="grid grid-cols-3 divide-x divide-[var(--border)]">
+            {[
+              { label: "Hoy", value: earnings.day },
+              { label: "Semana", value: earnings.week },
+              { label: "Mes", value: earnings.month },
+            ].map((row) => (
+              <div key={row.label} className="px-5 py-4 text-center">
+                <div className="text-xs uppercase tracking-wide text-[color:var(--muted)]">{row.label}</div>
+                <div className="mt-1 text-xl font-semibold tabular-nums">{formatMoney(row.value, "MXN")}</div>
+              </div>
+            ))}
+          </div>
+        </section>
       )}
 
-      {/* Mis entregas - collapsible */}
       {(activeDeliveries.length > 0 || nonCompletedMyDeliveries.length > 0) && (
-        <div className="mb-6 rounded-xl border-2 border-orange-200 bg-[var(--card-bg)] shadow-md overflow-hidden">
-          <button
-            type="button"
-            onClick={() => setShowMyDeliveries(!showMyDeliveries)}
-            className="w-full flex items-center justify-between px-5 py-4 bg-orange-50 hover:bg-orange-100 border-none cursor-pointer"
-          >
-            <h2 className="text-lg font-bold flex items-center gap-2">
-              🛵 Mis entregas
-              <span className="rounded-full bg-orange-200 text-orange-800 text-sm px-3 py-0.5 font-bold">
-                {activeDeliveries.length + nonCompletedMyDeliveries.length}
-              </span>
-            </h2>
-            <div className="flex items-center gap-3">
-              <svg aria-hidden="true" className={`h-6 w-6 text-orange-600 transition-transform ${showMyDeliveries ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
+        <section className="mb-6 space-y-4">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-[color:var(--muted)]">Mis entregas</h2>
+
+          {activeDeliveries.length > 0 && (
+            <div className="grid gap-4 sm:grid-cols-2">
+              {activeDeliveries.map((order) => (
+                <motion.div
+                  key={order.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-5"
+                >
+                  <div className="mb-4 flex items-center justify-between">
+                    <div className="font-mono text-base font-semibold">#{order.id.slice(-8).toUpperCase()}</div>
+                    <StatusBadge status={order.status} />
+                  </div>
+
+                  <div className="mb-4 rounded-lg border border-[var(--border)] p-4">
+                    <div className="text-xs uppercase tracking-wide text-[color:var(--muted)]">Tienda</div>
+                    <div className="mt-1 font-medium">{order.store.name}</div>
+                    {order.store.address && <div className="mt-1 text-sm text-[color:var(--muted)]">{order.store.address}</div>}
+                    {order.store.address && (
+                      <div className="mt-3">
+                        <MapsButton url={getMapsUrl(null, null, order.store.address)} label="Cómo llegar a la tienda" />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mb-4">
+                    <div className="text-xs uppercase tracking-wide text-[color:var(--muted)]">Cliente</div>
+                    <div className="mt-1 font-medium">{order.customerName}</div>
+                    <a href={`tel:${order.customerPhone}`} className="block text-sm text-[var(--accent-strong)] hover:underline">
+                      {order.customerPhone}
+                    </a>
+                    {order.customerAddress && <div className="mt-1 text-sm text-[color:var(--muted)]">{order.customerAddress}</div>}
+                    {(order.customerLat || order.customerAddress) && (
+                      <div className="mt-3">
+                        <MapsButton url={getMapsUrl(order.customerLat, order.customerLng, order.customerAddress)} label="Ruta al cliente" />
+                      </div>
+                    )}
+                  </div>
+
+                  {order.items.length > 0 && (
+                    <div className="border-t border-[var(--border)] py-3">
+                      <div className="text-xs uppercase tracking-wide text-[color:var(--muted)]">Productos</div>
+                      <div className="mt-2 space-y-1.5">
+                        {order.items.map((item, i) => (
+                          <div key={i} className="flex items-center justify-between text-sm">
+                            <span>
+                              {item.quantity}x {item.name}
+                              {item.variantName && <span className="text-[color:var(--muted)]"> ({item.variantName})</span>}
+                              {item.weightGrams && <span className="text-[color:var(--muted)]"> · {item.weightGrams}g</span>}
+                            </span>
+                            <span className="font-medium tabular-nums">{formatMoney(item.priceCents * item.quantity, order.currency)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {order.notes && (
+                    <div className="mt-3 rounded-lg border border-[var(--warning)] px-4 py-3 text-sm text-[var(--warning)]">
+                      {order.notes}
+                    </div>
+                  )}
+
+                  <div className="mt-4">
+                    {order.paymentMethod === "CASH" ? (
+                      <CashBadge totalCents={order.totalCents} currency={order.currency} />
+                    ) : (
+                      <div className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] px-4 py-2 text-sm text-[color:var(--muted)]">
+                        {order.paymentMethod === "TRANSFERENCIA" ? "Pagó por transferencia" : "Pagó con tarjeta"}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-4 flex flex-col gap-3 border-t border-[var(--border)] pt-4">
+                    {order.arrivedAt ? (
+                      <div className="flex items-center gap-2 rounded-lg border border-[var(--success)] px-4 py-3 text-sm text-[var(--success)]">
+                        <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Llegada notificada — espera al cliente
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => notifyArrival(order.id)}
+                        disabled={arriving[order.id]}
+                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-[var(--on-accent)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
+                      >
+                        {arriving[order.id] ? "Notificando..." : "Llegué"}
+                      </button>
+                    )}
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        aria-label="Código del cliente"
+                        type="text"
+                        placeholder="Código del cliente"
+                        value={completeCode[order.id] || ""}
+                        onChange={(e) => setCompleteCode((prev) => ({ ...prev, [order.id]: e.target.value }))}
+                        className="flex-1 rounded-lg border border-[var(--border)] px-4 py-3 text-center text-base font-semibold uppercase tracking-widest outline-none focus:border-[var(--accent)] [font-size:16px]"
+                        maxLength={6}
+                      />
+                      <button
+                        onClick={() => confirmDelivery(order.id)}
+                        className="rounded-lg bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-[var(--on-accent)] transition-colors hover:bg-[var(--accent-hover)]"
+                      >
+                        Completar
+                      </button>
+                    </div>
+
+                    <DeliveryChat orderId={order.id} currentUserId={currentUserId} currentUserRole="DELIVERY" />
+                  </div>
+                </motion.div>
+              ))}
             </div>
-          </button>
-          {showMyDeliveries && (
-            <>
-              {/* Active deliveries */}
-              {activeDeliveries.length > 0 && (
-                <div className="p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="relative flex h-3 w-3">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-orange-500"></span>
-                    </span>
-                    <h3 className="text-base font-bold text-orange-800">En curso</h3>
-                    <span className="rounded-full bg-orange-100 text-orange-800 text-xs px-2 py-0.5 font-bold">{activeDeliveries.length}</span>
+          )}
+
+          {nonCompletedMyDeliveries.length > 0 && (
+            <div className="grid gap-3 sm:grid-cols-2">
+              {nonCompletedMyDeliveries.map((order) => (
+                <motion.div
+                  key={order.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-4"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-sm font-semibold">#{order.id.slice(-8).toUpperCase()}</span>
+                      <StatusBadge status={order.status} />
+                    </div>
+                    <span className="text-sm font-medium tabular-nums">{formatMoney(order.totalCents, order.currency)}</span>
                   </div>
-                  <motion.div
-                    className="grid gap-4 sm:grid-cols-2"
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, margin: "-20px" }}
-                    variants={{
-                      hidden: {},
-                      visible: { transition: { staggerChildren: 0.05, delayChildren: 0.05 } },
-                    } as const}
-                  >
-                    {activeDeliveries.map((order) => (
-                      <motion.div
-                        key={order.id}
-                        variants={{
-                          hidden: { opacity: 0, y: 16, scale: 0.97 },
-                          visible: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 200, damping: 25, mass: 0.5 } },
-                        } as const}
-                        className="rounded-xl border-2 border-orange-200 bg-[var(--card-bg)] p-5 shadow-md"
+                  <div className="mt-2 font-medium">{order.customerName}</div>
+                  <div className="text-sm text-[color:var(--muted)]">{order.store.name}</div>
+                  {order.store.address && (
+                    <button
+                      type="button"
+                      onClick={(e) => { e.preventDefault(); openMapsUrl(getMapsUrl(null, null, order.store.address)); }}
+                      className="mt-1 text-sm text-[var(--accent-strong)] hover:underline"
                     >
-                        {/* Order header */}
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="font-mono text-lg font-bold tracking-wider">
-                            #{order.id.slice(-8).toUpperCase()}
-                          </div>
-                          <StatusBadge status={order.status} />
-                        </div>
+                      Cómo llegar a la tienda
+                    </button>
+                  )}
+                  {order.paymentMethod === "CASH" && (
+                    <div className="mt-2">
+                      <CashBadge totalCents={order.totalCents} currency={order.currency} />
+                    </div>
+                  )}
 
-                        {/* Store info */}
-                        <div className="rounded-xl bg-blue-50 border border-blue-200 p-4 mb-3">
-                          <div className="text-xs font-bold uppercase tracking-wide text-blue-600 mb-1">🏪 Tienda</div>
-                          <div className="text-lg font-bold">{order.store.name}</div>
-                          {order.store.address && (
-                            <div className="text-sm text-blue-700 mt-1">📍 {order.store.address}</div>
-                          )}
-                          {order.store.address && (
-                            <div className="mt-2">
-                              <MapsButton url={getMapsUrl(null, null, order.store.address)} label="Cómo llegar a la tienda" />
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Customer info */}
-                        <div className="mb-3">
-                          <div className="text-xs font-bold uppercase tracking-wide text-[var(--muted)] mb-1">👤 Cliente</div>
-                          <div className="text-lg font-bold">{order.customerName}</div>
-                          <a href={`tel:${order.customerPhone}`} className="text-base text-blue-600 font-medium hover:underline block">{order.customerPhone}</a>
-                          {order.customerAddress && (
-                            <div className="text-sm text-[var(--muted)] mt-1">📍 {order.customerAddress}</div>
-                          )}
-                          {(order.customerLat || order.customerAddress) && (
-                            <div className="mt-2">
-                              <MapsButton
-                                url={getMapsUrl(order.customerLat, order.customerLng, order.customerAddress)}
-                                label="Ruta al cliente"
-                              />
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Items */}
-                        {order.items.length > 0 && (
-                          <div className="border-t border-[var(--border)] pt-3 mb-3">
-                            <div className="text-xs font-bold uppercase tracking-wide text-[var(--muted)] mb-2">Productos</div>
-                            <div className="space-y-1.5">
-                              {order.items.map((item, i) => (
-                                <div key={i} className="flex items-center justify-between text-base">
-                                  <span className="font-medium">
-                                    {item.quantity}x {item.name}
-                                    {item.variantName && <span className="text-sm text-[var(--muted)]"> ({item.variantName})</span>}
-                                    {item.weightGrams && <span className="text-sm text-[var(--muted)]"> · {item.weightGrams}g</span>}
-                                  </span>
-                                  <span className="font-semibold">${(item.priceCents * item.quantity / 100).toFixed(2)}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Notes */}
-                        {order.notes && (
-                          <div className="rounded-xl bg-yellow-50 border border-yellow-200 px-4 py-3 text-sm font-medium text-yellow-800 mb-3">
-                            📝 {order.notes}
-                          </div>
-                        )}
-
-                        {/* Payment */}
-                        <div className="mb-3">
-                          {order.paymentMethod === "CASH" ? (
-                            <CashBadge totalCents={order.totalCents} />
-                          ) : order.paymentMethod === "TRANSFERENCIA" ? (
-                            <div className="inline-flex items-center gap-2 rounded-lg bg-purple-100 px-4 py-2 text-base font-semibold text-purple-800">
-                              💜 Pagó por transferencia
-                            </div>
-                          ) : (
-                            <div className="inline-flex items-center gap-2 rounded-lg bg-blue-100 px-4 py-2 text-base font-semibold text-blue-800">
-                              💳 Pagó con tarjeta
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex flex-col gap-3 border-t border-[var(--border)] pt-3">
-                          {order.arrivedAt ? (
-                            <div className="flex items-center gap-2 rounded-xl bg-green-100 px-4 py-3 text-base font-bold text-green-800 border-2 border-green-300">
-                              <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                              </svg>
-                              Llegada notificada — espera al cliente
-                            </div>
-                          ) : (
-                            <button
-                              onClick={() => notifyArrival(order.id)}
-                              disabled={arriving[order.id]}
-                              className="inline-flex items-center justify-center gap-2 rounded-xl bg-orange-500 px-5 py-4 text-lg font-bold text-white shadow-md active:scale-95 transition-transform hover:bg-orange-600 disabled:opacity-50 border-none cursor-pointer"
-                            >
-                              <svg aria-hidden="true" className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                              </svg>
-                              {arriving[order.id] ? "Notificando..." : "Llegué"}
-                            </button>
-                          )}
-
-                          <div className="flex items-center gap-2">
-                            <input aria-label="Código del cliente"
-                              type="text"
-                              placeholder="Código del cliente"
-                              value={completeCode[order.id] || ""}
-                              onChange={(e) => setCompleteCode((prev) => ({ ...prev, [order.id]: e.target.value }))}
-                              className="flex-1 rounded-xl border-2 border-[var(--border)] px-4 py-3 text-lg font-bold text-center outline-none focus:border-[var(--accent)] uppercase tracking-widest [font-size:16px] sm:[font-size:1.125rem]"
-                              maxLength={6}
-                            />
-                            <button
-                              onClick={() => confirmDelivery(order.id)}
-                              className="rounded-xl bg-green-600 px-6 py-3 text-lg font-bold text-white hover:bg-green-700 shadow-md active:scale-95 transition-transform border-none cursor-pointer"
-                            >
-                              Completar
-                            </button>
-                          </div>
-
-                          <DeliveryChat orderId={order.id} currentUserId={currentUserId} currentUserRole="DELIVERY" />
-                        </div>
-                      </motion.div>
-                    ))}
-                  </motion.div>
-                </div>
-              )}
-
-              {/* Non-completed my deliveries (CONFIRMED, READY) — with inline pickup scanner */}
-              {nonCompletedMyDeliveries.length > 0 && (
-                <div className="border-t border-orange-200">
-                  <div className="px-5 py-3 bg-orange-50/50">
-                    <h3 className="text-base font-bold flex items-center gap-2 text-purple-800">
-                      📋 Pendientes ({nonCompletedMyDeliveries.length})
-                    </h3>
-                  </div>
-                  <motion.div
-                    className="grid gap-3 p-4"
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true }}
-                    variants={{
-                      hidden: {},
-                      visible: { transition: { staggerChildren: 0.04 } },
-                    } as const}
-                  >
-                    {nonCompletedMyDeliveries.map((order) => (
-                      <motion.div
-                        key={order.id}
-                        variants={{
-                          hidden: { opacity: 0, x: -10 },
-                          visible: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 200, damping: 25 } },
-                        } as const}
-                        className="rounded-xl border-2 border-purple-200 bg-[var(--card-bg)] p-4 shadow-sm"
-                        >
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-mono text-base font-bold">#{order.id.slice(-8).toUpperCase()}</span>
-                            <StatusBadge status={order.status} />
-                          </div>
-                          <span className="text-sm font-semibold">${(order.totalCents / 100).toFixed(2)}</span>
-                        </div>
-                        <div className="text-base font-semibold">{order.customerName}</div>
-                        <div className="text-sm text-[var(--muted)]">🏪 {order.store.name}</div>
-                        {order.store.address && (
+                  <div className="mt-3 flex flex-col gap-2">
+                    {pickupOrderId === order.id ? (
+                      <div className="rounded-lg border border-[var(--border)] p-4">
+                        <div className="mb-3 flex items-center justify-between">
+                          <span className="text-sm font-medium">Ingresa el código de recogida</span>
                           <button
                             type="button"
-                            onClick={(e) => { e.preventDefault(); openMapsUrl(getMapsUrl(null, null, order.store.address)); }}
-                            className="inline-flex items-center gap-1 mt-1 text-sm font-medium text-blue-600 hover:underline bg-transparent border-none p-0 cursor-pointer"
+                            onClick={() => { setPickupOrderId(null); setPickupCode(""); setPickupError(null); }}
+                            className="text-xs text-[color:var(--muted)] hover:text-[color:var(--text)]"
                           >
-                            📍 Cómo llegar a la tienda
+                            Cancelar
                           </button>
-                        )}
-                        {order.paymentMethod === "CASH" && (
-                          <div className="mt-2">
-                            <CashBadge totalCents={order.totalCents} />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            aria-label="Código de recogida"
+                            type="text"
+                            value={pickupCode}
+                            onChange={(e) => setPickupCode(e.target.value.toUpperCase())}
+                            placeholder="Código de recogida"
+                            className="flex-1 rounded-lg border border-[var(--border)] px-3 py-2 text-center text-base font-semibold uppercase tracking-widest outline-none focus:border-[var(--accent)] [font-size:16px]"
+                            maxLength={10}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handlePickup(order.id)}
+                            disabled={pickupLoading || !pickupCode.trim()}
+                            className="rounded-lg bg-[var(--accent)] px-5 py-2 text-sm font-semibold text-[var(--on-accent)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
+                          >
+                            {pickupLoading ? "..." : "Recoger"}
+                          </button>
+                        </div>
+                        {pickupError && (
+                          <div className="mt-2 rounded-lg border border-[var(--danger)] px-3 py-2 text-sm text-[var(--danger)]">
+                            {pickupError}
                           </div>
                         )}
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => { setPickupOrderId(order.id); setPickupCode(""); setPickupError(null); }}
+                        className="w-full rounded-lg border border-[var(--border)] py-3 text-sm font-medium transition-colors hover:bg-[var(--surface)]"
+                      >
+                        Llegué a la tienda
+                      </button>
+                    )}
 
-                        <div className="mt-3 flex flex-col gap-2">
-                          {pickupOrderId === order.id ? (
-                            <div className="rounded-xl border-2 border-green-200 bg-green-50 p-4">
-                              <div className="flex items-center justify-between mb-3">
-                                <span className="text-sm font-bold text-green-800 flex items-center gap-1">
-                                  <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
-                                  </svg>
-                                  Ingresa el código de recogida
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => { setPickupOrderId(null); setPickupCode(""); setPickupError(null); }}
-                                  className="text-xs font-medium text-[color:var(--muted)] hover:text-[color:var(--text)] bg-transparent border-none p-0 cursor-pointer"
-                                >
-                                  Cancelar
-                                </button>
-                              </div>
-
-                              <div className="flex items-center gap-2">
-                                <input aria-label="Código de recogida"
-                                  type="text"
-                                  value={pickupCode}
-                                  onChange={(e) => setPickupCode(e.target.value.toUpperCase())}
-                                  placeholder="Código de recogida"
-                                  className="flex-1 rounded-lg border-2 border-[var(--border)] px-3 py-2 text-base font-bold text-center outline-none focus:border-green-500 uppercase tracking-widest [font-size:16px]"
-                                  maxLength={10}
-                                />
-                                <button
-                                  type="button"
-                                  onClick={() => handlePickup(order.id)}
-                                  disabled={pickupLoading || !pickupCode.trim()}
-                                  className="rounded-lg bg-green-600 px-5 py-2 text-base font-bold text-white hover:bg-green-700 disabled:opacity-50 border-none cursor-pointer"
-                                >
-                                  {pickupLoading ? "..." : "Recoger"}
-                                </button>
-                              </div>
-
-                              {pickupError && (
-                                <div className="mt-2 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-600">
-                                  {pickupError}
-                                </div>
-                              )}
-                            </div>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setPickupOrderId(order.id);
-                                setPickupCode("");
-                                setPickupError(null);
-                                
-                              }}
-                              className="w-full rounded-xl bg-green-600 py-3 text-base font-bold text-white hover:bg-green-700 shadow-sm active:scale-95 transition-transform border-none cursor-pointer flex items-center justify-center gap-2"
-                            >
-                              <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                              </svg>
-                              Llegué a la tienda
-                            </button>
-                          )}
-
-                          <DeliveryChat orderId={order.id} currentUserId={currentUserId} currentUserRole="DELIVERY" />
-                        </div>
-                      </motion.div>
-                    ))}
-                  </motion.div>
-                </div>
-              )}
-            </>
+                    <DeliveryChat orderId={order.id} currentUserId={currentUserId} currentUserRole="DELIVERY" />
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           )}
-        </div>
+        </section>
       )}
 
-      {/* Available deliveries */}
-      <div className="mb-6 rounded-xl border-2 border-blue-200 bg-[var(--card-bg)] shadow-md">
-        <div className="border-b border-[var(--border)] bg-blue-50 px-5 py-4">
-          <h2 className="flex items-center gap-2 text-lg font-bold">
-            <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
-            </span>
-            Pedidos disponibles
-            <span className="rounded-full bg-blue-100 text-blue-800 text-sm px-3 py-0.5 font-bold">{availableDeliveries.length}</span>
-          </h2>
+      <section className="mb-6 rounded-xl border border-[var(--border)] bg-[var(--card-bg)]">
+        <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
+          <h2 className="font-semibold">Pedidos disponibles</h2>
+          <span className="text-xs text-[color:var(--muted)]">{availableDeliveries.length} disponibles</span>
         </div>
         {availableDeliveries.length === 0 ? (
           <div className="p-8 text-center">
-            <div className="text-4xl mb-3">🛵</div>
-            <div className="text-lg font-medium text-[var(--muted)]">No hay pedidos disponibles</div>
-            <div className="text-sm text-[var(--muted)] mt-1">Los nuevos pedidos aparecerán aquí automáticamente</div>
+            <div className="font-medium text-[color:var(--muted)]">No hay pedidos disponibles</div>
+            <div className="mt-1 text-sm text-[color:var(--muted)]">Los nuevos pedidos aparecerán aquí automáticamente.</div>
           </div>
         ) : (
-          <motion.div
-            className="divide-y divide-[var(--border)]"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={{
-              hidden: {},
-              visible: { transition: { staggerChildren: 0.04 } },
-            } as const}
-          >
+          <div className="divide-y divide-[var(--border)]">
             {availableDeliveries.map((order) => {
               const distance = getDistanceToOrder(order.customerLat, order.customerLng);
               return (
-                <motion.div
-                  key={order.id}
-                  variants={{
-                    hidden: { opacity: 0, x: -8 },
-                    visible: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 200, damping: 26 } },
-                  } as const}
-                  className="px-5 py-4"
-                  >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-mono text-lg font-bold">#{order.id.slice(-8).toUpperCase()}</span>
-                        {distance && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 text-blue-800 px-3 py-1 text-sm font-bold">
-                            📍 {distance}
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="text-base font-semibold mt-2">{order.customerName}</div>
-                      <a href={`tel:${order.customerPhone}`} className="text-sm text-blue-600 font-medium hover:underline block">{order.customerPhone}</a>
-                      {order.customerAddress && (
-                        <div className="text-sm text-[var(--muted)]">📍 {order.customerAddress}</div>
+                <div key={order.id} className="flex items-start justify-between gap-4 px-5 py-4">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-mono text-sm font-semibold">#{order.id.slice(-8).toUpperCase()}</span>
+                      {distance && (
+                        <span className="rounded-full border border-[var(--border)] px-2 py-0.5 text-xs text-[color:var(--muted)]">
+                          {distance}
+                        </span>
                       )}
-
-                      <div className="text-sm text-[var(--muted)] mt-1">
-                        🏪 {order.store.name}
-                        {order.store.address && <> · {order.store.address}</>}
-                        {order.store.address && (
+                    </div>
+                    <div className="mt-1.5 font-medium">{order.customerName}</div>
+                    <a href={`tel:${order.customerPhone}`} className="block text-sm text-[var(--accent-strong)] hover:underline">
+                      {order.customerPhone}
+                    </a>
+                    {order.customerAddress && <div className="text-sm text-[color:var(--muted)]">{order.customerAddress}</div>}
+                    <div className="mt-1 text-sm text-[color:var(--muted)]">
+                      {order.store.name}
+                      {order.store.address && (
+                        <>
+                          {" · "}
                           <button
                             type="button"
                             onClick={(e) => { e.preventDefault(); openMapsUrl(getMapsUrl(null, null, order.store.address)); }}
-                            className="ml-2 text-blue-600 font-medium hover:underline bg-transparent border-none p-0 cursor-pointer"
+                            className="text-[var(--accent-strong)] hover:underline"
                           >
                             Ver en mapa
                           </button>
-                        )}
-                      </div>
-
-                      {order.items.length > 0 && (
-                        <div className="mt-1.5 text-sm text-[var(--muted)]">
-                          {order.items.map((item, i) => (
-                            <span key={i}>
-                              {i > 0 && <span className="mx-1">·</span>}
-                              {item.quantity}x {item.name}
-                            </span>
-                          ))}
-                        </div>
+                        </>
                       )}
-
-                      <div className="mt-2">
-                        {order.paymentMethod === "CASH" ? (
-                          <CashBadge totalCents={order.totalCents} />
-                        ) : (
-                          <div className="inline-flex items-center gap-1 rounded-lg bg-blue-100 px-3 py-1.5 text-sm font-semibold text-blue-800">
-                            💳 Pagó con tarjeta
-                          </div>
-                        )}
-                      </div>
                     </div>
-                    <button
-                      onClick={() => acceptOrder(order.id)}
-                      disabled={claimingOrder === order.id}
-                      className="shrink-0 rounded-xl px-6 py-4 text-base font-bold text-white shadow-md active:scale-95 transition-transform border-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100 ${
-                        claimingOrder === order.id
-                          ? 'bg-gray-500'
-                          : 'bg-emerald-600 hover:bg-emerald-700'
-                      }"
-                    >
-                      {claimingOrder === order.id ? "Aceptando..." : "Aceptar"}
-                    </button>
+                    {order.items.length > 0 && (
+                      <div className="mt-1 text-sm text-[color:var(--muted)]">
+                        {order.items.map((item, i) => (
+                          <span key={i}>
+                            {i > 0 && <span className="mx-1">·</span>}
+                            {item.quantity}x {item.name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <div className="mt-2">
+                      {order.paymentMethod === "CASH" ? (
+                        <CashBadge totalCents={order.totalCents} currency={order.currency} />
+                      ) : (
+                        <span className="text-sm text-[color:var(--muted)]">Pagó con tarjeta</span>
+                      )}
+                    </div>
                   </div>
-                </motion.div>
+                  <button
+                    onClick={() => acceptOrder(order.id)}
+                    disabled={claimingOrder === order.id}
+                    className="shrink-0 rounded-lg bg-[var(--accent)] px-6 py-3 text-sm font-semibold text-[var(--on-accent)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-60"
+                  >
+                    {claimingOrder === order.id ? "Aceptando..." : "Aceptar"}
+                  </button>
+                </div>
               );
             })}
-          </motion.div>
+          </div>
         )}
-      </div>
+      </section>
 
-      {/* Completed deliveries - collapsible */}
       {completedDeliveries.length > 0 && (
-        <div className="rounded-xl border-2 border-[var(--border)] bg-[var(--card-bg)] shadow-sm">
+        <section className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)]">
           <button
             type="button"
             onClick={() => setShowDelivered(!showDelivered)}
-            className="w-full flex items-center justify-between px-5 py-4 bg-[var(--surface)] hover:bg-[var(--surface)] border-none cursor-pointer rounded-t-xl"
+            className="flex w-full items-center justify-between rounded-t-xl px-5 py-4 transition-colors hover:bg-[var(--surface)]"
           >
-            <h2 className="text-lg font-bold flex items-center gap-2">
-              ✅ Entregados
-              <span className="rounded-full bg-[var(--surface-2)] text-[color:var(--text)] text-sm px-3 py-0.5 font-bold">{completedDeliveries.length}</span>
+            <h2 className="font-semibold">
+              Entregados <span className="ml-1 text-sm font-normal text-[color:var(--muted)]">{completedDeliveries.length}</span>
             </h2>
-            <svg aria-hidden="true" className={`h-6 w-6 text-[color:var(--muted)] transition-transform ${showDelivered ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              aria-hidden="true"
+              className={`h-5 w-5 text-[color:var(--muted)] transition-transform ${showDelivered ? "rotate-180" : ""}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </button>
           {showDelivered && (
-            <motion.div
-              className="divide-y divide-[var(--border)]"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={{
-                hidden: {},
-                visible: { transition: { staggerChildren: 0.03 } },
-              } as const}
-            >
+            <div className="divide-y divide-[var(--border)] border-t border-[var(--border)]">
               {completedDeliveries.map((order) => (
-                <motion.div
-                  key={order.id}
-                  variants={{
-                    hidden: { opacity: 0, y: 8 },
-                    visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 200, damping: 26 } },
-                  } as const}
-                  className="px-5 py-4"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-sm font-bold">#{order.id.slice(-8).toUpperCase()}</span>
-                        <span className="text-xs text-[color:var(--muted)]">
-                          {new Date(order.createdAt).toLocaleDateString("es-MX", { day: "numeric", month: "short" })}
-                        </span>
-                      </div>
-                      <div className="text-sm font-medium mt-0.5">{order.customerName}</div>
-                      <div className="text-xs text-[var(--muted)]">🏪 {order.store.name}</div>
+                <div key={order.id} className="flex items-center justify-between gap-3 px-5 py-4">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-sm font-semibold">#{order.id.slice(-8).toUpperCase()}</span>
+                      <span className="text-xs text-[color:var(--muted)]">
+                        {new Date(order.createdAt).toLocaleDateString("es-MX", { day: "numeric", month: "short" })}
+                      </span>
                     </div>
-                    <div className="text-sm font-bold text-green-700">
-                      ${(order.totalCents / 100).toFixed(2)}
-                    </div>
+                    <div className="mt-0.5 text-sm">{order.customerName}</div>
+                    <div className="text-xs text-[color:var(--muted)]">{order.store.name}</div>
                   </div>
-                </motion.div>
+                  <div className="text-sm font-medium tabular-nums text-[var(--success)]">
+                    {formatMoney(order.totalCents, order.currency)}
+                  </div>
+                </div>
               ))}
-            </motion.div>
+            </div>
           )}
-        </div>
+        </section>
       )}
     </>
   );

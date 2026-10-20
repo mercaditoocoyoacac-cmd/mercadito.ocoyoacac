@@ -71,7 +71,7 @@ export default function DeliveryDocumentosPage() {
       </div>
 
       {done && (
-        <div className="mb-4 rounded-xl border border-green-300 bg-green-50 p-4 text-sm text-green-800">
+        <div className="mb-4 rounded-xl border border-[var(--success)] p-4 text-sm text-[var(--success)]">
           ¡Listo! Tus documentos fueron guardados.{" "}
           <button className="underline" onClick={() => router.push("/delivery")}>
             Volver al panel de repartidor
@@ -116,7 +116,7 @@ export default function DeliveryDocumentosPage() {
       </div>
 
       {error ? (
-        <div className="mt-4 rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700">
+        <div className="mt-4 rounded-md border border-[var(--danger)] px-3 py-2 text-sm text-[var(--danger)]">
           {error}
         </div>
       ) : null}
@@ -124,7 +124,7 @@ export default function DeliveryDocumentosPage() {
       <button
         onClick={save}
         disabled={saving || uploadedCount === 0}
-        className="mt-6 w-full rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
+        className="mt-6 w-full rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--on-accent)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-60"
       >
         {saving ? "Guardando..." : uploadedCount === 4 ? "Guardar mis documentos" : `Guardar (${uploadedCount}/4)`}
       </button>

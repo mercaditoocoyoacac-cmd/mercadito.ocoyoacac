@@ -522,7 +522,7 @@ export function NavBar() {
             {role && role !== "DELIVERY" && !additionalRoles.includes("DELIVERY") && (
               <Link
                 href="/delivery/registro"
-                className="rounded-lg border border-[#C2410C] px-4 py-2 text-sm font-medium text-[#C2410C] transition-colors hover:bg-orange-50"
+                className="rounded-lg border border-[var(--accent-strong)] px-4 py-2 text-sm font-medium text-[var(--accent-strong)] transition-colors hover:bg-[var(--accent-soft)]"
               >
                 Repartir
               </Link>
@@ -530,7 +530,7 @@ export function NavBar() {
             {role && role !== "CUSTOMER" && !additionalRoles.includes("CUSTOMER") && (
               <Link
                 href="/registro"
-                className="rounded-lg border border-[#BE123C] px-4 py-2 text-sm font-medium text-[#BE123C] transition-colors hover:bg-rose-50"
+                className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium text-[color:var(--muted)] transition-colors hover:bg-[var(--surface)] hover:text-[color:var(--text)]"
               >
                 Comprar
               </Link>
@@ -547,7 +547,7 @@ export function NavBar() {
                       <button
                         type="button"
                         onClick={() => switchRole("DELIVERY")}
-                        className="rounded-lg bg-[#C2410C] px-2 py-1 text-xs font-medium text-white hover:bg-[#9A3412]"
+                        className="rounded-lg border border-[var(--accent-strong)] px-2 py-1 text-xs font-medium text-[var(--accent-strong)] transition-colors hover:bg-[var(--accent-soft)]"
                       >
                         Repartidor
                       </button>
@@ -556,7 +556,7 @@ export function NavBar() {
                       <button
                         type="button"
                         onClick={() => switchRole("CUSTOMER")}
-                        className="rounded-lg bg-[#BE123C] px-2 py-1 text-xs font-medium text-white hover:bg-[#9F1239]"
+                        className="rounded-lg border border-[var(--border)] px-2 py-1 text-xs font-medium text-[color:var(--muted)] transition-colors hover:bg-[var(--surface)] hover:text-[color:var(--text)]"
                       >
                         Cliente
                       </button>
@@ -565,7 +565,7 @@ export function NavBar() {
                       <button
                         type="button"
                         onClick={() => switchRole("VENDOR")}
-                        className="rounded-lg bg-[#15803D] px-2 py-1 text-xs font-medium text-white hover:bg-[#166534]"
+                        className="rounded-lg bg-[var(--accent)] px-2 py-1 text-xs font-medium text-[var(--on-accent)] transition-colors hover:bg-[var(--accent-hover)]"
                       >
                         Vendedor
                       </button>
@@ -920,7 +920,7 @@ export function NavBar() {
                     href="/delivery/escanear"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${
-                      pathname === "/delivery/escanear" ? "bg-orange-100 text-orange-600" : "text-orange-600"
+                      pathname === "/delivery/escanear" ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -963,7 +963,7 @@ export function NavBar() {
                     <Link
                       href="/delivery/registro"
                       onClick={handleMobileNav}
-                      className="rounded-lg px-4 py-3 text-sm font-medium text-orange-600"
+                      className="rounded-lg px-4 py-3 text-sm font-medium text-[var(--accent-strong)]"
                     >
                       Quiero repartir
                     </Link>
@@ -972,7 +972,7 @@ export function NavBar() {
                     <Link
                       href="/registro"
                       onClick={handleMobileNav}
-                      className="rounded-lg px-4 py-3 text-sm font-medium text-rose-600"
+                      className="rounded-lg px-4 py-3 text-sm font-medium text-[color:var(--muted)]"
                     >
                       Quiero comprar
                     </Link>

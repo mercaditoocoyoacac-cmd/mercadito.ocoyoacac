@@ -109,31 +109,32 @@ export default function DeliveryScanPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
+    <main className="min-h-screen bg-[var(--background)]">
       <div className="mx-auto max-w-lg px-4 py-8">
         <div className="mb-6 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-500">
-            <svg aria-hidden="true" className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--accent)]">
+            <svg aria-hidden="true" className="h-8 w-8 text-[var(--on-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold">Código de entrega</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Código de entrega</h1>
           <p className="mt-1 text-sm text-[color:var(--muted)]">Ingresa el código alfanumérico para confirmar recogida o entrega</p>
         </div>
 
         {!orderInfo ? (
-          <div className="rounded-2xl border border-[var(--border)] bg-[var(--card-bg)] p-6 shadow-sm">
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--card-bg)] p-6">
             <form onSubmit={handleManualSubmit} className="space-y-4">
               <div>
-                <label className="mb-2 block text-sm font-medium text-[color:var(--text)]">
+                <label htmlFor="delivery-code" className="mb-2 block text-sm font-medium text-[color:var(--text)]">
                   Código alfanumérico
                 </label>
-                <input aria-label="Ej: ABC123"
+                <input
+                  id="delivery-code"
                   type="text"
                   value={manualCode}
                   onChange={(e) => setManualCode(e.target.value.toUpperCase())}
                   placeholder="Ej: ABC123"
-                  className="w-full rounded-xl border-2 border-[var(--border)] px-4 py-4 text-center text-2xl tracking-widest uppercase focus:border-orange-500 focus:outline-none"
+                  className="w-full rounded-xl border border-[var(--border)] px-4 py-4 text-center text-2xl uppercase tracking-widest outline-none focus:border-[var(--accent)]"
                   maxLength={10}
                   autoFocus
                 />
@@ -141,24 +142,23 @@ export default function DeliveryScanPage() {
               <button
                 type="submit"
                 disabled={loading || manualCode.length < 4}
-                className="w-full rounded-xl bg-orange-500 py-4 text-lg font-bold text-white transition-colors hover:bg-orange-600 disabled:opacity-50"
+                className="w-full rounded-xl bg-[var(--accent)] py-4 text-lg font-semibold text-[var(--on-accent)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
               >
                 {loading ? "Buscando..." : "Buscar pedido"}
               </button>
             </form>
 
             {error && (
-              <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-center text-sm text-red-600">
+              <div className="mt-4 rounded-xl border border-[var(--danger)] p-4 text-center text-sm text-[var(--danger)]">
                 {error}
               </div>
             )}
           </div>
         ) : (
-          <div className="rounded-2xl border border-[var(--border)] bg-[var(--card-bg)] p-6 shadow-sm">
-            <div className="mb-4 rounded-xl bg-green-500 p-4 text-center text-white">
-              <div className="mb-1 text-3xl">✓</div>
-              <div className="font-bold">Pedido encontrado</div>
-              <div className="text-sm text-green-100">{orderInfo.store.name}</div>
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--card-bg)] p-6">
+            <div className="mb-4 rounded-xl border border-[var(--success)] p-4 text-center">
+              <div className="font-semibold text-[var(--success)]">Pedido encontrado</div>
+              <div className="text-sm text-[color:var(--muted)]">{orderInfo.store.name}</div>
             </div>
 
             <div className="mb-4 space-y-3">
@@ -176,9 +176,9 @@ export default function DeliveryScanPage() {
                   <span className="text-right text-sm">{orderInfo.customerAddress}</span>
                 </div>
               )}
-              <div className="flex justify-between rounded-lg bg-orange-50 p-3">
+              <div className="flex justify-between rounded-lg border border-[var(--border)] p-3">
                 <span className="font-medium text-[color:var(--text)]">Total</span>
-                <span className="text-xl font-bold text-orange-600">{formatMoney(orderInfo.totalCents)}</span>
+                <span className="text-xl font-semibold tabular-nums text-[var(--accent-strong)]">{formatMoney(orderInfo.totalCents)}</span>
               </div>
             </div>
 
@@ -187,18 +187,18 @@ export default function DeliveryScanPage() {
                 <button
                   onClick={confirmPickup}
                   disabled={confirming}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600 py-4 text-lg font-bold text-white transition-colors hover:bg-green-700 disabled:opacity-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--accent)] py-4 text-lg font-semibold text-[var(--on-accent)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
                 >
-                  {confirming ? "Confirmando..." : "Recoger producto - En camino"}
+                  {confirming ? "Confirmando..." : "Recoger producto — en camino"}
                 </button>
               ) : null}
               {scannedCode === orderInfo.pickupCode ? (
                 <button
                   onClick={confirmDelivery}
                   disabled={confirmingDelivery}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-4 text-lg font-bold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--accent)] py-4 text-lg font-semibold text-[var(--on-accent)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
                 >
-                  {confirmingDelivery ? "Confirmando..." : "Completar entrega - Entregado"}
+                  {confirmingDelivery ? "Confirmando..." : "Completar entrega — entregado"}
                 </button>
               ) : null}
               <button
@@ -207,7 +207,7 @@ export default function DeliveryScanPage() {
                   setManualCode("");
                   setError(null);
                 }}
-                className="w-full rounded-xl border-2 border-[var(--border)] py-3 font-medium text-[color:var(--muted)] transition-colors hover:bg-[var(--surface)]"
+                className="w-full rounded-xl border border-[var(--border)] py-3 font-medium text-[color:var(--muted)] transition-colors hover:bg-[var(--surface)]"
               >
                 Cancelar
               </button>
@@ -216,8 +216,8 @@ export default function DeliveryScanPage() {
         )}
 
         <div className="mt-6 text-center">
-          <Link href="/delivery" className="text-sm text-[color:var(--muted)] hover:text-orange-600 hover:underline">
-            ← Volver al panel
+          <Link href="/delivery" className="text-sm text-[color:var(--muted)] hover:text-[var(--accent-strong)] hover:underline">
+            Volver al panel
           </Link>
         </div>
       </div>

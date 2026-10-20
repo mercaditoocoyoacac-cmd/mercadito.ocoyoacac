@@ -168,7 +168,7 @@ export default function HorariosPage() {
           onClick={() => handleModeChange("weekly")}
           className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
             schedule.mode === "weekly"
-              ? "bg-[var(--accent)] text-white"
+              ? "bg-[var(--accent)] text-[var(--on-accent)]"
               : "border border-[var(--border)] text-[color:var(--muted)] hover:bg-[var(--accent-soft)]"
           }`}
         >
@@ -178,7 +178,7 @@ export default function HorariosPage() {
           onClick={() => handleModeChange("daily")}
           className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
             schedule.mode === "daily"
-              ? "bg-[var(--accent)] text-white"
+              ? "bg-[var(--accent)] text-[var(--on-accent)]"
               : "border border-[var(--border)] text-[color:var(--muted)] hover:bg-[var(--accent-soft)]"
           }`}
         >
@@ -196,8 +196,8 @@ export default function HorariosPage() {
                 onClick={() => toggleActive(day)}
                 className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
                   schedule.days[day].active
-                    ? "bg-[var(--accent)] text-white"
-                    : "bg-[var(--surface)] text-[color:var(--muted)] dark:bg-gray-800 dark:text-[color:var(--muted)]"
+                    ? "bg-[var(--accent)] text-[var(--on-accent)]"
+                    : "bg-[var(--surface)] text-[color:var(--muted)]"
                 }`}
               >
                 {DAY_LABELS[day]}
@@ -255,7 +255,7 @@ export default function HorariosPage() {
       </div>
 
       {!hasActiveDays && (
-        <p className="mt-3 text-xs text-amber-600">
+        <p className="mt-3 text-xs text-[var(--warning)]">
           Selecciona al menos un día activo para recibir entregas.
         </p>
       )}
@@ -264,7 +264,7 @@ export default function HorariosPage() {
         <button
           onClick={handleSave}
           disabled={saving || !hasActiveDays}
-          className="rounded-lg bg-[var(--accent)] px-6 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+          className="rounded-lg bg-[var(--accent)] px-6 py-2.5 text-sm font-medium text-[var(--on-accent)] transition-opacity hover:opacity-90 disabled:opacity-50"
         >
           {saving ? "Guardando..." : "Guardar horario"}
         </button>

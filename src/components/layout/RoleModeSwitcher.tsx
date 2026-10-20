@@ -4,9 +4,9 @@ import { useSession } from "next-auth/react";
 import { useState } from "react";
 
 const PORTALS: Record<string, { label: string; href: string; icon: string; activeCls: string }> = {
-  VENDOR: { label: "Vendedor", href: "/vendor", icon: "🏪", activeCls: "bg-emerald-600 text-white shadow" },
-  DELIVERY: { label: "Repartidor", href: "/delivery", icon: "🛵", activeCls: "bg-orange-500 text-white shadow" },
-  CUSTOMER: { label: "Cliente", href: "/", icon: "🛍️", activeCls: "bg-rose-500 text-white shadow" },
+  VENDOR: { label: "Vendedor", href: "/vendor", icon: "🏪", activeCls: "bg-[var(--accent)] text-[var(--on-accent)] shadow" },
+  DELIVERY: { label: "Repartidor", href: "/delivery", icon: "🛵", activeCls: "bg-[var(--accent)] text-[var(--on-accent)] shadow" },
+  CUSTOMER: { label: "Cliente", href: "/", icon: "🛍️", activeCls: "bg-[var(--accent)] text-[var(--on-accent)] shadow" },
 };
 
 export function RoleModeSwitcher({ availableRoles }: { availableRoles: string[] }) {

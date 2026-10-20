@@ -83,15 +83,15 @@ export default function DeliveryRegistroPage() {
         </p>
       </div>
 
-      <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+      <div className="mb-6 rounded-xl border border-[var(--warning)] p-4 text-sm text-[var(--warning)]">
         <div className="font-semibold">Para ser repartidor debes registrar:</div>
-        <ul className="mt-1 list-inside list-disc text-xs text-amber-800/90">
+        <ul className="mt-1 list-inside list-disc text-xs text-[color:var(--muted)]">
           <li>Foto de tu vehículo</li>
           <li>Licencia de conducir</li>
           <li>Foto tuya</li>
           <li>Identificación oficial</li>
         </ul>
-        <p className="mt-1 text-xs text-amber-800/80">
+        <p className="mt-1 text-xs text-[color:var(--muted)]">
           Puedes subirlas en{" "}
           <Link className="underline" href="/delivery/documentos">
             Documentos
@@ -102,18 +102,18 @@ export default function DeliveryRegistroPage() {
 
       {session?.user ? (
         <div className="space-y-4">
-          <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">
+          <div className="rounded-xl border border-[var(--success)] p-4 text-sm text-[var(--success)]">
             Sesión iniciada como <strong>{session.user.email}</strong> ({session.user.role})
           </div>
           {error ? (
-            <div className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700">
+            <div className="rounded-md border border-[var(--danger)] px-3 py-2 text-sm text-[var(--danger)]">
               {error}
             </div>
           ) : null}
           <button
             onClick={handleRegister}
             disabled={loading}
-            className="w-full rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
+            className="w-full rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--on-accent)] hover:bg-[var(--accent-hover)] disabled:opacity-60"
           >
             {loading ? "Cambiando..." : "Activar modo repartidor"}
           </button>
@@ -183,7 +183,7 @@ export default function DeliveryRegistroPage() {
           </label>
 
           {error ? (
-            <div className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700">
+            <div className="rounded-md border border-[var(--danger)] px-3 py-2 text-sm text-[var(--danger)]">
               {error}
             </div>
           ) : null}
@@ -191,7 +191,7 @@ export default function DeliveryRegistroPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
+            className="w-full rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--on-accent)] hover:bg-[var(--accent-hover)] disabled:opacity-60"
           >
             {loading ? "Registrando..." : "Registrarse"}
           </button>
