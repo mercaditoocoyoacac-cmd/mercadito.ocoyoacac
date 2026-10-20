@@ -30,6 +30,7 @@
   --accent: #15803D;
   --accent-hover: #166534;
   --accent-soft: #DCFCE7;
+  --accent-strong: #15803D;
   --on-accent: #FFFFFF;
   --navy: #0F172A;
   --navy-light: #1E293B;
@@ -89,11 +90,12 @@
   --border-strong: #334155;
 
   /* Marca / acción (verde que mantiene ≥4.5:1 con texto blanco) */
-  --brand: #1B8A44;
+  --brand: #15803D;
   --brand-strong: #166534;
-  --accent: #1B8A44;
-  --accent-hover: #22A050;
+  --accent: #15803D;
+  --accent-hover: #1B8A44;
   --accent-soft: #052E16;
+  --accent-strong: #4ADE80;
   --on-accent: #FFFFFF;
   --navy: #1E293B;
   --navy-light: #334155;
@@ -240,6 +242,7 @@
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-soft: var(--accent-soft);
+  --color-accent-strong: var(--accent-strong);
   --color-danger: var(--danger);
   --color-warning: var(--warning);
   --color-success: var(--success);
@@ -267,11 +270,12 @@
     --muted: #94A3B8;
     --border: #1E293B;
     --border-strong: #334155;
-    --brand: #1B8A44;
+    --brand: #15803D;
     --brand-strong: #166534;
-    --accent: #1B8A44;
-    --accent-hover: #22A050;
+    --accent: #15803D;
+    --accent-hover: #1B8A44;
     --accent-soft: #052E16;
+    --accent-strong: #4ADE80;
     --on-accent: #FFFFFF;
     --navy: #1E293B;
     --navy-light: #334155;
@@ -322,7 +326,7 @@ a {
   transition: color var(--dur-fast) var(--ease-out);
 }
 a:hover {
-  color: var(--accent);
+  color: var(--accent-strong);
 }
 
 hr {
@@ -482,10 +486,11 @@ textarea {
 }
 .btn-ghost {
   background: transparent;
-  color: var(--accent);
+  color: var(--accent-strong);
 }
 .btn-ghost:hover {
   background: var(--accent-soft);
+  color: var(--accent-strong);
 }
 .card-modern {
   background: var(--card-bg);

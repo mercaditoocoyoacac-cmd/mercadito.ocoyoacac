@@ -107,7 +107,7 @@ export function PaymentMethodCard({
     >
       {isSelected && (
         <div className="absolute -top-2 -right-2">
-          <svg className="h-6 w-6 text-[var(--accent)]" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <svg className="h-6 w-6 text-[var(--accent-strong)]" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
           </svg>
         </div>
@@ -286,7 +286,7 @@ export function PaymentMethodList({
       {methods.length === 0 && onAdd && (
         <div className="rounded-xl border-2 border-dashed border-[var(--border)] p-8 text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--accent-soft)]">
-            <svg aria-hidden="true" className="h-8 w-8 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className="h-8 w-8 text-[var(--accent-strong)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
             </svg>
           </div>

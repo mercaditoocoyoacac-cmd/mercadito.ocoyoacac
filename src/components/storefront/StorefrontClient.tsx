@@ -364,7 +364,7 @@ export function StorefrontClient({
               <button
                 type="button"
                 onClick={clearFilters}
-                className="text-sm font-medium text-[var(--accent)] underline-offset-4 hover:underline"
+                className="text-sm font-medium text-[var(--accent-strong)] underline-offset-4 hover:underline"
               >
                 Limpiar filtros
               </button>
@@ -429,7 +429,7 @@ export function StorefrontClient({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
             </svg>
             Ver carrito
-            <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[var(--card-bg)] px-1.5 text-[11px] font-bold text-[var(--accent)]">
+            <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[var(--card-bg)] px-1.5 text-[11px] font-bold text-[var(--accent-strong)]">
               {cartCount > 99 ? "99+" : cartCount}
             </span>
           </button>
@@ -527,7 +527,7 @@ function FeaturedTile({
       </div>
       <div className="p-3">
         <h3 className="line-clamp-1 text-sm font-medium">{name}</h3>
-        <p className="mt-1 text-sm font-semibold text-[var(--accent)]">{formatMoney(priceCents, "MXN")}</p>
+        <p className="mt-1 text-sm font-semibold text-[var(--accent-strong)]">{formatMoney(priceCents, "MXN")}</p>
       </div>
     </button>
   );

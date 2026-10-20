@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
 import { motion, type HTMLMotionProps } from "framer-motion";
@@ -21,8 +21,8 @@ export interface ButtonProps extends Omit<HTMLMotionProps<"button">, "children">
 const variantClasses: Record<ButtonVariant, string> = {
   primary: "bg-[var(--accent)] text-[var(--on-accent)] hover:bg-[var(--accent-hover)] active:bg-[var(--accent)]/90 shadow-sm shadow-[var(--accent)]/25",
   secondary: "bg-[var(--surface)] text-[var(--foreground)] border border-[var(--border)] hover:bg-[var(--accent-soft)] hover:border-[var(--accent)]",
-  outline: "bg-transparent text-[var(--accent)] border-2 border-[var(--accent)] hover:bg-[var(--accent-soft)]",
-  ghost: "bg-transparent text-[var(--accent)] hover:bg-[var(--accent-soft)]",
+  outline: "bg-transparent text-[var(--accent-strong)] border-2 border-[var(--accent)] hover:bg-[var(--accent-soft)]",
+  ghost: "bg-transparent text-[var(--accent-strong)] hover:bg-[var(--accent-soft)]",
   danger: "bg-[#B91C1C] text-white hover:bg-[#991B1B] active:bg-[#7F1D1D] shadow-sm shadow-red-500/20",
   success: "bg-[#15803D] text-white hover:bg-[#166534] active:bg-[#14532D] shadow-sm shadow-emerald-500/20",
 };

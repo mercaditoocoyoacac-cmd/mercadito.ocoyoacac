@@ -87,7 +87,7 @@ export default async function VendorProductosPage({
         <div className="flex gap-2">
           <Link
             href="/vendor/productos/importar"
-            className="inline-flex items-center gap-1.5 rounded-md border border-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent)] hover:bg-[var(--accent-soft)]"
+            className="inline-flex items-center gap-1.5 rounded-md border border-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-strong)] hover:bg-[var(--accent-soft)]"
           >
             <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
@@ -162,7 +162,7 @@ export default async function VendorProductosPage({
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <div className="font-medium truncate group-hover:text-[var(--accent)]">
+                        <div className="font-medium truncate group-hover:text-[var(--accent-strong)]">
                           {product.name}
                         </div>
                         {product.isService && (
@@ -218,7 +218,7 @@ export default async function VendorProductosPage({
 
                 <div className="mt-3 flex items-center justify-between border-t border-[var(--border)] pt-3">
                   <StockToggle productId={product.id} initial={product.isUnavailable} />
-                  <Link href={`/vendor/productos/${product.id}`} className="text-xs text-[var(--accent)] opacity-0 transition-opacity group-hover:opacity-100">
+                  <Link href={`/vendor/productos/${product.id}`} className="text-xs text-[var(--accent-strong)] opacity-0 transition-opacity group-hover:opacity-100">
                     Editar &rarr;
                   </Link>
                 </div>

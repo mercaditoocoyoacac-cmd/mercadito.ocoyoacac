@@ -73,7 +73,7 @@ export default function AdminNav() {
                     aria-current={active ? "page" : undefined}
                     className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
                       active
-                        ? "bg-[var(--accent-soft)] font-medium text-[var(--accent)]"
+                        ? "bg-[var(--accent-soft)] font-medium text-[var(--accent-strong)]"
                         : "text-[color:var(--muted)] hover:bg-[var(--surface)] hover:text-[color:var(--text)]"
                     }`}
                   >

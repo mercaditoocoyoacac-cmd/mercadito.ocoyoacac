@@ -115,7 +115,7 @@ export default function PrivacidadPage() {
       </p>
 
       <div className="mt-10 border-t border-[var(--border)] pt-6">
-        <Link href="/" className="text-[var(--accent)] hover:underline">
+        <Link href="/" className="text-[var(--accent-strong)] hover:underline">
           &larr; Volver al inicio
         </Link>
       </div>

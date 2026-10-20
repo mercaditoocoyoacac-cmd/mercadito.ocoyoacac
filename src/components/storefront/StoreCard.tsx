@@ -52,7 +52,7 @@ export function StoreCard({
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
-            <span className="text-5xl font-bold text-[var(--accent)]">
+            <span className="text-5xl font-bold text-[var(--accent-strong)]">
               {store.name.charAt(0).toUpperCase()}
             </span>
           </div>
@@ -79,7 +79,7 @@ export function StoreCard({
       </div>
 
       <div className="flex flex-1 flex-col p-5">
-        <h2 className="text-lg font-semibold tracking-tight transition-colors group-hover:text-[var(--accent)]">
+        <h2 className="text-lg font-semibold tracking-tight transition-colors group-hover:text-[var(--accent-strong)]">
           {store.name}
         </h2>
         {store.description ? (
@@ -116,7 +116,7 @@ export function StoreCard({
             </svg>
             {total} producto{total === 1 ? "" : "s"}
           </span>
-          <span className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--accent)]">
+          <span className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--accent-strong)]">
             Ver tienda
             <svg
               aria-hidden="true"

@@ -165,7 +165,7 @@ export default function VendorMembresiaPage() {
       badge: "Gratis",
       tagline: "Para empezar a vender",
       price: "Gratis",
-      accent: "text-[var(--accent)]",
+      accent: "text-[var(--accent-strong)]",
       cardBorder: "border-[var(--border)]",
       highlight: currentPlan === "FREE" && !isSubActive,
       features: [
@@ -270,7 +270,7 @@ export default function VendorMembresiaPage() {
                         ✓ Plan activo
                       </div>
                     ) : plan.key === "FREE" ? (
-                      <div className="rounded-lg bg-[var(--accent-soft)] px-3 py-2 text-center text-sm font-medium text-[var(--accent)]">
+                      <div className="rounded-lg bg-[var(--accent-soft)] px-3 py-2 text-center text-sm font-medium text-[var(--accent-strong)]">
                         Gratis por defecto
                       </div>
                     ) : (
@@ -297,7 +297,7 @@ export default function VendorMembresiaPage() {
                     {selectedPlan === MEMBER_KEY && isDiscounted && " (40% off)"}
                   </div>
                 </div>
-                <span className="rounded-full bg-[var(--accent-soft)] px-3 py-1 text-xs font-medium text-[var(--accent)]">
+                <span className="rounded-full bg-[var(--accent-soft)] px-3 py-1 text-xs font-medium text-[var(--accent-strong)]">
                   Tu selección
                 </span>
               </div>
@@ -317,7 +317,7 @@ export default function VendorMembresiaPage() {
                       type="button"
                       onClick={validateCoupon}
                       disabled={couponLoading || !couponCode.trim()}
-                      className="shrink-0 rounded-lg border border-[var(--accent)] px-3 py-2 text-sm font-medium text-[var(--accent)] hover:bg-[var(--accent-soft)] disabled:opacity-50"
+                      className="shrink-0 rounded-lg border border-[var(--accent)] px-3 py-2 text-sm font-medium text-[var(--accent-strong)] hover:bg-[var(--accent-soft)] disabled:opacity-50"
                     >
                       {couponLoading ? "..." : "Aplicar"}
                     </button>

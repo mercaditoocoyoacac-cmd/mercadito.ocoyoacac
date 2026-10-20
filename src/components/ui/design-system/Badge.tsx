@@ -20,7 +20,7 @@ export interface BadgeProps {
 }
 
 const variantClasses: Record<BadgeVariant, string> = {
-  default: "bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--accent)]/20",
+  default: "bg-[var(--accent-soft)] text-[var(--accent-strong)] border border-[var(--accent)]/20",
   success: "bg-[var(--success-soft)] text-[var(--success)] border border-[var(--success)]/20",
   warning: "bg-[var(--warning-soft)] text-[var(--warning)] border border-[var(--warning)]/20",
   danger: "bg-[var(--danger-soft)] text-[var(--danger)] border border-[var(--danger)]/20",

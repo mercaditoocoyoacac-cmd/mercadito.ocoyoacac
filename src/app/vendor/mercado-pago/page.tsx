@@ -69,7 +69,7 @@ export default function MercadoPagoSettingsPage() {
             href="https://www.mercadopago.com.mx/developers/panel"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline text-[var(--accent)]"
+            className="underline text-[var(--accent-strong)]"
           >
             MercadoPago Developers
           </a>

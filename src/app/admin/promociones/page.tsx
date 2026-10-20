@@ -353,7 +353,7 @@ export default function AdminPromocionesPage() {
               type="checkbox"
               checked={isPercentage}
               onChange={(e) => setIsPercentage(e.target.checked)}
-              className="h-4 w-4 rounded border-[var(--border)] text-[var(--accent)] focus:ring-[var(--accent)]"
+              className="h-4 w-4 rounded border-[var(--border)] text-[var(--accent-strong)] focus:ring-[var(--accent)]"
             />
             <div>
               <div className="text-sm font-medium">
@@ -385,7 +385,7 @@ export default function AdminPromocionesPage() {
               type="checkbox"
               checked={requiresCoupon}
               onChange={(e) => setRequiresCoupon(e.target.checked)}
-              className="h-4 w-4 rounded border-[var(--border)] text-[var(--accent)] focus:ring-[var(--accent)]"
+              className="h-4 w-4 rounded border-[var(--border)] text-[var(--accent-strong)] focus:ring-[var(--accent)]"
             />
             <div>
               <div className="text-sm font-medium">Requiere cupón para activarse</div>
@@ -401,7 +401,7 @@ export default function AdminPromocionesPage() {
                 Productos incluidos * ({selectedProducts.size} seleccionados)
               </div>
               {products.length > 0 && (
-                <button type="button" onClick={toggleAll} className="text-xs text-[var(--accent)] hover:underline">
+                <button type="button" onClick={toggleAll} className="text-xs text-[var(--accent-strong)] hover:underline">
                   {selectedProducts.size === products.length ? "Deseleccionar todos" : "Seleccionar todos"}
                 </button>
               )}
@@ -542,7 +542,7 @@ export default function AdminPromocionesPage() {
                           </span>
                         )}
                         {pp.promoPriceCents != null && (
-                          <span className="text-xs text-[var(--accent)] font-bold">
+                          <span className="text-xs text-[var(--accent-strong)] font-bold">
                             {formatMoney(pp.promoPriceCents, "MXN")}
                           </span>
                         )}

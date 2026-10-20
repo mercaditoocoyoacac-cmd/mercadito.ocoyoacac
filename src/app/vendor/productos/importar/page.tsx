@@ -15,7 +15,7 @@ function HelpTip({ text }: { text: string }) {
         onMouseEnter={() => setShow(true)}
         onMouseLeave={() => setShow(false)}
         onClick={() => setShow(!show)}
-        className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--muted)] text-[10px] text-[color:var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
+        className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--muted)] text-[10px] text-[color:var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent-strong)]"
         aria-label="Ayuda"
       >
         ?
@@ -190,7 +190,7 @@ export default function VendorImportPage() {
             Sube tu catálogo desde SICAR u otro sistema
           </p>
         </div>
-        <Link href="/vendor/productos" className="text-sm text-[var(--accent)] hover:underline">
+        <Link href="/vendor/productos" className="text-sm text-[var(--accent-strong)] hover:underline">
           ← Volver
         </Link>
       </div>
@@ -226,21 +226,21 @@ export default function VendorImportPage() {
             <h2 className="font-semibold">¿Cómo funciona?</h2>
             <div className="mt-4 space-y-3 text-sm">
               <div className="flex gap-3">
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-xs font-bold text-[var(--accent)]">1</div>
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-xs font-bold text-[var(--accent-strong)]">1</div>
                 <div>
                   <div className="font-medium">Exporta desde SICAR</div>
                   <p className="text-[color:var(--muted)] mt-0.5">En SICAR ve a Archivo → Exportar → CSV. También puedes usar Excel (.xlsx).</p>
                 </div>
               </div>
               <div className="flex gap-3">
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-xs font-bold text-[var(--accent)]">2</div>
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-xs font-bold text-[var(--accent-strong)]">2</div>
                 <div>
                   <div className="font-medium">Sube el archivo aquí</div>
                   <p className="text-[color:var(--muted)] mt-0.5">Arrastra o haz clic para seleccionar tu archivo CSV o Excel.</p>
                 </div>
               </div>
               <div className="flex gap-3">
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-xs font-bold text-[var(--accent)]">3</div>
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-xs font-bold text-[var(--accent-strong)]">3</div>
                 <div>
                   <div className="font-medium">Revisa y confirma</div>
                   <p className="text-[color:var(--muted)] mt-0.5">Verás una vista previa antes de importar. Productos nuevos se crearán, existentes se actualizarán.</p>
@@ -274,7 +274,7 @@ export default function VendorImportPage() {
               className="hidden"
             />
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--accent-soft)]">
-              <svg aria-hidden="true" className="h-8 w-8 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg aria-hidden="true" className="h-8 w-8 text-[var(--accent-strong)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3" />
               </svg>
             </div>
@@ -294,7 +294,7 @@ export default function VendorImportPage() {
                   Mostrando los primeros {previewRows.length} productos
                 </p>
               </div>
-              <button onClick={resetForm} className="text-sm text-[var(--accent)] hover:underline">
+              <button onClick={resetForm} className="text-sm text-[var(--accent-strong)] hover:underline">
                 Cambiar archivo
               </button>
             </div>
@@ -303,7 +303,7 @@ export default function VendorImportPage() {
               {previewRows.map((row, i) => (
                 <div key={i} className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
                   <div className="font-medium text-sm truncate">{row.name}</div>
-                  <div className="mt-1 text-lg font-semibold text-[var(--accent)]">{row.price}</div>
+                  <div className="mt-1 text-lg font-semibold text-[var(--accent-strong)]">{row.price}</div>
                   <div className="mt-1 flex gap-2 text-xs text-[color:var(--muted)]">
                     {row.sku && <span className="font-mono">#{row.sku}</span>}
                     {row.stock && <span>{row.stock} uds</span>}

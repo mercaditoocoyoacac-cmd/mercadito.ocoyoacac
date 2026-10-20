@@ -225,7 +225,7 @@ export default function HorariosPage() {
                     type="checkbox"
                     checked={schedule.days[day].active}
                     onChange={() => toggleActive(day)}
-                    className="h-4 w-4 rounded border-[var(--border)] text-[var(--accent)]"
+                    className="h-4 w-4 rounded border-[var(--border)] text-[var(--accent-strong)]"
                   />
                 )}
                 <span className="text-sm font-medium">{DAY_LABELS[day]}</span>

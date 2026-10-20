@@ -41,7 +41,7 @@ export function SwipeBack({ children }: { children: React.ReactNode }) {
         dragMomentum={false}
       >
         <div className="flex h-20 w-10 items-center justify-center rounded-r-2xl bg-[var(--accent)]/10 shadow-lg backdrop-blur-md border border-[var(--accent)]/20">
-          <svg aria-hidden="true" className="h-6 w-6 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg aria-hidden="true" className="h-6 w-6 text-[var(--accent-strong)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
           </svg>
         </div>

@@ -75,7 +75,7 @@ export default function ReceiveOrderPage() {
       </form>
 
       <div className="mt-6 text-center">
-        <Link href="/mis-pedidos" className="text-sm text-[var(--accent)] underline">
+        <Link href="/mis-pedidos" className="text-sm text-[var(--accent-strong)] underline">
           Ver mis pedidos
         </Link>
       </div>

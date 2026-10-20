@@ -319,7 +319,7 @@ export default function RegistroPage() {
       {!isLoggedInVendorOrDelivery && step === 1 && (
         <div className="mt-6 text-center text-sm text-[color:var(--muted)]">
           ¿Ya tienes cuenta?{" "}
-          <Link className="underline font-medium text-[var(--accent)]" href="/login">
+          <Link className="underline font-medium text-[var(--accent-strong)]" href="/login">
             Inicia sesión
           </Link>
         </div>

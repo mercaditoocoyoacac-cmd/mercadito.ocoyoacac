@@ -560,7 +560,7 @@ export default function CarritoPage() {
             <p className="mt-1 text-sm text-[color:var(--muted)]">
               {(items ?? []).length} producto{(items ?? []).length !== 1 ? "s" : ""}
               {store && (
-                <> en <Link className="font-medium text-[var(--accent)] hover:underline" href={`/tienda/${store.slug}`}>{store.name}</Link></>
+                <> en <Link className="font-medium text-[var(--accent-strong)] hover:underline" href={`/tienda/${store.slug}`}>{store.name}</Link></>
               )}
             </p>
           </div>
@@ -572,7 +572,7 @@ export default function CarritoPage() {
                 Vaciar
               </Button>
             )}
-            <Link href="/tiendas" className="hidden sm:flex items-center gap-1.5 text-sm text-[var(--accent)] hover:underline">
+            <Link href="/tiendas" className="hidden sm:flex items-center gap-1.5 text-sm text-[var(--accent-strong)] hover:underline">
               <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
               Seguir comprando
             </Link>
@@ -632,7 +632,7 @@ export default function CarritoPage() {
 
         {(items ?? []).length > 0 && (
           <div className="mb-6 rounded-xl border border-[var(--border)] bg-[var(--card-bg)] px-5 py-4 text-sm text-[color:var(--muted)] flex items-start gap-3">
-            <svg aria-hidden="true" className="h-5 w-5 shrink-0 mt-0.5 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <svg aria-hidden="true" className="h-5 w-5 shrink-0 mt-0.5 text-[var(--accent-strong)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             <div>
               <div className="font-medium text-[var(--foreground)]">Normas de tu pedido</div>
               <p className="mt-1 text-xs">
@@ -685,7 +685,7 @@ export default function CarritoPage() {
                           {item.product.imageUrl ? (
                             <img src={item.product.imageUrl} alt={item.product.name} className="w-full h-full object-cover" />
                           ) : (
-                            <svg aria-hidden="true" className="h-7 w-7 text-[var(--accent)]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                            <svg aria-hidden="true" className="h-7 w-7 text-[var(--accent-strong)]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
                           )}
                           {item.product.isUnavailable && (
                             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
@@ -705,7 +705,7 @@ export default function CarritoPage() {
                                   <span>{formatMoney(effectivePrice, item.product.currency)} / kg</span>
                                 ) : (
                                   <span className="flex items-center gap-1.5">
-                                    <span className={hasPromo ? "font-bold text-[var(--accent)]" : ""}>{formatMoney(effectivePrice, item.product.currency)}</span>
+                                    <span className={hasPromo ? "font-bold text-[var(--accent-strong)]" : ""}>{formatMoney(effectivePrice, item.product.currency)}</span>
                                     {hasPromo && <span className="text-[color:var(--muted)] line-through text-[10px]">{formatMoney(basePrice, item.product.currency)}</span>}
                                   </span>
                                 )}
@@ -1006,7 +1006,7 @@ export default function CarritoPage() {
                             {evidenceUploading && <div className="text-xs text-[color:var(--muted)]">Subiendo...</div>}
                             {evidenceError && <div className="text-xs text-red-600">{evidenceError}</div>}
                             {paymentEvidenceUrl && !evidenceUploading && (
-                              <a href={paymentEvidenceUrl} target="_blank" rel="noreferrer" className="text-xs text-[var(--accent)] hover:underline">Ver captura ✓</a>
+                              <a href={paymentEvidenceUrl} target="_blank" rel="noreferrer" className="text-xs text-[var(--accent-strong)] hover:underline">Ver captura ✓</a>
                             )}
                           </div>
 

@@ -68,7 +68,7 @@ export default async function VendorPedidoPage({
       <div className="flex items-center gap-3 mb-6">
         <Link
           href="/vendor/pedidos"
-          className="text-sm text-[var(--accent)] hover:underline"
+          className="text-sm text-[var(--accent-strong)] hover:underline"
         >
           &larr; Volver a pedidos
         </Link>
@@ -175,7 +175,7 @@ export default async function VendorPedidoPage({
                       href={order.paymentEvidenceUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-xs text-[var(--accent)] hover:underline"
+                      className="text-xs text-[var(--accent-strong)] hover:underline"
                     >
                       Ver captura del comprobante ↗
                     </a>

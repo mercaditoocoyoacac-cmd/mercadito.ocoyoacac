@@ -171,7 +171,7 @@ export default function VendorRegistroPage() {
             </label>
 
             <div className="flex items-center justify-between pt-2">
-              <Link href="/vendor/login" className="text-sm text-[var(--accent)] hover:underline">¿Ya tienes cuenta?</Link>
+              <Link href="/vendor/login" className="text-sm text-[var(--accent-strong)] hover:underline">¿Ya tienes cuenta?</Link>
               <button type="submit" disabled={loading} className="rounded-md bg-[var(--accent)] px-6 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60">
                 {loading ? "Creando..." : "Continuar"}
               </button>
@@ -245,7 +245,7 @@ export default function VendorRegistroPage() {
             </div>
 
             <div className="flex items-center justify-between pt-2">
-              <button type="button" onClick={() => setStep(0)} className="text-sm text-[color:var(--muted)] hover:text-[var(--accent)]">← Atrás</button>
+              <button type="button" onClick={() => setStep(0)} className="text-sm text-[color:var(--muted)] hover:text-[var(--accent-strong)]">← Atrás</button>
               <button type="submit" disabled={loading || uploading} className="rounded-md bg-[var(--accent)] px-6 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60">
                 {loading ? "Creando tienda..." : "Crear tienda e ir al panel"}
               </button>

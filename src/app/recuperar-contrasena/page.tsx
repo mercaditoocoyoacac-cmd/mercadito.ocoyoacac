@@ -41,7 +41,7 @@ export default function ForgotPasswordPage() {
           <p className="mt-2 text-sm text-[color:var(--muted)]">
             Si existe una cuenta con ese correo, recibirás un enlace para restablecer tu contraseña.
           </p>
-          <Link href="/login" className="mt-6 inline-block text-sm text-[var(--accent)] hover:underline">
+          <Link href="/login" className="mt-6 inline-block text-sm text-[var(--accent-strong)] hover:underline">
             Volver al inicio de sesión
           </Link>
         </div>
@@ -86,7 +86,7 @@ export default function ForgotPasswordPage() {
         </form>
 
         <div className="mt-4 text-center text-sm text-[color:var(--muted)]">
-          <Link href="/login" className="text-[var(--accent)] hover:underline">
+          <Link href="/login" className="text-[var(--accent-strong)] hover:underline">
             Volver al inicio de sesión
           </Link>
         </div>

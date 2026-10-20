@@ -152,7 +152,7 @@ export default function NotificacionesPage() {
         {notifications.some((n) => !n.read) && (
           <button
             onClick={markAllRead}
-            className="ml-auto rounded-lg px-4 py-2 text-sm font-medium text-[var(--accent)] hover:underline"
+            className="ml-auto rounded-lg px-4 py-2 text-sm font-medium text-[var(--accent-strong)] hover:underline"
           >
             Marcar todo leído
           </button>

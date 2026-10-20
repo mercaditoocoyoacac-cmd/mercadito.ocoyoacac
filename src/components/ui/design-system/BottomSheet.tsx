@@ -289,12 +289,12 @@ export function QuickViewSheet({
         {/* Price & Variants */}
         <div className="space-y-3">
           <div className="flex items-baseline justify-between gap-4">
-            <span className="text-2xl font-bold text-[var(--accent)]">
+            <span className="text-2xl font-bold text-[var(--accent-strong)]">
               {formatMoney(effectivePrice, product.currency)}
               {product.sellByWeight && <span className="text-lg font-normal text-[color:var(--muted)]">/kg</span>}
             </span>
             {estimatedTotal && (
-              <span className="text-lg font-medium text-[var(--accent)]">
+              <span className="text-lg font-medium text-[var(--accent-strong)]">
                 ≈ {formatMoney(estimatedTotal, product.currency)}
               </span>
             )}
@@ -312,7 +312,7 @@ export function QuickViewSheet({
                     className={`
                       rounded-lg px-4 py-2 text-sm font-medium border-2 transition-all
                       ${selectedVariant === variant.id
-                        ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]"
+                        ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent-strong)]"
                         : "border-[var(--border)] hover:border-[var(--accent)]"
                       }
                     `}
@@ -348,7 +348,7 @@ export function QuickViewSheet({
                       className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
                         weight === w
                           ? "bg-[var(--accent)] text-white"
-                          : "bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-white"
+                          : "bg-[var(--accent-soft)] text-[var(--accent-strong)] hover:bg-[var(--accent)] hover:text-white"
                       }`}
                     >
                       {w >= 1000 ? `${w/1000}kg` : `${w}g`}

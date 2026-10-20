@@ -32,7 +32,7 @@ export function OrderModifyButton({ orderId }: { orderId: string }) {
         type="button"
         onClick={handleModify}
         disabled={loading}
-        className="rounded-lg border border-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent)] transition-colors hover:bg-[var(--accent-soft)] disabled:opacity-50"
+        className="rounded-lg border border-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-strong)] transition-colors hover:bg-[var(--accent-soft)] disabled:opacity-50"
       >
         {loading ? "Cargando..." : "Modificar pedido"}
       </button>

@@ -177,7 +177,7 @@ function ProductForm({
       )}
 
       <button type="button" onClick={() => setShowAdvanced(!showAdvanced)}
-        className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-[var(--border)] px-4 py-2 text-sm text-[color:var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]">
+        className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-[var(--border)] px-4 py-2 text-sm text-[color:var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent-strong)]">
         <svg aria-hidden="true" className={`h-4 w-4 transition-transform ${showAdvanced ? "rotate-90" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
@@ -232,7 +232,7 @@ function ProductForm({
             <div className="flex items-center justify-between">
               <div className="text-sm font-medium">Variantes</div>
               <button type="button" onClick={addVariant}
-                className="text-xs text-[var(--accent)] hover:underline">+ Agregar variante</button>
+                className="text-xs text-[var(--accent-strong)] hover:underline">+ Agregar variante</button>
             </div>
             {variants.length === 0 && (
               <p className="mt-2 text-xs text-[color:var(--muted)]">Sin variantes. El producto se venderá tal cual.</p>
@@ -622,7 +622,7 @@ function AdminProductosPage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setEditingProduct(product)}
-                    className="text-xs text-[var(--accent)] hover:underline"
+                    className="text-xs text-[var(--accent-strong)] hover:underline"
                   >
                     Editar
                   </button>
@@ -708,7 +708,7 @@ function AdminReorderForm({ products, storeId, onEdit, onDelete }: { products: P
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <button onClick={() => onEdit(product)} className="text-xs text-[var(--accent)] hover:underline">Editar</button>
+            <button onClick={() => onEdit(product)} className="text-xs text-[var(--accent-strong)] hover:underline">Editar</button>
             <button onClick={() => onDelete(product.id)} className="text-xs text-red-500 hover:underline">Eliminar</button>
           </div>
         </div>

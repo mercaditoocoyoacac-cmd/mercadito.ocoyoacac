@@ -171,7 +171,7 @@ export default async function AdminUsersPage({
               className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                 isActive
                   ? "bg-[var(--accent)] text-white"
-                  : "border border-[var(--border)] text-[color:var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
+                  : "border border-[var(--border)] text-[color:var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent-strong)]"
               }`}
             >
               {t.label}
@@ -257,7 +257,7 @@ export default async function AdminUsersPage({
                   <div className="mt-3 flex flex-wrap gap-2">
                     {missingRoles.map((role) => (
                       <form key={role} action={addRole.bind(null, user.id, role)}>
-                        <button className="rounded-lg border border-dashed border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[color:var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]">
+                        <button className="rounded-lg border border-dashed border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[color:var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent-strong)]">
                           +{roleLabels[role]}
                         </button>
                       </form>

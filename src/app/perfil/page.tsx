@@ -315,7 +315,7 @@ export default function ProfilePage() {
                 <div className="mt-2 text-xs text-[color:var(--muted)]">
                   {o.arrivedAt ? "Proporciona este código al repartidor" : "Proporciona este código al recoger en tienda"}
                 </div>
-                <Link href={`/mis-pedidos/${o.id}`} className="mt-3 inline-block text-xs text-[var(--accent)] hover:underline">
+                <Link href={`/mis-pedidos/${o.id}`} className="mt-3 inline-block text-xs text-[var(--accent-strong)] hover:underline">
                   Ver detalle del pedido →
                 </Link>
               </CardContent>

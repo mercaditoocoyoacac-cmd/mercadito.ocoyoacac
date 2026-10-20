@@ -101,7 +101,7 @@ export default async function Home() {
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/tiendas"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--card-bg)] px-7 py-3.5 text-base font-semibold text-[var(--accent)] shadow-lg transition-transform hover:-translate-y-0.5 active:scale-[0.98]"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--card-bg)] px-7 py-3.5 text-base font-semibold text-[var(--accent-strong)] shadow-lg transition-transform hover:-translate-y-0.5 active:scale-[0.98]"
               >
                 Explorar tiendas
               </Link>
@@ -123,21 +123,21 @@ export default async function Home() {
         <Card variant="elevated" className="rounded-2xl">
           <CardContent className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4 px-6 py-6 text-center">
             <div>
-              <div className="text-2xl font-bold text-[var(--accent)] lg:text-3xl">
+              <div className="text-2xl font-bold text-[var(--accent-strong)] lg:text-3xl">
                 {storeCount.toLocaleString()}
               </div>
               <div className="text-sm text-[color:var(--muted)]">Tiendas locales</div>
             </div>
             <div className="hidden h-8 w-px bg-[var(--border)] sm:block" aria-hidden="true" />
             <div>
-              <div className="text-2xl font-bold text-[var(--accent)] lg:text-3xl">
+              <div className="text-2xl font-bold text-[var(--accent-strong)] lg:text-3xl">
                 {productCount.toLocaleString()}
               </div>
               <div className="text-sm text-[color:var(--muted)]">Productos disponibles</div>
             </div>
             <div className="hidden h-8 w-px bg-[var(--border)] sm:block" aria-hidden="true" />
             <div>
-              <div className="text-2xl font-bold text-[var(--accent)] lg:text-3xl">Mismo día</div>
+              <div className="text-2xl font-bold text-[var(--accent-strong)] lg:text-3xl">Mismo día</div>
               <div className="text-sm text-[color:var(--muted)]">Entrega local</div>
             </div>
           </CardContent>
@@ -153,7 +153,7 @@ export default async function Home() {
             </div>
             <Link
               href="/tiendas"
-              className="hidden shrink-0 text-sm font-semibold text-[var(--accent)] underline-offset-4 hover:underline sm:inline"
+              className="hidden shrink-0 text-sm font-semibold text-[var(--accent-strong)] underline-offset-4 hover:underline sm:inline"
             >
               Ver todas →
             </Link>
@@ -178,7 +178,7 @@ export default async function Home() {
                       priority={idx < 3}
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center text-5xl font-bold text-[var(--accent)]">
+                    <div className="flex h-full w-full items-center justify-center text-5xl font-bold text-[var(--accent-strong)]">
                       {store.name.charAt(0).toUpperCase()}
                     </div>
                   )}
@@ -191,7 +191,7 @@ export default async function Home() {
                   </span>
                 </div>
                 <div className="p-5">
-                  <h3 className="line-clamp-1 text-lg font-semibold transition-colors group-hover:text-[var(--accent)]">
+                  <h3 className="line-clamp-1 text-lg font-semibold transition-colors group-hover:text-[var(--accent-strong)]">
                     {store.name}
                   </h3>
                   {store.description ? (
@@ -260,7 +260,7 @@ export default async function Home() {
               <Link
                 key={key}
                 href={`/tiendas?category=${key}`}
-                className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--card-bg)] px-4 py-2.5 text-sm font-medium transition-colors hover:border-[var(--accent)]/40 hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]"
+                className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--card-bg)] px-4 py-2.5 text-sm font-medium transition-colors hover:border-[var(--accent)]/40 hover:bg-[var(--accent-soft)] hover:text-[var(--accent-strong)]"
               >
                 {label}
               </Link>
@@ -296,13 +296,13 @@ export default async function Home() {
           </Link>
           <Link
             href="/portal/vendedor"
-            className="font-semibold text-[var(--accent)] underline-offset-4 hover:underline"
+            className="font-semibold text-[var(--accent-strong)] underline-offset-4 hover:underline"
           >
             ¿Eres vendedor? →
           </Link>
           <Link
             href="/portal/repartidor"
-            className="font-semibold text-[var(--accent)] underline-offset-4 hover:underline"
+            className="font-semibold text-[var(--accent-strong)] underline-offset-4 hover:underline"
           >
             ¿Quieres entregar? →
           </Link>

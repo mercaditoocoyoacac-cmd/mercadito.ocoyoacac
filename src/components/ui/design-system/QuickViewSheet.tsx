@@ -160,7 +160,7 @@ export function QuickViewSheet({
             {/* Price & Badges */}
             <div className="flex items-baseline justify-between gap-4 flex-wrap">
               <div className="flex items-baseline gap-3 flex-wrap">
-                <span className="text-2xl font-bold text-[var(--accent)]">
+                <span className="text-2xl font-bold text-[var(--accent-strong)]">
                   {formatMoney(effectivePrice, product.currency)}
                   {product.sellByWeight && <span className="text-lg font-normal text-[color:var(--muted)]">/kg</span>}
                 </span>
@@ -201,7 +201,7 @@ export function QuickViewSheet({
                       className={`
                         rounded-lg px-4 py-2.5 text-sm font-medium border-2 transition-all
                         ${selectedVariant === variant.id
-                          ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]"
+                          ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent-strong)]"
                           : "border-[var(--border)] hover:border-[var(--accent)]"
                         }
                       `}
@@ -244,7 +244,7 @@ export function QuickViewSheet({
                         rounded-lg px-3 py-1.5 text-xs font-medium transition-all
                         ${weight === w
                           ? "bg-[var(--accent)] text-white"
-                          : "bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-white"
+                          : "bg-[var(--accent-soft)] text-[var(--accent-strong)] hover:bg-[var(--accent)] hover:text-white"
                         }
                       `}
                     >
@@ -259,7 +259,7 @@ export function QuickViewSheet({
             {estimatedTotal !== null && (
               <div className="rounded-xl bg-[var(--accent-soft)] p-4 text-center">
                 <p className="text-sm text-[color:var(--muted)]">Total estimado</p>
-                <p className="text-2xl font-bold text-[var(--accent)]">{formatMoney(estimatedTotal, product.currency)}</p>
+                <p className="text-2xl font-bold text-[var(--accent-strong)]">{formatMoney(estimatedTotal, product.currency)}</p>
               </div>
             )}
 

@@ -113,7 +113,7 @@ export default async function MisPedidosPage() {
                       </div>
                       <div className="mt-2 text-sm">
                         <span className="text-[color:var(--muted)]">Tienda: </span>
-                        <Link href={`/tienda/${order.store.slug}`} className="font-medium text-[var(--accent)] hover:underline">
+                        <Link href={`/tienda/${order.store.slug}`} className="font-medium text-[var(--accent-strong)] hover:underline">
                           {order.store.name}
                         </Link>
                       </div>
@@ -153,7 +153,7 @@ function StatCard({ label, value, variant = "default", icon }: { label: string; 
     danger: "bg-red-50 border-red-200",
   };
   const iconColors = {
-    default: "text-[var(--accent)]",
+    default: "text-[var(--accent-strong)]",
     success: "text-green-600",
     warning: "text-amber-600",
     danger: "text-red-600",

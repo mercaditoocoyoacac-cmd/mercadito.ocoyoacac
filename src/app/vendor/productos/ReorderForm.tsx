@@ -88,7 +88,7 @@ export function ReorderForm({ products }: { products: Product[] }) {
               )}
             </div>
             <div className="min-w-0">
-              <div className="truncate text-sm font-medium group-hover:text-[var(--accent)]">{product.name}</div>
+              <div className="truncate text-sm font-medium group-hover:text-[var(--accent-strong)]">{product.name}</div>
               <div className="text-xs text-[color:var(--muted)]">{formatMoney(product.priceCents, product.currency)}</div>
             </div>
           </Link>
@@ -97,7 +97,7 @@ export function ReorderForm({ products }: { products: Product[] }) {
             <StockToggle productId={product.id} initial={product.isUnavailable} />
             <Link
               href={`/vendor/productos/${product.id}`}
-              className="text-xs text-[var(--accent)] opacity-0 transition-opacity group-hover:opacity-100"
+              className="text-xs text-[var(--accent-strong)] opacity-0 transition-opacity group-hover:opacity-100"
             >
               Editar &rarr;
             </Link>

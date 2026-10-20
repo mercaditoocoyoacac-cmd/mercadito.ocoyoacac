@@ -14,7 +14,7 @@ function HelpTip({ text }: { text: string }) {
         onMouseEnter={() => setShow(true)}
         onMouseLeave={() => setShow(false)}
         onClick={() => setShow(!show)}
-        className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--muted)] text-[10px] text-[color:var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
+        className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--muted)] text-[10px] text-[color:var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent-strong)]"
         aria-label="Ayuda"
       >
         ?
@@ -318,7 +318,7 @@ export default function NuevoProductoPage() {
         <button
           type="button"
           onClick={() => setShowAdvanced(!showAdvanced)}
-          className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-[var(--border)] px-4 py-2 text-sm text-[color:var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
+          className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-[var(--border)] px-4 py-2 text-sm text-[color:var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent-strong)]"
         >
           <svg aria-hidden="true"
             className={`h-4 w-4 transition-transform ${showAdvanced ? "rotate-90" : ""}`}
@@ -493,7 +493,7 @@ export default function NuevoProductoPage() {
                 <button
                   type="button"
                   onClick={addVariant}
-                  className="text-xs text-[var(--accent)] hover:underline"
+                  className="text-xs text-[var(--accent-strong)] hover:underline"
                 >
                   + Agregar variante
                 </button>

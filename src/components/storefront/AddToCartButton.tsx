@@ -118,7 +118,7 @@ export const AddToCartButton = memo(function AddToCartButton({
           {loading ? "..." : label}
         </button>
         {estimatedTotal !== null && estimatedTotal > 0 && (
-          <span className="text-xs font-medium text-[var(--accent)]">
+          <span className="text-xs font-medium text-[var(--accent-strong)]">
             ≈ {formatMoney(estimatedTotal)}
           </span>
         )}

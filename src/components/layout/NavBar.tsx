@@ -128,7 +128,7 @@ export function NavBar() {
               href="/promociones"
               className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                 isActive("/promociones")
-                  ? "bg-[var(--accent-soft)] text-[var(--accent)]"
+                  ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
                   : "text-[color:var(--muted)] hover:bg-[var(--surface)] hover:text-[color:var(--text)]"
               }`}
             >
@@ -138,7 +138,7 @@ export function NavBar() {
               href="/tiendas"
               className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                 isActive("/tiendas")
-                  ? "bg-[var(--accent-soft)] text-[var(--accent)]"
+                  ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
                   : "text-[color:var(--muted)] hover:bg-[var(--surface)] hover:text-[color:var(--text)]"
               }`}
             >
@@ -148,7 +148,7 @@ export function NavBar() {
               href="/carrito"
               className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
                 isActive("/carrito")
-                  ? "bg-[var(--accent-soft)] text-[var(--accent)]"
+                  ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
                   : "text-[color:var(--muted)] hover:bg-[var(--surface)] hover:text-[color:var(--text)]"
               }`}
             >
@@ -163,7 +163,7 @@ export function NavBar() {
                 href="/mis-pedidos"
                 className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
                   isActive("/mis-pedidos")
-                    ? "bg-[var(--accent-soft)] text-[var(--accent)]"
+                    ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
                     : "text-[color:var(--muted)] hover:bg-[var(--surface)] hover:text-[color:var(--text)]"
                 }`}
               >
@@ -179,7 +179,7 @@ export function NavBar() {
                 href="/perfil"
                 className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
                   isActive("/perfil")
-                    ? "bg-[var(--accent-soft)] text-[var(--accent)]"
+                    ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
                     : "text-[color:var(--muted)] hover:bg-[var(--surface)] hover:text-[color:var(--text)]"
                 }`}
               >
@@ -215,7 +215,7 @@ export function NavBar() {
                   className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
                     pathname.startsWith("/admin")
                       ? "bg-[var(--accent)] text-[var(--on-accent)]"
-                      : "bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-white"
+                      : "bg-[var(--accent-soft)] text-[var(--accent-strong)] hover:bg-[var(--accent)] hover:text-white"
                   }`}
                 >
                   <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -376,7 +376,7 @@ export function NavBar() {
                   className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
                     pathname.startsWith("/vendor")
                       ? "bg-[var(--accent)] text-[var(--on-accent)]"
-                      : "bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-white"
+                      : "bg-[var(--accent-soft)] text-[var(--accent-strong)] hover:bg-[var(--accent)] hover:text-white"
                   }`}
                 >
                   <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -444,7 +444,7 @@ export function NavBar() {
                       <div className="border-t border-[var(--border)] mt-2 pt-2">
                       <button
                         onClick={() => navigateTo("/vendor/productos/nuevo")}
-                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left text-[var(--accent)] hover:bg-[var(--accent-soft)]"
+                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-left text-[var(--accent-strong)] hover:bg-[var(--accent-soft)]"
                       >
                         <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -499,7 +499,7 @@ export function NavBar() {
                 className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
                   pathname.startsWith("/delivery")
                     ? "bg-[var(--accent)] text-[var(--on-accent)]"
-                    : "bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-white"
+                    : "bg-[var(--accent-soft)] text-[var(--accent-strong)] hover:bg-[var(--accent)] hover:text-white"
                 }`}
               >
                 <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -514,7 +514,7 @@ export function NavBar() {
             {data?.user && role && role !== "VENDOR" && role !== "ADMIN" && (
               <Link
                 href="/vendor/upgrade"
-                className="rounded-lg border border-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent)] transition-colors hover:bg-[var(--accent-soft)]"
+                className="rounded-lg border border-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-strong)] transition-colors hover:bg-[var(--accent-soft)]"
               >
                 Vender
               </Link>
@@ -631,7 +631,7 @@ export function NavBar() {
                 href="/promociones"
                 onClick={handleMobileNav}
                 className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                  isActive("/promociones") ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                  isActive("/promociones") ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                 }`}
               >
                 Promociones
@@ -640,7 +640,7 @@ export function NavBar() {
                 href="/tiendas"
                 onClick={handleMobileNav}
                 className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                  isActive("/tiendas") ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                  isActive("/tiendas") ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                 }`}
               >
                 Tiendas
@@ -649,7 +649,7 @@ export function NavBar() {
                 href="/carrito"
                 onClick={handleMobileNav}
                 className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${
-                  isActive("/carrito") ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                  isActive("/carrito") ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                 }`}
               >
                 Carrito
@@ -661,7 +661,7 @@ export function NavBar() {
                     href="/mis-pedidos"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${
-                      isActive("/mis-pedidos") ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      isActive("/mis-pedidos") ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     Mis pedidos
@@ -670,7 +670,7 @@ export function NavBar() {
                     href="/perfil"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${
-                      isActive("/perfil") ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      isActive("/perfil") ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     Mi perfil
@@ -679,7 +679,7 @@ export function NavBar() {
                     href="/perfil/dispositivos"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${
-                      isActive("/perfil/dispositivos") ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      isActive("/perfil/dispositivos") ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     Dispositivos
@@ -695,7 +695,7 @@ export function NavBar() {
                     href="/admin"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                      pathname === "/admin" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      pathname === "/admin" ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     Dashboard Admin
@@ -704,7 +704,7 @@ export function NavBar() {
                     href="/admin/mensajes"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                      pathname === "/admin/mensajes" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      pathname === "/admin/mensajes" ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     Mensajes
@@ -713,7 +713,7 @@ export function NavBar() {
                     href="/admin/zonas-envio"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                      pathname === "/admin/zonas-envio" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      pathname === "/admin/zonas-envio" ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     Zonas Envío
@@ -722,7 +722,7 @@ export function NavBar() {
                     href="/admin/envios"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                      pathname === "/admin/envios" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      pathname === "/admin/envios" ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     Envíos
@@ -731,7 +731,7 @@ export function NavBar() {
                     href="/admin/membresias"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                      pathname === "/admin/membresias" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      pathname === "/admin/membresias" ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     Membresías
@@ -740,7 +740,7 @@ export function NavBar() {
                     href="/admin/usuarios"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                      pathname === "/admin/usuarios" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      pathname === "/admin/usuarios" ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     Usuarios
@@ -749,7 +749,7 @@ export function NavBar() {
                     href="/admin/publicidad"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                      pathname === "/admin/publicidad" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      pathname === "/admin/publicidad" ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     📣 Publicidad
@@ -758,7 +758,7 @@ export function NavBar() {
                     href="/admin/pedidos"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                      pathname === "/admin/pedidos" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      pathname === "/admin/pedidos" ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     Pedidos
@@ -767,7 +767,7 @@ export function NavBar() {
                     href="/admin/tiendas"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                      pathname === "/admin/tiendas" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      pathname === "/admin/tiendas" ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     Tiendas
@@ -776,7 +776,7 @@ export function NavBar() {
                     href="/admin/categorias"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                      pathname === "/admin/categorias" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      pathname === "/admin/categorias" ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     Categorías
@@ -785,7 +785,7 @@ export function NavBar() {
                     href="/admin/productos"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                      pathname === "/admin/productos" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      pathname === "/admin/productos" ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     Productos
@@ -794,7 +794,7 @@ export function NavBar() {
                     href="/admin/mercado-pago"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                      pathname === "/admin/mercado-pago" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      pathname === "/admin/mercado-pago" ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     MercadoPago
@@ -803,7 +803,7 @@ export function NavBar() {
                     href="/admin/cupones"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                      pathname === "/admin/cupones" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      pathname === "/admin/cupones" ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     Cupones
@@ -812,7 +812,7 @@ export function NavBar() {
                     href="/admin/membresia-cupones"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                      pathname === "/admin/membresia-cupones" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      pathname === "/admin/membresia-cupones" ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     Cupones Membresía
@@ -821,7 +821,7 @@ export function NavBar() {
                     href="/admin/promociones"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                      pathname === "/admin/promociones" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      pathname === "/admin/promociones" ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     Promociones
@@ -835,7 +835,7 @@ export function NavBar() {
                     href="/vendor"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                      pathname === "/vendor" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      pathname === "/vendor" ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     Dashboard
@@ -844,7 +844,7 @@ export function NavBar() {
                     href="/vendor/mi-tienda"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                      pathname === "/vendor/mi-tienda" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      pathname === "/vendor/mi-tienda" ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     Editar Tienda
@@ -853,7 +853,7 @@ export function NavBar() {
                     href="/vendor/membresia"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                      pathname === "/vendor/membresia" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      pathname === "/vendor/membresia" ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     Membresía
@@ -862,7 +862,7 @@ export function NavBar() {
                     href="/vendor/productos"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                      pathname.startsWith("/vendor/productos") ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      pathname.startsWith("/vendor/productos") ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     Mis Productos
@@ -870,7 +870,7 @@ export function NavBar() {
                   <Link
                     href="/vendor/productos/nuevo"
                     onClick={handleMobileNav}
-                    className="rounded-lg px-4 py-3 text-sm font-medium text-[var(--accent)]"
+                    className="rounded-lg px-4 py-3 text-sm font-medium text-[var(--accent-strong)]"
                   >
                     + Nuevo Producto
                   </Link>
@@ -878,7 +878,7 @@ export function NavBar() {
                     href="/vendor/cupones"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                      pathname === "/vendor/cupones" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      pathname === "/vendor/cupones" ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     Cupones
@@ -887,7 +887,7 @@ export function NavBar() {
                     href="/vendor/recibos"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                      pathname === "/vendor/recibos" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      pathname === "/vendor/recibos" ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     Recibos
@@ -896,7 +896,7 @@ export function NavBar() {
                     href="/vendor/promociones"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium ${
-                      pathname === "/vendor/promociones" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      pathname === "/vendor/promociones" ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     Promociones
@@ -908,7 +908,7 @@ export function NavBar() {
                     href="/delivery"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${
-                      pathname === "/delivery" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      pathname === "/delivery" ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -932,7 +932,7 @@ export function NavBar() {
                     href="/delivery/horarios"
                     onClick={handleMobileNav}
                     className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${
-                      pathname === "/delivery/horarios" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[color:var(--muted)]"
+                      pathname === "/delivery/horarios" ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                     }`}
                   >
                     <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -954,7 +954,7 @@ export function NavBar() {
                     <Link
                       href="/vendor/upgrade"
                       onClick={handleMobileNav}
-                      className="rounded-lg px-4 py-3 text-sm font-medium text-[var(--accent)]"
+                      className="rounded-lg px-4 py-3 text-sm font-medium text-[var(--accent-strong)]"
                     >
                       Convertirme en vendedor
                     </Link>
@@ -994,14 +994,14 @@ export function NavBar() {
                   <Link
                     href="/login"
                     onClick={handleMobileNav}
-                    className="rounded-lg px-4 py-3 text-sm font-medium text-[var(--accent)]"
+                    className="rounded-lg px-4 py-3 text-sm font-medium text-[var(--accent-strong)]"
                   >
                     Iniciar sesión
                   </Link>
                   <Link
                     href="/registro"
                     onClick={handleMobileNav}
-                    className="rounded-lg px-4 py-3 text-sm font-medium text-[var(--accent)]"
+                    className="rounded-lg px-4 py-3 text-sm font-medium text-[var(--accent-strong)]"
                   >
                     Registrarse
                   </Link>

@@ -342,7 +342,7 @@ export default function EditarTiendaPage() {
 
         <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-5 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
-            <svg aria-hidden="true" className="h-5 w-5 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className="h-5 w-5 text-[var(--accent-strong)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
@@ -368,7 +368,7 @@ export default function EditarTiendaPage() {
 
         <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-5 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
-            <svg aria-hidden="true" className="h-5 w-5 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className="h-5 w-5 text-[var(--accent-strong)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div className="text-sm font-semibold">Horario de atención</div>
@@ -445,7 +445,7 @@ export default function EditarTiendaPage() {
                       type="checkbox"
                       checked={scheduleDetails.days[day.key]?.active ?? false}
                       onChange={() => toggleDay(day.key)}
-                      className="h-4 w-4 rounded border-[var(--border)] text-[var(--accent)]"
+                      className="h-4 w-4 rounded border-[var(--border)] text-[var(--accent-strong)]"
                     />
                   )}
                   <span className="text-sm font-medium">{day.label}</span>

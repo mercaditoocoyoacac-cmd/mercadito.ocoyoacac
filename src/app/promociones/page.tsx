@@ -158,7 +158,7 @@ export default function PromocionesPage() {
                           </div>
                           <Link
                             href={`/tienda/${promo.store.slug}`}
-                            className="shrink-0 self-center mx-auto md:mx-0 rounded-xl bg-[var(--card-bg)] px-5 py-2.5 text-sm font-bold text-[var(--accent)] shadow-lg transition-all hover:bg-[var(--accent-soft)] hover:shadow-xl"
+                            className="shrink-0 self-center mx-auto md:mx-0 rounded-xl bg-[var(--card-bg)] px-5 py-2.5 text-sm font-bold text-[var(--accent-strong)] shadow-lg transition-all hover:bg-[var(--accent-soft)] hover:shadow-xl"
                           >
                             Ver tienda
                           </Link>
@@ -203,7 +203,7 @@ export default function PromocionesPage() {
                                   <div className="text-xs font-medium truncate mb-1">{pp.product.name}</div>
                                   <div className="flex items-center gap-1">
                                     {pp.promoPriceCents != null && (
-                                      <span className="text-xs font-bold text-[var(--accent)]">
+                                      <span className="text-xs font-bold text-[var(--accent-strong)]">
                                         {formatMoney(pp.promoPriceCents, "MXN")}
                                       </span>
                                     )}
@@ -280,7 +280,7 @@ export default function PromocionesPage() {
                         <div className="text-xs text-[color:var(--muted)] truncate">{p.store.name}</div>
                         <div className="text-sm font-medium leading-tight line-clamp-2">{p.name}</div>
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-[var(--accent)]">
+                          <span className="text-sm font-bold text-[var(--accent-strong)]">
                             {formatMoney(p.promotionPriceCents, "MXN")}
                           </span>
                           <span className="text-xs text-[color:var(--muted)] line-through">

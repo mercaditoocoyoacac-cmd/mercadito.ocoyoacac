@@ -120,7 +120,7 @@ export default function VendorLoginPage() {
         </label>
 
         <div className="text-right">
-          <Link href="/recuperar-contrasena" className="text-xs text-[var(--accent)] hover:underline">
+          <Link href="/recuperar-contrasena" className="text-xs text-[var(--accent-strong)] hover:underline">
             ¿Olvidaste tu contraseña?
           </Link>
         </div>

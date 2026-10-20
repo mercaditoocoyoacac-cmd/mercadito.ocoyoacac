@@ -4,7 +4,7 @@ export default function NotFound() {
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 items-center px-4">
       <div className="w-full text-center">
-        <div className="text-6xl font-bold text-[var(--accent)]">404</div>
+        <div className="text-6xl font-bold text-[var(--accent-strong)]">404</div>
         <h1 className="mt-4 text-xl font-semibold">Página no encontrada</h1>
         <p className="mt-2 text-sm text-[color:var(--muted)]">
           La página que buscas no existe o fue movida.

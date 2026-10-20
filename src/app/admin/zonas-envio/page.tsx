@@ -257,7 +257,7 @@ export default function ZonasEnvioPage() {
                     <span className="font-medium text-sm">{zone.name}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-[var(--accent)]">+{formatMoney(RISK_ZONE_EXTRA_CENTS, "MXN")}</span>
+                    <span className="text-sm font-semibold text-[var(--accent-strong)]">+{formatMoney(RISK_ZONE_EXTRA_CENTS, "MXN")}</span>
                     <button
                       type="button"
                       aria-label={`Editar polígono de ${zone.name}`}

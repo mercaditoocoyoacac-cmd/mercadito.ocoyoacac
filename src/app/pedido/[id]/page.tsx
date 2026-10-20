@@ -90,7 +90,7 @@ export default async function PedidoPage({
             <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Pedido confirmado</h1>
             <p className="mt-1 text-sm text-[color:var(--muted)]">
               Pedido <span className="font-mono">#{order.id.slice(-8)}</span> en{" "}
-              <Link className="text-[var(--accent)] hover:underline" href={`/tienda/${order.store.slug}`}>
+              <Link className="text-[var(--accent-strong)] hover:underline" href={`/tienda/${order.store.slug}`}>
                 {order.store.name}
               </Link>
             </p>
@@ -135,7 +135,7 @@ export default async function PedidoPage({
                 <div className="sm:col-span-2">
                   <div className="text-xs text-[color:var(--muted)]">Código de recogida</div>
                   <div className="mt-1 inline-flex items-center gap-2 rounded-lg bg-[var(--accent-soft)] px-4 py-3">
-                    <code className="font-mono text-xl font-bold tracking-widest text-[var(--accent)]">{order.pickupCode}</code>
+                    <code className="font-mono text-xl font-bold tracking-widest text-[var(--accent-strong)]">{order.pickupCode}</code>
                     <CopyCodeButton code={order.pickupCode} />
                   </div>
                 </div>
@@ -229,7 +229,7 @@ function PriceRow({ label, value, isTotal = false }: { label: string; value: str
   return (
     <div className={`flex justify-between ${isTotal ? "text-base font-bold border-t border-[var(--border)] pt-3" : "text-sm"}`}>
       <span className={isTotal ? "text-[var(--foreground)]" : "text-[color:var(--muted)]"}>{label}</span>
-      <span className={isTotal ? "text-lg font-bold text-[var(--accent)]" : "font-semibold"}>{value}</span>
+      <span className={isTotal ? "text-lg font-bold text-[var(--accent-strong)]" : "font-semibold"}>{value}</span>
     </div>
   );
 }

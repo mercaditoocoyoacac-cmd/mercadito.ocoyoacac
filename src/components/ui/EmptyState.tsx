@@ -19,12 +19,12 @@ export function EmptyState({ icon, title, description, action }: Props) {
     <div className="rounded-xl border border-[var(--border)] p-8 text-center">
       {icon ? (
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--accent-soft)]">
-          <div className="h-8 w-8 text-[var(--accent)]">{icon}</div>
+          <div className="h-8 w-8 text-[var(--accent-strong)]">{icon}</div>
         </div>
       ) : (
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--accent-soft)]">
           <svg aria-hidden="true"
-            className="h-8 w-8 text-[var(--accent)]"
+            className="h-8 w-8 text-[var(--accent-strong)]"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

@@ -159,7 +159,7 @@ export default async function TiendasPage({
         {hasFilters ? (
           <Link
             href="/tiendas"
-            className="text-sm font-medium text-[var(--accent)] underline-offset-4 hover:underline"
+            className="text-sm font-medium text-[var(--accent-strong)] underline-offset-4 hover:underline"
           >
             Limpiar filtros
           </Link>
@@ -204,7 +204,7 @@ export default async function TiendasPage({
           ¿Tienes un negocio?{" "}
           <Link
             href="/vendor/registro"
-            className="font-semibold text-[var(--accent)] underline-offset-4 hover:underline"
+            className="font-semibold text-[var(--accent-strong)] underline-offset-4 hover:underline"
           >
             Regístralo en Mercadito
           </Link>

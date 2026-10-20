@@ -137,7 +137,7 @@ export default function AdminRegistroPage() {
             <button
               type="button"
               onClick={handleGeneratePassword}
-              className="text-xs text-[var(--accent)] hover:underline"
+              className="text-xs text-[var(--accent-strong)] hover:underline"
             >
               Generar contraseña segura
             </button>

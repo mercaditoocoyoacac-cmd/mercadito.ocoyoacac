@@ -86,7 +86,7 @@ export default function AdminDashboardClient({ data }: { data: StatsData }) {
         <section className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] lg:col-span-2">
           <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
             <h2 className="font-semibold">Pedidos recientes</h2>
-            <Link href="/admin/pedidos" className="text-sm text-[var(--accent)] hover:underline">
+            <Link href="/admin/pedidos" className="text-sm text-[var(--accent-strong)] hover:underline">
               Ver todos
             </Link>
           </div>

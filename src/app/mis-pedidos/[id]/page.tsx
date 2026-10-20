@@ -102,7 +102,7 @@ export default async function PedidoDetallePage({
     <PullToRefreshWrapper>
     <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-10">
       <div className="mb-6">
-        <Link href="/mis-pedidos" className="text-sm text-[var(--accent)] hover:underline">
+        <Link href="/mis-pedidos" className="text-sm text-[var(--accent-strong)] hover:underline">
           ← Volver a mis pedidos
         </Link>
       </div>
@@ -152,7 +152,7 @@ export default async function PedidoDetallePage({
                     </div>
                     <span
                       className={`mt-2 text-xs text-center ${
-                        isCurrent ? "font-semibold text-[var(--accent)]" : "text-[color:var(--muted)]"
+                        isCurrent ? "font-semibold text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
                       }`}
                     >
                       {step.label}

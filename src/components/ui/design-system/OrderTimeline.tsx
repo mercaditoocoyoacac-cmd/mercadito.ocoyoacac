@@ -263,7 +263,7 @@ export function OrderTimeline({
                       {fulfillmentType === "PICKUP" && pickupCode && (
                         <div className="text-center p-3 rounded-xl bg-[var(--card-bg)] border border-[var(--border)] shadow-sm">
                           <p className="text-xs text-[color:var(--muted)]">Código de recogida</p>
-                          <code className="font-mono text-xl font-bold tracking-widest text-[var(--accent)]">{pickupCode}</code>
+                          <code className="font-mono text-xl font-bold tracking-widest text-[var(--accent-strong)]">{pickupCode}</code>
                           <p className="text-[10px] text-[color:var(--muted)] mt-1">Muestra este código al recoger</p>
                         </div>
                       )}
@@ -272,7 +272,7 @@ export function OrderTimeline({
                           {estimatedDelivery && (
                             <div className="text-right">
                               <p className="text-xs text-[color:var(--muted)]">Entrega estimada</p>
-                              <p className="font-medium text-[var(--accent)]">{estimatedDelivery}</p>
+                              <p className="font-medium text-[var(--accent-strong)]">{estimatedDelivery}</p>
                             </div>
                           )}
                           {driverName && (
@@ -376,7 +376,7 @@ export function OrderTimeline({
                 {isActive && fulfillmentType === "PICKUP" && pickupCode && (
                   <div className="shrink-0 ml-4 text-center p-3 rounded-xl bg-[var(--card-bg)] border border-[var(--border)] shadow-sm">
                     <p className="text-[10px] text-[color:var(--muted)] uppercase tracking-wide">Código recogida</p>
-                    <code className="font-mono text-lg font-bold tracking-wider text-[var(--accent)] block">{pickupCode}</code>
+                    <code className="font-mono text-lg font-bold tracking-wider text-[var(--accent-strong)] block">{pickupCode}</code>
                     <p className="text-[10px] text-[color:var(--muted)] mt-1">Al recoger en tienda</p>
                   </div>
                 )}

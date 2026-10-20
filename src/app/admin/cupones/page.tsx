@@ -329,7 +329,7 @@ export default function AdminCuponesPage() {
           onClick={() => setTab("tienda")}
           className={`flex-1 rounded-md px-4 py-2.5 text-sm font-medium transition-all ${
             tab === "tienda"
-              ? "bg-[var(--background)] text-[var(--accent)] shadow-sm"
+              ? "bg-[var(--background)] text-[var(--accent-strong)] shadow-sm"
               : "text-[color:var(--muted)] hover:text-[var(--foreground)]"
           }`}
         >
@@ -367,7 +367,7 @@ export default function AdminCuponesPage() {
                 <label className="block text-xs font-medium text-[color:var(--muted)] mb-2">Tiendas *</label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {stores.map((s) => (
-                    <label key={s.id} className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer transition-all ${storeForm.storeIds.includes(s.id) ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]" : "border-[var(--border)] hover:border-[var(--border)]"}`}>
+                    <label key={s.id} className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer transition-all ${storeForm.storeIds.includes(s.id) ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "border-[var(--border)] hover:border-[var(--border)]"}`}>
                       <input type="checkbox" checked={storeForm.storeIds.includes(s.id)} onChange={() => toggleStoreId(s.id)} className="sr-only" />
                       <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${storeForm.storeIds.includes(s.id) ? "border-[var(--accent)] bg-[var(--accent)]" : "border-[var(--border)]"}`}>
                         {storeForm.storeIds.includes(s.id) && (

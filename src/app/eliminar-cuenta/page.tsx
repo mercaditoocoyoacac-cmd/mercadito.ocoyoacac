@@ -95,7 +95,7 @@ export default function EliminarCuentaPage() {
         </button>
 
         <div className="text-center">
-          <Link href="/" className="text-sm text-[var(--accent)] hover:underline">
+          <Link href="/" className="text-sm text-[var(--accent-strong)] hover:underline">
             Cancelar y volver
           </Link>
         </div>

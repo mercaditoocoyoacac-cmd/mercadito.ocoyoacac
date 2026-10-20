@@ -459,7 +459,7 @@ export default async function VendorDashboard() {
           <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)]">
             <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
               <h2 className="font-semibold">Productos recientes</h2>
-              <Link href="/vendor/productos" className="text-sm text-[color:var(--accent)] hover:underline">
+              <Link href="/vendor/productos" className="text-sm text-[var(--accent-strong)] hover:underline">
                 Ver todos →
               </Link>
             </div>
@@ -467,7 +467,7 @@ export default async function VendorDashboard() {
               <div className="p-8 text-center">
                 <div className="text-4xl mb-2">📦</div>
                 <p className="text-[color:var(--muted)]">No tienes productos aún.</p>
-                <Link href="/vendor/productos/nuevo" className="mt-4 inline-block text-sm text-[color:var(--accent)] hover:underline">
+                <Link href="/vendor/productos/nuevo" className="mt-4 inline-block text-sm text-[var(--accent-strong)] hover:underline">
                   Agregar primer producto →
                 </Link>
               </div>
@@ -502,7 +502,7 @@ export default async function VendorDashboard() {
           <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)]">
             <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
               <h2 className="font-semibold">Pedidos recientes</h2>
-              <Link href="/vendor/pedidos" className="text-sm text-[color:var(--accent)] hover:underline">
+              <Link href="/vendor/pedidos" className="text-sm text-[var(--accent-strong)] hover:underline">
                 Ver todos →
               </Link>
             </div>
