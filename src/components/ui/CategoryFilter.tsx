@@ -1,7 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { useEffect, useRef } from "react";
 
 interface Category {
   key: string;
@@ -13,105 +10,59 @@ export function CategoryFilter({
   categories,
   selected,
   baseUrl,
+  query,
 }: {
   categories: Category[];
   selected: string;
   baseUrl: string;
+  query?: string;
 }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const ITEM_W = 104;
+  const buildHref = (key?: string) => {
+    const params = new URLSearchParams();
+    if (key) params.set("category", key);
+    if (query?.trim()) params.set("q", query.trim());
+    const qs = params.toString();
+    return qs ? `${baseUrl}?${qs}` : baseUrl;
+  };
 
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el || categories.length === 0) return;
-
-    const centerIndex = categories.length;
-    el.scrollLeft = centerIndex * ITEM_W;
-
-    let ticking = false;
-
-    const onScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          const max = el.scrollWidth - el.clientWidth;
-          const threshold = ITEM_W * 2;
-
-          if (el.scrollLeft < threshold) {
-            el.scrollLeft += categories.length * ITEM_W;
-          } else if (el.scrollLeft > max - threshold) {
-            el.scrollLeft -= categories.length * ITEM_W;
-          }
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    el.addEventListener("scroll", onScroll, { passive: true });
-    return () => el.removeEventListener("scroll", onScroll);
-  }, [categories.length]);
-
-  const items = [...categories, ...categories, ...categories];
+  const chip =
+    "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-colors";
+  const idle =
+    "border-[var(--border)] bg-[var(--card-bg)] text-[color:var(--muted)] hover:border-[var(--accent)]/40 hover:text-[color:var(--foreground)]";
+  const active = "border-[var(--accent)] bg-[var(--accent)] text-[var(--on-accent)]";
 
   return (
-    <div
-      ref={scrollRef}
-      className="overflow-x-auto scrollbar-hide"
-      style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-    >
-      <div className="flex gap-2 py-2" style={{ width: "max-content" }}>
+    <nav aria-label="Filtrar por categoría" className="-mx-4 overflow-x-auto px-4 scrollbar-hide">
+      <div className="flex w-max gap-2 py-1">
         <Link
-          href={baseUrl}
-          className={`flex flex-col items-center gap-1.5 px-2 py-1 rounded-2xl transition-colors ${
-            !selected ? "bg-[var(--accent-soft)]" : "hover:bg-[var(--surface)]"
-          }`}
-          style={{ width: ITEM_W }}
+          href={buildHref()}
+          aria-current={!selected ? "page" : undefined}
+          className={`${chip} ${!selected ? active : idle}`}
         >
-          <div
-            className={`flex items-center justify-center rounded-full text-2xl font-bold transition-all ${
-              !selected
-                ? "bg-[var(--accent)] text-white shadow-md"
-                : "bg-[var(--surface)] text-[color:var(--muted)]"
-            }`}
-            style={{ width: 64, height: 64 }}
-          >
-            <svg aria-hidden="true" className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-            </svg>
-          </div>
-          <span className={`text-[11px] font-medium leading-tight text-center ${
-            !selected ? "text-[var(--accent)]" : "text-[color:var(--muted)]"
-          }`}>
-            Todas
-          </span>
+          <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+          Todas
         </Link>
-        {items.map((cat, i) => (
-          <Link
-            key={`${cat.key}-${i}`}
-            href={`${baseUrl}?category=${cat.key}`}
-            className={`flex flex-col items-center gap-1.5 px-2 py-1 rounded-2xl transition-colors ${
-              selected === cat.key ? "bg-[var(--accent-soft)]" : "hover:bg-[var(--surface)]"
-            }`}
-            style={{ width: ITEM_W }}
-          >
-            <div
-              className={`flex items-center justify-center rounded-full text-2xl transition-all ${
-                selected === cat.key
-                  ? "bg-[var(--accent)] text-white shadow-md scale-105"
-                  : "bg-[var(--surface)] text-[color:var(--muted)]"
-              }`}
-              style={{ width: 64, height: 64 }}
+        {categories.map((cat) => {
+          const isActive = selected === cat.key;
+          return (
+            <Link
+              key={cat.key}
+              href={buildHref(cat.key)}
+              aria-current={isActive ? "page" : undefined}
+              className={`${chip} ${isActive ? active : idle}`}
             >
-              {cat.icon}
-            </div>
-            <span className={`text-[11px] font-medium leading-tight text-center ${
-              selected === cat.key ? "text-[var(--accent)]" : "text-[color:var(--muted)]"
-            }`}>
+              {cat.icon ? (
+                <span aria-hidden="true" className="text-base leading-none">
+                  {cat.icon}
+                </span>
+              ) : null}
               {cat.label}
-            </span>
-          </Link>
-        ))}
+            </Link>
+          );
+        })}
       </div>
-    </div>
+    </nav>
   );
 }
