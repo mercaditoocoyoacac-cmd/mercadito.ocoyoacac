@@ -26,6 +26,7 @@ export interface ProductCardData {
   promotionPriceCents: number | null;
   discountPercentage: number | null;
   variants?: { id: string; name: string; priceCents: number }[];
+  rating?: number | null;
 }
 
 export interface ProductCardProps {
@@ -36,6 +37,7 @@ export interface ProductCardProps {
   onQuickView?: () => void;
   showQuickView?: boolean;
   className?: string;
+  priority?: boolean;
 }
 
 export interface ProductGridProps {
@@ -52,6 +54,8 @@ export interface ProductGridProps {
     actionHref: string;
   };
   skeletonCount?: number;
+  rating?: number | null;
+  priorityCount?: number;
 }
 
 export function ProductCard({ 
@@ -61,7 +65,8 @@ export function ProductCard({
   onBookAppointment,
   onQuickView, 
   showQuickView = false,
-  className = "" 
+  className = "",
+  priority = false,
 }: ProductCardProps) {
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
   const [weight, setWeight] = useState(product.minWeightGrams || 500);
@@ -218,9 +223,10 @@ export function ProductCard({
             alt={product.name}
             fill
             className="object-cover p-2 transition-transform duration-500 group-hover:scale-105"
-            sizes={variant === "featured" ? "200px" : "150px"}
+            sizes={variant === "featured" ? "200px" : "180px"}
             placeholder="blur"
             blurDataURL={shimmerBlur}
+            priority={priority}
           />
         ) : (
           <div className="text-4xl sm:text-5xl">📦</div>
@@ -270,9 +276,14 @@ export function ProductCard({
               </>
             )}
           </span>
-          {product.isPromotion && product.promotionPriceCents != null && (
+          {product.isPromotion && product.promotionPriceCents != null ? (
             <span className="text-xs text-[color:var(--muted)] line-through">{formatMoney(product.priceCents, product.currency)}</span>
-          )}
+          ) : product.rating != null ? (
+            <span className="inline-flex items-center gap-1 text-xs font-medium text-[color:var(--muted)]">
+              <span aria-hidden="true" className="text-[var(--gold)]">★</span>
+              {product.rating.toFixed(1)}
+            </span>
+          ) : null}
         </div>
         <div className="mt-3 pt-3 border-t border-[var(--border)] flex items-center gap-2">
           {isService ? (
@@ -347,11 +358,13 @@ export function ProductGrid({
   variant = "default",
   className = "",
   emptyState,
-  skeletonCount = 6
+  skeletonCount = 6,
+  rating = null,
+  priorityCount = 0,
 }: ProductGridProps) {
   if (products.length === 0) {
     return emptyState ? (
-      <div className="rounded-xl border-2 border-dashed border-[var(--border)] p-8 text-center">
+      <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card-bg)] p-10 text-center">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--accent-soft)]">
           <svg aria-hidden="true" className="h-8 w-8 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -375,15 +388,16 @@ export function ProductGrid({
 
   return (
     <div className={`${gridClasses[variant]} ${className}`} role="list" aria-label="Productos">
-      {products.map((product) => (
+      {products.map((product, index) => (
         <ProductCard
           key={product.id}
-          product={product}
+          product={rating != null ? { ...product, rating } : product}
           variant={variant}
           onAddToCart={onAddToCart}
           onBookAppointment={onBookAppointment ? onBookAppointment(product) : undefined}
           onQuickView={onQuickView ? () => onQuickView(product) : undefined}
           showQuickView={!!onQuickView}
+          priority={index < priorityCount}
         />
       ))}
     </div>

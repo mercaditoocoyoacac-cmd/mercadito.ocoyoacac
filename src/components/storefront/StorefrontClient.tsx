@@ -1,25 +1,16 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 import {
-  Button,
-  Card,
-  CardContent,
   Badge,
-  Skeleton,
-  SkeletonProductCard,
   EmptyState,
-  BottomSheet,
   QuickViewSheet,
-  ProductCard,
   ProductGrid,
   StoreHeader,
-  CategoryAccordion,
   formatMoney,
   shimmerBlur,
 } from "@/components/ui/design-system";
@@ -94,18 +85,91 @@ export function StorefrontClient({
   storePromotions,
   open,
   isPremium,
+  rating = null,
+  reviewCount = 0,
+  scheduleLabel = null,
 }: {
   store: StoreData;
   products: ProductData[];
   storePromotions: StorePromotion[];
   open: boolean;
   isPremium: boolean;
+  rating?: number | null;
+  reviewCount?: number;
+  scheduleLabel?: string | null;
 }) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [cartCount, setCartCount] = useState(0);
   const [quickViewProduct, setQuickViewProduct] = useState<ProductData | null>(null);
-  const searchRef = useRef<HTMLInputElement>(null);
+  const [activeCategory, setActiveCategory] = useState<string>("ALL");
+
+  const isServicios = store.category === "SERVICIOS";
+
+  const getProductCategory = useCallback(
+    (product: ProductData) => product.store?.category || "General",
+    []
+  );
+
+  const categoryNames = useMemo(() => {
+    if (isServicios) return [];
+    const names = new Set<string>();
+    products.forEach((p) => names.add(getProductCategory(p)));
+    return names.size > 1 ? Array.from(names) : [];
+  }, [products, isServicios, getProductCategory]);
+
+  const priceCentsOf = useCallback(
+    (product: ProductData) =>
+      product.isPromotion && product.promotionPriceCents != null
+        ? product.promotionPriceCents
+        : product.priceCents,
+    []
+  );
+
+  const visibleProducts = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return products.filter((p) => {
+      if (activeCategory !== "ALL" && getProductCategory(p) !== activeCategory) return false;
+      if (!q) return true;
+      return (
+        p.name.toLowerCase().includes(q) ||
+        (p.description != null && p.description.toLowerCase().includes(q))
+      );
+    });
+  }, [products, searchQuery, activeCategory, getProductCategory]);
+
+  const featuredProducts = useMemo(() => {
+    if (searchQuery || activeCategory !== "ALL" || isServicios) return [];
+    const highlighted = products
+      .filter((p) => p.isPromotion || p.soldCount > 0)
+      .sort((a, b) => b.soldCount - a.soldCount)
+      .slice(0, 5);
+    return highlighted.length >= 3 ? highlighted : [];
+  }, [products, searchQuery, activeCategory, isServicios]);
+
+  const featuredIds = useMemo(() => new Set(featuredProducts.map((p) => p.id)), [featuredProducts]);
+  const gridProducts = useMemo(
+    () => (featuredIds.size > 0 ? visibleProducts.filter((p) => !featuredIds.has(p.id)) : visibleProducts),
+    [visibleProducts, featuredIds]
+  );
+
+  const promoProducts = useMemo(
+    () =>
+      storePromotions
+        .flatMap((promo) =>
+          promo.products
+            .filter((pp) => pp.product.imageUrl)
+            .map((pp) => ({
+              id: pp.product.id,
+              name: pp.product.name,
+              imageUrl: pp.product.imageUrl as string,
+              priceCents: pp.promoPriceCents ?? pp.product.priceCents,
+              currency: "MXN",
+            }))
+        )
+        .slice(0, 6),
+    [storePromotions]
+  );
 
   const fetchCartCount = useCallback(async () => {
     try {
@@ -125,77 +189,11 @@ export function StorefrontClient({
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") { setQuickViewProduct(null); }
+      if (e.key === "Escape") setQuickViewProduct(null);
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, []);
-
-  const isServicios = store.category === "SERVICIOS";
-
-  const featuredProducts = useMemo(() => {
-    if (isServicios) return [];
-    const promoProductIds = new Set(
-      storePromotions.flatMap((p) => p.products.map((pp) => pp.product.id))
-    );
-    return products
-      .filter((p) => (p.isPromotion || p.variants.length > 0 || p.soldCount > 0) && !promoProductIds.has(p.id))
-      .sort((a, b) => b.soldCount - a.soldCount)
-      .slice(0, 10);
-  }, [products, isServicios, storePromotions]);
-
-  const filteredProducts = useMemo(() => {
-    if (!searchQuery.trim()) return products;
-    const q = searchQuery.toLowerCase();
-    return products.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        (p.description && p.description.toLowerCase().includes(q))
-    );
-  }, [products, searchQuery]);
-
-  const otherProducts = useMemo(() => {
-    if (searchQuery) return filteredProducts;
-    const featuredIds = new Set(featuredProducts.map((p) => p.id));
-    return products.filter((p) => !featuredIds.has(p.id));
-  }, [products, featuredProducts, searchQuery, filteredProducts]);
-
-  const categories = useMemo(() => {
-    if (isServicios) return [];
-    const categoryMap = new Map<string, ProductData[]>();
-    otherProducts.forEach((p) => {
-      const cat = p.store?.category || "General";
-      if (!categoryMap.has(cat)) categoryMap.set(cat, []);
-      categoryMap.get(cat)!.push(p);
-    });
-    return Array.from(categoryMap.entries()).map(([name, products]) => ({
-      id: name.toLowerCase().replace(/\s+/g, "-"),
-      name,
-      slug: name.toLowerCase().replace(/\s+/g, "-"),
-      productCount: products.length,
-      products,
-    }));
-  }, [otherProducts, isServicios]);
-
-  const promotionsForDisplay = useMemo(() => storePromotions.map((p) => ({
-    ...p,
-    products: p.products.map((pp) => ({
-      ...pp,
-      product: {
-        ...pp.product,
-        currency: "MXN",
-        isUnavailable: false,
-        sellByWeight: false,
-        minWeightGrams: 100,
-        maxWeightGrams: 5000,
-        soldCount: 0,
-        isPromotion: true,
-        promotionPriceCents: pp.promoPriceCents,
-        discountPercentage: p.discountPercentage,
-        variants: [],
-      },
-    })),
-  })), [storePromotions]);
 
   const handleAddToCart = async (data: { productId: string; variantId?: string; weightGrams?: number }) => {
     const res = await fetch("/api/cart/items", {
@@ -222,9 +220,16 @@ export function StorefrontClient({
     return `https://api.whatsapp.com/send?phone=${number}&text=${message}`;
   };
 
+  const clearFilters = () => {
+    setSearchQuery("");
+    setActiveCategory("ALL");
+  };
+
+  const hasFilters = searchQuery.trim().length > 0 || activeCategory !== "ALL";
+  const sectionLabel = isServicios ? "Servicios" : "Productos";
+
   return (
     <>
-      {/* Store Header */}
       <StoreHeader
         store={{
           ...store,
@@ -236,12 +241,10 @@ export function StorefrontClient({
           closeTime: store.closeTime ?? undefined,
           scheduleDays: store.scheduleDays ?? undefined,
           scheduleDetails: store.scheduleDetails ?? undefined,
-          rating: 4.5,
-          reviewCount: 128,
-          deliveryTime: "30-45 min",
-          deliveryFee: 25,
+          rating: rating ?? undefined,
+          reviewCount: reviewCount || undefined,
+          scheduleLabel: scheduleLabel ?? undefined,
           currency: "MXN",
-          distance: "2.3 km",
         }}
         isOpen={open}
         onBack={() => window.history.back()}
@@ -249,271 +252,283 @@ export function StorefrontClient({
         onCartClick={() => router.push("/carrito")}
       />
 
-      <main className="mx-auto max-w-6xl flex-1 px-4 pb-20">
-        {/* No-delivery notice for free membership stores */}
+      <main className="mx-auto max-w-6xl flex-1 px-4 pb-24 pt-5">
         {!isPremium && (
-          <div className="mb-6 flex items-start gap-3 rounded-xl border border-[var(--warning)]/30 bg-[var(--warning-soft)] px-4 py-3">
+          <div className="mb-5 flex items-start gap-3 rounded-2xl border border-[var(--warning)]/30 bg-[var(--warning-soft)] px-4 py-3">
             <svg aria-hidden="true" className="h-5 w-5 shrink-0 text-[var(--warning)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2-1m6 0l2 1m-2-1v-4a1 1 0 011-1h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 01.293.707V16l-2 1m-6-3h4m-8 3h8" />
             </svg>
             <div>
-              <div className="text-sm font-semibold text-[var(--warning)]">
-                Accede a alguna membresía para obtener todos los beneficios
+              <div className="text-sm font-semibold text-[color:var(--warning)]">
+                Accede a una membresía para tener todos los beneficios
               </div>
-              <p className="text-xs text-[var(--warning)] opacity-90">
-                Activa Solo Delivery o Vende+ para habilitar el envío a domicilio y más. Por ahora elige “Recoger en tienda”.
+              <p className="text-xs text-[color:var(--warning)] opacity-90">
+                Activa Solo Delivery o Vende+ para habilitar el envío a domicilio. Por ahora elige “Recoger en tienda”.
               </p>
             </div>
           </div>
         )}
 
-        {/* Search Bar */}
-        <div className="relative mb-6">
+        <div className="relative">
           <svg
-            className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[color:var(--muted)] pointer-events-none"
-            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            aria-hidden="true"
+            className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[color:var(--muted)]"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
             aria-label={isServicios ? "Buscar servicios" : "Buscar productos"}
-            ref={searchRef}
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={isServicios ? "Buscar servicios..." : "Buscar productos..."}
-            className="w-full rounded-xl border border-[var(--border)] bg-[var(--card-bg)] py-3 pl-10 pr-10 text-sm outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20 transition-all [font-size:16px]"
+            placeholder={isServicios ? "Buscar servicios…" : "Buscar productos…"}
+            className="w-full rounded-full border border-[var(--border)] bg-[var(--card-bg)] py-3 pl-11 pr-11 text-sm outline-none transition-colors [font-size:16px] focus:border-[var(--accent)]/50"
           />
-          {searchQuery && (
+          {searchQuery ? (
             <button
               type="button"
               onClick={() => setSearchQuery("")}
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1.5 hover:bg-[var(--accent-soft)] transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1.5 transition-colors hover:bg-[var(--surface)]"
               aria-label="Limpiar búsqueda"
             >
               <svg aria-hidden="true" className="h-5 w-5 text-[color:var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-          )}
+          ) : null}
         </div>
 
-        {/* Featured Products Carousel */}
-        {!isServicios && !searchQuery && featuredProducts.length > 0 && (
-          <ProductCarousel
-            products={featuredProducts.map(p => ({
-              ...p,
-              currency: p.currency || "MXN",
-              description: p.description ?? null,
-              imageUrl: p.imageUrl ?? null,
-            }))}
-            onAddToCart={handleAddToCart}
-            onBookAppointment={bookAppointmentHref}
-            onQuickView={setQuickViewProduct}
-            title="Más vendidos"
-            showTitle={true}
-          />
-        )}
-
-        {/* Promotions Banner */}
-        {!isServicios && storePromotions.length > 0 && !searchQuery && (
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold mb-3">Promociones activas</h2>
-            <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory -mx-1 px-1">
-              {promotionsForDisplay.map((promo) => (
-                <motion.div
-                  key={promo.id}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex-shrink-0 w-72 snap-center rounded-xl border border-[var(--border)] overflow-hidden hover:shadow-lg transition-shadow"
-                  style={{ scrollSnapAlign: "center" }}
-                >
-                  <div className="relative h-36 bg-gradient-to-br from-[var(--accent-soft)] to-[var(--accent)] flex items-center justify-center">
-                    {promo.products[0]?.product.imageUrl ? (
-                      <Image
-                        src={promo.products[0].product.imageUrl}
-                        alt={promo.title}
-                        fill
-                        className="object-cover p-2"
-                        sizes="288px"
-                        placeholder="blur"
-                        blurDataURL={shimmerBlur}
-                      />
-                    ) : (
-                      <div className="text-4xl">🎁</div>
-                    )}
-                    {promo.discountPercentage && (
-                      <div className="absolute top-2 left-2 z-10">
-                        <Badge variant="danger" size="sm">-{promo.discountPercentage}%</Badge>
-                      </div>
-                    )}
-                    {promo.requiresCoupon && (
-                      <div className="absolute top-2 right-2 z-10">
-                        <Badge variant="warning" size="sm">Requiere cupón</Badge>
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold text-sm truncate mb-1">{promo.title}</h3>
-                    {promo.description && <p className="text-xs text-[color:var(--muted)] line-clamp-2 mb-2">{promo.description}</p>}
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-bold text-[var(--accent)]">
-                        {promo.products.length} productos
-                      </span>
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link href={`/tienda/${store.slug}`}>Ver</Link>
-                      </Button>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Products Grid / Categories */}
-        {searchQuery && filteredProducts.length === 0 ? (
-          <EmptyState
-            illustration="search"
-            title="No se encontraron productos"
-            description={`No hay resultados para &ldquo;${searchQuery}&rdquo;`}
-            action={{ label: "Limpiar búsqueda", onClick: () => setSearchQuery(""), variant: "outline" }}
-          />
-        ) : isServicios ? (
-          <div className="space-y-4">
-            <p className="text-sm text-[color:var(--muted)]">{otherProducts.length} servicios</p>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {otherProducts.map((product, i) => (
-                <ProductCard
-                  key={product.id}
-                  product={{
-                    ...product,
-                    currency: product.currency || "MXN",
-                    description: product.description ?? undefined,
-                    imageUrl: product.imageUrl ?? undefined,
-                  }}
-                  variant="default"
-                  onAddToCart={handleAddToCart}
-                  onBookAppointment={product.isService ? bookAppointmentHref(product) : undefined}
-                  onQuickView={() => setQuickViewProduct(product)}
-                  showQuickView={true}
+        {categoryNames.length > 0 ? (
+          <nav aria-label="Filtrar por categoría" className="mt-3 -mx-4 overflow-x-auto px-4 scrollbar-hide">
+            <div className="flex w-max gap-2 py-1">
+              <CategoryChip label="Todo" active={activeCategory === "ALL"} onClick={() => setActiveCategory("ALL")} />
+              {categoryNames.map((name) => (
+                <CategoryChip
+                  key={name}
+                  label={name}
+                  active={activeCategory === name}
+                  onClick={() => setActiveCategory(name)}
                 />
               ))}
             </div>
-          </div>
-        ) : categories.length > 0 ? (
-          <CategoryAccordion
-            categories={categories}
-            onAddToCart={(productId, data) => handleAddToCart({ productId, ...data })}
-            onBookAppointment={(product) => product.isService ? bookAppointmentHref(product) : ""}
-onQuickView={(product) => setQuickViewProduct({ ...product, store } as any)}
-            defaultOpen={categories.slice(0, 2).map(c => c.id)}
-          />
-        ) : otherProducts.length > 0 ? (
-<ProductGrid
-              products={otherProducts.map(p => ({ ...p, currency: p.currency || "MXN", description: p.description ?? undefined, imageUrl: p.imageUrl ?? undefined }))}
-              onAddToCart={handleAddToCart}
-              onBookAppointment={(product) => product.isService ? bookAppointmentHref(product) : ""}
-              onQuickView={(product) => setQuickViewProduct({ ...product, store } as any)}
-              variant="default"
-              emptyState={{
-                title: "No hay productos",
-                description: "Esta tienda no tiene productos publicados aún.",
-                actionLabel: "Ver tienda",
-                actionHref: `/tienda/${store.slug}`,
-              }}
-            />
-        ) : (
-          <EmptyState
-            illustration="store"
-            title="No hay productos disponibles"
-            description="Esta tienda aún no tiene productos publicados."
-            action={{ label: "Ver tienda", href: `/tienda/${store.slug}`, variant: "primary" }}
-          />
-        )}
+          </nav>
+        ) : null}
 
-        {/* Floating Cart Button */}
-        {cartCount > 0 && !quickViewProduct && (
-          <Link
-            href="/carrito"
-            className="fixed bottom-24 right-6 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--accent)] text-white shadow-xl transition-all hover:bg-[var(--accent-hover)] hover:scale-110 active:scale-95"
-            aria-label={`Carrito con ${cartCount} productos`}
+        {featuredProducts.length > 0 && promoProducts.length > 0 ? (
+          <section aria-labelledby="tienda-destacados" className="mt-8">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 id="tienda-destacados" className="text-base font-semibold">
+                Promociones y más vendidos
+              </h2>
+              <span className="text-xs text-[color:var(--muted)]">{featuredProducts.length + promoProducts.length} destacados</span>
+            </div>
+            <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 scrollbar-hide">
+              {promoProducts.map((product) => (
+                <div key={`promo-${product.id}`} className="w-64 shrink-0 snap-start">
+                  <FeaturedTile
+                    imageUrl={product.imageUrl}
+                    name={product.name}
+                    priceCents={product.priceCents}
+                    badge="Promo"
+                    onOpen={() => router.push(`/carrito`)}
+                  />
+                </div>
+              ))}
+              {featuredProducts.map((product) => (
+                <div key={`feat-${product.id}`} className="w-64 shrink-0 snap-start">
+                  <FeaturedTile
+                    imageUrl={product.imageUrl}
+                    name={product.name}
+                    priceCents={priceCentsOf(product)}
+                    badge="Popular"
+                    onOpen={() => setQuickViewProduct(product)}
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        <section aria-labelledby="tienda-productos" className="mt-8">
+          <div className="mb-4 flex items-center justify-between gap-4">
+            <h2 id="tienda-productos" className="text-base font-semibold">
+              {sectionLabel}
+              <span className="ml-2 text-sm font-normal text-[color:var(--muted)]">
+                {gridProducts.length}
+              </span>
+            </h2>
+            {hasFilters ? (
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="text-sm font-medium text-[var(--accent)] underline-offset-4 hover:underline"
+              >
+                Limpiar filtros
+              </button>
+            ) : null}
+          </div>
+
+          {gridProducts.length === 0 ? (
+            hasFilters ? (
+              <EmptyState
+                illustration="search"
+                title="No se encontraron productos"
+                description={`No hay resultados para “${searchQuery || activeCategory}”.`}
+                action={{ label: "Limpiar filtros", onClick: clearFilters, variant: "outline" }}
+              />
+            ) : (
+              <EmptyState
+                illustration="store"
+                title="No hay productos disponibles"
+                description="Esta tienda aún no tiene productos publicados."
+              />
+            )
+          ) : isServicios ? (
+            <ProductGrid
+              products={gridProducts.map((product) => ({
+                ...product,
+                currency: product.currency || "MXN",
+                description: product.description ?? undefined,
+                imageUrl: product.imageUrl ?? undefined,
+              }))}
+              variant="default"
+              onAddToCart={handleAddToCart}
+              onBookAppointment={(product) => (product.isService ? bookAppointmentHref(product) : "")}
+              onQuickView={(product) => setQuickViewProduct(product as ProductData)}
+              rating={null}
+              priorityCount={2}
+            />
+          ) : (
+            <ProductGrid
+              products={gridProducts.map((product) => ({
+                ...product,
+                currency: product.currency || "MXN",
+                description: product.description ?? undefined,
+                imageUrl: product.imageUrl ?? undefined,
+              }))}
+              variant="default"
+              onAddToCart={handleAddToCart}
+              onBookAppointment={(product) => (product.isService ? bookAppointmentHref(product) : "")}
+              onQuickView={(product) => setQuickViewProduct(product as ProductData)}
+              rating={rating}
+              priorityCount={3}
+            />
+          )}
+        </section>
+
+        {cartCount > 0 && !quickViewProduct ? (
+          <button
+            type="button"
+            onClick={() => router.push("/carrito")}
+            className="fixed bottom-24 right-5 z-20 inline-flex items-center gap-2 rounded-full bg-[var(--accent)] px-5 py-3.5 font-semibold text-[var(--on-accent)] shadow-xl transition-transform hover:bg-[var(--accent-hover)] active:scale-95"
           >
-            <svg aria-hidden="true" className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
             </svg>
-            <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[11px] font-bold text-white leading-none border-2 border-white">
+            Ver carrito
+            <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[var(--card-bg)] px-1.5 text-[11px] font-bold text-[var(--accent)]">
               {cartCount > 99 ? "99+" : cartCount}
             </span>
-          </Link>
-        )}
+          </button>
+        ) : null}
 
-        {/* Quick View Sheet */}
-        {quickViewProduct && (
+        {quickViewProduct ? (
           (() => {
             const product = quickViewProduct;
-            const productForSheet = {
-              ...product,
-              description: product.description ?? undefined,
-              imageUrl: product.imageUrl ?? undefined,
-              formatMoney: (cents: number, currency: string) => {
-                return new Intl.NumberFormat("es-MX", { style: "currency", currency }).format(cents / 100);
-              },
-            };
             return (
               <QuickViewSheet
                 open={!!quickViewProduct}
                 onClose={() => setQuickViewProduct(null)}
-                product={productForSheet as never}
+                product={
+                  {
+                    ...product,
+                    description: product.description ?? undefined,
+                    imageUrl: product.imageUrl ?? undefined,
+                    formatMoney: (cents: number, currency: string) =>
+                      new Intl.NumberFormat("es-MX", { style: "currency", currency }).format(cents / 100),
+                  } as never
+                }
                 onAddToCart={(data) => handleAddToCart(data)}
               />
             );
           })()
-        )}
+        ) : null}
       </main>
     </>
   );
 }
 
-function ProductCarousel({ 
-  products, 
-  onAddToCart, 
-  onBookAppointment,
-  onQuickView,
-  title = "Productos",
-  showTitle = true,
-  className = ""
+function CategoryChip({
+  label,
+  active,
+  onClick,
 }: {
-  products: ProductData[];
-  onAddToCart: (data: { productId: string; variantId?: string; weightGrams?: number }) => void;
-  onBookAppointment?: (product: ProductData) => string;
-  onQuickView?: (product: ProductData) => void;
-  title?: string;
-  showTitle?: boolean;
-  className?: string;
+  label: string;
+  active: boolean;
+  onClick: () => void;
 }) {
   return (
-    <div className={`mb-8 ${className}`}>
-      {showTitle && <h3 className="text-lg font-semibold mb-3">{title}</h3>}
-      <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory -mx-1 px-1" style={{ scrollBehavior: "smooth" }}>
-{products.map((product) => (
-            <div key={product.id} className="flex-shrink-0 w-40 sm:w-44 snap-center" style={{ scrollSnapAlign: "center" }}>
-              <ProductCard
-                product={{
-                  ...product,
-                  currency: product.currency || "MXN",
-                  description: product.description ?? undefined,
-                  imageUrl: product.imageUrl ?? undefined,
-                }}
-                variant="compact"
-                onAddToCart={onAddToCart}
-                onBookAppointment={onBookAppointment ? onBookAppointment(product) : undefined}
-                onQuickView={onQuickView ? () => onQuickView(product) : undefined}
-                showQuickView={!!onQuickView}
-              />
-            </div>
-          ))}
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`inline-flex shrink-0 items-center rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+        active
+          ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--on-accent)]"
+          : "border-[var(--border)] bg-[var(--card-bg)] text-[color:var(--muted)] hover:border-[var(--accent)]/40 hover:text-[color:var(--foreground)]"
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
+function FeaturedTile({
+  imageUrl,
+  name,
+  priceCents,
+  badge,
+  onOpen,
+}: {
+  imageUrl: string | null;
+  name: string;
+  priceCents: number;
+  badge: string;
+  onOpen: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className="group block w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card-bg)] text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg"
+    >
+      <div className="relative aspect-[4/3] bg-[var(--accent-soft)]">
+        {imageUrl ? (
+          <Image
+            src={imageUrl}
+            alt=""
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes="256px"
+            placeholder="blur"
+            blurDataURL={shimmerBlur}
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-3xl">📦</div>
+        )}
+        <span className="absolute left-3 top-3">
+          <Badge variant={badge === "Promo" ? "danger" : "accent"} size="sm">
+            {badge}
+          </Badge>
+        </span>
       </div>
-    </div>
+      <div className="p-3">
+        <h3 className="line-clamp-1 text-sm font-medium">{name}</h3>
+        <p className="mt-1 text-sm font-semibold text-[var(--accent)]">{formatMoney(priceCents, "MXN")}</p>
+      </div>
+    </button>
   );
 }

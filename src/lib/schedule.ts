@@ -62,6 +62,25 @@ export function isStoreOpen(store: {
   return nowMinutes >= openMinutes && nowMinutes < closeMinutes;
 }
 
+export function getTodayScheduleLabel(store: {
+  openTime: string | null;
+  closeTime: string | null;
+  scheduleDays: string[];
+  scheduleDetails?: unknown;
+}): string | null {
+  const details = store.scheduleDetails as StoreScheduleDetails | null;
+  if (details && details.days && Object.keys(details.days).length > 0) {
+    const { day } = getMexicoCityTime();
+    const daySchedule = details.days[day];
+    if (!daySchedule || !daySchedule.active) return "Cerrado hoy";
+    if (!daySchedule.start || !daySchedule.end) return null;
+    return `Hoy ${daySchedule.start}–${daySchedule.end}`;
+  }
+
+  if (!store.openTime || !store.closeTime) return null;
+  return `Hoy ${store.openTime}–${store.closeTime}`;
+}
+
 export function getMexicoTimeString() {
   const { day, hours, minutes } = getMexicoCityTime();
   return `${day} ${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;

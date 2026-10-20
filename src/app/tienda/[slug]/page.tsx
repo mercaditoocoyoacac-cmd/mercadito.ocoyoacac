@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import { prisma } from "@/server/prisma";
-import { isStoreOpen } from "@/lib/schedule";
+import { isStoreOpen, getTodayScheduleLabel } from "@/lib/schedule";
 import { isStorePremium } from "@/lib/membership";
 import { StorefrontClient } from "@/components/storefront/StorefrontClient";
 
@@ -38,34 +37,45 @@ export default async function StorefrontPage({
   const open = store.category === "SERVICIOS" ? true : isStoreOpen(store as any);
   const isPremium = isStorePremium(store);
 
-  const products = await prisma.product.findMany({
-    where: { storeId: store.id, isActive: true },
-    orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
-    select: {
-      id: true,
-      name: true,
-      description: true,
-      priceCents: true,
-      currency: true,
-      imageUrl: true,
-      isUnavailable: true,
-      sellByWeight: true,
-      minWeightGrams: true,
-      maxWeightGrams: true,
-      isService: true,
-      showPrice: true,
-      soldCount: true,
-      isPromotion: true,
-      promotionPriceCents: true,
-      discountPercentage: true,
-      store: { select: { category: true } },
-      variants: {
-        where: { isActive: true },
-        select: { id: true, name: true, priceCents: true },
-        orderBy: { sortOrder: "asc" },
+  const [ratingAgg, products] = await Promise.all([
+    prisma.orderRating.aggregate({
+      where: { order: { storeId: store.id } },
+      _avg: { storeScore: true },
+      _count: { _all: true },
+    }),
+    prisma.product.findMany({
+      where: { storeId: store.id, isActive: true },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        priceCents: true,
+        currency: true,
+        imageUrl: true,
+        isUnavailable: true,
+        sellByWeight: true,
+        minWeightGrams: true,
+        maxWeightGrams: true,
+        isService: true,
+        showPrice: true,
+        soldCount: true,
+        isPromotion: true,
+        promotionPriceCents: true,
+        discountPercentage: true,
+        store: { select: { category: true } },
+        variants: {
+          where: { isActive: true },
+          select: { id: true, name: true, priceCents: true },
+          orderBy: { sortOrder: "asc" },
+        },
       },
-    },
-  });
+    }),
+  ]);
+
+  const reviewCount = ratingAgg._count._all;
+  const rating = ratingAgg._avg.storeScore ?? null;
+  const scheduleLabel = store.category === "SERVICIOS" ? null : getTodayScheduleLabel(store as any);
 
   const storePromotions = isStorePremium(store) ? await prisma.promotion.findMany({
     where: {
@@ -107,6 +117,9 @@ export default async function StorefrontPage({
       storePromotions={JSON.parse(JSON.stringify(storePromotions))}
       open={open}
       isPremium={isPremium}
+      rating={rating}
+      reviewCount={reviewCount}
+      scheduleLabel={scheduleLabel}
     />
   );
 }
