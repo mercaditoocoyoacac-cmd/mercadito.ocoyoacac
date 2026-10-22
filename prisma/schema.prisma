@@ -75,6 +75,7 @@ model User {
   driverDocsApproved   Boolean  @default(false)
   driverDocsApprovedAt DateTime?
   driverDocsApprovedBy String?
+  driverDocsApprovedVia String?
 
   stores        Store[]
   orders        Order[]       @relation("OrderCustomer")

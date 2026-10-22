@@ -1,12 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { ProductoTutorial } from "@/components/ui/ProductoTutorial";
 import { formatMoney } from "@/lib/format";
 
 export function CompleteStoreSetup() {
-  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [hasProduct, setHasProduct] = useState(false);
   const [name, setName] = useState("");
@@ -17,19 +15,24 @@ export function CompleteStoreSetup() {
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  async function load() {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/vendor/products");
-      const data = await res.json();
-      if (data?.ok && Array.isArray(data.products) && data.products.length > 0) {
-        setHasProduct(true);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/vendor/products");
+        const data = await res.json();
+        if (!cancelled && data?.ok && Array.isArray(data.products) && data.products.length > 0) {
+          setHasProduct(true);
+        }
+      } catch {
+        // noop
       }
-    } catch {
-      // noop
-    }
-    setLoading(false);
-  }
+      if (!cancelled) setLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];

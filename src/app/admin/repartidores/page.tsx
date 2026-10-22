@@ -45,6 +45,7 @@ export default async function AdminRepartidoresPage() {
       driverDocsApproved: true,
       driverDocsApprovedAt: true,
       driverDocsApprovedBy: true,
+      driverDocsApprovedVia: true,
     },
     orderBy: { createdAt: "desc" },
   });
@@ -81,16 +82,21 @@ export default async function AdminRepartidoresPage() {
                   </div>
                   <div className="mt-0.5 text-xs text-[color:var(--muted)]">
                     {isComplete
-                      ? `Completo (aprobado${d.driverDocsApprovedAt ? ` el ${d.driverDocsApprovedAt.toLocaleDateString("es-MX", { timeZone: "America/Mexico_City" })}` : ""}${d.driverDocsApprovedBy ? ` por ${d.driverDocsApprovedBy}` : ""})`
+                      ? `Completo (aprobado${d.driverDocsApprovedAt ? ` el ${d.driverDocsApprovedAt.toLocaleDateString("es-MX", { timeZone: "America/Mexico_City" })}` : ""}${d.driverDocsApprovedBy ? ` por ${d.driverDocsApprovedBy}` : ""}${d.driverDocsApprovedVia === "WHATSAPP" ? " vía WhatsApp" : ""})`
                       : d.driverDocsApproved && hasAnyDoc
                       ? `Fotos cargadas, falta alguna? (${missing.join(", ") || "revisar"})`
                       : `Faltan: ${missing.join(", ") || "sin documentos"}`}
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${isComplete ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${isComplete ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "bg-[var(--danger-soft)] text-[var(--danger)]"}`}>
                     {isComplete ? "Completo" : "Incompleto"}
                   </span>
+                  {isComplete && d.driverDocsApprovedVia === "WHATSAPP" && (
+                    <span className="rounded-full border border-[var(--accent-strong)] px-3 py-1 text-xs font-semibold text-[var(--accent-strong)]">
+                      Validado por WhatsApp
+                    </span>
+                  )}
                   {hasAnyDoc && !d.driverDocsApproved && (
                     <AdminRepartidoresClient userId={d.id} />
                   )}

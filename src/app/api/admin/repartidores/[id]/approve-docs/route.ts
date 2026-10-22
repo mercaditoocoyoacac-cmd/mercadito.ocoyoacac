@@ -12,6 +12,9 @@ export async function POST(
   const { id } = await params;
   if (!id) return NextResponse.json({ ok: false, error: "ID inválido" }, { status: 400 });
 
+  const body = (await req.json().catch(() => null)) as { via?: string } | null;
+  const via = body?.via === "WHATSAPP" ? "WHATSAPP" : "APP";
+
   const user = await prisma.user.findUnique({ where: { id }, select: { id: true } });
   if (!user) return NextResponse.json({ ok: false, error: "Usuario no encontrado" }, { status: 404 });
 
@@ -24,8 +27,9 @@ export async function POST(
       driverDocsApproved: true,
       driverDocsApprovedAt: new Date(),
       driverDocsApprovedBy: approvedBy,
+      driverDocsApprovedVia: via,
     },
   });
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, via });
 }

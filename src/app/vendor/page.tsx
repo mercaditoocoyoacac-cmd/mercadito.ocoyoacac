@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { getUserRoles } from "@/server/requireUser";
@@ -108,6 +109,14 @@ export default async function VendorDashboard() {
     ["ACTIVE", "TRIAL"].includes(store.subscription.status) && 
     new Date(store.subscription.endDate) > new Date();
 
+  const productCount = await prisma.product.count({
+    where: { storeId: store.id },
+  });
+
+  if (productCount === 0) {
+    redirect("/vendor/completar-registro");
+  }
+
   const isTrial = store.subscription?.status === "TRIAL";
   const trialUsed = store.owner?.trialUsed ?? false;
   const trialExpired = store.subscription && 
@@ -156,10 +165,6 @@ export default async function VendorDashboard() {
     take: 5,
   });
 
-  const totalProducts = await prisma.product.count({
-    where: { storeId: store.id },
-  });
-
   const activeProducts = await prisma.product.count({
     where: { storeId: store.id, isActive: true },
   });
@@ -203,34 +208,12 @@ export default async function VendorDashboard() {
       <VendorCoachMarks />
       <PullToRefreshWrapper>
       <main className="flex-1 fade-in">
-      {totalProducts === 0 ? (
-        <div className="mx-4 mt-4 rounded-lg border border-[var(--warning)]/30 bg-[var(--warning-soft)] px-4 py-4">
-          <div className="flex items-start gap-3">
-            <span className="mt-0.5 text-xl">📢</span>
-            <div className="flex-1">
-              <div className="font-medium text-[color:var(--warning)]">No tienes productos aún</div>
-              <div className="mt-1 text-sm text-[color:var(--warning)]">
-                Los clientes no pueden comprarte si no ven productos.{ " " }
-                <Link href="/vendor/productos/nuevo" className="font-semibold underline hover:no-underline">
-                  Agrega tu primer producto ahora
-                </Link>{" "}
-                y empieza a generar ventas.
-              </div>
-            </div>
-            <Link
-              href="/vendor/productos/nuevo"
-              className="shrink-0 rounded-lg border border-[var(--warning)] px-4 py-2 text-sm font-medium text-[color:var(--warning)] hover:bg-[var(--warning-soft)]"
-            >
-              Agregar
-            </Link>
-          </div>
-        </div>
-      ) : totalProducts < 5 ? (
+      {productCount < 5 ? (
         <div className="mx-4 mt-4 rounded-lg border border-[var(--info)]/30 bg-[var(--info-soft)] px-4 py-4">
           <div className="flex items-start gap-3">
             <span className="mt-0.5 text-xl">💡</span>
             <div className="flex-1">
-              <div className="font-medium text-[color:var(--info)]">Tienes solo {totalProducts} producto{totalProducts === 1 ? "" : "s"}</div>
+              <div className="font-medium text-[color:var(--info)]">Tienes solo {productCount} producto{productCount === 1 ? "" : "s"}</div>
               <div className="mt-1 text-sm text-[color:var(--info)]">
                 Las tiendas con más productos generan hasta 3x más ventas.{" "}
                 <Link href="/vendor/productos/nuevo" className="font-semibold underline hover:no-underline">
@@ -391,7 +374,7 @@ export default async function VendorDashboard() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-6 shadow-sm">
             <div className="text-sm text-[color:var(--muted)]"> Productos</div>
-            <div className="mt-1 text-3xl font-bold">{totalProducts}</div>
+            <div className="mt-1 text-3xl font-bold">{productCount}</div>
             <div className="mt-1 text-xs text-[var(--success)]">
               {activeProducts} activos
             </div>
