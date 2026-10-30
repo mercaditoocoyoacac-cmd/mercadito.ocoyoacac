@@ -8,13 +8,6 @@ import AdminRepartidoresClient from "@/components/admin/AdminRepartidoresClient"
 
 export const dynamic = "force-dynamic";
 
-const DOCS_LABELS = [
-  { key: "vehiclePhotoUrl", label: "Vehículo" },
-  { key: "licensePhotoUrl", label: "Licencia" },
-  { key: "personPhotoUrl", label: "Persona" },
-  { key: "officialIdPhotoUrl", label: "Identificación" },
-] as const;
-
 export default async function AdminRepartidoresPage() {
   const session = await getSession();
 
@@ -58,10 +51,13 @@ export default async function AdminRepartidoresPage() {
       <div className="mb-8">
         <h1 className="text-2xl font-semibold tracking-tight">Repartidores y documentos</h1>
         <p className="mt-1 text-sm text-[color:var(--muted)]">
-          {drivers.length} repartidores · {complete.length} con documentos · {pending.length} pendientes.
-          Quienes no registren sus 4 documentos antes del {DRIVER_DOCS_DEADLINE.toLocaleDateString("es-MX", {
+          {drivers.length} repartidores · {complete.length} validados · {pending.length} pendientes.
+          Quienes no tengan sus documentos validados antes del {DRIVER_DOCS_DEADLINE.toLocaleDateString("es-MX", {
             day: "numeric", month: "long", year: "numeric", timeZone: "America/Mexico_City",
           })} perderán el status de repartidor.
+        </p>
+        <p className="mt-1 text-sm text-[color:var(--muted)]">
+          Puedes subir las fotos recibidas por WhatsApp o validar el registro sin subir fotos a la plataforma.
         </p>
       </div>
 
@@ -69,12 +65,21 @@ export default async function AdminRepartidoresPage() {
         {drivers.map((d) => {
           const isComplete = hasCompleteDocs(d);
           const missing = missingDocs(d);
-          const hasAnyDoc = Boolean(
-            d.vehiclePhotoUrl || d.licensePhotoUrl || d.personPhotoUrl || d.officialIdPhotoUrl,
-          );
+          const photoCount = [
+            d.vehiclePhotoUrl,
+            d.licensePhotoUrl,
+            d.personPhotoUrl,
+            d.officialIdPhotoUrl,
+          ].filter(Boolean).length;
+          const approvedDate = d.driverDocsApprovedAt
+            ? d.driverDocsApprovedAt.toLocaleDateString("es-MX", { timeZone: "America/Mexico_City" })
+            : "";
+          const submittedDate = d.driverDocsSubmittedAt
+            ? d.driverDocsSubmittedAt.toLocaleDateString("es-MX", { timeZone: "America/Mexico_City" })
+            : "";
           return (
             <div key={d.id} className="rounded-xl border border-[var(--border)] p-4">
-              <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
                   <div className="text-sm font-semibold">{d.name || d.email}</div>
                   <div className="text-xs text-[color:var(--muted)]">
@@ -82,43 +87,34 @@ export default async function AdminRepartidoresPage() {
                   </div>
                   <div className="mt-0.5 text-xs text-[color:var(--muted)]">
                     {isComplete
-                      ? `Validado${d.driverDocsApprovedAt ? ` el ${d.driverDocsApprovedAt.toLocaleDateString("es-MX", { timeZone: "America/Mexico_City" })}` : ""}${d.driverDocsApprovedBy ? ` por ${d.driverDocsApprovedBy}` : ""}${d.driverDocsApprovedVia === "WHATSAPP" ? " vía WhatsApp" : ""}`
-                      : `Faltan: ${missing.join(", ") || "sin documentos"}`}
+                      ? `Validado${approvedDate ? ` el ${approvedDate}` : ""}${d.driverDocsApprovedBy ? ` por ${d.driverDocsApprovedBy}` : ""}${d.driverDocsApprovedVia === "WHATSAPP" ? " vía WhatsApp" : ""}${missing.length > 0 ? " · sin fotos en la plataforma" : ""}`
+                      : missing.length > 0
+                        ? `Faltan: ${missing.join(", ")}`
+                        : "Fotos completas, pendiente de validación."}
+                    {photoCount > 0 && submittedDate ? ` · Fotos recibidas el ${submittedDate}` : ""}
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <span className={`rounded-full px-3 py-1 text-xs font-semibold ${isComplete ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "bg-[var(--danger-soft)] text-[var(--danger)]"}`}>
-                    {isComplete ? "Completo" : "Incompleto"}
+                    {isComplete ? "Validado" : "Pendiente"}
                   </span>
                   {isComplete && d.driverDocsApprovedVia === "WHATSAPP" && (
                     <span className="rounded-full border border-[var(--accent-strong)] px-3 py-1 text-xs font-semibold text-[var(--accent-strong)]">
                       Validado por WhatsApp
                     </span>
                   )}
-                  {!d.driverDocsApproved && (
-                    <AdminRepartidoresClient userId={d.id} hasPhotos={hasAnyDoc} />
-                  )}
                 </div>
               </div>
-              <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {DOCS_LABELS.map((doc) => {
-                  const url = d[doc.key as keyof typeof d] as string | null;
-                  return (
-                    <div key={doc.key} className="rounded-lg border border-[var(--border)] p-2">
-                      <div className="text-xs font-medium text-[color:var(--muted)]">{doc.label}</div>
-                      {url ? (
-                        <a href={url} target="_blank" rel="noopener noreferrer" className="mt-1 block">
-                          <img src={url} alt={doc.label} className="h-20 w-full rounded-md border border-[var(--border)] object-cover" loading="lazy" />
-                        </a>
-                      ) : (
-                        <div className="mt-1 flex h-20 items-center justify-center rounded-md border border-dashed border-[var(--border)] text-xs text-[color:var(--muted)]">
-                          Sin foto
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+              <AdminRepartidoresClient
+                userId={d.id}
+                approved={d.driverDocsApproved}
+                photos={{
+                  vehiclePhotoUrl: d.vehiclePhotoUrl,
+                  licensePhotoUrl: d.licensePhotoUrl,
+                  personPhotoUrl: d.personPhotoUrl,
+                  officialIdPhotoUrl: d.officialIdPhotoUrl,
+                }}
+              />
             </div>
           );
         })}
