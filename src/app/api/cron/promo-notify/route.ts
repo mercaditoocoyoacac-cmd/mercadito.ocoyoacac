@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireCron } from "@/server/cronAuth";
 import { prisma } from "@/server/prisma";
 import { isStoreOpenToday } from "@/lib/schedule";
 import { sendPromotionsToStoreCustomers } from "@/server/push";
@@ -6,12 +7,8 @@ import { sendPromotionsToStoreCustomers } from "@/server/push";
 export const maxDuration = 60;
 
 export async function GET(req: Request) {
-  const authHeader = req.headers.get("authorization");
-  const expected = `Bearer ${process.env.CRON_SECRET}`;
-
-  if (!authHeader || authHeader !== expected) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
+  const denied = requireCron(req);
+  if (denied) return denied;
 
   try {
     const stores = await prisma.store.findMany({

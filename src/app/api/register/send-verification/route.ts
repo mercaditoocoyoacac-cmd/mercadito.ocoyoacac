@@ -1,10 +1,13 @@
+import crypto from "crypto";
 import { NextResponse } from "next/server";
+import { headers } from "next/headers";
 import { prisma } from "@/server/prisma";
 import { sendVerificationSMS } from "@/server/sns";
 import { sendVerificationWhatsApp } from "@/server/whatsapp";
+import { rateLimit } from "@/lib/rate-limit";
 
 function generateCode(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+  return crypto.randomInt(100000, 1000000).toString();
 }
 
 const HAS_AWS_CREDS = !!(
@@ -27,6 +30,17 @@ export async function POST(req: Request) {
     const cleanPhone = phone.replace(/\D/g, "");
     if (cleanPhone.length < 10) {
       return NextResponse.json({ ok: false, error: "Teléfono inválido" }, { status: 400 });
+    }
+
+    const headersList = await headers();
+    const ip = headersList.get("x-forwarded-for")?.split(",")[0] || "unknown";
+    const rlIp = await rateLimit(`send-verify:${ip}`, { intervalMs: 3600_000, max: 20 });
+    const rlPhone = await rateLimit(`send-verify:${cleanPhone}`, { intervalMs: 3600_000, max: 5 });
+    if (!rlIp.ok || !rlPhone.ok) {
+      return NextResponse.json(
+        { ok: false, error: "Demasiados intentos. Intenta más tarde." },
+        { status: 429 },
+      );
     }
 
     const exists = await prisma.user.findFirst({

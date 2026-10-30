@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+import { headers } from "next/headers";
 import { prisma } from "@/server/prisma";
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
   const json = await req.json().catch(() => null);
@@ -9,7 +11,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Datos requeridos" }, { status: 400 });
   }
 
+  const headersList = await headers();
+  const ip = headersList.get("x-forwarded-for")?.split(",")[0] || "unknown";
   const cleanPhone = phone.replace(/\D/g, "");
+
+  const rlIp = await rateLimit(`verify-phone:${ip}`, { intervalMs: 3600_000, max: 20 });
+  const rlPhone = await rateLimit(`verify-phone:${cleanPhone}`, { intervalMs: 3600_000, max: 10 });
+  if (!rlIp.ok || !rlPhone.ok) {
+    return NextResponse.json(
+      { ok: false, error: "Demasiados intentos. Intenta más tarde." },
+      { status: 429 },
+    );
+  }
 
   const verification = await prisma.verification.findFirst({
     where: {

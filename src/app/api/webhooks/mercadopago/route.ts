@@ -47,6 +47,11 @@ export async function POST(req: Request) {
 
           const sub = await prisma.subscription.findUnique({ where: { storeId } });
 
+          const paymentReference = paymentInfo.id?.toString();
+          if (paymentReference && sub?.paymentReference === paymentReference) {
+            return NextResponse.json({ ok: true, duplicate: true });
+          }
+
           if (sub) {
             // Extend by 1 month from current endDate (or from now if expired)
             const base = sub.endDate > now ? sub.endDate : now;

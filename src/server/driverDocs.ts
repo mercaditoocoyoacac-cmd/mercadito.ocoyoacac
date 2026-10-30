@@ -19,9 +19,7 @@ const DOC_FIELDS: { key: keyof DriverDocsUser; label: string }[] = [
 ];
 
 export function hasCompleteDocs(user: DriverDocsUser): boolean {
-  return (
-    DOC_FIELDS.every((f) => Boolean(user[f.key])) && Boolean(user.driverDocsApproved)
-  );
+  return Boolean(user.driverDocsApproved);
 }
 
 export function missingDocs(user: DriverDocsUser): string[] {

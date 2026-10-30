@@ -43,15 +43,15 @@ export async function requireRole(...roles: string[]) {
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { isActive: true },
+    select: { isActive: true, role: true, additionalRoles: true },
   });
 
   if (!user || !user.isActive) {
     return { ok: false as const, res: NextResponse.json({ ok: false, error: "Cuenta desactivada" }, { status: 403 }) };
   }
 
-  const userRoles = getUserRoles(session);
-  if (!userRoles.some(r => roles.includes(r))) {
+  const currentRoles = [user.role, ...(user.additionalRoles?.split(",").filter(Boolean) ?? [])].filter(Boolean);
+  if (!currentRoles.some((r) => roles.includes(r))) {
     return { ok: false as const, res: NextResponse.json({ ok: false, error: "No autorizado" }, { status: 403 }) };
   }
 

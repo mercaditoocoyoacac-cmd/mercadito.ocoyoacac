@@ -3,7 +3,13 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function AdminRepartidoresClient({ userId }: { userId: string }) {
+export default function AdminRepartidoresClient({
+  userId,
+  hasPhotos,
+}: {
+  userId: string;
+  hasPhotos: boolean;
+}) {
   const router = useRouter();
   const [loading, setLoading] = useState<"APP" | "WHATSAPP" | null>(null);
 
@@ -24,14 +30,16 @@ export default function AdminRepartidoresClient({ userId }: { userId: string }) 
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <button
-        type="button"
-        onClick={() => approve("APP")}
-        disabled={loading !== null}
-        className="rounded-lg bg-[var(--accent)] px-3 py-1 text-xs font-semibold text-[var(--on-accent)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-60"
-      >
-        {loading === "APP" ? "Validando..." : "Fotos validadas"}
-      </button>
+      {hasPhotos && (
+        <button
+          type="button"
+          onClick={() => approve("APP")}
+          disabled={loading !== null}
+          className="rounded-lg bg-[var(--accent)] px-3 py-1 text-xs font-semibold text-[var(--on-accent)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-60"
+        >
+          {loading === "APP" ? "Validando..." : "Fotos validadas"}
+        </button>
+      )}
       <button
         type="button"
         onClick={() => approve("WHATSAPP")}

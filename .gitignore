@@ -36,6 +36,11 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+.env.test
+.env*.local
+
+# cuentas de prueba (contienen credenciales)
+/cuentas-pruebas/
 
 # vercel
 .vercel

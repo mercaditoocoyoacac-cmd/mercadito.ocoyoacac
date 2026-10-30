@@ -29,7 +29,7 @@ export default async function DeliveryDashboard() {
     },
   });
 
-  const pendingDocs = myUser ? missingDocs(myUser) : [];
+  const pendingDocs = myUser && !myUser.driverDocsApproved ? missingDocs(myUser) : [];
 
   const myDeliveries = await prisma.order.findMany({
     where: { deliveryUserId: session.user.id, status: { not: "CANCELLED" } },

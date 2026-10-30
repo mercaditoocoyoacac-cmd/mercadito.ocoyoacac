@@ -14,12 +14,19 @@ export async function POST(req: Request) {
   const auth = await requireUser();
   if (!auth.ok) return auth.res;
 
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  const allowedPrefix = cloudName ? `https://res.cloudinary.com/${cloudName}/` : null;
+
   const json = await req.json().catch(() => null);
   const data: Record<string, string | null> = {};
   let anyValue = false;
   for (const field of DOC_FIELDS) {
     const value = json?.[field];
-    data[field] = typeof value === "string" && value.startsWith("https://") ? value : null;
+    const valid =
+      typeof value === "string" &&
+      value.startsWith("https://") &&
+      (!allowedPrefix || value.startsWith(allowedPrefix));
+    data[field] = valid ? value : null;
     if (data[field]) anyValue = true;
   }
 

@@ -5,8 +5,9 @@ import { prisma } from "@/server/prisma";
 import { headers } from "next/headers";
 import { rateLimit } from "@/lib/rate-limit";
 import { sendPushToAdmins } from "@/server/push";
+import { getSession } from "@/server/session";
 
-const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY || "mercadito-admin-secure-2024";
+const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY || "";
 
 const RegisterSchema = z.object({
   email: z.string().email(),
@@ -41,10 +42,20 @@ export async function POST(req: Request) {
 
     const { email, password, name, phone, role, adminKey } = parsed.data;
     const emailLower = email.toLowerCase().trim();
+    const requestedRole: "CUSTOMER" | "VENDOR" | "DELIVERY" | "ADMIN" = role ?? "CUSTOMER";
+
+    if (requestedRole === "ADMIN") {
+      if (!ADMIN_SECRET_KEY || adminKey !== ADMIN_SECRET_KEY) {
+        return NextResponse.json(
+          { ok: false, error: "Clave de administrador inválida." },
+          { status: 403 },
+        );
+      }
+    }
 
     const exists = await prisma.user.findUnique({ where: { email: emailLower } });
     if (exists) {
-      const upgradeRole = role || "CUSTOMER";
+      const upgradeRole = requestedRole;
 
       if (exists.role === upgradeRole) {
         return NextResponse.json(
@@ -53,12 +64,26 @@ export async function POST(req: Request) {
         );
       }
 
+      const session = await getSession();
+      const sessionEmail = session?.user?.email?.toLowerCase().trim();
+      const isSelf = session?.user?.id === exists.id || (!!sessionEmail && sessionEmail === emailLower);
+
+      if (!isSelf) {
+        const passwordOk = password ? await bcrypt.compare(password, exists.passwordHash) : false;
+        if (!passwordOk) {
+          return NextResponse.json(
+            { ok: false, error: "Correo o contraseña incorrectos." },
+            { status: 401 },
+          );
+        }
+      }
+
       const additional = [exists.role, ...(exists.additionalRoles ? exists.additionalRoles.split(",") : [])]
         .filter((r) => r !== upgradeRole)
         .join(",");
       const updated = await prisma.user.update({
         where: { email: emailLower },
-        data: { role: upgradeRole as "CUSTOMER" | "VENDOR" | "DELIVERY" | "ADMIN", additionalRoles: additional || null },
+        data: { role: upgradeRole, additionalRoles: additional || null },
         select: { id: true, email: true },
       });
       const roleLabels2: Record<string, string> = { CUSTOMER: "Cliente", VENDOR: "Vendedor", DELIVERY: "Repartidor", ADMIN: "Admin" };
@@ -71,12 +96,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true, user: updated, upgraded: true });
     }
 
-    const userRole: "CUSTOMER" | "VENDOR" | "DELIVERY" | "ADMIN" = role ?? "CUSTOMER";
+    const userRole: "CUSTOMER" | "VENDOR" | "DELIVERY" | "ADMIN" = requestedRole;
 
-    if (userRole === "ADMIN" && adminKey !== ADMIN_SECRET_KEY) {
+    if (userRole === "ADMIN" && password.length < 16) {
       return NextResponse.json(
-        { ok: false, error: "Clave de administrador inválida." },
-        { status: 403 },
+        { ok: false, error: "La contraseña de administrador debe tener al menos 16 caracteres." },
+        { status: 400 },
       );
     }
 

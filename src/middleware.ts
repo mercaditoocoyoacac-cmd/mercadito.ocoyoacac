@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { rateLimit } from "@/lib/rate-limit";
 
 const ALLOWED_ORIGINS = [
   process.env.NEXT_PUBLIC_APP_URL || "",
@@ -12,8 +13,9 @@ const ALLOWED_ORIGINS = [
 ].filter(Boolean);
 
 const CSRF_PATHS = ["/api/auth/forgot-password", "/api/auth/reset-password"];
+const LOGIN_PATH = "/api/auth/callback/credentials";
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (CSRF_PATHS.some((p) => pathname.startsWith(p)) && request.method === "POST") {
@@ -28,11 +30,21 @@ export function middleware(request: NextRequest) {
     }
   }
 
+  if (pathname === LOGIN_PATH && request.method === "POST") {
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const rl = await rateLimit(`login:${ip}`, { intervalMs: 15 * 60_000, max: 15 });
+    if (!rl.ok) {
+      return NextResponse.json(
+        { ok: false, error: "Demasiados intentos de inicio de sesión. Intenta de nuevo en unos minutos." },
+        { status: 429 },
+      );
+    }
+  }
+
   const response = NextResponse.next();
 
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("X-Frame-Options", "DENY");
-  response.headers.set("X-XSS-Protection", "1; mode=block");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
 
   return response;

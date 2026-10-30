@@ -1,9 +1,33 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/server/requireUser";
+import { rateLimit } from "@/lib/rate-limit";
+
+function detectImageType(bytes: Uint8Array): string | null {
+  if (bytes.length < 12) return null;
+  if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return "image/jpeg";
+  if (
+    bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47 &&
+    bytes[4] === 0x0d && bytes[5] === 0x0a && bytes[6] === 0x1a && bytes[7] === 0x0a
+  ) return "image/png";
+  if (bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x38) return "image/gif";
+  if (
+    bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 &&
+    bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50
+  ) return "image/webp";
+  return null;
+}
 
 export async function POST(req: Request) {
   const auth = await requireUser();
   if (!auth.ok) return auth.res;
+
+  const rl = await rateLimit(`upload:${auth.userId}`, { intervalMs: 3600_000, max: 40 });
+  if (!rl.ok) {
+    return NextResponse.json(
+      { ok: false, error: "Demasiadas subidas. Intenta más tarde." },
+      { status: 429 },
+    );
+  }
 
   const formData = await req.formData();
   const file = formData.get("file") as File | null;
@@ -27,6 +51,15 @@ export async function POST(req: Request) {
   if (file.size > maxSize) {
     return NextResponse.json(
       { ok: false, error: "El archivo debe ser menor a 5MB." },
+      { status: 400 },
+    );
+  }
+
+  const head = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+  const detected = detectImageType(head);
+  if (!detected || detected !== file.type) {
+    return NextResponse.json(
+      { ok: false, error: "El archivo no es una imagen válida." },
       { status: 400 },
     );
   }

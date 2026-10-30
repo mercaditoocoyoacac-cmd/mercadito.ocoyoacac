@@ -82,9 +82,7 @@ export default async function AdminRepartidoresPage() {
                   </div>
                   <div className="mt-0.5 text-xs text-[color:var(--muted)]">
                     {isComplete
-                      ? `Completo (aprobado${d.driverDocsApprovedAt ? ` el ${d.driverDocsApprovedAt.toLocaleDateString("es-MX", { timeZone: "America/Mexico_City" })}` : ""}${d.driverDocsApprovedBy ? ` por ${d.driverDocsApprovedBy}` : ""}${d.driverDocsApprovedVia === "WHATSAPP" ? " vía WhatsApp" : ""})`
-                      : d.driverDocsApproved && hasAnyDoc
-                      ? `Fotos cargadas, falta alguna? (${missing.join(", ") || "revisar"})`
+                      ? `Validado${d.driverDocsApprovedAt ? ` el ${d.driverDocsApprovedAt.toLocaleDateString("es-MX", { timeZone: "America/Mexico_City" })}` : ""}${d.driverDocsApprovedBy ? ` por ${d.driverDocsApprovedBy}` : ""}${d.driverDocsApprovedVia === "WHATSAPP" ? " vía WhatsApp" : ""}`
                       : `Faltan: ${missing.join(", ") || "sin documentos"}`}
                   </div>
                 </div>
@@ -97,8 +95,8 @@ export default async function AdminRepartidoresPage() {
                       Validado por WhatsApp
                     </span>
                   )}
-                  {hasAnyDoc && !d.driverDocsApproved && (
-                    <AdminRepartidoresClient userId={d.id} />
+                  {!d.driverDocsApproved && (
+                    <AdminRepartidoresClient userId={d.id} hasPhotos={hasAnyDoc} />
                   )}
                 </div>
               </div>
