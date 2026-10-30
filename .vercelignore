@@ -1,8 +1,11 @@
 # Exclude imss-umf-turnos (separate project)
 imss-umf-turnos/
 
+# Nunca subir archivos de entorno al deploy (las variables van en Vercel)
+.env
+.env.*
+.env*
+
 # Exclude development files
-.env.local
-.env.*.local
 *.log
 *.tsbuildinfo
