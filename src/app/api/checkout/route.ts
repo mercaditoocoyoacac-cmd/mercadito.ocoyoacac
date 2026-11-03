@@ -8,7 +8,7 @@ import { isStoreOpen } from "@/lib/schedule";
 import { sendTextNotification } from "@/server/notifications";
 import { notifyOrderCreated } from "@/server/orderNotifications";
 import { notifyVendorNewOrder } from "@/server/whatsapp";
-import { sendPushNotification, sendPushToMultiple, sendPushToAdmins } from "@/server/push";
+import { sendPushNotification, sendPushToMultiple, sendPushToAdmins, sendPushToDispatch } from "@/server/push";
 import { calcDeliveryFeeCents, haversineDistance, pointInPolygon, RISK_ZONE_EXTRA_CENTS, type DeliveryFeeConfig } from "@/lib/geo";
 import { getRouteDistanceKm } from "@/server/directions";
 import { isStorePremium } from "@/lib/membership";
@@ -547,14 +547,28 @@ export async function POST(req: Request) {
   }
 
   // Notificar a los administradores de todos los pedidos
-  await Promise.allSettled([
+  const staffNewOrderAlerts: Promise<unknown>[] = [
     sendPushToAdmins({
       title: "🛒 Nuevo pedido",
       body: `${storeForNotification?.name || "Tienda"} — ${(totalCents / 100).toFixed(2)} ${currency}`,
       url: "/admin/pedidos",
       type: "NEW_ORDER",
     }),
-  ]);
+  ];
+
+  if (parsed.data.fulfillmentType === "DELIVERY") {
+    staffNewOrderAlerts.push(
+      sendPushToDispatch({
+        title: "Nuevo envío por atender",
+        body: `${storeForNotification?.name || "Tienda"} — ${parsed.data.customerName.trim()} — ${(totalCents / 100).toFixed(2)} ${currency}`,
+        url: "/admin/envios",
+        type: "NEW_ORDER",
+        orderId: order.id,
+      }),
+    );
+  }
+
+  await Promise.allSettled(staffNewOrderAlerts);
 
   if (parsed.data.fulfillmentType === "DELIVERY") {
     const drivers = await prisma.user.findMany({

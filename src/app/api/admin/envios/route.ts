@@ -5,13 +5,12 @@ import { requireRole } from "@/server/requireUser";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const auth = await requireRole("ADMIN");
+  const auth = await requireRole("ADMIN", "DISPATCH");
   if (!auth.ok) return auth.res;
 
   const orders = await prisma.order.findMany({
     where: {
       fulfillmentType: "DELIVERY",
-      status: { not: "PENDING" },
     },
     orderBy: { updatedAt: "desc" },
     select: {
@@ -19,6 +18,7 @@ export async function GET() {
       status: true,
       fulfillmentType: true,
       paymentMethod: true,
+      paymentVerified: true,
       customerName: true,
       customerPhone: true,
       customerAddress: true,

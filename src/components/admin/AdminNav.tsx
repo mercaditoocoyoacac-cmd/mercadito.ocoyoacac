@@ -2,8 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { isAdmin, isDispatcher } from "@/lib/roles";
 
-const groups: { title: string; items: { href: string; label: string }[] }[] = [
+interface NavItem {
+  href: string;
+  label: string;
+}
+
+interface NavGroup {
+  title: string;
+  items: NavItem[];
+}
+
+const groups: NavGroup[] = [
   {
     title: "Operación",
     items: [
@@ -45,20 +56,41 @@ const groups: { title: string; items: { href: string; label: string }[] }[] = [
   },
 ];
 
-export default function AdminNav() {
+const dispatchGroups: NavGroup[] = [
+  {
+    title: "Operación",
+    items: [
+      { href: "/admin/envios", label: "Envíos" },
+    ],
+  },
+];
+
+export default function AdminNav({ roles }: { roles: string[] }) {
   const pathname = usePathname();
+  const admin = isAdmin(roles);
+  const visibleGroups = admin
+    ? groups
+    : isDispatcher(roles)
+      ? dispatchGroups
+      : [];
+
+  if (visibleGroups.length === 0) return null;
 
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h1 className="text-xl font-semibold tracking-tight">Administración</h1>
-        <Link href="/" className="text-sm text-[color:var(--muted)] hover:text-[color:var(--text)]">
-          Volver al sitio
-        </Link>
+        <h1 className="text-xl font-semibold tracking-tight">
+          {admin ? "Administración" : "Monitoreo de envíos"}
+        </h1>
+        {admin ? (
+          <Link href="/" className="text-sm text-[color:var(--muted)] hover:text-[color:var(--text)]">
+            Volver al sitio
+          </Link>
+        ) : null}
       </div>
 
       <nav aria-label="Secciones de administración" className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)]">
-        {groups.map((group) => (
+        {visibleGroups.map((group) => (
           <div key={group.title} className="flex flex-col gap-2 border-b border-[var(--border)] px-4 py-3 last:border-b-0 sm:flex-row sm:items-center sm:gap-6">
             <div className="w-32 shrink-0 text-xs font-semibold uppercase tracking-wide text-[color:var(--muted)]">
               {group.title}

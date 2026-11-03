@@ -13,6 +13,7 @@ const roleLabels: Record<string, string> = {
   VENDOR: "Vendedor",
   DELIVERY: "Repartidor",
   ADMIN: "Admin",
+  DISPATCH: "Monitor de envíos",
 };
 
 const roleColors: Record<string, string> = {
@@ -20,13 +21,17 @@ const roleColors: Record<string, string> = {
   VENDOR: "bg-green-100 text-green-800",
   DELIVERY: "bg-orange-100 text-orange-800",
   ADMIN: "bg-purple-100 text-purple-800",
+  DISPATCH: "bg-teal-100 text-teal-800",
 };
+
+const PRIMARY_ROLES = ["CUSTOMER", "VENDOR", "DELIVERY", "ADMIN"] as const;
 
 const filterTabs = [
   { key: "", label: "Todos" },
   { key: "CUSTOMER", label: "Clientes" },
   { key: "VENDOR", label: "Vendedores" },
   { key: "DELIVERY", label: "Repartidores" },
+  { key: "DISPATCH", label: "Monitores" },
 ];
 
 function hasRole(user: { role: string; additionalRoles: string | null }, role: string): boolean {
@@ -44,11 +49,12 @@ async function addRole(userId: string, role: string) {
 
   const allRoles = [user.role, ...(user.additionalRoles ? user.additionalRoles.split(",") : [])];
   const others = allRoles.filter((r) => r !== role);
+  const nextPrimary = (PRIMARY_ROLES as readonly string[]).includes(role) ? role : user.role;
 
   await prisma.user.update({
     where: { id: userId },
     data: {
-      role: role as "CUSTOMER" | "VENDOR" | "DELIVERY" | "ADMIN",
+      role: nextPrimary as "CUSTOMER" | "VENDOR" | "DELIVERY" | "ADMIN",
       additionalRoles: others.length > 0 ? others.join(",") : null,
     },
   });
@@ -65,8 +71,8 @@ async function removeRole(userId: string, role: string) {
 
   const allRoles = [user.role, ...(user.additionalRoles ? user.additionalRoles.split(",") : [])];
   const filtered = allRoles.filter((r) => r !== role);
-  const newPrimary = filtered[0] || "CUSTOMER";
-  const newAdditional = filtered.slice(1).join(",");
+  const newPrimary = filtered.find((r) => (PRIMARY_ROLES as readonly string[]).includes(r)) || "CUSTOMER";
+  const newAdditional = filtered.filter((r) => r !== newPrimary).join(",");
 
   await prisma.user.update({
     where: { id: userId },
@@ -135,7 +141,7 @@ export default async function AdminUsersPage({
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3 mb-8">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         <div className="rounded-xl border border-[var(--border)] p-5">
           <div className="text-sm text-[color:var(--muted)]">Clientes</div>
           <div className="mt-1 text-2xl font-semibold">
@@ -152,6 +158,12 @@ export default async function AdminUsersPage({
           <div className="text-sm text-[color:var(--muted)]">Repartidores</div>
           <div className="mt-1 text-2xl font-semibold">
             {users.filter(u => hasRole(u, "DELIVERY")).length}
+          </div>
+        </div>
+        <div className="rounded-xl border border-[var(--border)] p-5">
+          <div className="text-sm text-[color:var(--muted)]">Monitores de envíos</div>
+          <div className="mt-1 text-2xl font-semibold">
+            {users.filter(u => hasRole(u, "DISPATCH")).length}
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { SessionProvider } from "next-auth/react";
+import { SessionProvider, useSession } from "next-auth/react";
 import { LayoutGroup } from "framer-motion";
 import { Capacitor } from "@capacitor/core";
 import SplashScreen from "@/components/ui/SplashScreen";
@@ -10,6 +10,52 @@ import { OfflineDetector } from "@/components/ui/OfflineDetector";
 
 function emitBubble(detail: { title: string; body: string; url?: string; type?: string; orderId?: string }) {
   window.dispatchEvent(new CustomEvent("push-bubble", { detail }));
+}
+
+let nativePushToken: string | null = null;
+let webPushToken: string | null = null;
+
+async function savePushToken(token: string | null) {
+  if (!token) return;
+  try {
+    await fetch("/api/push-token", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pushToken: token }),
+    });
+  } catch (err) {
+    console.error("Error guardando push token:", err);
+  }
+}
+
+function PushTokenSync() {
+  const { status } = useSession();
+
+  useEffect(() => {
+    if (status !== "authenticated") return;
+
+    if (Capacitor.isNativePlatform()) {
+      if (nativePushToken) {
+        void savePushToken(nativePushToken);
+        return;
+      }
+      void import("@capacitor/push-notifications")
+        .then(({ PushNotifications }) => PushNotifications.register())
+        .catch(() => {});
+      return;
+    }
+
+    void (async () => {
+      const { requestWebPushToken } = await import("@/lib/firebase-web");
+      const token = webPushToken ?? (await requestWebPushToken());
+      if (token) {
+        webPushToken = token;
+        await savePushToken(token);
+      }
+    })();
+  }, [status]);
+
+  return null;
 }
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -27,6 +73,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <SessionProvider>
+      <PushTokenSync />
       <LayoutGroup>
         <SplashScreen>
           <SwipeBack>
@@ -99,15 +146,8 @@ async function initNativePush() {
         await PushNotifications.register();
 
         PushNotifications.addListener("registration", async (token) => {
-          try {
-            await fetch("/api/push-token", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ pushToken: token.value }),
-            });
-          } catch (err) {
-            console.error("Error guardando push token:", err);
-          }
+          nativePushToken = token.value;
+          await savePushToken(token.value);
         });
 
         PushNotifications.addListener("pushNotificationReceived", (n) => {
@@ -170,11 +210,8 @@ async function initWebPush() {
 
     const token = await requestWebPushToken();
     if (token) {
-      await fetch("/api/push-token", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pushToken: token }),
-      });
+      webPushToken = token;
+      await savePushToken(token);
     }
 
     onForegroundMessage((payload) => {

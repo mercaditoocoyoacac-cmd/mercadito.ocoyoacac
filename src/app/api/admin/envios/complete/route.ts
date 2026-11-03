@@ -6,7 +6,7 @@ import { notifyCustomerOrderCompleted } from "@/server/notifications";
 import { notifyOrderFinished } from "@/server/orderNotifications";
 
 export async function POST(req: Request) {
-  const auth = await requireRole("ADMIN");
+  const auth = await requireRole("ADMIN", "DISPATCH");
   if (!auth.ok) return auth.res;
 
   const { orderId } = await req.json().catch(() => ({ orderId: "" }));

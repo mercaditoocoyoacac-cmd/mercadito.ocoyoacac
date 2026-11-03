@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import { Card, CardContent, CardHeader, CardTitle, Input, Button, Badge } from "@/components/ui/design-system";
+import { parseRoles } from "@/lib/roles";
 
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
 const STORAGE_KEY = "mercadito_suggested_accounts";
@@ -40,12 +41,10 @@ export default function LoginPage() {
   async function redirectByRole() {
     const sessionRes = await fetch("/api/auth/session");
     const session = await sessionRes.json();
-    const roles = [
-      session?.user?.role,
-      ...(session?.user?.additionalRoles ?? "").split(","),
-    ].filter(Boolean);
+    const roles = parseRoles(session?.user?.role, session?.user?.additionalRoles);
     let dest = "/";
     if (roles.includes("ADMIN")) dest = "/admin";
+    else if (roles.includes("DISPATCH")) dest = "/admin/envios";
     else if (roles.includes("VENDOR")) dest = "/vendor";
     else if (roles.includes("DELIVERY")) dest = "/delivery";
     window.location.assign(dest);

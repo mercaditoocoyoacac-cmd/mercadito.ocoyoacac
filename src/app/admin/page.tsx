@@ -15,6 +15,9 @@ export default async function AdminDashboard() {
   }
 
   if (!session?.user?.id || session.user.isActive === false || !getUserRoles(session).includes("ADMIN")) {
+    if (session?.user?.id && session.user.isActive !== false && getUserRoles(session).includes("DISPATCH")) {
+      redirect("/admin/envios");
+    }
     redirect("/admin/login");
   }
 

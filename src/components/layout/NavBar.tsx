@@ -539,10 +539,18 @@ export function NavBar() {
               <div className="flex items-center gap-3">
                 <div className="text-right">
                   <div className="text-sm font-medium truncate max-w-[150px]">{data.user.email}</div>
-                  <div className="text-xs text-[color:var(--muted)] capitalize">{role?.toLowerCase()}</div>
+                  <div className="text-xs text-[color:var(--muted)] capitalize">{additionalRoles.includes("DISPATCH") ? "monitor de envíos" : role?.toLowerCase()}</div>
                 </div>
                 {additionalRoles.length > 0 && (
                   <div className="flex flex-col gap-1">
+                    {additionalRoles.includes("DISPATCH") && (
+                      <Link
+                        href="/admin/envios"
+                        className="rounded-lg border border-[var(--accent-strong)] px-2 py-1 text-xs font-medium text-[var(--accent-strong)] transition-colors hover:bg-[var(--accent-soft)]"
+                      >
+                        Monitoreo
+                      </Link>
+                    )}
                     {additionalRoles.includes("DELIVERY") && role !== "DELIVERY" && (
                       <button
                         type="button"
@@ -950,6 +958,15 @@ export function NavBar() {
                   <div className="text-xs text-[color:var(--muted)]">
                     {data.user.email}
                   </div>
+                  {additionalRoles.includes("DISPATCH") && (
+                    <Link
+                      href="/admin/envios"
+                      onClick={handleMobileNav}
+                      className="rounded-lg px-4 py-3 text-sm font-medium text-[var(--accent-strong)]"
+                    >
+                      Monitoreo de envíos
+                    </Link>
+                  )}
                   {role !== "VENDOR" && role !== "ADMIN" && (
                     <Link
                       href="/vendor/upgrade"

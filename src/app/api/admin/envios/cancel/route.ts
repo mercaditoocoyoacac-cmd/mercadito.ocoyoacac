@@ -11,7 +11,7 @@ const CancelSchema = z.object({
 });
 
 export async function POST(req: Request) {
-  const auth = await requireRole("ADMIN");
+  const auth = await requireRole("ADMIN", "DISPATCH");
   if (!auth.ok) return auth.res;
 
   const json = await req.json().catch(() => null);

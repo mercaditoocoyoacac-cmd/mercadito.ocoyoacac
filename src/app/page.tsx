@@ -5,6 +5,7 @@ import { prisma } from "@/server/prisma";
 import { getSession } from "@/server/session";
 import { Card, CardContent, EmptyState } from "@/components/ui/design-system";
 import { shimmerBlur } from "@/lib/images";
+import { parseRoles } from "@/lib/roles";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,8 @@ export default async function Home() {
   const session = await getSession();
   const role = session?.user?.role;
   const additionalRoles = session?.user?.additionalRoles;
+  const roles = parseRoles(role, additionalRoles);
+  if (roles.includes("DISPATCH") && !roles.includes("ADMIN")) redirect("/admin/envios");
   const hasExtraRoles = additionalRoles && additionalRoles.length > 0;
   if (role === "VENDOR" && !hasExtraRoles) redirect("/vendor");
   if (role === "DELIVERY" && !hasExtraRoles) redirect("/delivery");

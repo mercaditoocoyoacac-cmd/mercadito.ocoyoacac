@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/server/session";
 import { getUserRoles } from "@/server/requireUser";
+import { isAdmin, isDispatcher } from "@/lib/roles";
 import DeliverySupervisionClient from "@/components/admin/DeliverySupervisionClient";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +14,8 @@ export default async function AdminEnviosPage() {
     console.error("Session error:", e);
   }
 
-  if (!session?.user?.id || session.user.isActive === false || !getUserRoles(session).includes("ADMIN")) {
+  const roles = session && session.user.isActive !== false ? getUserRoles(session) : [];
+  if (!isAdmin(roles) && !isDispatcher(roles)) {
     redirect("/admin/login");
   }
 

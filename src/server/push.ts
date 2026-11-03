@@ -261,6 +261,21 @@ export async function sendPushToAdmins(data: PushData) {
   console.log(`[PUSH] Notificación enviada a ${tokens.length} administradores`);
 }
 
+export async function sendPushToDispatch(data: PushData) {
+  const monitors = await prisma.user.findMany({
+    where: {
+      pushToken: { not: null },
+      isActive: true,
+      additionalRoles: { contains: "DISPATCH" },
+    },
+    select: { pushToken: true },
+  });
+  const tokens = monitors.map((m) => m.pushToken).filter(Boolean) as string[];
+  if (tokens.length === 0) return;
+  await sendPushToMultiple(tokens, data);
+  console.log(`[PUSH] Notificación enviada a ${tokens.length} monitores de envíos`);
+}
+
 export async function sendVendorReminder() {
   const vendors = await prisma.user.findMany({
     where: {

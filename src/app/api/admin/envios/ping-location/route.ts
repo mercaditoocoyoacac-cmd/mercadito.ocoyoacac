@@ -10,7 +10,7 @@ const ACTIVE_STATUSES: OrderStatus[] = ["CONFIRMED", "READY", "OUT_FOR_DELIVERY"
 const PING_COOLDOWN_MS = 30_000;
 
 export async function POST(req: Request) {
-  const auth = await requireRole("ADMIN");
+  const auth = await requireRole("ADMIN", "DISPATCH");
   if (!auth.ok) return auth.res;
 
   const json = await req.json().catch(() => ({}));

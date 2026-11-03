@@ -313,7 +313,7 @@ function OrderCard({ order, drivers, onRefresh }: { order: OrderData; drivers: D
             <div className="text-xs text-[color:var(--muted)] space-y-0.5">
               <div>{order.store.name} · {formatMoney(order.totalCents, order.currency)}</div>
               {order.deliveryUser && <div>🛵 {order.deliveryUser.name || order.deliveryUser.email}</div>}
-              <div className="text-[10px]">{getTimeAgo(order.updatedAt)}</div>
+              <div className="text-[10px]">Pedido #{order.id.slice(-8).toUpperCase()} · {getTimeAgo(order.updatedAt)}</div>
             </div>
             <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-[color:var(--muted)]">
               {order.customerPhone && <span>📞 {order.customerPhone}</span>}
@@ -470,9 +470,15 @@ function OrderCard({ order, drivers, onRefresh }: { order: OrderData; drivers: D
                 className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm"
               >
                 <option value="">— Seleccionar —</option>
-                {drivers.map((d) => (
-                  <option key={d.id} value={d.id}>{d.name || d.email}</option>
-                ))}
+                {drivers.map((d) => {
+                  const online = Date.now() - new Date(d.updatedAt).getTime() < 120000;
+                  const contact = d.phone ? ` — ${d.phone}` : "";
+                  return (
+                    <option key={d.id} value={d.id}>
+                      {(d.name || d.email) + contact + (online ? " (en línea)" : "")}
+                    </option>
+                  );
+                })}
               </select>
               <div className="flex gap-2">
                 <button onClick={handleReassign} disabled={!selectedDriver} className="text-xs px-3 py-1.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors">
@@ -551,7 +557,7 @@ export default function DeliverySupervisionClient() {
     return () => clearInterval(interval);
   }, []);
 
-  const statuses = ["ALL", "CONFIRMED", "READY", "OUT_FOR_DELIVERY", "COMPLETED", "CANCELLED"];
+  const statuses = ["ALL", "PENDING", "CONFIRMED", "READY", "OUT_FOR_DELIVERY", "COMPLETED", "CANCELLED"];
   const storeNames = data ? [...new Set(data.orders.map((o) => o.store.name))].sort() : [];
 
   const filtered = data
@@ -569,6 +575,7 @@ export default function DeliverySupervisionClient() {
 
   const counts = data ? {
     ALL: data.orders.length,
+    PENDING: data.orders.filter((o) => o.status === "PENDING").length,
     CONFIRMED: data.orders.filter((o) => o.status === "CONFIRMED").length,
     READY: data.orders.filter((o) => o.status === "READY").length,
     OUT_FOR_DELIVERY: data.orders.filter((o) => o.status === "OUT_FOR_DELIVERY").length,

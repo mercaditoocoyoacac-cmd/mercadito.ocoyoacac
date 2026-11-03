@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/server/session";
 import { prisma } from "@/server/prisma";
+import { parseRoles } from "@/lib/roles";
 
 export async function requireUser() {
   const session = await getSession();
@@ -28,10 +29,7 @@ export async function requireUser() {
 }
 
 export function getUserRoles(session: { user: { role?: string | null; additionalRoles?: string | null } }): string[] {
-  return [
-    session.user.role ?? "",
-    ...(session.user.additionalRoles?.split(",").filter(Boolean) ?? []),
-  ].filter(Boolean);
+  return parseRoles(session.user.role, session.user.additionalRoles ?? undefined);
 }
 
 export async function requireRole(...roles: string[]) {
@@ -50,7 +48,7 @@ export async function requireRole(...roles: string[]) {
     return { ok: false as const, res: NextResponse.json({ ok: false, error: "Cuenta desactivada" }, { status: 403 }) };
   }
 
-  const currentRoles = [user.role, ...(user.additionalRoles?.split(",").filter(Boolean) ?? [])].filter(Boolean);
+  const currentRoles = parseRoles(user.role, user.additionalRoles);
   if (!currentRoles.some((r) => roles.includes(r))) {
     return { ok: false as const, res: NextResponse.json({ ok: false, error: "No autorizado" }, { status: 403 }) };
   }

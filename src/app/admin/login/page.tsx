@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import { FieldError } from "@/components/ui/FieldError";
+import { parseRoles } from "@/lib/roles";
 
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
 
@@ -21,12 +22,11 @@ export default function AdminLoginPage() {
   async function redirectByRole() {
     const sessionRes = await fetch("/api/auth/session");
     const session = await sessionRes.json();
-    const role = session?.user?.role;
-    const extra = session?.user?.additionalRoles;
-    if (extra) { router.push("/"); return; }
-    if (role === "ADMIN") router.push("/admin");
-    else if (role === "VENDOR") router.push("/vendor");
-    else if (role === "DELIVERY") router.push("/delivery");
+    const roles = parseRoles(session?.user?.role, session?.user?.additionalRoles);
+    if (roles.includes("ADMIN")) router.push("/admin");
+    else if (roles.includes("DISPATCH")) router.push("/admin/envios");
+    else if (roles.includes("VENDOR")) router.push("/vendor");
+    else if (roles.includes("DELIVERY")) router.push("/delivery");
     else router.push("/");
   }
 
