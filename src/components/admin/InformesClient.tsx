@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { Button, Card, CardContent, Input } from '@/components/ui/design-system';
 
 type ReportType = 'resumen' | 'ventas' | 'productos' | 'pedidos' | 'clientes' | 'costos';
@@ -215,6 +216,7 @@ export default function InformesClient({ stores }: { stores: { id: string; name:
   const [error, setError] = useState('');
   const [summary, setSummary] = useState<Summary | null>(null);
   const [exporting, setExporting] = useState<ExportFormat | null>(null);
+  const [notice, setNotice] = useState('');
 
   const params = useMemo(() => {
     const search = new URLSearchParams();
@@ -274,7 +276,37 @@ export default function InformesClient({ stores }: { stores: { id: string; name:
   const download = async (format: ExportFormat) => {
     setExporting(format);
     setError('');
+    setNotice('');
     try {
+      if (Capacitor.isNativePlatform()) {
+        const linkRes = await fetch('/api/admin/informes/export-link', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: params.toString(), format }),
+        });
+        const linkData = await linkRes.json().catch(() => null);
+        if (!linkRes.ok || !linkData?.ok || !linkData?.path) throw new Error('export');
+
+        const url = new URL(linkData.path, window.location.origin).toString();
+
+        try {
+          const { AppLauncher } = await import('@capacitor/app-launcher');
+          await AppLauncher.openUrl({ url });
+          setNotice('El archivo se abre en el navegador del teléfono para descargarlo o compartirlo.');
+        } catch {
+          const copied = await navigator.clipboard
+            .writeText(url)
+            .then(() => true)
+            .catch(() => false);
+          setNotice(
+            copied
+              ? 'Enlace copiado. Pégalo en Chrome para descargar el archivo.'
+              : 'Abre el sitio en Chrome desde este teléfono para descargar el archivo.',
+          );
+        }
+        return;
+      }
+
       const response = await fetch(`/api/admin/informes/export?${params.toString()}&format=${format}`);
       if (!response.ok) throw new Error('export');
       const blob = await response.blob();
@@ -648,6 +680,12 @@ export default function InformesClient({ stores }: { stores: { id: string; name:
           <Button type="button" variant="secondary" size="sm" onClick={() => load()} disabled={loading}>
             Reintentar
           </Button>
+        </div>
+      )}
+
+      {notice && (
+        <div role="status" className="mb-4 rounded-lg border border-[var(--border)] bg-[var(--surface-2)] px-4 py-3 text-sm text-[var(--text)]">
+          {notice}
         </div>
       )}
 

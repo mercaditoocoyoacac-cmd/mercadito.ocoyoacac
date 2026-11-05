@@ -1,7 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { requireAdmin } from '@/server/requireUser';
-import { buildInforme } from '@/server/informes';
-import { buildCsv, buildDoc, buildPdf, buildXlsx, fileNameFor } from '@/server/informeExport';
+import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/server/requireUser";
+import { buildInforme } from "@/server/informes";
+import { buildCsv, buildDoc, buildPdf, buildXlsx, fileNameFor } from "@/server/informeExport";
+import { verifyDownloadToken } from "@/server/downloadToken";
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -9,15 +10,22 @@ export const dynamic = 'force-dynamic';
 const FORMATS = new Set(['xlsx', 'csv', 'doc', 'pdf']);
 
 export async function GET(req: NextRequest) {
-  const auth = await requireAdmin();
-  if (!auth.ok) return auth.res;
-
   const searchParams = new URL(req.url).searchParams;
-  const rawFormat = (searchParams.get('format') || 'xlsx').toLowerCase();
+  let params: URLSearchParams = searchParams;
+
+  const auth = await requireAdmin();
+  if (!auth.ok) {
+    const token = searchParams.get('token');
+    const verified = token ? await verifyDownloadToken(token) : null;
+    if (!verified) return auth.res;
+    params = new URLSearchParams(verified.query);
+  }
+
+  const rawFormat = (params.get('format') || 'xlsx').toLowerCase();
   const format = FORMATS.has(rawFormat) ? rawFormat : 'xlsx';
 
   try {
-    const informe = await buildInforme(searchParams);
+    const informe = await buildInforme(params);
     const fileName = fileNameFor(informe, format);
 
     if (format === 'csv') {
