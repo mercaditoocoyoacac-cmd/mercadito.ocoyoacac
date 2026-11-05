@@ -20,8 +20,11 @@ export async function POST(req: NextRequest) {
   params.set("format", format);
 
   const token = createDownloadToken(auth.userId, params.toString());
+  const deploymentHost = process.env.VERCEL_URL;
+  const origin = deploymentHost ? `https://${deploymentHost}` : req.nextUrl.origin;
+
   return NextResponse.json({
     ok: true,
-    path: `/api/admin/informes/export?${params.toString()}&token=${encodeURIComponent(token)}`,
+    url: `${origin}/api/admin/informes/export?${params.toString()}&token=${encodeURIComponent(token)}`,
   });
 }

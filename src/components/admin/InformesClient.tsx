@@ -204,6 +204,33 @@ function statusTone(status: string) {
   return 'bg-[var(--warning-soft)] text-[var(--warning)]';
 }
 
+async function copyText(text: string) {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {
+    void 0;
+  }
+
+  try {
+    const area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly', '');
+    area.style.position = 'fixed';
+    area.style.top = '0';
+    area.style.opacity = '0';
+    document.body.appendChild(area);
+    area.select();
+    const ok = document.execCommand('copy');
+    area.remove();
+    return ok;
+  } catch {
+    return false;
+  }
+}
+
 export default function InformesClient({ stores }: { stores: { id: string; name: string }[] }) {
   const initialRange = useMemo(() => presetRange('30d'), []);
   const [report, setReport] = useState<ReportType>('resumen');
@@ -216,7 +243,7 @@ export default function InformesClient({ stores }: { stores: { id: string; name:
   const [error, setError] = useState('');
   const [summary, setSummary] = useState<Summary | null>(null);
   const [exporting, setExporting] = useState<ExportFormat | null>(null);
-  const [notice, setNotice] = useState('');
+  const [notice, setNotice] = useState<{ text: string; url?: string } | null>(null);
 
   const params = useMemo(() => {
     const search = new URLSearchParams();
@@ -276,7 +303,7 @@ export default function InformesClient({ stores }: { stores: { id: string; name:
   const download = async (format: ExportFormat) => {
     setExporting(format);
     setError('');
-    setNotice('');
+    setNotice(null);
     try {
       if (Capacitor.isNativePlatform()) {
         const linkRes = await fetch('/api/admin/informes/export-link', {
@@ -285,24 +312,24 @@ export default function InformesClient({ stores }: { stores: { id: string; name:
           body: JSON.stringify({ query: params.toString(), format }),
         });
         const linkData = await linkRes.json().catch(() => null);
-        if (!linkRes.ok || !linkData?.ok || !linkData?.path) throw new Error('export');
+        if (!linkRes.ok || !linkData?.ok || !linkData?.url) throw new Error('export');
 
-        const url = new URL(linkData.path, window.location.origin).toString();
+        const url = String(linkData.url);
+        const copied = await copyText(url);
 
         try {
           const { AppLauncher } = await import('@capacitor/app-launcher');
           await AppLauncher.openUrl({ url });
-          setNotice('El archivo se abre en el navegador del teléfono para descargarlo o compartirlo.');
+          setNotice({
+            text: 'Se abrió el navegador del teléfono para descargar el archivo. El enlace vence en 10 minutos.',
+          });
         } catch {
-          const copied = await navigator.clipboard
-            .writeText(url)
-            .then(() => true)
-            .catch(() => false);
-          setNotice(
-            copied
-              ? 'Enlace copiado. Pégalo en Chrome para descargar el archivo.'
-              : 'Abre el sitio en Chrome desde este teléfono para descargar el archivo.',
-          );
+          setNotice({
+            text: copied
+              ? 'El enlace de descarga ya está copiado. Abre Chrome en el teléfono, pégalo en la barra de direcciones y el archivo se descargará. Vence en 10 minutos.'
+              : 'Copia el enlace, ábrelo en Chrome en este teléfono y el archivo se descargará. Vence en 10 minutos.',
+            url,
+          });
         }
         return;
       }
@@ -684,8 +711,33 @@ export default function InformesClient({ stores }: { stores: { id: string; name:
       )}
 
       {notice && (
-        <div role="status" className="mb-4 rounded-lg border border-[var(--border)] bg-[var(--surface-2)] px-4 py-3 text-sm text-[var(--text)]">
-          {notice}
+        <div role="status" className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface-2)] px-4 py-3 text-sm text-[var(--text)]">
+          <span className="min-w-0 flex-1">
+            {notice.text}
+            {notice.url && (
+              <span className="mt-2 block select-all break-all text-xs text-[color:var(--muted)]">
+                {notice.url}
+              </span>
+            )}
+          </span>
+          {notice.url && (
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={async () => {
+                const copied = await copyText(notice.url as string);
+                setNotice({
+                  text: copied
+                    ? 'Enlace copiado. Ábrelo en Chrome para descargar el archivo. Vence en 10 minutos.'
+                    : 'No se pudo copiar. Mantén presionado el enlace para copiarlo.',
+                  url: notice.url,
+                });
+              }}
+            >
+              Copiar enlace
+            </Button>
+          )}
         </div>
       )}
 
