@@ -243,6 +243,8 @@ export default function InformesClient({ stores }: { stores: { id: string; name:
   const [error, setError] = useState('');
   const [summary, setSummary] = useState<Summary | null>(null);
   const [exporting, setExporting] = useState<ExportFormat | null>(null);
+  const [emailing, setEmailing] = useState(false);
+  const [isNative, setIsNative] = useState(false);
   const [notice, setNotice] = useState<{ text: string; url?: string } | null>(null);
 
   const params = useMemo(() => {
@@ -293,11 +295,38 @@ export default function InformesClient({ stores }: { stores: { id: string; name:
     return () => controller.abort();
   }, [load]);
 
+  useEffect(() => {
+    setIsNative(Capacitor.isNativePlatform());
+  }, []);
+
   const applyPreset = (preset: string) => {
     const range = presetRange(preset);
     setFrom(range.from);
     setTo(range.to);
     setActivePreset(preset);
+  };
+
+  const sendByEmail = async (format: ExportFormat) => {
+    setEmailing(true);
+    setError('');
+    setNotice(null);
+    try {
+      const res = await fetch('/api/admin/informes/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: params.toString(), format }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.ok) {
+        setError(data?.error || 'No se pudo enviar el correo. Intenta de nuevo.');
+        return;
+      }
+      setNotice({ text: `El informe se envió a ${data.to}. Revisa tu correo en unos minutos.` });
+    } catch {
+      setError('No se pudo enviar el correo. Intenta de nuevo.');
+    } finally {
+      setEmailing(false);
+    }
   };
 
   const download = async (format: ExportFormat) => {
@@ -582,20 +611,39 @@ export default function InformesClient({ stores }: { stores: { id: string; name:
             </p>
           )}
         </div>
-        <div role="group" aria-label="Exportar informe" className="flex flex-wrap gap-2">
-          {EXPORTS.map((option) => (
-            <Button
-              key={option.format}
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={() => download(option.format)}
-              loading={exporting === option.format}
-              disabled={exporting !== null || loading}
-            >
-              {option.label}
-            </Button>
-          ))}
+        <div className="flex flex-col items-start gap-2 lg:items-end">
+          <div role="group" aria-label="Exportar informe" className="flex flex-wrap gap-2">
+            {EXPORTS.map((option) => (
+              <Button
+                key={option.format}
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => download(option.format)}
+                loading={exporting === option.format}
+                disabled={exporting !== null || emailing || loading}
+              >
+                {option.label}
+              </Button>
+            ))}
+          </div>
+          {isNative && (
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => sendByEmail('xlsx')}
+                loading={emailing}
+                disabled={emailing || exporting !== null || loading}
+              >
+                Enviar Excel a mi correo
+              </Button>
+              <span className="text-xs text-[color:var(--muted)]">
+                Llega como adjunto al correo de tu cuenta.
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

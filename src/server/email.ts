@@ -28,7 +28,17 @@ function getSmtpTransport() {
   });
 }
 
-export async function sendEmail(opts: { to: string; subject: string; html: string }) {
+export interface EmailAttachment {
+  filename: string;
+  content: Buffer;
+  contentType?: string;
+}
+
+export function hasEmailTransport() {
+  return Boolean(process.env.RESEND_API_KEY) || Boolean(getSmtpTransport());
+}
+
+export async function sendEmail(opts: { to: string; subject: string; html: string; attachments?: EmailAttachment[] }) {
   // Primary: Resend (same service used for membership emails)
   if (process.env.RESEND_API_KEY) {
     try {
@@ -37,6 +47,7 @@ export async function sendEmail(opts: { to: string; subject: string; html: strin
         to: [opts.to],
         subject: opts.subject,
         html: opts.html,
+        attachments: opts.attachments,
       });
       return;
     } catch (error) {
@@ -51,5 +62,5 @@ export async function sendEmail(opts: { to: string; subject: string; html: strin
     return;
   }
   const from = `"Mercadito Ocoyoacac" <${process.env.SMTP_USER || process.env.EMAIL_FROM || "noreply@mercadito.app"}>`;
-  await smtpTransport.sendMail({ from, to: opts.to, subject: opts.subject, html: opts.html });
+  await smtpTransport.sendMail({ from, to: opts.to, subject: opts.subject, html: opts.html, attachments: opts.attachments });
 }
