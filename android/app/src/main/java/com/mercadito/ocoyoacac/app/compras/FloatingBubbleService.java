@@ -1,4 +1,4 @@
-package com.mercaditoocoyoacac.app;
+package com.mercadito.ocoyoacac.app.compras;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -18,8 +18,8 @@ import androidx.core.app.NotificationCompat;
 
 public class FloatingBubbleService extends Service implements FloatingBubbleView.Listener {
 
-    static final String ACTION_SHOW = "com.mercaditoocoyoacac.app.action.SHOW_BUBBLE";
-    static final String ACTION_HIDE = "com.mercaditoocoyoacac.app.action.HIDE_BUBBLE";
+    static final String ACTION_SHOW = "com.mercadito.ocoyoacac.app.compras.action.SHOW_BUBBLE";
+    static final String ACTION_HIDE = "com.mercadito.ocoyoacac.app.compras.action.HIDE_BUBBLE";
     static final String EXTRA_COUNT = "count";
     static final String EXTRA_TITLE = "title";
     static final String EXTRA_BODY = "body";

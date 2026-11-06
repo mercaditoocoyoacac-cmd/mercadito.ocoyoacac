@@ -238,7 +238,7 @@ problema de interfaz con un `git push` en segundos.
 | El comprador sigue en WebView hasta la fase 3 | Medio | Push y enlaces profundos en la WebView actual; aviso de próxima versión nativa |
 | Android antiguo (minSdk 24) | Medio | Pruebas en Android 7 y 8; evitar APIs nuevas sin respaldo |
 | Firma del APK | Medio | Keystore creado en `android/mercadito.keystore` con credenciales en `android/keystore.properties` (fuera de git). Respaldarlo en un gestor de contraseñas; si se pierde, no se pueden publicar actualizaciones sin Play App Signing |
-| Identificadores de paquete distintos | Alto | Hoy conviven `com.mercadito.ocoyoacac.app` y `com.mercadito.ocoyoacac.app.compras`; unificar antes del primer envío a Play, porque el identificador no se puede cambiar después |
+| Identificadores de paquete | Resuelto | Unificado en `com.mercadito.ocoyoacac.app.compras` (ya publicado en Play) en `capacitor.config.ts`, `build.gradle`, Java, iOS y `strings.xml` |
 
 ## 9. Criterios para decir "ya no es una WebView"
 
@@ -275,8 +275,8 @@ problema de interfaz con un `git push` en segundos.
 
 1. Respaldar el keystore de firma y sus credenciales, y enrolarlo en Play App
    Signing al crear la ficha.
-2. Decidir el identificador de paquete definitivo y unificarlo en
-   `capacitor.config.ts` y `android/app/build.gradle`.
+2. Mantener fijo el identificador `com.mercadito.ocoyoacac.app.compras`; ya está
+   publicado en Play y no se puede cambiar.
 3. Crear `pnpm-workspace.yaml`, `mobile/` y `packages/shared/`.
 4. Implementar tokens móviles en `src/server/auth` con rotación y revocación.
 5. Adaptar `requireUser`/`requireRole` para aceptar `Authorization: Bearer`.

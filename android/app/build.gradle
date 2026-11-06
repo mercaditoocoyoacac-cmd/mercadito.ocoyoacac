@@ -12,7 +12,7 @@ def releaseKeyAlias = keystoreProperties.getProperty("keyAlias") ?: "mercadito"
 def releaseStoreFile = file(keystoreProperties.getProperty("storeFile") ?: "../mercadito.keystore")
 
 android {
-    namespace = "com.mercaditoocoyoacac.app"
+    namespace = "com.mercadito.ocoyoacac.app.compras"
     compileSdk = rootProject.ext.compileSdkVersion
     signingConfigs {
         release {

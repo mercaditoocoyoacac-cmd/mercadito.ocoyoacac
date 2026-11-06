@@ -1,4 +1,4 @@
-package com.mercaditoocoyoacac.app;
+package com.mercadito.ocoyoacac.app.compras;
 
 import android.content.Context;
 import android.graphics.Canvas;

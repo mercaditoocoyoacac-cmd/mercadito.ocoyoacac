@@ -1,4 +1,4 @@
-package com.mercaditoocoyoacac.app;
+package com.mercadito.ocoyoacac.app.compras;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
