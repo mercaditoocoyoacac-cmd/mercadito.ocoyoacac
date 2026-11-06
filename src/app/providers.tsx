@@ -7,6 +7,7 @@ import { Capacitor } from "@capacitor/core";
 import SplashScreen from "@/components/ui/SplashScreen";
 import { SwipeBack } from "@/components/ui/SwipeBack";
 import { OfflineDetector } from "@/components/ui/OfflineDetector";
+import { syncFloatingBubble } from "@/lib/floatingBubble";
 
 function emitBubble(detail: { title: string; body: string; url?: string; type?: string; orderId?: string }) {
   window.dispatchEvent(new CustomEvent("push-bubble", { detail }));
@@ -33,6 +34,8 @@ function PushTokenSync() {
 
   useEffect(() => {
     if (status !== "authenticated") return;
+
+    void syncFloatingBubble();
 
     if (Capacitor.isNativePlatform()) {
       if (nativePushToken) {
@@ -163,6 +166,7 @@ async function initNativePush() {
           if (title) {
             emitBubble({ title, body, url: payload?.url, type: payload?.type, orderId: payload?.orderId });
           }
+          void syncFloatingBubble({ title, body, url: payload?.url });
         });
 
         PushNotifications.addListener("pushNotificationActionPerformed", (n) => {
@@ -190,6 +194,7 @@ async function initNativePush() {
             if (delivered.notifications.length > 0) {
               await PushNotifications.removeAllDeliveredNotifications();
             }
+            void syncFloatingBubble();
           }
         });
       }

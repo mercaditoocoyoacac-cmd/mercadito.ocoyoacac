@@ -3,6 +3,15 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  hideFloatingBubble,
+  isFloatingBubbleAvailable,
+  readFloatingBubbleState,
+  requestFloatingBubblePermission,
+  setFloatingBubbleEnabled,
+  syncFloatingBubble,
+} from "@/lib/floatingBubble";
+import type { FloatingBubbleState } from "@/lib/floatingBubble";
 
 interface NotificationItem {
   id: string;
@@ -44,7 +53,52 @@ export default function NotificacionesPage() {
   const [filter, setFilter] = useState<string>("all");
   const [loading, setLoading] = useState(true);
   const [markingIds, setMarkingIds] = useState<Set<string>>(new Set());
+  const [bubble, setBubble] = useState<FloatingBubbleState | null>(null);
   const loadedRef = useRef(false);
+
+  useEffect(() => {
+    if (!isFloatingBubbleAvailable()) return;
+    void readFloatingBubbleState().then(setBubble);
+  }, []);
+
+  useEffect(() => {
+    if (!bubble?.supported) return;
+    const refresh = () => {
+      void readFloatingBubbleState().then(setBubble);
+    };
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, [bubble?.supported]);
+
+  async function toggleFloatingBubble() {
+    if (!bubble) return;
+    if (bubble.enabled) {
+      setFloatingBubbleEnabled(false);
+      setBubble({ ...bubble, enabled: false });
+      await hideFloatingBubble();
+      return;
+    }
+    const granted = bubble.granted || (await requestFloatingBubblePermission());
+    setFloatingBubbleEnabled(true);
+    setBubble({ ...bubble, enabled: true, granted });
+    if (granted) {
+      await syncFloatingBubble();
+    }
+  }
+
+  async function grantFloatingBubble() {
+    const granted = await requestFloatingBubblePermission();
+    if (bubble) {
+      setBubble({ ...bubble, granted });
+    }
+    if (granted) {
+      await syncFloatingBubble();
+    }
+  }
 
   const fetchNotifications = useCallback(async (p: number, f: string) => {
     setLoading(true);
@@ -134,6 +188,55 @@ export default function NotificacionesPage() {
           Volver
         </button>
       </div>
+
+      {bubble?.supported && (
+        <div className="mb-6 rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <div className="text-sm font-medium">Burbuja flotante</div>
+              <p className="mt-1 text-xs text-[color:var(--muted)]">
+                Mantén a la vista los pedidos pendientes mientras usas otras apps. Mantén presionada la burbuja para ocultarla.
+              </p>
+              {bubble.enabled && !bubble.granted && (
+                <p className="mt-2 text-xs text-[color:var(--danger)]">
+                  Falta el permiso para mostrar sobre otras apps.
+                </p>
+              )}
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={bubble.enabled}
+              aria-label="Burbuja flotante"
+              onClick={toggleFloatingBubble}
+              className="flex h-11 w-14 shrink-0 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+            >
+              <span
+                className={`relative h-7 w-12 rounded-full border transition-colors ${
+                  bubble.enabled
+                    ? "border-[var(--accent)] bg-[var(--accent)]"
+                    : "border-[var(--muted)] bg-transparent"
+                }`}
+              >
+                <span
+                  className={`absolute top-[3px] h-5 w-5 rounded-full border bg-white transition-all ${
+                    bubble.enabled ? "left-[23px] border-white" : "left-[3px] border-[var(--muted)]"
+                  }`}
+                />
+              </span>
+            </button>
+          </div>
+          {bubble.enabled && !bubble.granted && (
+            <button
+              type="button"
+              onClick={grantFloatingBubble}
+              className="mt-3 min-h-11 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white"
+            >
+              Permitir sobre otras apps
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="flex gap-2 mb-6">
         {tabs.map((t) => (

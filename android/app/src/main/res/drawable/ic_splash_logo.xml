@@ -21,9 +21,7 @@
         android:pathData="M130,350 L382,350 L382,374 L130,374 Z" />
 
     <!-- Accent dot -->
-    <circle
+    <path
         android:fillColor="#D4AF37"
-        android:cx="380"
-        android:cy="140"
-        android:r="20" />
+        android:pathData="M360,140 a20,20 0 1,0 40,0 a20,20 0 1,0 -40,0 Z" />
 </vector>
