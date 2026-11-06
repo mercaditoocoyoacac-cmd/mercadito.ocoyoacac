@@ -1,14 +1,27 @@
 apply plugin: 'com.android.application'
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
+}
+
+def releaseStorePassword = keystoreProperties.getProperty("storePassword") ?: System.getenv("KEYSTORE_PASSWORD")
+def releaseKeyPassword = keystoreProperties.getProperty("keyPassword") ?: System.getenv("KEY_PASSWORD")
+def releaseKeyAlias = keystoreProperties.getProperty("keyAlias") ?: "mercadito"
+def releaseStoreFile = file(keystoreProperties.getProperty("storeFile") ?: "../mercadito.keystore")
+
 android {
     namespace = "com.mercaditoocoyoacac.app"
     compileSdk = rootProject.ext.compileSdkVersion
     signingConfigs {
         release {
-            storeFile file("../mercadito.keystore")
-            storePassword System.getenv("KEYSTORE_PASSWORD") ?: "4v1TqdWuwguoWp9I"
-            keyAlias "mercadito"
-            keyPassword System.getenv("KEY_PASSWORD") ?: "4v1TqdWuwguoWp9I"
+            if (releaseStorePassword && releaseStoreFile.exists()) {
+                storeFile releaseStoreFile
+                storePassword releaseStorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+            }
         }
     }
     defaultConfig {
@@ -26,7 +39,9 @@ android {
     }
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            if (releaseStorePassword && releaseStoreFile.exists()) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
