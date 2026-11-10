@@ -79,45 +79,57 @@ export default function EditarTiendaPage() {
   const [saving, setSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [storeRes, catsRes] = await Promise.all([
+          fetch("/api/vendor/store"),
+          fetch("/api/categories"),
+        ]);
+        const catsData = await catsRes.json();
+        const data = (await storeRes.json()) as { ok: true; store: Store | null };
+        if (cancelled) return;
+        if (catsData.ok) setCategories(catsData.categories);
+        if (!data.store) {
+          router.replace("/vendor/onboarding");
+          return;
+        }
+        setStore(data.store);
+        setName(data.store.name);
+        setCategory(data.store.category);
+        setDescription(data.store.description ?? "");
+        setPhone(data.store.phone ?? "");
+        setAddress(data.store.address ?? "");
+        setImageUrl(data.store.imageUrl ?? "");
+        setLatitude(data.store.latitude ?? null);
+        setLongitude(data.store.longitude ?? null);
+        setOpenTime(data.store.openTime ?? "");
+        setCloseTime(data.store.closeTime ?? "");
+        setScheduleDays(data.store.scheduleDays.length > 0 ? data.store.scheduleDays : DAYS.map((d) => d.key));
+        if (data.store.scheduleDetails && data.store.scheduleDetails.days) {
+          setScheduleDetails(data.store.scheduleDetails);
+          setScheduleMode(data.store.scheduleDetails.mode || "weekly");
+        }
+        setLoadingStore(false);
+      } catch {
+        if (!cancelled) {
+          setError("No se pudo cargar tu tienda. Recarga la página.");
+          setLoadingStore(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [router]);
+
   if (loadingStore && !store) {
-    fetchStore();
     return (
       <div className="mx-auto max-w-xl">
         <div className="text-sm text-[color:var(--muted)]">Cargando...</div>
       </div>
     );
-  }
-
-  async function fetchStore() {
-    const [storeRes, catsRes] = await Promise.all([
-      fetch("/api/vendor/store"),
-      fetch("/api/categories"),
-    ]);
-    const catsData = await catsRes.json();
-    if (catsData.ok) setCategories(catsData.categories);
-    const data = (await storeRes.json()) as { ok: true; store: Store | null };
-    if (data.store) {
-      setStore(data.store);
-      setName(data.store.name);
-      setCategory(data.store.category);
-      setDescription(data.store.description ?? "");
-      setPhone(data.store.phone ?? "");
-      setAddress(data.store.address ?? "");
-      setImageUrl(data.store.imageUrl ?? "");
-      setLatitude(data.store.latitude ?? null);
-      setLongitude(data.store.longitude ?? null);
-      setOpenTime(data.store.openTime ?? "");
-      setCloseTime(data.store.closeTime ?? "");
-      setScheduleDays(data.store.scheduleDays.length > 0 ? data.store.scheduleDays : DAYS.map((d) => d.key));
-      if (data.store.scheduleDetails && data.store.scheduleDetails.days) {
-        setScheduleDetails(data.store.scheduleDetails);
-        setScheduleMode(data.store.scheduleDetails.mode || "weekly");
-      }
-    } else {
-      router.push("/vendor/onboarding");
-      return;
-    }
-    setLoadingStore(false);
   }
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {

@@ -227,8 +227,10 @@ function VendorLogin() {
 function VendorRegister() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [needsLogin, setNeedsLogin] = useState(false);
   const [loading, setLoading] = useState(false);
 
   return (
@@ -250,10 +252,17 @@ function VendorRegister() {
           e.preventDefault();
           setLoading(true);
           setError(null);
+          setNeedsLogin(false);
 
           if (password.length < 8) {
             setLoading(false);
             setError("La contraseña debe tener al menos 8 caracteres.");
+            return;
+          }
+
+          if (phone.replace(/\D/g, "").length < 10) {
+            setLoading(false);
+            setError("El teléfono debe tener al menos 10 dígitos.");
             return;
           }
 
@@ -263,6 +272,7 @@ function VendorRegister() {
             body: JSON.stringify({
               name: name.trim() || undefined,
               email,
+              phone,
               password,
               role: "VENDOR",
             }),
@@ -276,23 +286,15 @@ function VendorRegister() {
             setLoading(false);
             const msg = data && "error" in data ? data.error : "No se pudo registrar.";
             setError(msg ?? "No se pudo registrar.");
+            if (res.status === 409) setNeedsLogin(true);
             return;
           }
 
           setLoading(false);
-          
+
           if (data.upgraded) {
-            setError("Tu cuenta de cliente se actualizo a vendedor. Inicia sesion con tu contraseña actual.");
-            setTimeout(() => {
-              const login = signIn("credentials", {
-                email,
-                password,
-                redirect: false,
-              });
-              login.then((r) => {
-                if (r?.ok) window.location.assign("/vendor/onboarding");
-              });
-            }, 2000);
+            setError("Tu cuenta de cliente se actualizó a vendedor. Inicia sesión con tu contraseña actual para continuar.");
+            setNeedsLogin(true);
             return;
           }
 
@@ -303,7 +305,10 @@ function VendorRegister() {
           });
           if (login?.ok) {
             window.location.assign("/vendor/onboarding");
+            return;
           }
+          setError("Tu cuenta se creó correctamente, pero no pudimos iniciar sesión. Inicia sesión para continuar con tu tienda.");
+          setNeedsLogin(true);
         }}
       >
         <label className="block">
@@ -329,6 +334,18 @@ function VendorRegister() {
         </label>
 
         <label className="block">
+          <div className="text-sm font-medium">Teléfono</div>
+          <input
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            type="tel"
+            required
+            className="mt-1 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-emerald-500"
+            placeholder="722 123 4567"
+          />
+        </label>
+
+        <label className="block">
           <div className="text-sm font-medium">Contraseña</div>
           <input
             value={password}
@@ -343,7 +360,12 @@ function VendorRegister() {
 
         {error && (
           <div className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700">
-            {error}
+            <p>{error}</p>
+            {needsLogin && (
+              <Link href="/vendor/login" className="mt-2 inline-block font-medium underline">
+                Iniciar sesión y continuar
+              </Link>
+            )}
           </div>
         )}
 

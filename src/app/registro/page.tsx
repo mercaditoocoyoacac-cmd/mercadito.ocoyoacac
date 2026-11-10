@@ -55,6 +55,7 @@ export default function RegistroPage() {
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [needsLogin, setNeedsLogin] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const role = session?.user?.role;
@@ -85,6 +86,7 @@ export default function RegistroPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setNeedsLogin(false);
 
     if (!selectedRole) {
       setError("Selecciona qué quieres hacer en Mercadito Ocoyoacac");
@@ -123,6 +125,7 @@ export default function RegistroPage() {
       setLoading(false);
       const msg = data && "error" in data ? data.error : "No se pudo registrar.";
       setError(msg ?? "No se pudo registrar.");
+      if (res.status === 409) setNeedsLogin(true);
       return;
     }
 
@@ -133,7 +136,12 @@ export default function RegistroPage() {
       callbackUrl: roleRedirects[selectedRole],
     });
     setLoading(false);
-    router.push(login?.url ?? roleRedirects[selectedRole]);
+    if (!login || login.error) {
+      setError("Tu cuenta se creó correctamente, pero no pudimos iniciar sesión. Inicia sesión para continuar.");
+      setNeedsLogin(true);
+      return;
+    }
+    router.push(login.url ?? roleRedirects[selectedRole]);
   }
 
   const steps = [
@@ -299,7 +307,15 @@ export default function RegistroPage() {
 
               {error && (
                 <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-700" role="alert">
-                  {error}
+                  <p>{error}</p>
+                  {needsLogin && (
+                    <Link
+                      className="mt-2 inline-block font-medium underline"
+                      href={`/login?callbackUrl=${encodeURIComponent(selectedRole ? roleRedirects[selectedRole] : "/")}`}
+                    >
+                      Iniciar sesión y continuar
+                    </Link>
+                  )}
                 </div>
               )}
 

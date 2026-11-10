@@ -19,11 +19,13 @@ function slugify(input: string) {
 }
 
 export default function VendorRegistroPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [step, setStep] = useState(session?.user?.id ? 1 : 0);
+  const [step, setStep] = useState(0);
+  const [checking, setChecking] = useState(true);
+  const [needsLogin, setNeedsLogin] = useState(false);
 
   // Step 0 fields
   const [name, setName] = useState("");
@@ -53,6 +55,36 @@ export default function VendorRegistroPage() {
       .catch(() => {});
   }, []);
 
+  useEffect(() => {
+    if (status === "loading") return;
+    if (status === "unauthenticated") {
+      setStep(0);
+      setChecking(false);
+      return;
+    }
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/vendor/store");
+        const data = await res.json();
+        if (cancelled) return;
+        if (data?.store) {
+          router.replace("/vendor");
+          return;
+        }
+        setStep(1);
+      } catch {
+        if (!cancelled) setStep(1);
+      }
+      if (!cancelled) setChecking(false);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [status, router]);
+
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -70,6 +102,7 @@ export default function VendorRegistroPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    if (step === 0) setNeedsLogin(false);
 
     if (step === 0) {
       if (password.length < 8) { setError("La contraseña debe tener al menos 8 caracteres."); return; }
@@ -81,13 +114,25 @@ export default function VendorRegistroPage() {
       });
       const data = await res.json().catch(() => null) as { ok: boolean; error?: string; upgraded?: boolean } | null;
       setLoading(false);
-      if (!res.ok || !data?.ok) { setError(data?.error || "No se pudo registrar."); return; }
-      if (data.upgraded) {
-        setError("Tu cuenta se actualizó a vendedor. Inicia sesión.");
-        setTimeout(() => router.push("/vendor/login"), 2000);
+      if (res.status === 409) {
+        setError(data?.error || "Ya existe una cuenta con este correo.");
+        setNeedsLogin(true);
         return;
       }
-      await signIn("credentials", { email, password, redirect: false });
+      if (!res.ok || !data?.ok) { setError(data?.error || "No se pudo registrar."); return; }
+      if (data.upgraded) {
+        setError("Tu cuenta se actualizó a vendedor. Inicia sesión para continuar con tu tienda.");
+        setNeedsLogin(true);
+        return;
+      }
+      const login = await signIn("credentials", { email, password, redirect: false });
+      if (!login || login.error) {
+        setError("Tu cuenta se creó correctamente, pero no pudimos iniciar sesión. Inicia sesión para continuar con tu tienda.");
+        setNeedsLogin(true);
+        return;
+      }
+      setNeedsLogin(false);
+      setError(null);
       setStep(1);
       return;
     }
@@ -111,10 +156,27 @@ export default function VendorRegistroPage() {
       let data: { ok: boolean; error?: string } | null = null;
       try { data = JSON.parse(text); } catch {}
       setLoading(false);
+      if (res.status === 401) {
+        setError("Tu sesión expiró. Inicia sesión para continuar con tu tienda.");
+        setNeedsLogin(true);
+        return;
+      }
+      if (res.status === 409) {
+        router.push("/vendor");
+        return;
+      }
       if (!res.ok || !data?.ok) { setError(data?.error || "No se pudo crear la tienda."); return; }
       router.push("/vendor/completar-registro");
       return;
     }
+  }
+
+  if (checking) {
+    return (
+      <div className="mx-auto max-w-xl rounded-xl border border-[var(--border)] p-10 text-center text-sm text-[color:var(--muted)]">
+        Cargando...
+      </div>
+    );
   }
 
   return (
@@ -146,6 +208,17 @@ export default function VendorRegistroPage() {
           ))}
         </div>
       </div>
+
+      {error && (
+        <div role="alert" className="mb-4 rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700">
+          <p>{error}</p>
+          {needsLogin && (
+            <Link href="/vendor/login?callbackUrl=/vendor/onboarding" className="mt-2 inline-block font-medium underline">
+              Iniciar sesión y continuar
+            </Link>
+          )}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {step === 0 && !session?.user?.id && (

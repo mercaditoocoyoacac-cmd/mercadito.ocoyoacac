@@ -1,11 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ProductoTutorial } from "@/components/ui/ProductoTutorial";
 import { formatMoney } from "@/lib/format";
 
 export function CompleteStoreSetup() {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [storeReady, setStoreReady] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [hasProduct, setHasProduct] = useState(false);
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
@@ -19,20 +23,30 @@ export function CompleteStoreSetup() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch("/api/vendor/products");
-        const data = await res.json();
-        if (!cancelled && data?.ok && Array.isArray(data.products) && data.products.length > 0) {
+        const [storeRes, productsRes] = await Promise.all([
+          fetch("/api/vendor/store"),
+          fetch("/api/vendor/products"),
+        ]);
+        const storeData = await storeRes.json().catch(() => null);
+        const productsData = await productsRes.json().catch(() => null);
+        if (cancelled) return;
+        if (!storeData?.store) {
+          router.replace("/vendor/onboarding");
+          return;
+        }
+        setStoreReady(true);
+        if (productsData?.ok && Array.isArray(productsData.products) && productsData.products.length > 0) {
           setHasProduct(true);
         }
       } catch {
-        // noop
+        if (!cancelled) setLoadError("No pudimos verificar tu tienda. Revisa tu conexión e intenta de nuevo.");
       }
       if (!cancelled) setLoading(false);
     })();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [router]);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -80,6 +94,29 @@ export function CompleteStoreSetup() {
     return (
       <div className="rounded-xl border border-[var(--border)] p-10 text-center text-sm text-[color:var(--muted)]">
         Cargando...
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="mx-auto max-w-xl rounded-xl border border-[var(--border)] p-10 text-center text-sm">
+        <p>{loadError}</p>
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="mt-4 rounded-md border border-[var(--border)] px-4 py-2 text-sm font-medium hover:bg-[var(--accent-soft)]"
+        >
+          Reintentar
+        </button>
+      </div>
+    );
+  }
+
+  if (!storeReady) {
+    return (
+      <div className="rounded-xl border border-[var(--border)] p-10 text-center text-sm text-[color:var(--muted)]">
+        Te llevamos a crear tu tienda...
       </div>
     );
   }
