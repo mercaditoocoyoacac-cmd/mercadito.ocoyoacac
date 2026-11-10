@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
+import { appUrl } from "@/lib/appUrl";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://mercadito-ocoyoacac.vercel.app";
+  const baseUrl = appUrl();
 
   return [
     { url: baseUrl, lastModified: new Date(), changeFrequency: "daily", priority: 1 },

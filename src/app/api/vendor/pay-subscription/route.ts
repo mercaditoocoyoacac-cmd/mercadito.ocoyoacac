@@ -8,6 +8,7 @@ import {
   SOLO_DELIVERY_PRICE_CENTS,
   membershipPlanLabel,
 } from "@/lib/membership";
+import { publicUrl } from "@/lib/appUrl";
 
 export async function POST(req: Request) {
   const auth = await requireUser();
@@ -113,7 +114,7 @@ export async function POST(req: Request) {
   const externalRef = `sub_${store.id}_p_${plan}${
     appliedCouponCode ? `_c_${appliedCouponCode}` : ""
   }`;
-  const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const baseUrl = publicUrl();
 
   try {
     const mpResponse = await fetch("https://api.mercadopago.com/checkout/preferences", {

@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { prisma } from "@/server/prisma";
 import { sendEmail } from "@/server/email";
 import { rateLimit } from "@/lib/rate-limit";
+import { publicUrl } from "@/lib/appUrl";
 
 export async function POST(req: Request) {
   const { email } = await req.json().catch(() => ({}));
@@ -42,7 +43,7 @@ export async function POST(req: Request) {
       data: { token, email: normalized, expiresAt },
     });
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "http://localhost:3000";
+    const baseUrl = publicUrl();
     const resetUrl = `${baseUrl}/reset-password/${token}`;
 
     await sendEmail({

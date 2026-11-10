@@ -1,6 +1,7 @@
 import admin from "firebase-admin";
 import { prisma } from "@/server/prisma";
 import { isStoreOpenToday } from "@/lib/schedule";
+import { publicUrl } from "@/lib/appUrl";
 import { hasCompleteDocs, missingDocs, stripDeliveryRole } from "@/server/driverDocs";
 import type { Role } from "@prisma/client";
 
@@ -81,7 +82,7 @@ function ensureInitialized() {
   }
 }
 
-const LOGO_URL = "https://mercadito-ocoyoacac.vercel.app/Logo%20MO.png";
+const LOGO_URL = `${publicUrl()}/Logo%20MO.png`;
 
 interface PushData {
   title: string;

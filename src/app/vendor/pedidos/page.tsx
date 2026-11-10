@@ -7,6 +7,7 @@ import { formatMoney } from "@/lib/format";
 import { getStatusLabel } from "@/lib/labels";
 import { appendStatusTimestamp } from "@/lib/statusTimestamps";
 import { notifyCustomerOrderCompleted } from "@/server/notifications";
+import { publicUrl } from "@/lib/appUrl";
 
 export const dynamic = "force-dynamic";
 
@@ -197,7 +198,7 @@ export default async function VendorPedidosPage() {
                         action={async () => {
                           "use server";
                           const c = (await cookies()).toString();
-                          await fetch(`${process.env.NEXTAUTH_URL}/api/vendor/orders/${order.id}/verify-payment`, {
+                          await fetch(`${publicUrl()}/api/vendor/orders/${order.id}/verify-payment`, {
                             method: "POST",
                             headers: { cookie: c },
                           });
@@ -224,7 +225,7 @@ export default async function VendorPedidosPage() {
                       action={async () => {
                         "use server";
                         const c = (await cookies()).toString();
-                        await fetch(`${process.env.NEXTAUTH_URL}/api/vendor/orders/${order.id}/status`, {
+                        await fetch(`${publicUrl()}/api/vendor/orders/${order.id}/status`, {
                           method: "POST",
                           headers: { "content-type": "application/json", cookie: c },
                           body: JSON.stringify({ status: "CONFIRMED" }),
@@ -244,7 +245,7 @@ export default async function VendorPedidosPage() {
                       action={async () => {
                         "use server";
                         const c = (await cookies()).toString();
-                        await fetch(`${process.env.NEXTAUTH_URL}/api/vendor/orders/${order.id}/status`, {
+                        await fetch(`${publicUrl()}/api/vendor/orders/${order.id}/status`, {
                           method: "POST",
                           headers: { "content-type": "application/json", cookie: c },
                           body: JSON.stringify({ status: "READY" }),

@@ -2,6 +2,7 @@ import { prisma } from "@/server/prisma";
 import { sendPushNotification } from "@/server/push";
 import { sendWhatsAppMessage } from "@/server/whatsapp";
 import { sendSMS } from "@/server/sns";
+import { publicUrl } from "@/lib/appUrl";
 
 interface NotificationData {
   title: string;
@@ -73,7 +74,7 @@ export async function notifyCustomerOrderCompleted(orderId: string) {
 
   if (!order) return;
 
-  const ratingUrl = `${process.env.NEXTAUTH_URL || ""}/mis-pedidos/${orderId}`;
+  const ratingUrl = `${publicUrl()}/mis-pedidos/${orderId}`;
 
   if (order.userId) {
     await sendTextNotification(order.userId, {
@@ -110,7 +111,7 @@ export async function sendSatisfactionSurvey(orderId: string) {
 
   if (order.satisfactionSurveySent) return;
 
-  const ratingUrl = `${process.env.NEXTAUTH_URL || ""}/mis-pedidos/${orderId}`;
+  const ratingUrl = `${publicUrl()}/mis-pedidos/${orderId}`;
 
   await prisma.order.update({
     where: { id: orderId },

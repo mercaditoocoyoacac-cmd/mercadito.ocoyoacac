@@ -2,10 +2,15 @@ import Link from "next/link";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { prisma } from "@/server/prisma";
+import type { Metadata } from "next";
 import { getSession } from "@/server/session";
 import { Card, CardContent, EmptyState } from "@/components/ui/design-system";
 import { shimmerBlur } from "@/lib/images";
 import { parseRoles } from "@/lib/roles";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 export const dynamic = "force-dynamic";
 

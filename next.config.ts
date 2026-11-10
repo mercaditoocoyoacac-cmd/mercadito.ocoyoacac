@@ -31,6 +31,21 @@ const nextConfig: NextConfig = {
   },
   // Exclude imss-umf-turnos (separate project) from build
   pageExtensions: ["ts", "tsx", "js", "jsx", "md", "mdx"],
+  async redirects() {
+    const canonical = "https://mercadito-ocoyoacac.com";
+    const legacyHosts = [
+      "www.mercadito-ocoyoacac.com",
+      "mercaditoocoyoacac.com",
+      "mercaditoocoyoacac.mercadito-ocoyoacac.com",
+    ];
+
+    return legacyHosts.map((host) => ({
+      source: "/:path*",
+      has: [{ type: "host" as const, value: host }],
+      destination: `${canonical}/:path*`,
+      permanent: true,
+    }));
+  },
   async headers() {
     return [
       {

@@ -2,7 +2,12 @@ import Link from "next/link";
 import { prisma } from "@/server/prisma";
 import { CategoryFilter } from "@/components/ui/CategoryFilter";
 import { StoreCard } from "@/components/storefront/StoreCard";
+import type { Metadata } from "next";
 import { EmptyState } from "@/components/ui/design-system";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/tiendas" },
+};
 
 export const dynamic = "force-dynamic";
 

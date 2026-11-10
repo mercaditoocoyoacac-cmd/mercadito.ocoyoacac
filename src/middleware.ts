@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { rateLimit } from "@/lib/rate-limit";
+import { appUrl } from "@/lib/appUrl";
 
 const ALLOWED_ORIGINS = [
+  appUrl(),
   process.env.NEXT_PUBLIC_APP_URL || "",
   process.env.NEXTAUTH_URL || "",
   "http://localhost:3000",

@@ -12,6 +12,7 @@ import { SupportButton } from "@/components/SupportButton";
 import { NotificationBubble } from "@/components/NotificationBubble";
 import { OfflineDetector } from "@/components/OfflineDetector";
 import { Toaster, PWA, MobileAppBanner } from "@/components/ui/design-system";
+import { appUrl } from "@/lib/appUrl";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -25,6 +26,7 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(appUrl()),
   title: {
     default: "Mercadito Ocoyoacac",
     template: "%s | Mercadito Ocoyoacac",
@@ -36,7 +38,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "es_MX",
-    url: process.env.NEXT_PUBLIC_APP_URL || "https://mercadito-ocoyoacac.vercel.app",
+    url: appUrl(),
     siteName: "Mercadito Ocoyoacac",
     title: "Mercadito Ocoyoacac — Compra local, apoya tu comunidad",
     description:

@@ -8,6 +8,7 @@ import { getSession } from "@/server/session";
 import { getUserRoles } from "@/server/requireUser";
 import { formatDateInMexico, formatDateTimeInMexico } from "@/lib/dates";
 import { formatMoney } from "@/lib/format";
+import { publicUrl } from "@/lib/appUrl";
 import { membershipPlanLabel } from "@/lib/membership";
 import { VendorCoachMarks } from "@/components/ui/VendorCoachMarks";
 import { PullToRefreshWrapper } from "@/components/ui/PullToRefreshWrapper";
@@ -523,7 +524,7 @@ export default async function VendorDashboard() {
                           action={async () => {
                             "use server";
                             const c = (await cookies()).toString();
-                            await fetch(`${process.env.NEXTAUTH_URL}/api/vendor/orders/${order.id}/status`, {
+                            await fetch(`${publicUrl()}/api/vendor/orders/${order.id}/status`, {
                               method: "POST",
                               headers: { "content-type": "application/json", cookie: c },
                               body: JSON.stringify({ status: "CONFIRMED" }),
@@ -542,7 +543,7 @@ export default async function VendorDashboard() {
                           action={async () => {
                             "use server";
                             const c = (await cookies()).toString();
-                            await fetch(`${process.env.NEXTAUTH_URL}/api/vendor/orders/${order.id}/status`, {
+                            await fetch(`${publicUrl()}/api/vendor/orders/${order.id}/status`, {
                               method: "POST",
                               headers: { "content-type": "application/json", cookie: c },
                               body: JSON.stringify({ status: "READY" }),

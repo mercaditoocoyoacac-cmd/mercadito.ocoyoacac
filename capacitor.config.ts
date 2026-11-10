@@ -5,9 +5,9 @@ const config: CapacitorConfig = {
   appName: 'Mercadito Ocoyoacac',
   webDir: 'out',
   server: {
-    url: 'https://mercadito-ocoyoacac.vercel.app',
+    url: 'https://mercadito-ocoyoacac.com',
     cleartext: true,
-    allowNavigation: ['mercadito-ocoyoacac.vercel.app'],
+    allowNavigation: ['mercadito-ocoyoacac.com', 'www.mercadito-ocoyoacac.com', 'mercadito-ocoyoacac.vercel.app'],
   },
   ios: {
     contentInset: 'always',

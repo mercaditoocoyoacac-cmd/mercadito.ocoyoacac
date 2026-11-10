@@ -5,6 +5,7 @@ export const dynamic = "force-static";
 export const metadata = {
   title: "Aviso de Privacidad - Mercadito Ocoyoacac",
   description: "Politica de privacidad de Mercadito Ocoyoacac",
+  alternates: { canonical: "/privacidad" },
 };
 
 export default function PrivacidadPage() {

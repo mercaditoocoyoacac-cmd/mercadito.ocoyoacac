@@ -5,7 +5,7 @@ Documento de trabajo. Fecha: 5 de noviembre de 2026.
 ## 1. Punto de partida
 
 La app instalada hoy es una **WebView remota**: Capacitor carga
-`https://mercadito-ocoyoacac.vercel.app` y el APK solo aporta cuatro cosas
+`https://mercadito-ocoyoacac.com` y el APK solo aporta cuatro cosas
 (notificaciones push, geolocalización, hápticos y abrir enlaces externos). El
 resto de la interfaz es la web de Next.js dentro de un navegador embebido.
 

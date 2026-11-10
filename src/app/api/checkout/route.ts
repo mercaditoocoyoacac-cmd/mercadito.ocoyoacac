@@ -11,6 +11,7 @@ import { notifyVendorNewOrder } from "@/server/whatsapp";
 import { sendPushNotification, sendPushToMultiple, sendPushToAdmins, sendPushToDispatch } from "@/server/push";
 import { calcDeliveryFeeCents, haversineDistance, pointInPolygon, RISK_ZONE_EXTRA_CENTS, type DeliveryFeeConfig } from "@/lib/geo";
 import { getRouteDistanceKm } from "@/server/directions";
+import { publicUrl } from "@/lib/appUrl";
 import { isStorePremium } from "@/lib/membership";
 import { appendStatusTimestamp } from "@/lib/statusTimestamps";
 
@@ -649,9 +650,9 @@ export async function POST(req: Request) {
                 : []),
             ],
             back_urls: {
-              success: `${process.env.NEXTAUTH_URL}/pedido/${order.id}`,
-              failure: `${process.env.NEXTAUTH_URL}/carrito`,
-              pending: `${process.env.NEXTAUTH_URL}/pedido/${order.id}`,
+              success: `${publicUrl()}/pedido/${order.id}`,
+              failure: `${publicUrl()}/carrito`,
+              pending: `${publicUrl()}/pedido/${order.id}`,
             },
             external_reference: order.id,
           }),
