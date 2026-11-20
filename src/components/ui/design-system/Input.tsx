@@ -72,6 +72,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               disabled:bg-[var(--surface)] disabled:cursor-not-allowed disabled:opacity-60
               ${error ? "border-[var(--danger)] focus:border-[var(--danger)] focus:ring-[var(--danger)]/25" : "border-[var(--border)]"}
               ${leftIcon ? "pl-10" : ""}
+              ${rightIcon ? "pr-10" : ""}
               ${sizeClasses[size]}
             `}
             aria-invalid={error ? "true" : "false"}
@@ -79,7 +80,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {...props}
           />
           {rightIcon && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[color:var(--muted)] pointer-events-none flex items-center justify-center">
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[color:var(--muted)] flex items-center justify-center">
               {rightIcon}
             </div>
           )}
@@ -146,6 +147,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
               disabled:bg-[var(--surface)] disabled:cursor-not-allowed disabled:opacity-60
               ${error ? "border-[var(--danger)] focus:border-[var(--danger)] focus:ring-[var(--danger)]/25" : "border-[var(--border)]"}
               ${leftIcon ? "pl-10" : ""}
+              ${rightIcon ? "pr-10" : ""}
               ${sizeClasses[size]}
             `}
             aria-invalid={error ? "true" : "false"}
