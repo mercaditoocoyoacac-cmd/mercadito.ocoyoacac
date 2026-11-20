@@ -27,6 +27,7 @@ const nextConfig: NextConfig = {
     ],
   },
   experimental: {
+    agentUpgrade: "security",
     optimizePackageImports: ["@capacitor/core"],
   },
   // Exclude imss-umf-turnos (separate project) from build
