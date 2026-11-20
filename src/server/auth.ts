@@ -137,9 +137,11 @@ export const authOptions: NextAuthOptions = {
       if (token.sub) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.sub },
-          select: { role: true, additionalRoles: true, isActive: true },
+          select: { email: true, name: true, role: true, additionalRoles: true, isActive: true },
         });
         if (dbUser) {
+          token.email = dbUser.email;
+          token.name = dbUser.name;
           token.role = dbUser.role;
           token.additionalRoles = dbUser.additionalRoles || undefined;
           token.isActive = dbUser.isActive;
@@ -152,6 +154,8 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (token.sub) session.user.id = token.sub;
+      if (token.email) session.user.email = token.email;
+      if (token.name) session.user.name = token.name;
       if (token.role) session.user.role = token.role;
       if (token.additionalRoles) session.user.additionalRoles = token.additionalRoles;
       if (typeof token.isActive === "boolean") session.user.isActive = token.isActive;

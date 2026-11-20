@@ -85,6 +85,12 @@ export default function ProfilePage() {
   const [sendingCode, setSendingCode] = useState(false);
   const [verifying, setVerifying] = useState(false);
 
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [emailPassword, setEmailPassword] = useState("");
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [changingEmail, setChangingEmail] = useState(false);
+
   useEffect(() => {
     fetchProfile();
     fetch("/api/profile/active-orders")
@@ -149,6 +155,36 @@ export default function ProfilePage() {
       setError("Error al guardar");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleEmailChange(e: React.FormEvent) {
+    e.preventDefault();
+    setChangingEmail(true);
+    setEmailError(null);
+
+    try {
+      const res = await fetch("/api/profile/email", {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: newEmail, password: emailPassword }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setProfile((current) =>
+          current ? { ...current, email: data.email, emailVerified: false } : current,
+        );
+        setNewEmail("");
+        setEmailPassword("");
+        setEmailModalOpen(false);
+        toast.success("Correo actualizado. Ahora debes iniciar sesión con el nuevo correo.");
+      } else {
+        setEmailError(data.error || "Error al cambiar el correo");
+      }
+    } catch (_e) {
+      setEmailError("Error al cambiar el correo");
+    } finally {
+      setChangingEmail(false);
     }
   }
 
@@ -390,6 +426,17 @@ export default function ProfilePage() {
                   disabled
                   className="flex-1 bg-[var(--surface)] text-[color:var(--muted)]"
                 />
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setNewEmail("");
+                    setEmailPassword("");
+                    setEmailError(null);
+                    setEmailModalOpen(true);
+                  }}
+                >
+                  Cambiar correo
+                </Button>
                 {!profile.emailVerified && (
                   <Button 
                     variant="outline" 
@@ -533,6 +580,44 @@ export default function ProfilePage() {
             </Button>
             <Button type="submit" loading={verifying} fullWidth>
               Verificar
+            </Button>
+          </div>
+        </form>
+      </Dialog>
+
+      <Dialog
+        open={emailModalOpen}
+        onClose={() => setEmailModalOpen(false)}
+        title="Cambiar correo electrónico"
+        description="Confirma tu contraseña actual para cambiar el correo con el que inicias sesión."
+        size="sm"
+      >
+        <form onSubmit={handleEmailChange} className="space-y-4">
+          <Input
+            label="Nuevo correo electrónico"
+            type="email"
+            value={newEmail}
+            onChange={(e) => setNewEmail(e.target.value)}
+            autoComplete="email"
+            required
+          />
+          <Input
+            label="Contraseña actual"
+            type="password"
+            value={emailPassword}
+            onChange={(e) => setEmailPassword(e.target.value)}
+            autoComplete="current-password"
+            required
+          />
+          {emailError && (
+            <p className="text-sm text-[var(--danger)]" role="alert">{emailError}</p>
+          )}
+          <div className="flex gap-3">
+            <Button variant="outline" type="button" onClick={() => setEmailModalOpen(false)} fullWidth>
+              Cancelar
+            </Button>
+            <Button type="submit" loading={changingEmail} fullWidth>
+              Cambiar correo
             </Button>
           </div>
         </form>
