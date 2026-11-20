@@ -3,18 +3,8 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/prisma";
 import { requireUser } from "@/server/requireUser";
 import { notifyOrderCancelled } from "@/server/orderNotifications";
+import { getCancellationBlockMessage } from "@/lib/orderCancellation";
 import { appendStatusTimestamp } from "@/lib/statusTimestamps";
-
-const CANCEL_WINDOW_MIN = 5;
-
-const CANCELLATION_REASONS = [
-  "Cambié de opinión",
-  "Encontré mejor opción en otro lugar",
-  "El pedido fue un error",
-  "El tiempo de espera es muy largo",
-  "Problema con el pago",
-  "Otro",
-];
 
 export async function POST(req: Request) {
   const auth = await requireUser();
@@ -37,7 +27,6 @@ export async function POST(req: Request) {
     select: {
       id: true,
       status: true,
-      createdAt: true,
       statusTimestamps: true,
       items: { select: { productId: true, quantity: true, weightGrams: true } },
     },
@@ -47,38 +36,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 });
   }
 
-  if (order.status === "CANCELLED" || order.status === "COMPLETED") {
-    return NextResponse.json(
-      { error: "Este pedido ya fue cancelado o completado." },
-      { status: 400 },
-    );
-  }
-
-  if (order.status === "READY" || order.status === "OUT_FOR_DELIVERY") {
-    return NextResponse.json(
-      {
-        error:
-          "Tu pedido ya está en preparación o en camino y llegará a su destino. Ya no puedes cancelarlo. Si tienes algún problema, contacta directamente a la tienda.",
-      },
-      { status: 400 },
-    );
-  }
-
-  if (order.status === "CONFIRMED") {
-    const timestamps = order.statusTimestamps as Record<string, string> | null;
-    const confirmedAt = timestamps?.CONFIRMED
-      ? new Date(timestamps.CONFIRMED).getTime()
-      : new Date(order.createdAt).getTime();
-    const minutesSinceConfirmed = (Date.now() - confirmedAt) / 60000;
-    if (minutesSinceConfirmed > CANCEL_WINDOW_MIN) {
-      return NextResponse.json(
-        {
-          error:
-            "Solo puedes cancelar hasta 5 minutos después de la confirmación. Tu pedido ya llegará a su destino.",
-        },
-        { status: 400 },
-      );
-    }
+  const blockMessage = getCancellationBlockMessage(order.status);
+  if (blockMessage) {
+    return NextResponse.json({ error: blockMessage }, { status: 400 });
   }
 
   const currentTs = order.statusTimestamps as Record<string, string> | null;

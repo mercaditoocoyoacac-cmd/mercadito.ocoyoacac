@@ -8,12 +8,14 @@ import { notifyCustomerOrderCompleted } from "@/server/notifications";
 import { notifyCustomerOrderReadyForPickup } from "@/server/notifications";
 import { sendPushToMultiple } from "@/server/push";
 import { appendStatusTimestamp } from "@/lib/statusTimestamps";
+import { getStaffCancellationBlockMessage, requiresCancellationReason } from "@/lib/orderCancellation";
 
 const STATUS_FLOW = ["PENDING", "CONFIRMED", "READY", "OUT_FOR_DELIVERY", "COMPLETED"] as const;
 const PICKUP_STATUS_FLOW = ["PENDING", "CONFIRMED", "READY", "COMPLETED"] as const;
 
 const ActionSchema = z.object({
   action: z.enum(["advance", "cancel"]),
+  reason: z.string().trim().min(3, "Indica el motivo de la cancelación.").max(300).optional(),
 });
 
 export async function POST(
@@ -27,7 +29,10 @@ export async function POST(
   const json = await req.json().catch(() => null);
   const parsed = ActionSchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ ok: false, error: "Acción inválida" }, { status: 400 });
+    return NextResponse.json(
+      { ok: false, error: parsed.error.issues[0]?.message ?? "Acción inválida" },
+      { status: 400 },
+    );
   }
 
   const order = await prisma.order.findUnique({
@@ -52,8 +57,15 @@ export async function POST(
   }
 
   if (parsed.data.action === "cancel") {
-    if (order.status === "COMPLETED") {
-      return NextResponse.json({ ok: false, error: "No se puede cancelar un pedido entregado" }, { status: 400 });
+    const blockMessage = getStaffCancellationBlockMessage(order.status);
+    if (blockMessage) {
+      return NextResponse.json({ ok: false, error: blockMessage }, { status: 400 });
+    }
+    if (requiresCancellationReason(order.status) && !parsed.data.reason) {
+      return NextResponse.json(
+        { ok: false, error: "Indica el motivo de la cancelación." },
+        { status: 400 },
+      );
     }
 
     const currentTs = order.statusTimestamps as Record<string, string> | null;
@@ -63,7 +75,7 @@ export async function POST(
         where: { id },
         data: {
           status: "CANCELLED",
-          cancelReason: "Cancelado por el administrador",
+          cancelReason: parsed.data.reason ?? "Cancelado por el administrador",
           statusTimestamps: appendStatusTimestamp(currentTs, "CANCELLED"),
         },
       });

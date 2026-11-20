@@ -174,11 +174,7 @@ export default async function PedidoDetallePage({
         {["PENDING", "CONFIRMED", "READY", "OUT_FOR_DELIVERY"].includes(order.status) && (
           <div className="space-y-4">
             {order.status === "PENDING" && <OrderModifyButton orderId={order.id} />}
-            <OrderCancelButton
-              orderId={order.id}
-              status={order.status}
-              statusTimestamps={(order.statusTimestamps ?? {}) as Record<string, string>}
-            />
+            <OrderCancelButton orderId={order.id} status={order.status} />
           </div>
         )}
 

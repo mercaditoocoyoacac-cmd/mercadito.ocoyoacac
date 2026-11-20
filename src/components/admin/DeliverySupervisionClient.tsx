@@ -261,12 +261,21 @@ function OrderCard({ order, drivers, onRefresh }: { order: OrderData; drivers: D
 
   async function handleCancel() {
     if (!confirm("¿Estás seguro de cancelar este pedido? Se restaurará el inventario.")) return;
+    let reason: string | undefined;
+    if (order.status !== "PENDING") {
+      const entered = window.prompt("Indica el motivo de la cancelación (se registrará en el pedido):")?.trim();
+      if (!entered || entered.length < 3) {
+        setActionMsg("Debes indicar un motivo válido para cancelar un pedido confirmado.");
+        return;
+      }
+      reason = entered;
+    }
     setActionMsg(null);
     try {
       const res = await fetch("/api/admin/envios/cancel", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId: order.id }),
+        body: JSON.stringify({ orderId: order.id, reason }),
       });
       const data = await res.json();
       if (data.ok) {

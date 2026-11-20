@@ -79,8 +79,6 @@ export default async function PedidoPage({
     },
   };
 
-  const statusTs = (order.statusTimestamps ?? {}) as Record<string, string>;
-
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6 lg:py-10">
       {/* Header */}
@@ -206,7 +204,7 @@ export default async function PedidoPage({
       {[ "PENDING", "CONFIRMED", "READY", "OUT_FOR_DELIVERY" ].includes(order.status) && (
         <div className="mt-6 space-y-4">
           {order.status === "PENDING" && <OrderModifyButton orderId={order.id} />}
-          <OrderCancelButton orderId={order.id} status={order.status} statusTimestamps={statusTs} />
+          <OrderCancelButton orderId={order.id} status={order.status} />
         </div>
       )}
 

@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { formatMoney } from "@/lib/format";
 import { getStatusLabel } from "@/lib/labels";
 import { appendStatusTimestamp } from "@/lib/statusTimestamps";
+import { canCancelOrder, getCancellationBlockMessage } from "@/lib/orderCancellation";
 import { notifyCustomerOrderCompleted } from "@/server/notifications";
 import { publicUrl } from "@/lib/appUrl";
 
@@ -315,11 +316,15 @@ export default async function VendorPedidosPage() {
                       </button>
                     </form>
                   )}
-                  {order.status !== "COMPLETED" &&
-                    order.status !== "CANCELLED" && (
+                  {canCancelOrder(order.status) && (
                       <form
                         action={async () => {
                           "use server";
+                          const current = await prisma.order.findUnique({
+                            where: { id: order.id },
+                            select: { status: true },
+                          });
+                          if (getCancellationBlockMessage(current?.status ?? "")) return;
                           await prisma.order.update({
                             where: { id: order.id },
                             data: { status: "CANCELLED", cancelReason: "Cancelado por la tienda" },

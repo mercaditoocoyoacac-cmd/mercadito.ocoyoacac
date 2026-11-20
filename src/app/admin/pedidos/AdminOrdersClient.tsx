@@ -74,14 +74,23 @@ export function AdminOrdersClient({ orders, deliverySettings: initialSettings }:
     router.refresh();
   }
 
-  async function handleCancel(orderId: string) {
+  async function handleCancel(orderId: string, status: string) {
     if (!confirm("¿Cancelar este pedido? No se puede deshacer.")) return;
+    let reason: string | undefined;
+    if (status !== "PENDING") {
+      const entered = window.prompt("Indica el motivo de la cancelación (se registrará en el pedido):")?.trim();
+      if (!entered || entered.length < 3) {
+        alert("Debes indicar un motivo válido para cancelar un pedido confirmado.");
+        return;
+      }
+      reason = entered;
+    }
     setProcessing((prev) => new Set(prev).add(orderId));
     try {
       const res = await fetch(`/api/admin/pedidos/${orderId}/status`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ action: "cancel" }),
+        body: JSON.stringify({ action: "cancel", reason }),
       });
       const data = await res.json();
       if (!res.ok || !data?.ok) {
@@ -412,7 +421,7 @@ export function AdminOrdersClient({ orders, deliverySettings: initialSettings }:
                       {canCancel && (
                         <button
                           type="button"
-                          onClick={() => handleCancel(order.id)}
+                          onClick={() => handleCancel(order.id, order.status)}
                           disabled={isBusy}
                           className="rounded-lg border border-red-300 px-4 py-2 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-60"
                         >

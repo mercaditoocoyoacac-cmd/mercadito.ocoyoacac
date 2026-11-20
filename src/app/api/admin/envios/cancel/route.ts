@@ -5,9 +5,11 @@ import { prisma } from "@/server/prisma";
 import { requireRole } from "@/server/requireUser";
 import { notifyOrderCancelled } from "@/server/orderNotifications";
 import { appendStatusTimestamp } from "@/lib/statusTimestamps";
+import { getStaffCancellationBlockMessage, requiresCancellationReason } from "@/lib/orderCancellation";
 
 const CancelSchema = z.object({
   orderId: z.string().min(1),
+  reason: z.string().trim().min(3, "Indica el motivo de la cancelación.").max(300).optional(),
 });
 
 export async function POST(req: Request) {
@@ -17,7 +19,10 @@ export async function POST(req: Request) {
   const json = await req.json().catch(() => null);
   const parsed = CancelSchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ ok: false, error: "Datos inválidos" }, { status: 400 });
+    return NextResponse.json(
+      { ok: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" },
+      { status: 400 },
+    );
   }
 
   const { orderId } = parsed.data;
@@ -31,8 +36,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Pedido no encontrado" }, { status: 404 });
   }
 
-  if (order.status === "COMPLETED") {
-    return NextResponse.json({ ok: false, error: "No se puede cancelar un pedido entregado" }, { status: 400 });
+  const blockMessage = getStaffCancellationBlockMessage(order.status);
+  if (blockMessage) {
+    return NextResponse.json({ ok: false, error: blockMessage }, { status: 400 });
+  }
+  if (requiresCancellationReason(order.status) && !parsed.data.reason) {
+    return NextResponse.json(
+      { ok: false, error: "Indica el motivo de la cancelación." },
+      { status: 400 },
+    );
   }
 
   const currentTs = order.statusTimestamps as Record<string, string> | null;
@@ -42,6 +54,7 @@ export async function POST(req: Request) {
       where: { id: orderId },
       data: {
         status: "CANCELLED",
+        cancelReason: parsed.data.reason ?? "Cancelado por administración o monitoreo",
         statusTimestamps: appendStatusTimestamp(currentTs, "CANCELLED"),
       },
     });

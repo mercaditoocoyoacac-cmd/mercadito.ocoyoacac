@@ -8,6 +8,7 @@ import { notifyCustomerOrderReadyForPickup } from "@/server/notifications";
 import { notifyOrderCancelled, notifyOrderFinished } from "@/server/orderNotifications";
 import { sendPushToMultiple } from "@/server/push";
 import { appendStatusTimestamp } from "@/lib/statusTimestamps";
+import { getCancellationBlockMessage } from "@/lib/orderCancellation";
 
 const StatusSchema = z.object({
   status: z.enum(["PENDING", "CONFIRMED", "READY", "OUT_FOR_DELIVERY", "COMPLETED", "CANCELLED"]),
@@ -37,7 +38,7 @@ export async function POST(
 
   const order = await prisma.order.findFirst({
     where: { id, storeId: store.id },
-    select: { id: true, fulfillmentType: true, deliveryUserId: true, customerAddress: true, customerName: true, statusTimestamps: true, paymentMethod: true, paymentVerified: true },
+    select: { id: true, status: true, fulfillmentType: true, deliveryUserId: true, customerAddress: true, customerName: true, statusTimestamps: true, paymentMethod: true, paymentVerified: true },
   });
   if (!order) {
     return NextResponse.json({ ok: false, error: "Pedido no encontrado." }, { status: 404 });
@@ -52,6 +53,13 @@ export async function POST(
       { ok: false, error: "Primero verifica el pago por transferencia antes de confirmar." },
       { status: 400 },
     );
+  }
+
+  if (parsed.data.status === "CANCELLED") {
+    const blockMessage = getCancellationBlockMessage(order.status);
+    if (blockMessage) {
+      return NextResponse.json({ ok: false, error: blockMessage }, { status: 400 });
+    }
   }
 
   const currentTimestamps = order.statusTimestamps as Record<string, string> | null;

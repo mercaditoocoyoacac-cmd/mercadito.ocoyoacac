@@ -2,14 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { getCancellationBlockMessage } from "@/lib/orderCancellation";
 
 interface Props {
   orderId: string;
   status: string;
-  statusTimestamps: Record<string, string>;
 }
-
-const CANCEL_WINDOW_MIN = 5;
 
 const REASONS = [
   "Cambié de opinión",
@@ -20,7 +18,7 @@ const REASONS = [
   "Otro",
 ];
 
-export function OrderCancelButton({ orderId, status, statusTimestamps }: Props) {
+export function OrderCancelButton({ orderId, status }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -29,30 +27,11 @@ export function OrderCancelButton({ orderId, status, statusTimestamps }: Props) 
   const [reason, setReason] = useState("");
   const [detail, setDetail] = useState("");
 
-  const nowMs = Date.now();
-  const confirmedAtMs = statusTimestamps.CONFIRMED
-    ? new Date(statusTimestamps.CONFIRMED).getTime()
-    : null;
-
-  let canCancel = false;
-  let info = "";
-  let minutesLeft = 0;
-
-  if (status === "PENDING") {
-    canCancel = true;
-    info = "Puedes modificar o cancelar tu pedido antes de que la tienda lo confirme.";
-  } else if (status === "CONFIRMED") {
-    if (confirmedAtMs) {
-      const minutesSince = (nowMs - confirmedAtMs) / 60000;
-      minutesLeft = Math.max(0, Math.ceil(CANCEL_WINDOW_MIN - minutesSince));
-      canCancel = minutesSince <= CANCEL_WINDOW_MIN;
-    }
-    info = canCancel
-      ? `Tienes hasta 5 minutos después de la confirmación para cancelar (${minutesLeft} min restantes).`
-      : "Solo puedes cancelar hasta 5 minutos después de la confirmación. Tu pedido llegará a su destino.";
-  } else if (status === "READY" || status === "OUT_FOR_DELIVERY") {
-    info = "Tu pedido ya está en preparación o en camino y llegará a su destino. Ya no puedes cancelarlo.";
-  }
+  const blockMessage = getCancellationBlockMessage(status);
+  const canCancel = blockMessage === null;
+  const info = canCancel
+    ? "Puedes modificar o cancelar tu pedido antes de que la tienda lo confirme."
+    : blockMessage;
 
   const fullReason = detail.trim()
     ? `${reason}: ${detail.trim()}`
