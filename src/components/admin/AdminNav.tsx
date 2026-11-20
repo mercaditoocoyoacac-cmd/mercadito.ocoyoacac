@@ -52,6 +52,7 @@ const groups: NavGroup[] = [
       { href: "/admin/mercado-pago", label: "Pagos" },
       { href: "/admin/informes", label: "Informes" },
       { href: "/admin/mensajes", label: "Mensajes" },
+      { href: "/admin/cambiar-contrasena", label: "Contraseñas" },
     ],
   },
 ];

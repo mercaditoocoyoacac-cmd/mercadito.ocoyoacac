@@ -283,19 +283,26 @@ export default function ProfilePage() {
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-6 lg:py-10 fade-in">
       <div className="mb-8">
-        <div className="flex items-start justify-between">
+        <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h1 className="text-2xl lg:text-3xl font-bold">Mi Perfil</h1>
             <p className="mt-1 text-sm text-[color:var(--muted)]">Actualiza tu información personal</p>
           </div>
           {profile.role === "ADMIN" && (
-            <Link href="/admin" className="shrink-0">
-              <Button variant="outline" leftIcon={
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
-              }>
-                Panel Admin
-              </Button>
-            </Link>
+            <div className="flex shrink-0 flex-wrap gap-2">
+              <Link href="/admin/cambiar-contrasena">
+                <Button variant="outline" size="sm">
+                  Cambiar contraseñas
+                </Button>
+              </Link>
+              <Link href="/admin">
+                <Button variant="outline" size="sm" leftIcon={
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                }>
+                  Panel Admin
+                </Button>
+              </Link>
+            </div>
           )}
         </div>
       </div>

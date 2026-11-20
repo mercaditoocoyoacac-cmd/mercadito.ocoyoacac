@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/server/requireUser";
 import { createDownloadToken } from "@/server/downloadToken";
+import { publicUrl } from "@/lib/appUrl";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,6 +23,6 @@ export async function POST(req: NextRequest) {
   const token = createDownloadToken(auth.userId, params.toString());
   return NextResponse.json({
     ok: true,
-    url: `${req.nextUrl.origin}/api/admin/informes/export?${params.toString()}&token=${encodeURIComponent(token)}`,
+    url: `${publicUrl()}/api/admin/informes/export?${params.toString()}&token=${encodeURIComponent(token)}`,
   });
 }
