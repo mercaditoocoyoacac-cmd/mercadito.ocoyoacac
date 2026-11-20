@@ -113,7 +113,7 @@ export default function PasswordResetClient() {
         toast.error(message);
         return;
       }
-      toast.success(`Contraseña actualizada para ${selected.name}.`);
+      toast.success(`Contraseña actualizada para ${selected.name} (${selected.email}).`);
       setPassword("");
       setConfirmation("");
       setVisible(false);
@@ -184,6 +184,9 @@ export default function PasswordResetClient() {
             {selected ? `Contraseña nueva para ${selected.name}` : "Selecciona un usuario de la lista"}
           </div>
 
+          <p className="text-xs text-[color:var(--muted)]">
+            Generar otra contraseña reemplaza la anterior. Cópiala y entrégala antes de cerrar esta ventana.
+          </p>
           <div className="flex flex-wrap gap-2">
             <Button type="button" variant="secondary" size="sm" onClick={handleGenerate}>
               Generar contraseña
