@@ -1,5 +1,5 @@
-importScripts('https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js');
-importScripts('https://www.gstatic.com/firebasejs/12.13.0/firebase-messaging.js');
+importScripts('https://www.gstatic.com/firebasejs/12.13.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/12.13.0/firebase-messaging-compat.js');
 
 firebase.initializeApp({
   apiKey: "AIzaSyB-MUsv6a09s1qzLpsIrUGKozf_hyzZHoU",
@@ -22,8 +22,8 @@ messaging.onBackgroundMessage(function (payload) {
 
   const options = {
     body: body,
-    icon: "/Logo MO.png",
-    badge: "/Logo MO.png",
+    icon: "/icon-192.png",
+    badge: "/icon-192.png",
     vibrate: [200, 100, 200],
     requireInteraction: true,
     data: data,

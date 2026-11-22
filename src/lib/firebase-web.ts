@@ -25,7 +25,7 @@ function getApp() {
 async function ensureSWRegistration(): Promise<ServiceWorkerRegistration | null> {
   if (swRegistration) return swRegistration;
   try {
-    swRegistration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+    swRegistration = await navigator.serviceWorker.register("/firebase-messaging-sw.js", { scope: "/firebase/" });
     return swRegistration;
   } catch {
     return null;

@@ -4,46 +4,38 @@ import { useEffect } from "react";
 
 export function PWA() {
   useEffect(() => {
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker
-        .register("/sw.js")
-        .then((registration) => {
-          console.log("SW registered:", registration.scope);
+    if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
 
-          // Check for updates
-          registration.addEventListener("updatefound", () => {
-            const newWorker = registration.installing;
-            if (newWorker) {
-              newWorker.addEventListener("statechange", () => {
-                if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
-                  // Show update notification
-                  if (confirm("Nueva versión disponible. ¿Actualizar?")) {
-                    newWorker.postMessage({ type: "SKIP_WAITING" });
-                    window.location.reload();
-                  }
-                }
-              });
+    const hadController = Boolean(navigator.serviceWorker.controller);
+    let reloaded = false;
+
+    navigator.serviceWorker
+      .register("/sw.js")
+      .then((registration) => {
+        registration.addEventListener("updatefound", () => {
+          const worker = registration.installing;
+          if (!worker) return;
+          worker.addEventListener("statechange", () => {
+            if (worker.state === "installed" && navigator.serviceWorker.controller) {
+              worker.postMessage({ type: "SKIP_WAITING" });
             }
           });
-        })
-        .catch((error) => {
-          console.log("SW registration failed:", error);
         });
+      })
+      .catch(() => {});
 
-      // Listen for controller change (update ready)
-      navigator.serviceWorker.addEventListener("controllerchange", () => {
-        window.location.reload();
-      });
-    }
+    const handleControllerChange = () => {
+      if (!hadController || reloaded) return;
+      reloaded = true;
+      window.location.reload();
+    };
+    navigator.serviceWorker.addEventListener("controllerchange", handleControllerChange);
 
-    // Install prompt
-    let deferredPrompt: any;
-    const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault();
-      deferredPrompt = e;
-
-      // Show custom install button after 30 seconds
-      setTimeout(() => {
+    let deferredPrompt: any = null;
+    const handleBeforeInstallPrompt = (event: Event) => {
+      event.preventDefault();
+      deferredPrompt = event;
+      window.setTimeout(() => {
         if (deferredPrompt && !localStorage.getItem("pwa-install-dismissed")) {
           showInstallPrompt(deferredPrompt);
         }
@@ -53,6 +45,8 @@ export function PWA() {
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
     function showInstallPrompt(promptEvent: any) {
+      if (document.getElementById("pwa-install-banner")) return;
+
       const banner = document.createElement("div");
       banner.id = "pwa-install-banner";
       banner.style.cssText = `
@@ -62,7 +56,9 @@ export function PWA() {
         right: 20px;
         max-width: 400px;
         margin: 0 auto;
-        background: white;
+        background: var(--card-bg);
+        color: var(--foreground);
+        border: 1px solid var(--border);
         border-radius: 16px;
         box-shadow: 0 20px 40px rgba(0,0,0,0.15);
         padding: 16px;
@@ -77,15 +73,15 @@ export function PWA() {
           }
         </style>
         <div style="display: flex; align-items: center; gap: 12px;">
-          <div style="width: 48px; height: 48px; border-radius: 12px; background: var(--accent); display: flex; align-items: center; justify-content: center; color: white;">
+          <div style="width: 48px; height: 48px; border-radius: 12px; background: var(--accent); display: flex; align-items: center; justify-content: center; color: var(--on-accent);">
             <svg aria-hidden="true" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
           </div>
           <div style="flex: 1;">
             <div style="font-weight: 600; font-size: 14px;">Instalar Mercadito</div>
-            <div style="font-size: 12px; color: #6b7280;">Acceso rápido desde tu pantalla de inicio</div>
+            <div style="font-size: 12px; color: var(--muted);">Acceso rápido desde tu pantalla de inicio</div>
           </div>
-          <button id="pwa-install-btn" style="background: var(--accent); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-weight: 600; font-size: 13px;">Instalar</button>
-          <button id="pwa-dismiss-btn" style="background: none; border: none; color: #9ca3af; font-size: 18px; line-height: 1;">×</button>
+          <button id="pwa-install-btn" style="background: var(--accent); color: var(--on-accent); border: 0; border-radius: 8px; padding: 8px 16px; font-weight: 600; font-size: 13px; min-height: 44px;">Instalar</button>
+          <button id="pwa-dismiss-btn" style="background: none; border: 0; color: var(--muted); font-size: 18px; line-height: 1; min-height: 44px;" aria-label="Cerrar">×</button>
         </div>
       `;
 
@@ -95,10 +91,9 @@ export function PWA() {
         promptEvent.prompt();
         const { outcome } = await promptEvent.userChoice;
         if (outcome === "accepted") {
-          console.log("PWA installed");
+          deferredPrompt = null;
         }
         banner.remove();
-        deferredPrompt = null;
       });
 
       document.getElementById("pwa-dismiss-btn")?.addEventListener("click", () => {
@@ -108,9 +103,9 @@ export function PWA() {
       });
     }
 
-    // Cleanup
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      navigator.serviceWorker.removeEventListener("controllerchange", handleControllerChange);
     };
   }, []);
 

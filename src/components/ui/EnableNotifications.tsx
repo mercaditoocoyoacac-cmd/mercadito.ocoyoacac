@@ -61,7 +61,7 @@ export function EnableNotifications() {
 
         let swReg: ServiceWorkerRegistration | null = null;
         try {
-          swReg = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+          swReg = await navigator.serviceWorker.register("/firebase-messaging-sw.js", { scope: "/firebase/" });
         } catch {}
 
         const token = await getToken(messaging, {

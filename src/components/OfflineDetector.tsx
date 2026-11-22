@@ -17,7 +17,7 @@ export function OfflineDetector() {
 
     const timer = window.setInterval(() => {
       setOffline(!navigator.onLine);
-    }, 3000);
+    }, 5000);
 
     return () => {
       window.removeEventListener("offline", handleOffline);
@@ -30,40 +30,15 @@ export function OfflineDetector() {
 
   return (
     <div
-      role="alert"
-      aria-live="assertive"
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-[var(--card-bg)] dark:bg-neutral-900 p-6"
+      role="status"
+      aria-live="polite"
+      style={{ top: "calc(4rem + env(safe-area-inset-top, 0px))" }}
+      className="fixed inset-x-0 z-[9999] flex items-center justify-center gap-2 bg-[var(--accent)] px-4 py-2 text-center text-sm font-medium text-[var(--on-accent)] shadow-md"
     >
-      <div className="flex flex-col items-center text-center max-w-sm">
-        <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-500/10">
-          <svg aria-hidden="true"
-            className="h-10 w-10 text-orange-600 dark:text-orange-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M20 12a8 8 0 11-16 0 8 8 0 0116 0z"
-            />
-          </svg>
-        </div>
-        <h2 className="mt-5 text-xl font-bold text-[var(--foreground)]">
-          Sin conexión a internet
-        </h2>
-        <p className="mt-2 text-sm text-[color:var(--muted)]">
-          Revisa tu conexión. Esta ventana se cerrará automáticamente cuando se
-          restablezca la red.
-        </p>
-        <div className="mt-6 flex items-center gap-2">
-          <span className="h-2 w-2 animate-pulse rounded-full bg-orange-500" />
-          <span className="text-xs font-medium text-[color:var(--muted)]">
-            Esperando conexión…
-          </span>
-        </div>
-      </div>
+      <svg aria-hidden="true" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 3l18 18M8.5 8.5A8 8 0 0012 20a8 8 0 005.5-2.2M5.3 5.3A8 8 0 0119.5 12" />
+      </svg>
+      Sin conexión. Mostrando la información guardada en este dispositivo.
     </div>
   );
 }
