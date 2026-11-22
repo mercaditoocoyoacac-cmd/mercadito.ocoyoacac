@@ -137,6 +137,7 @@ function StoreForm({
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    e.target.value = "";
     setUploading(true);
     setError(null);
     const formData = new FormData();

@@ -23,6 +23,7 @@ export function SupportButton() {
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    e.target.value = "";
     setUploading(true);
     const formData = new FormData();
     formData.append("file", file);
