@@ -173,6 +173,22 @@ export function NavBar() {
                 Mis pedidos
               </Link>
             )}
+
+            {data?.user && role !== "ADMIN" && (
+              <Link
+                href="/mensajes"
+                className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
+                  isActive("/mensajes")
+                    ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+                    : "text-[color:var(--muted)] hover:bg-[var(--surface)] hover:text-[color:var(--text)]"
+                }`}
+              >
+                <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" />
+                </svg>
+                Mensajes
+              </Link>
+            )}
             
             {data?.user && (
               <Link
@@ -674,6 +690,17 @@ export function NavBar() {
                   >
                     Mis pedidos
                   </Link>
+                  {role !== "ADMIN" && (
+                    <Link
+                      href="/mensajes"
+                      onClick={handleMobileNav}
+                      className={`rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2 ${
+                        isActive("/mensajes") ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "text-[color:var(--muted)]"
+                      }`}
+                    >
+                      Mensajes
+                    </Link>
+                  )}
                   <Link
                     href="/perfil"
                     onClick={handleMobileNav}

@@ -617,6 +617,9 @@ model SupportMessage {
   imageUrl      String?
   read          Boolean  @default(false)
   createdAt     DateTime @default(now())
+  reply         String?
+  repliedAt     DateTime?
+  repliedBy     String?
 
   userId String?
   user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)

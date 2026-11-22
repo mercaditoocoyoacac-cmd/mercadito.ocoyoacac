@@ -1,6 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import { useState, useRef } from "react";
 
 export function SupportButton() {
@@ -117,6 +118,15 @@ export function SupportButton() {
                   </div>
                   <h4 className="font-bold text-[color:var(--text)]">Mensaje enviado</h4>
                   <p className="mt-1 text-sm text-[color:var(--muted)]">Gracias, te contactaremos pronto.</p>
+                  {isLoggedIn && (
+                    <Link
+                      href="/mensajes"
+                      onClick={resetModal}
+                      className="mt-3 text-sm font-medium text-[var(--accent-strong)] underline"
+                    >
+                      Ver mis mensajes
+                    </Link>
+                  )}
                   <button
                     type="button"
                     onClick={resetModal}
