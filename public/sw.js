@@ -1,4 +1,4 @@
-const VERSION = "v2";
+const VERSION = "v3";
 const STATIC_CACHE = `mercadito-static-${VERSION}`;
 const DYNAMIC_CACHE = `mercadito-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mercadito-images-${VERSION}`;
@@ -11,6 +11,9 @@ const PRECACHE_URLS = [
   "/login",
   "/registro",
   "/promociones",
+  "/carrito",
+  "/mensajes",
+  "/notificaciones",
   "/offline.html",
   "/manifest.json",
   "/icon-192.png",
@@ -33,22 +36,39 @@ self.addEventListener("install", (event) => {
 });
 
 async function precacheStatic() {
-  const cache = await caches.open(STATIC_CACHE);
+  const staticCache = await caches.open(STATIC_CACHE);
+  const dynamicCache = await caches.open(DYNAMIC_CACHE);
   await Promise.allSettled(
     PRECACHE_URLS.map(async (url) => {
       const response = await fetch(url, { cache: "reload" });
       if (!response.ok) return;
-      await cache.put(url, response.clone());
-      const html = await response.text();
-      const assets = [...html.matchAll(/(?:src|href)="(\/_next\/static\/[^"]+)"/g)].map((match) => match[1]);
-      await Promise.allSettled(
-        assets.map(async (asset) => {
-          const assetResponse = await fetch(asset, { cache: "reload" });
-          if (assetResponse.ok) await cache.put(asset, assetResponse);
-        })
-      );
+      await Promise.all([
+        staticCache.put(url, response.clone()),
+        dynamicCache.put(url, response.clone())
+      ]);
+      await cachePageAssets(response.clone());
     })
   );
+  await Promise.all([trimCache(STATIC_CACHE), trimCache(DYNAMIC_CACHE)]);
+}
+
+async function cachePageAssets(response) {
+  let html;
+  try {
+    html = await response.text();
+  } catch {
+    return;
+  }
+  const assets = [...html.matchAll(/(?:src|href)="(\/_next\/static\/[^"]+)"/g)].map((match) => match[1]);
+  if (!assets.length) return;
+  const cache = await caches.open(STATIC_CACHE);
+  await Promise.allSettled(
+    assets.map(async (asset) => {
+      const assetResponse = await fetch(asset, { cache: "reload" });
+      if (assetResponse.ok) await cache.put(asset, assetResponse);
+    })
+  );
+  await trimCache(STATIC_CACHE);
 }
 
 self.addEventListener("activate", (event) => {
@@ -137,8 +157,7 @@ async function cacheFirst(request, cacheName, event, allowOpaque) {
     }
     return response;
   } catch {
-    if (request.destination === "image") return Response.error();
-    return offlineFallback();
+    return Response.error();
   }
 }
 
@@ -164,21 +183,42 @@ async function networkFirst(request, cacheName, event) {
 }
 
 async function pageStrategy(request, event) {
-  const cache = await caches.open(DYNAMIC_CACHE);
-  const cached = await cache.match(request);
+  try {
+    const response = await fetch(request);
+    if (response && response.ok && !hasSetCookie(response)) {
+      event.waitUntil(cachePage(request, response.clone()));
+    }
+    return response;
+  } catch {
+    const cached = await getCachedPage(request);
+    if (cached) return cached;
+    const home = await getCachedHome();
+    if (home) return home;
+    return offlineFallback();
+  }
+}
 
-  const network = fetch(request)
-    .then((response) => {
-      if (response && response.ok && !hasSetCookie(response)) {
-        event.waitUntil(cache.put(request, response.clone()));
-        event.waitUntil(trimCache(DYNAMIC_CACHE));
-      }
-      return response;
-    })
-    .catch(() => cached || offlineFallback());
+async function cachePage(request, response) {
+  const dynamicCache = await caches.open(DYNAMIC_CACHE);
+  await dynamicCache.put(request, response.clone());
+  await cachePageAssets(response.clone());
+  await trimCache(DYNAMIC_CACHE);
+}
 
-  event.waitUntil(network);
-  return cached || network;
+async function getCachedPage(request) {
+  const dynamicCache = await caches.open(DYNAMIC_CACHE);
+  const dynamicHit = await dynamicCache.match(request);
+  if (dynamicHit) return dynamicHit;
+  const staticCache = await caches.open(STATIC_CACHE);
+  return staticCache.match(request);
+}
+
+async function getCachedHome() {
+  const dynamicCache = await caches.open(DYNAMIC_CACHE);
+  const dynamicHome = await dynamicCache.match("/");
+  if (dynamicHome) return dynamicHome;
+  const staticCache = await caches.open(STATIC_CACHE);
+  return staticCache.match("/");
 }
 
 function hasSetCookie(response) {
